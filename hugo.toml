@@ -1,0 +1,67 @@
+baseURL = "https://dextermayhewjd.github.io/"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh"
+title = "dextermayhewjd"
+theme = "PaperMod"
+enableRobotsTXT = true
+hasCJKLanguage = true
+
+[pagination]
+  pagerSize = 10
+
+[markup.goldmark.extensions.passthrough]
+  enable = true
+  [markup.goldmark.extensions.passthrough.delimiters]
+    block = [["$$", "$$"], ["\\[", "\\]"]]
+    inline = [["$", "$"], ["\\(", "\\)"]]
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[params]
+  env = "production"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  math = true
+
+  [params.homeInfoParams]
+    Title = "Hi 👋"
+    Content = "这里记录我的学习笔记与项目：AI / 机器人 / 量化 / 工程。"
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/dextermayhewjd"
+
+[[menu.main]]
+  identifier = "posts"
+  name = "文章"
+  url = "/posts/"
+  weight = 10
+[[menu.main]]
+  identifier = "archives"
+  name = "归档"
+  url = "/archives/"
+  weight = 20
+[[menu.main]]
+  identifier = "tags"
+  name = "标签"
+  url = "/tags/"
+  weight = 30
+[[menu.main]]
+  identifier = "search"
+  name = "搜索"
+  url = "/search/"
+  weight = 40
+[[menu.main]]
+  identifier = "about"
+  name = "关于"
+  url = "/about/"
+  weight = 50
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
