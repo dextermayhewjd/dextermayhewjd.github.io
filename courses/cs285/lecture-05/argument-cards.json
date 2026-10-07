@@ -1,0 +1,184 @@
+[
+  {
+    "key": "objective",
+    "label": "定义期望回报",
+    "target": "#formula-1",
+    "mapFormula": "$$J(\\theta)=\\mathbb E_{\\tau\\sim p_\\theta(\\tau)}[r(\\tau)],\\qquad\\theta^\\star=\\arg\\max_\\theta J(\\theta)$$",
+    "formulaQualifier": "沿用原笔记的总回报 r(τ)。"
+  },
+  {
+    "key": "evaluation",
+    "label": "怎样评估当前策略",
+    "target": "#formula-3",
+    "mapFormula": "$$J(\\theta)\\approx\\frac1N\\sum_{i=1}^N r(\\tau^{(i)}),\\qquad\\tau^{(i)}\\sim p_\\theta(\\tau)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "trajectory",
+    "label": "轨迹概率由谁组成",
+    "target": "#formula-2",
+    "mapFormula": "$$p_\\theta(\\tau)=p(s_1)\\prod_{t=1}^H\\pi_\\theta(a_t\\mid s_t)p(s_{t+1}\\mid s_t,a_t)$$",
+    "formulaQualifier": "轨迹含最后状态；只有策略因子显式依赖参数。"
+  },
+  {
+    "key": "differentiate",
+    "label": "再对这个积分求导",
+    "target": "#differentiate-integral",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)=\\nabla_\\theta\\int p_\\theta(\\tau)r(\\tau)d\\tau=\\int\\nabla_\\theta p_\\theta(\\tau)\\,r(\\tau)d\\tau$$",
+    "formulaQualifier": "固定轨迹时奖励不显式依赖参数；在正则条件下交换求导与积分。"
+  },
+  {
+    "key": "log-trick",
+    "label": "用链式法则准备替换",
+    "target": "#formula-4",
+    "mapFormula": "$$\\nabla_\\theta p_\\theta(\\tau)=p_\\theta(\\tau)\\nabla_\\theta\\log p_\\theta(\\tau)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "chain-rule",
+    "label": "恒等式为什么成立",
+    "target": "#log-derivative-detail",
+    "mapFormula": "$$\\nabla_\\theta\\log p_\\theta(\\tau)=\\frac{\\nabla_\\theta p_\\theta(\\tau)}{p_\\theta(\\tau)}\\quad\\Longrightarrow\\quad p_\\theta(\\tau)\\nabla_\\theta\\log p_\\theta(\\tau)=\\nabla_\\theta p_\\theta(\\tau)$$",
+    "formulaQualifier": "先用 log 的链式法则，再约分。"
+  },
+  {
+    "key": "expectation",
+    "label": "结构吻合，再写回期望",
+    "target": "#back-to-expectation",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)=\\mathbb E_{\\tau\\sim p_\\theta(\\tau)}\\left[\\nabla_\\theta\\log p_\\theta(\\tau)\\,r(\\tau)\\right]$$",
+    "formulaQualifier": "现在才可以从轨迹分布采样，再求括号内的样本平均。"
+  },
+  {
+    "key": "log-trajectory",
+    "label": "连乘取 log，逐项展开",
+    "target": "#formula-6",
+    "mapFormula": "$$\\log p_\\theta(\\tau)=\\log p(s_1)+\\sum_{t=1}^H\\log\\pi_\\theta(a_t\\mid s_t)+\\sum_{t=1}^H\\log p(s_{t+1}\\mid s_t,a_t)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "environment",
+    "label": "哪些项的导数是零",
+    "target": "#formula-6",
+    "mapFormula": "$$\\nabla_\\theta\\log p(s_1)=0,\\qquad\\nabla_\\theta\\log p(s_{t+1}\\mid s_t,a_t)=0$$",
+    "formulaQualifier": "环境仍影响采样与奖励；零的是固定轨迹下的显式偏导。"
+  },
+  {
+    "key": "score",
+    "label": "留下完整的策略 log 概率梯度",
+    "target": "#formula-6",
+    "mapFormula": "$$\\nabla_\\theta\\log p_\\theta(\\tau)=\\sum_{t=1}^H\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)$$",
+    "formulaQualifier": "逐项保留原表达式，不另设缩写。"
+  },
+  {
+    "key": "gaussian",
+    "label": "连续高斯策略怎样求导",
+    "target": "#formula-9",
+    "mapFormula": "$$\\pi_\\theta(a\\mid s)=\\mathcal N(a\\mid f(s),\\Sigma),\\qquad\\nabla_\\theta\\log\\pi_\\theta(a\\mid s)=\\left(\\frac{\\partial f(s)}{\\partial\\theta}\\right)^\\top\\Sigma^{-1}(a-f(s))$$",
+    "formulaQualifier": "固定协方差；网络的导数也写全。"
+  },
+  {
+    "key": "policy-gradient",
+    "label": "代回目标，得到策略梯度",
+    "target": "#formula-6",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)=\\mathbb E_{\\tau\\sim p_\\theta(\\tau)}\\left[\\left(\\sum_{t=1}^H\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)\\right)r(\\tau)\\right]$$",
+    "formulaQualifier": "前一节点得到的整段梯度，原样代入。"
+  },
+  {
+    "key": "weighted-ml",
+    "label": "与原来的最大似然梯度对照",
+    "target": "#formula-8",
+    "mapFormula": "$$\\nabla_\\theta J_{\\mathrm{ML}}\\approx\\frac1N\\sum_{i=1}^N\\nabla_\\theta\\log p_\\theta(\\tau^{(i)}),\\qquad\\nabla_\\theta J\\approx\\frac1N\\sum_{i=1}^N\\nabla_\\theta\\log p_\\theta(\\tau^{(i)})\\,r(\\tau^{(i)})$$",
+    "formulaQualifier": "这里的轨迹 log 梯度，就是公式 6 已展开的策略项之和；是局部梯度对照。"
+  },
+  {
+    "key": "reinforce",
+    "label": "把期望变成轨迹的样本平均",
+    "target": "#formula-7",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i=1}^N\\nabla_\\theta\\log p_\\theta(\\tau^{(i)})\\,r(\\tau^{(i)}),\\qquad\\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta J(\\theta)$$",
+    "formulaQualifier": "沿用原笔记已有的轨迹 log 概率梯度写法；这里做梯度上升。"
+  },
+  {
+    "key": "observations",
+    "label": "部分可观测时怎样写",
+    "target": "#formula-11",
+    "mapFormula": "$$\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid o_t)$$",
+    "formulaQualifier": "把策略条件换成观测；需要记忆时，可将历史作为网络输入。"
+  },
+  {
+    "key": "variance",
+    "label": "每一步都乘同一条总回报",
+    "target": "#variance",
+    "mapFormula": "$$\\left(\\sum_{t=1}^H\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)\\right)\\left(\\sum_{t=1}^H r(s_t,a_t)\\right)$$",
+    "formulaQualifier": "这是一条轨迹的梯度贡献；整条回报的波动会传给各个动作项。"
+  },
+  {
+    "key": "baseline",
+    "label": "减掉原笔记里的基线 b",
+    "target": "#formula-12",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i=1}^N\\nabla_\\theta\\log p_\\theta(\\tau^{(i)})\\,[r(\\tau^{(i)})-b]$$",
+    "formulaQualifier": "先考虑事先确定、或与当前整条轨迹独立的基线。"
+  },
+  {
+    "key": "baseline-proof",
+    "label": "证明减去的那项期望为零",
+    "target": "#baseline-proof",
+    "mapFormula": "$$\\mathbb E_{\\tau\\sim p_\\theta(\\tau)}[\\nabla_\\theta\\log p_\\theta(\\tau)\\,b]=b\\,\\nabla_\\theta\\int p_\\theta(\\tau)d\\tau=b\\,\\nabla_\\theta1=0$$",
+    "formulaQualifier": "利用概率积分恒等于 1；完整梯度保持可见。"
+  },
+  {
+    "key": "causality",
+    "label": "只留下当前与未来奖励",
+    "target": "#reward-to-go",
+    "mapFormula": "$$\\hat Q_t^{(i)}=\\sum_{t'=t}^{H}r(s_{t'}^{(i)},a_{t'}^{(i)})$$",
+    "formulaQualifier": "沿用原笔记的剩余回报记号；包括当前步奖励。"
+  },
+  {
+    "key": "causality-proof",
+    "label": "证明过去奖励项的期望为零",
+    "target": "#formula-13",
+    "mapFormula": "$$\\mathbb E\\left[\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)\\left(\\sum_{t'=1}^{t-1}r(s_{t'},a_{t'})\\right)\\right]=0$$",
+    "formulaQualifier": "固定选动作前的历史，过去奖励已确定；对当前动作平均时，log 概率梯度的期望为零。"
+  },
+  {
+    "key": "combined",
+    "label": "把剩余回报与基线代入完整梯度",
+    "target": "#formula-13",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i=1}^N\\sum_{t=1}^H\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\left(\\hat Q_t^{(i)}-b_t\\right)$$",
+    "formulaQualifier": "直接写剩余回报减基线，不再给这个差另起符号。"
+  },
+  {
+    "key": "loss",
+    "label": "构造原笔记中的伪目标",
+    "target": "#formula-14",
+    "mapFormula": "$$\\tilde J(\\theta)=\\frac1N\\sum_{i=1}^N\\sum_{t=1}^H\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\left(\\hat Q_t^{(i)}-b_t\\right)$$",
+    "formulaQualifier": "对参数求导时，括号里的权重视作常数；用梯度下降时令 loss 为该式的负值。"
+  },
+  {
+    "key": "on-policy",
+    "label": "更新后，用新策略重新采样",
+    "target": "#implementation-loop",
+    "mapFormula": "$$\\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta\\tilde J(\\theta)$$",
+    "formulaQualifier": "求出的伪目标梯度就是本批数据的策略梯度估计；随后用更新后的策略重新收集轨迹。"
+  },
+  {
+    "key": "expand-expectation",
+    "label": "按期望的定义，先展开为积分",
+    "target": "#expectation-to-integral",
+    "mapFormula": "$$J(\\theta)=\\mathbb E_{\\tau\\sim p_\\theta(\\tau)}[r(\\tau)]=\\int\\underbrace{p_\\theta(\\tau)}_{\\text{概率权重}}\\,\\underbrace{r(\\tau)}_{\\text{被平均的回报}}\\,d\\tau$$",
+    "formulaQualifier": "这一步只用期望定义，还没有求导。"
+  },
+  {
+    "key": "substitute",
+    "label": "把恒等式真正代回积分",
+    "target": "#substitute-identity",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)=\\int\\nabla_\\theta p_\\theta(\\tau)\\,r(\\tau)d\\tau=\\int p_\\theta(\\tau)\\nabla_\\theta\\log p_\\theta(\\tau)\\,r(\\tau)d\\tau$$",
+    "formulaQualifier": "被替换的是概率的导数；此时结果仍然是积分。"
+  },
+  {
+    "key": "match-expectation",
+    "label": "检查：现在是否符合期望定义",
+    "target": "#match-expectation",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)=\\int\\underbrace{p_\\theta(\\tau)}_{\\text{概率权重}}\\;\\underbrace{\\left[\\nabla_\\theta\\log p_\\theta(\\tau)\\,r(\\tau)\\right]}_{\\text{被平均的量}}\\;d\\tau$$",
+    "formulaQualifier": "认出“概率权重 × 被平均的量”的积分结构。"
+  }
+]

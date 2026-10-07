@@ -1,0 +1,65 @@
+[
+  {
+    "key": "local",
+    "label": "01 定义局部错误",
+    "formulas": "公式 11",
+    "question": "站在一个给定状态上，这一步错的概率怎样写？",
+    "body": "0/1 代价的期望，只对动作做平均。\n\n$$\\bar c_t(s)=\\mathbb E_{a\\sim\\pi_\\theta(\\cdot\\mid s)}[c(s,a)].$$\n\n状态 $s$ 在这里是给定条件，尚未对它取期望。",
+    "next": "公式 12 用实际的状态分布对它加权，再累计时间。",
+    "target": "#formula-11"
+  },
+  {
+    "key": "objective",
+    "label": "02 写出部署目标",
+    "formulas": "公式 12",
+    "question": "整条路上的错误，需要在哪个分布下算？",
+    "body": "第 $t$ 步在哪里由策略先前的动作决定，所以应使用学生自己的足迹。\n\n$$J(\\pi_\\theta)=\\sum_{t=1}^H\\mathbb E_{s_t\\sim p_{\\pi_\\theta}}[\\bar c_t(s_t)].$$",
+    "next": "目标用学生分布，但已知条件用专家分布；公式 16 负责接通它们。",
+    "target": "#formula-12"
+  },
+  {
+    "key": "split",
+    "label": "03 加减专家分布",
+    "formulas": "公式 16",
+    "question": "怎样让部署目标用上专家分布里的已知误差？",
+    "body": "加一项再减一项是精确改写；取绝对值之后才放大为上界。\n\n$$\\begin{aligned}\\sum_s p_{\\pi_\\theta}\\bar c_t&=\\sum_s p_{\\mathrm{train}}\\bar c_t+\\sum_s(p_{\\pi_\\theta}-p_{\\mathrm{train}})\\bar c_t\\\\&\\le\\underbrace{\\sum_s p_{\\mathrm{train}}\\bar c_t}_{\\text{基础误差}}+\\underbrace{\\sum_s|p_{\\pi_\\theta}-p_{\\mathrm{train}}|\\bar c_t}_{\\text{差价项}}.\\end{aligned}$$",
+    "next": "两个上界分别控制两项；公式 17 将它们代入。",
+    "target": "#formula-16"
+  },
+  {
+    "key": "assumption",
+    "label": "04 已知专家误差",
+    "formulas": "公式 14",
+    "question": "手里的 epsilon 到底在哪些状态上有效？",
+    "body": "假设每个时间步的专家状态分布上，平均局部误差不超过 epsilon。\n\n$$\\mathbb E_{s_t\\sim p_{\\mathrm{train}}}[\\bar c_t(s_t)]\\le\\epsilon.$$\n\n它没有直接约束偏航状态，也不等于每个状态都满足同一个错率。",
+    "next": "一方面压住基础项，另一方面经耦合与 union bound 约束状态分布的偏离。",
+    "target": "#formula-14"
+  },
+  {
+    "key": "distance",
+    "label": "05 量化分布距离",
+    "formulas": "公式 15",
+    "question": "专家与学生的足迹到底能差多远？",
+    "body": "把两次执行耦合到同一初始状态与环境随机性；只有此前出现动作分歧，当前状态才可能不同。\n\n$$D_{\\mathrm{TV}}(p_{\\mathrm{train}},p_{\\pi_\\theta})\\le\\epsilon t.$$\n\n这条路线不需要错误事件独立，也不需要固定权重混合等式。",
+    "next": "取绝对值的差价项不超过两倍 TV；与基础项一起控制每步部署错误。",
+    "target": "#formula-15"
+  },
+  {
+    "key": "perstep",
+    "label": "06 分别控制两项",
+    "formulas": "公式 17",
+    "question": "加减项以后，两个已知上界怎样接入？",
+    "body": "基础项由公式 14 压住，差价项先用 $0\\le\\bar c_t\\le1$，再用公式 15。\n\n$$\\mathbb E_{p_{\\pi_\\theta}}[\\bar c_t]\\le\\epsilon+2D_{\\mathrm{TV}}\\le\\epsilon+2\\epsilon t.$$",
+    "next": "现在才有同一个时间步的部署错误上界，可以逐步求和。",
+    "target": "#formula-17"
+  },
+  {
+    "key": "sum",
+    "label": "07 对时间求和",
+    "formulas": "公式 17–18",
+    "question": "线性的分布距离，为什么带来平方级总错误上界？",
+    "body": "再对 $t=1,\\dots,H$ 求和。\n\n$$\\sum_{t=1}^H(\\epsilon+2\\epsilon t)=\\epsilon H+\\epsilon H(H+1).$$\n\n所以是 $O(\\epsilon H^2)$ 的上界；总错误最多 $H$，实际也可能恢复得更好。",
+    "next": "回到整讲：覆盖偏航后的正确动作，是 DAgger 与恢复数据针对的缺口。",
+    "target": "#formula-17"
+  }
+]
