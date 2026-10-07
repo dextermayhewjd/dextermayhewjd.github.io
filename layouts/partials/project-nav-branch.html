@@ -1,0 +1,23 @@
+{{- $page := .page -}}
+{{- $current := .current -}}
+{{- $active := eq $current.RelPermalink $page.RelPermalink -}}
+{{- $children := slice -}}
+{{- if $page.IsSection -}}
+  {{- $children = union $page.Sections $page.RegularPages -}}
+{{- end -}}
+<li>
+  {{- if gt (len $children) 0 -}}
+  <details class="project-nav__branch"{{ if or $active ($page.IsAncestor $current) }} open{{ end }}>
+    <summary>
+      <a class="project-nav__link{{ if $active }} project-nav__link--active{{ end }}" href="{{ $page.RelPermalink }}"{{ if $active }} aria-current="page"{{ end }}>{{ $page.LinkTitle }}</a>
+    </summary>
+    <ul class="project-nav__list project-nav__list--nested">
+      {{- range sort $children "Params.weight" -}}
+        {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+      {{- end -}}
+    </ul>
+  </details>
+  {{- else -}}
+  <a class="project-nav__link{{ if $active }} project-nav__link--active{{ end }}" href="{{ $page.RelPermalink }}"{{ if $active }} aria-current="page"{{ end }}>{{ $page.LinkTitle }}</a>
+  {{- end -}}
+</li>

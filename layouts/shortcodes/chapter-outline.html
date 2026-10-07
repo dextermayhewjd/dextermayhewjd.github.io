@@ -1,0 +1,5 @@
+{{- $id := .Get "id" | default "chapter-outline" -}}
+<div class="chapter-outline" id="{{ $id }}" aria-labelledby="{{ $id }}-title">
+  <p class="chapter-outline__title" id="{{ $id }}-title">{{ .Get "title" | default "本章目录" }}</p>
+  {{ .Page.TableOfContents }}
+</div>

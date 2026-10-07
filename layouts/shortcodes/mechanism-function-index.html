@@ -1,0 +1,19 @@
+{{- $modules := (.Page.Resources.Get "explorer.json").Content | transform.Unmarshal -}}
+{{- $functions := (index $modules 0).stageFunctions -}}
+{{- $roles := (.Page.Resources.Get "function-roles.json").Content | transform.Unmarshal -}}
+{{- $steps := (.Page.Resources.Get "function-index.json").Content | transform.Unmarshal -}}
+{{- $class := .Get "class" -}}
+<details id="{{ .Get "id" }}" data-function-explorer="{{ .Get "explorer" }}">
+  <summary>图 3 内部函数索引：点击查看实现</summary>
+  <table>
+    <thead><tr><th>步骤／职责</th><th>内部方法与循环实现</th></tr></thead>
+    <tbody>{{ range $steps }}{{ $step := . }}<tr><td><a href="#{{ .anchor }}">{{ .label }}</a></td><td>
+      {{- range $i, $name := index $functions .stage -}}
+        {{- if $i }}<br>{{ end -}}
+        {{- $label := $name -}}
+        {{- if and $class (strings.HasPrefix (index $roles $name) $class) -}}{{- $label = printf "%s.%s" $class $name -}}{{- end -}}
+        <a class="diagram-function-link" href="#{{ $step.anchor }}" data-function="{{ $name }}" data-function-card="{{ $step.module }}"><code>{{ $label }}()</code></a>
+      {{- end -}}
+    </td></tr>{{ end }}</tbody>
+  </table>
+</details>

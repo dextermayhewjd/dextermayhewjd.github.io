@@ -1,0 +1,175 @@
+.architecture-diagram {
+  --diagram-text: #24334b;
+  --diagram-muted: #58677b;
+  --diagram-base-fill: #edf3fc;
+  --diagram-base-stroke: #537cc0;
+  --diagram-memory-fill: #f3edfc;
+  --diagram-memory-stroke: #8855b5;
+  --diagram-change-fill: #fceded;
+  --diagram-change-stroke: #c45656;
+  --diagram-modified-fill: #fff3dc;
+  --diagram-modified-stroke: #b77920;
+  --diagram-removed-fill: #fceded;
+  --diagram-removed-stroke: #c45656;
+  --diagram-storage-fill: #f3f5f8;
+  --diagram-storage-stroke: #8a96a6;
+  --diagram-group-stroke: var(--diagram-storage-stroke);
+  --diagram-done-fill: #e8f5ec;
+  --diagram-done-stroke: #3e8460;
+  --diagram-line: #65748a;
+  max-width: var(--architecture-width, 760px);
+  margin: 24px auto;
+}
+
+:root[data-theme="dark"] .architecture-diagram {
+  --diagram-text: #e0e6ef;
+  --diagram-muted: #adb9cb;
+  --diagram-base-fill: #22324a;
+  --diagram-base-stroke: #8dacdf;
+  --diagram-memory-fill: #352942;
+  --diagram-memory-stroke: #be9adf;
+  --diagram-change-fill: #442b2e;
+  --diagram-change-stroke: #e79a9a;
+  --diagram-modified-fill: #493821;
+  --diagram-modified-stroke: #e6bd75;
+  --diagram-removed-fill: #442b2e;
+  --diagram-removed-stroke: #e79a9a;
+  --diagram-storage-fill: #292e36;
+  --diagram-storage-stroke: #96a2b4;
+  --diagram-done-fill: #203d2c;
+  --diagram-done-stroke: #8ccda4;
+  --diagram-line: #adb9cb;
+}
+
+.architecture-diagram__canvas {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--theme);
+}
+
+.architecture-diagram__canvas:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.architecture-diagram__canvas svg {
+  display: block;
+  width: 100%;
+  min-width: var(--architecture-width, 680px);
+  height: auto;
+}
+
+.architecture-diagram__canvas a.diagram-chapter-link text {
+  fill: var(--diagram-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.architecture-diagram .diagram-function-link text { text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.architecture-diagram .diagram-function-link:hover text,
+.architecture-diagram .diagram-function-link:focus-visible text { font-weight: 650; text-decoration-thickness: 2px; }
+.architecture-diagram .diagram-function-link:focus-visible { outline: none; }
+
+/* Opt-in relationship preview on standalone core diagrams. Keep node colors. */
+[data-diagram-trace] svg path.is-related { stroke-width: 3.4px; }
+[data-diagram-trace] svg path.is-unrelated { opacity: .22; }
+[data-diagram-trace] rect.is-trace-target { stroke-width: 3px; }
+
+.architecture-diagram__canvas a.diagram-chapter-link:hover text,
+.architecture-diagram__canvas a.diagram-chapter-link:focus-visible text {
+  text-decoration-thickness: 2px;
+  font-weight: 650;
+}
+
+.post-content .architecture-diagram figcaption {
+  margin: 10px 2px 0;
+  color: var(--secondary);
+  font-size: .85rem;
+  font-weight: normal;
+  line-height: 1.7;
+}
+
+.architecture-diagram__hint { display: none; }
+
+.architecture-diagram__legend {
+  margin: 10px 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--diagram-text);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.architecture-diagram__legend-title { font-weight: 650; }
+
+.architecture-diagram__legend-details > summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-height: 32px;
+  cursor: pointer;
+  list-style: none;
+}
+.architecture-diagram__legend-details > summary::-webkit-details-marker { display: none; }
+.architecture-diagram__legend-details > summary::before { content: "›"; font-size: 18px; }
+.architecture-diagram__legend-details[open] > summary::before { transform: rotate(90deg); }
+.architecture-diagram__legend-details > summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.architecture-diagram__legend-preview { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.architecture-diagram__legend-preview > span { display: inline-flex; align-items: center; gap: 5px; }
+.architecture-diagram__legend-preview .architecture-diagram__swatch { margin-top: 0; flex-basis: 13px; width: 13px; height: 10px; }
+.architecture-diagram__legend-expand { margin-left: auto; color: var(--diagram-muted); }
+
+.architecture-diagram__legend ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.architecture-diagram__legend li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.architecture-diagram__legend small { color: var(--diagram-muted); font-size: inherit; }
+
+.architecture-diagram__swatch {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 13px;
+  margin-top: 3px;
+  border: 1.5px solid var(--diagram-base-stroke);
+  border-radius: 3px;
+  background: var(--diagram-base-fill);
+}
+
+.architecture-diagram__swatch--modified { background: var(--diagram-modified-fill); border-color: var(--diagram-modified-stroke); }
+.architecture-diagram__swatch--memory { background: var(--diagram-memory-fill); border-color: var(--diagram-memory-stroke); }
+.architecture-diagram__swatch--optional { background: var(--diagram-memory-fill); border-color: var(--diagram-memory-stroke); border-style: dashed; }
+.architecture-diagram__swatch--removed { background: var(--diagram-removed-fill); border-color: var(--diagram-removed-stroke); border-style: dashed; }
+.architecture-diagram__swatch--storage { background: var(--diagram-storage-fill); border-color: var(--diagram-storage-stroke); }
+.architecture-diagram__swatch--folded { background: var(--diagram-storage-fill); border-color: var(--diagram-storage-stroke); border-style: dashed; }
+.architecture-diagram__swatch--done { background: var(--diagram-done-fill); border-color: var(--diagram-done-stroke); }
+.architecture-diagram__swatch--muted { border: 0; background: none; color: var(--diagram-muted); }
+.architecture-diagram__swatch--muted::after { content: "Aa"; font-size: 12px; }
+.architecture-diagram__swatch--relation { height: 0; margin-top: 11px; border: 0; border-top: 1.5px dashed var(--diagram-muted); border-radius: 0; background: none; }
+.architecture-diagram__swatch--flow { border: 0; background: none; color: var(--diagram-line); }
+.architecture-diagram__swatch--flow::after { content: "→"; font-size: 18px; line-height: 13px; }
+.architecture-diagram__swatch--group { background: none; border-color: var(--diagram-group-stroke); }
+.architecture-diagram__swatch--chapter { border: 0; background: none; color: var(--diagram-text); }
+.architecture-diagram__swatch--chapter::after { content: "Sxx"; font-size: 10px; text-decoration: underline; }
+
+@media (max-width: 560px) {
+  .architecture-diagram__legend ul { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .architecture-diagram__hint { display: block; }
+}

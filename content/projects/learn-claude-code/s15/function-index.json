@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "events",
+    "label": "事件注入",
+    "module": "events",
+    "anchor": "harness-events"
+  },
+  {
+    "stage": "prepare",
+    "label": "历史与状态",
+    "module": "assembly",
+    "anchor": "harness-prepare"
+  },
+  {
+    "stage": "assemble",
+    "label": "配置与工具池",
+    "module": "assembly",
+    "anchor": "harness-pool"
+  },
+  {
+    "stage": "model",
+    "label": "模型请求与响应",
+    "module": "assembly",
+    "anchor": "harness-model"
+  },
+  {
+    "stage": "dispatch",
+    "label": "权限／分发",
+    "module": "dispatch",
+    "anchor": "harness-dispatch"
+  },
+  {
+    "stage": "feedback",
+    "label": "结果批次",
+    "module": "background",
+    "anchor": "harness-feedback"
+  },
+  {
+    "stage": "finish",
+    "label": "正常收尾",
+    "module": "events",
+    "anchor": "harness-finish"
+  },
+  {
+    "stage": "runtime",
+    "label": "主循环入口",
+    "module": "events",
+    "anchor": "harness-loop"
+  }
+]

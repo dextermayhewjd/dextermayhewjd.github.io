@@ -1,0 +1,60 @@
+{
+  "schema": "s07-lab-eval-v1",
+  "cases": [
+    {
+      "id": "positive-auto",
+      "fixture": "empty-list",
+      "prompt": "请审查当前未提交改动，检查空输入会不会导致回归。",
+      "expected_skill": "review-diff",
+      "checks": [
+        "定位 src/normalize.py",
+        "指出空列表触发 IndexError",
+        "引用测试或具体表达式",
+        "保持源码不变"
+      ]
+    },
+    {
+      "id": "positive-explicit",
+      "fixture": "empty-list",
+      "prompt": "/review-diff src 空输入",
+      "expected_skill": "review-diff",
+      "checks": [
+        "正文装载成功",
+        "按报告模板输出",
+        "说明未跟踪文件检查范围"
+      ]
+    },
+    {
+      "id": "negative-concept",
+      "fixture": "baseline",
+      "prompt": "解释什么是渐进式披露。",
+      "expected_skill": null,
+      "checks": [
+        "不需要调用 review-diff",
+        "不声称审查了代码"
+      ]
+    },
+    {
+      "id": "resource-routing",
+      "fixture": "lost-update",
+      "prompt": "/review-diff src 并发共享状态",
+      "expected_skill": "review-diff",
+      "checks": [
+        "按需读取 concurrency.md",
+        "给出两个调用都读取旧值的交错",
+        "指出最终计数为1而约定为2"
+      ]
+    },
+    {
+      "id": "without-skill",
+      "fixture": "empty-list",
+      "profile": "profiles/without-skill.json",
+      "prompt": "请审查当前未提交改动，检查空输入会不会导致回归。",
+      "expected_skill": null,
+      "checks": [
+        "与有 Skill 使用相同任务和环境比较",
+        "记录耗时、证据质量、工具操作"
+      ]
+    }
+  ]
+}

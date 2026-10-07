@@ -1,0 +1,11 @@
+{{- $section := .section -}}
+{{- $current := .current -}}
+<ul class="project-nav__list">
+  <li>
+    <a class="project-nav__link{{ if eq $current.RelPermalink $section.RelPermalink }} project-nav__link--active{{ end }}" href="{{ $section.RelPermalink }}"{{ if eq $current.RelPermalink $section.RelPermalink }} aria-current="page"{{ end }}>总览</a>
+  </li>
+  {{- $items := union $section.Sections $section.RegularPages -}}
+  {{- range sort $items "Params.weight" -}}
+  {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+  {{- end -}}
+</ul>

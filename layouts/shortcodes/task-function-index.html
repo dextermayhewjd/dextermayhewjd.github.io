@@ -1,0 +1,30 @@
+{{- $modules := (.Page.Resources.Get "explorer.json").Content | transform.Unmarshal -}}
+{{- $functions := (index $modules 0).stageFunctions -}}
+{{- $roles := (.Page.Resources.Get "function-roles.json").Content | transform.Unmarshal -}}
+{{- $steps := (.Page.Resources.Get "task-function-index.json").Content | transform.Unmarshal -}}
+<details id="task-core-functions" class="task-function-index" data-function-explorer="s10-task-explorer">
+  <summary>图 3 内部函数索引：点击查看实现</summary>
+  <p>点击函数名即可就近查看代码。这里只列任务内部逻辑、辅助方法与存储实现。</p>
+  <table>
+    <thead><tr><th>步骤／职责</th><th>内部函数与存储方法</th></tr></thead>
+    <tbody>
+    {{- range $steps -}}
+      {{- if ne .stage "work" -}}
+      {{- $internal := slice -}}
+      {{- range index $functions .stage -}}
+        {{- $role := index $roles . -}}
+        {{- if not (in (slice "具体工具入口" "Harness 统一执行入口" "Harness 循环编排") $role) -}}
+          {{- $name := . -}}
+          {{- if strings.HasPrefix $role "TaskStore" -}}{{- $name = printf "TaskStore.%s" . -}}{{- end -}}
+          {{- $internal = $internal | append (dict "name" . "label" $name) -}}
+        {{- end -}}
+      {{- end -}}
+      <tr>
+        <td><a href="#{{ .anchor }}">{{ .label }}</a></td>
+        <td>{{ $step := . }}{{ range $i, $function := $internal }}{{ if $i }}<br>{{ end }}<a class="diagram-function-link" href="#{{ $step.anchor }}" data-function="{{ $function.name }}" data-function-card="{{ $step.module }}"><code>{{ $function.label }}()</code></a>{{ end }}</td>
+      </tr>
+      {{- end -}}
+    {{- end -}}
+    </tbody>
+  </table>
+</details>

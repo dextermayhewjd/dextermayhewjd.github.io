@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280" role="img" aria-labelledby="s01-loop-title s01-loop-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s01-loop-title">S01 · Agent Loop</title>
+<desc id="s01-loop-desc">模型提出行动，Harness 执行并回传观察结果。</desc>
+<defs>
+<marker id="s01-loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s01-loop-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/></marker>
+</defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">S01 · Agent Loop</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">模型提出行动，Harness 执行并回传观察结果。</text>
+<rect data-stage="history" data-change="base" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">对话历史</text>
+<text x="80" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">先保存用户任务</text>
+<rect data-stage="model" data-change="base" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+<text x="228" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">system + tools</text>
+<rect data-stage="decision" data-change="base" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">判断响应</text>
+<text x="376" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">是否 tool_use</text>
+<rect data-stage="execute" data-change="base" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">执行 Bash</text>
+<text x="524" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">Harness 调用</text>
+<rect data-stage="result" data-change="base" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">回传结果</text>
+<text x="672" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">按调用 ID 配对</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<path d="M672 160V240H80V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<text x="240" y="233" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-text, #24334b)">工具结果追加 → 继续请求模型</text>
+<rect data-stage="stop" data-change="base" x="320" y="183" width="112" height="38" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="207" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+<path d="M376 160V183" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s01-loop-arrow)"/>
+<text x="392" y="177" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">否则</text>
+</svg>

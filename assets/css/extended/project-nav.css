@@ -1,0 +1,89 @@
+.main:has(> .project-layout) { max-width: 1160px; }
+
+/* Wide overview pages reserve actual article space as well as SVG space. */
+.main:has(> .project-layout [data-diagram-width]) { max-width: 1502px; }
+.main:has(> .project-layout [data-diagram-width]) .post-content > p {
+  max-width: 900px;
+}
+
+.project-layout {
+  display: grid;
+  grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+}
+
+.project-layout__content { min-width: 0; }
+
+.project-nav {
+  position: sticky;
+  top: 24px;
+  font-size: .92rem;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.project-nav__heading {
+  margin-bottom: 12px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.project-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-nav__link {
+  display: block;
+  padding: 7px 10px;
+  border-left: 2px solid transparent;
+  color: var(--secondary);
+}
+
+.project-nav__link:hover,
+.project-nav__link--active {
+  border-left-color: var(--primary);
+  color: var(--primary);
+  background: var(--code-bg);
+}
+
+.project-nav__mobile { display: none; }
+
+.project-nav__list--nested {
+  margin: 4px 0 8px 12px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+  font-size: .85rem;
+}
+
+.project-nav__branch > summary {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.project-nav__branch > summary::-webkit-details-marker { display: none; }
+.project-nav__branch > summary::before {
+  content: "›";
+  flex: 0 0 12px;
+  color: var(--secondary);
+  text-align: center;
+}
+.project-nav__branch[open] > summary::before { transform: rotate(90deg); }
+.project-nav__branch > summary .project-nav__link { flex: 1; min-width: 0; }
+.project-nav__link:focus-visible,
+.project-nav__branch > summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .project-layout { display: block; }
+  .project-nav { position: static; margin-bottom: 22px; max-height: none; overflow: visible; }
+  .project-nav__desktop { display: none; }
+  .project-nav__mobile { display: block; }
+  .project-nav__mobile summary { cursor: pointer; color: var(--secondary); }
+  .project-nav__mobile-content { margin-top: 10px; }
+}

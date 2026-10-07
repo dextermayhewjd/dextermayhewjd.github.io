@@ -1,0 +1,84 @@
+{{- $svg := .svg -}}
+{{- $scheme := .scheme -}}
+{{- $purple := "紫色：本节核心机制" -}}
+{{- $orange := "橙色：修改／职责迁移" -}}
+{{- $red := "红色虚线：真实移除" -}}
+{{- if .baseline -}}
+  {{- $orange = "橙色：本轮将改造（仍是旧实现）" -}}
+  {{- $red = "红色虚线：本轮将移出（仍是旧流程）" -}}
+{{- end -}}
+{{- with .removedLabel -}}{{- $red = . -}}{{- end -}}
+{{- if eq $scheme "evolution" -}}
+  {{- $purple = "紫色：真正新增" -}}
+{{- end -}}
+{{- $items := slice
+  (dict "key" "base" "label" "蓝色：已有且保留" "token" "--diagram-base-fill")
+  (dict "key" "modified" "label" $orange "token" "--diagram-modified-fill")
+  (dict "key" "memory" "label" $purple "token" "--diagram-memory-fill")
+  (dict "key" "removed" "label" $red "token" "--diagram-removed-fill")
+  (dict "key" "storage" "label" "灰色实线框：存储／辅助节点" "token" "--diagram-storage-fill")
+  (dict "key" "folded" "label" "灰色虚线框：细节合并，功能保留" "token" `data-view="folded"`)
+  (dict "key" "muted" "label" "灰字：来源／补充说明" "token" "--diagram-muted")
+  (dict "key" "relation" "label" "灰色虚线：关联，不是执行回环" "token" `data-relation="`)
+  (dict "key" "flow" "label" "实线箭头：流程／数据方向" "token" "marker-end=")
+-}}
+{{- if findRE `<rect\b[^>]*stroke="var\(--diagram-memory-stroke[^>]*stroke-dasharray=` $svg -}}
+  {{- $items = $items | append (dict "key" "optional" "label" "紫色虚线框：可选／按需分支" "token" "stroke-dasharray=") -}}
+{{- end -}}
+{{- if strings.Contains $svg `data-group="tool-implementations"` -}}
+  {{- $items = $items | append (dict "key" "group" "label" "灰色外框：工具实现归属分组" "token" `data-group="tool-implementations"`) -}}
+{{- end -}}
+{{- if strings.Contains $svg "diagram-chapter-link" -}}
+  {{- $items = $items | append (dict "key" "chapter" "label" "下划线章节：点击查看具体实现" "token" "diagram-chapter-link") -}}
+{{- end -}}
+{{- if eq $scheme "status" -}}
+  {{- $items = slice
+    (dict "key" "done" "label" "绿色：已完成 completed" "token" "--diagram-done-fill")
+    (dict "key" "base" "label" "蓝色：进行中 in_progress" "token" "--diagram-base-fill")
+    (dict "key" "storage" "label" "灰色：待处理 pending（可认领／被阻塞）" "token" "--diagram-storage-fill")
+    (dict "key" "muted" "label" "灰字：状态／补充说明" "token" "--diagram-muted")
+    (dict "key" "flow" "label" "箭头：前置任务 → 后续任务" "token" "marker-end=")
+  -}}
+{{- end -}}
+{{- $resolved := slice -}}
+{{- range $items -}}
+  {{- $used := strings.Contains $svg .token -}}
+  {{- if eq .key "storage" -}}
+    {{- $used = gt (len (findRE `<rect\b[^>]*fill="var\(--diagram-storage-fill[^>]*>` $svg)) (len (findRE `<rect\b[^>]*data-view="folded"[^>]*>` $svg)) -}}
+  {{- else if eq .key "relation" -}}
+    {{- $used = gt (len (findRE `<path\b[^>]*stroke="var\(--diagram-(muted|line)[^>]*stroke-dasharray=` $svg)) 0 -}}
+  {{- end -}}
+  {{- $resolved = $resolved | append (merge . (dict "used" $used)) -}}
+{{- end -}}
+{{- $compact := .collapsible | default false -}}
+{{- $short := dict "base" "蓝：保留" "modified" "橙：改动" "memory" "紫：新增" "removed" "红：移除" "storage" "灰：辅助" "folded" "灰虚线：合并" "done" "绿：完成" -}}
+{{- if .baseline -}}{{- $short = merge $short (dict "modified" "橙：将改造" "removed" "红：将移出") -}}{{- end -}}
+{{- if eq $scheme "architecture" -}}{{- $short = merge $short (dict "memory" "紫：本节机制") -}}{{- end -}}
+{{- if eq $scheme "status" -}}{{- $short = merge $short (dict "base" "蓝：进行中" "storage" "灰：待处理") -}}{{- end -}}
+<div class="architecture-diagram__legend" role="group" aria-label="本图颜色与线型含义" data-scheme="{{ $scheme }}">
+  {{- if $compact -}}
+  <details class="architecture-diagram__legend-details">
+    <summary>
+      <span class="architecture-diagram__legend-title">图例</span>
+      <span class="architecture-diagram__legend-preview">
+        {{- range $resolved -}}
+          {{- if and .used (isset $short .key) -}}
+          <span><span class="architecture-diagram__swatch architecture-diagram__swatch--{{ .key }}" aria-hidden="true"></span>{{ index $short .key }}</span>
+          {{- end -}}
+        {{- end -}}
+      </span>
+      <span class="architecture-diagram__legend-expand">完整说明</span>
+    </summary>
+  {{- else -}}
+    <span class="architecture-diagram__legend-title">颜色与线型</span>
+  {{- end -}}
+  <ul>
+    {{- range $resolved -}}
+      <li data-key="{{ .key }}" data-used="{{ .used }}">
+        <span class="architecture-diagram__swatch architecture-diagram__swatch--{{ .key }}" aria-hidden="true"></span>
+        <span>{{ .label }}{{ if not .used }}<small>（本图未用）</small>{{ end }}</span>
+      </li>
+    {{- end -}}
+  </ul>
+  {{- if $compact -}}</details>{{- end -}}
+</div>

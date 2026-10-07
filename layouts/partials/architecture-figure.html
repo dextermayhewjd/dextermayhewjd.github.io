@@ -1,0 +1,127 @@
+{{- $src := .Get "src" -}}
+{{- $sourcePage := .Page -}}
+{{- with .Get "from" -}}
+  {{- $sourcePage = $.Page.Site.GetPage . -}}
+  {{- if not $sourcePage -}}
+    {{- errorf "Architecture source page %q not found" . -}}
+  {{- end -}}
+{{- end -}}
+{{- $diagram := false -}}
+{{- with $sourcePage -}}
+  {{- $diagram = .Resources.Get $src -}}
+{{- end -}}
+{{- if not $diagram -}}
+  {{- errorf "Architecture diagram %q not found in page bundle %s" $src .Page.File.Path -}}
+{{- else if ne $diagram.MediaType.Type "image/svg+xml" -}}
+  {{- errorf "Architecture diagram %q must be an SVG" $src -}}
+{{- else -}}
+{{- $svg := $diagram.Content -}}
+{{- if eq (.Get "mode") "baseline" -}}
+  {{/* Reuse geometry and flow, but make every inherited capability baseline blue. */}}
+  {{- $svg = replaceRE `var\(--diagram-(memory|modified|removed|change|storage|done)-fill, [^)]+\)` "var(--diagram-base-fill, #edf3fc)" $svg -}}
+  {{- $svg = replaceRE `var\(--diagram-(memory|modified|removed|change|storage|done)-stroke, [^)]+\)` "var(--diagram-base-stroke, #537cc0)" $svg -}}
+  {{- $svg = replaceRE `data-change="[^"]+"` `data-change="base"` $svg -}}
+  {{- $svg = replaceRE `<(text|rect)\b[^>]* data-evolution-legend="true"[^>]*(/>|>[^<]*</text>)` "" $svg -}}
+  {{- $svg = replaceRE `<text([^>]*) data-baseline-label="([^"]*)">[^<]*</text>` `<text${1}>${2}</text>` $svg -}}
+  {{- $svg = replaceRE `(<title[^>]*>)[^<]*(</title>)` `${1}上一轮整体流程：本章改造前的已有系统${2}` $svg -}}
+  {{- $svg = replaceRE `(<desc[^>]*>)[^<]*(</desc>)` `${1}沿用上一章的节点、位置与连线，功能模块统一蓝色；本章变化在第二张图标注。${2}` $svg -}}
+  {{- $svg = replaceRE `(<text[^>]* x="24" y="30"[^>]*>)[^<]*(</text>)` `${1}上一轮整体流程：本章改造前${2}` $svg -}}
+  {{- $svg = replaceRE `(<text[^>]* x="24" y="55"[^>]*>)[^<]*(</text>)` `${1}保留上一章的结构，功能模块统一蓝色；本轮变化见图 2。${2}` $svg -}}
+  {{- with .Get "folded" -}}
+    {{- range split . "," -}}
+      {{- $stage := strings.TrimSpace . -}}
+      {{- if not (findRE `^[a-zA-Z0-9_-]+$` $stage) -}}
+        {{- errorf "Invalid folded diagram stage %q" $stage -}}
+      {{- else -}}
+        {{- $nodes := findRE (printf `<rect\b[^>]* data-stage="%s"[^>]*/>` $stage) $svg -}}
+        {{- if not $nodes -}}
+          {{- errorf "Folded diagram stage %q not found in %s" $stage $src -}}
+        {{- end -}}
+        {{- range $nodes -}}
+          {{- $node := replace . "var(--diagram-base-fill, #edf3fc)" "var(--diagram-storage-fill, #f3f5f8)" -}}
+          {{- $node = replace $node "var(--diagram-base-stroke, #537cc0)" "var(--diagram-storage-stroke, #8a96a6)" -}}
+          {{- $node = replace $node "/>" ` data-view="folded" stroke-dasharray="5 3"/>` -}}
+          {{- $svg = replace $svg . $node -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $svg = replaceRE `(<desc[^>]*>)[^<]*(</desc>)` `${1}保留上一章结构；蓝色是已有功能，灰色虚线细节将在下一张图合并展示，功能未删除。${2}` $svg -}}
+    {{- $svg = replaceRE `(<text[^>]* x="24" y="55"[^>]*>)[^<]*(</text>)` `${1}蓝色保留；灰色虚线细节在图 2 中合并，功能仍然存在。${2}` $svg -}}
+  {{- end -}}
+  {{- with .Get "modified" -}}
+    {{- range split . "," -}}
+      {{- $stage := strings.TrimSpace . -}}
+      {{- if not (findRE `^[a-zA-Z0-9_-]+$` $stage) -}}
+        {{- errorf "Invalid modified diagram stage %q" $stage -}}
+      {{- else -}}
+        {{- $nodes := findRE (printf `<rect\b[^>]* data-stage="%s"[^>]*/>` $stage) $svg -}}
+        {{- if not $nodes -}}
+          {{- errorf "Modified diagram stage %q not found in %s" $stage $src -}}
+        {{- end -}}
+        {{- range $nodes -}}
+          {{- if strings.Contains . `data-view="folded"` -}}
+            {{- errorf "Diagram stage %q cannot be both folded and modified" $stage -}}
+          {{- end -}}
+          {{- $node := replace . "var(--diagram-base-fill, #edf3fc)" "var(--diagram-modified-fill, #fff3dc)" -}}
+          {{- $node = replace $node "var(--diagram-base-stroke, #537cc0)" "var(--diagram-modified-stroke, #b77920)" -}}
+          {{- $node = replace $node `data-change="base"` `data-change="modified"` -}}
+          {{- $node = replace $node "/>" ` data-view="modified"/>` -}}
+          {{- $svg = replace $svg . $node -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $hint := "蓝色已有；橙色是本轮将改造的旧模块，图中仍展示旧实现。" -}}
+    {{- if $.Get "folded" -}}
+      {{- $hint = "蓝色已有；橙色本轮将改造；灰色虚线细节在图 2 合并。" -}}
+    {{- end -}}
+    {{- $svg = replaceRE `(<desc[^>]*>)[^<]*(</desc>)` (printf "${1}%s${2}" $hint) $svg -}}
+    {{- $svg = replaceRE `(<text[^>]* x="24" y="55"[^>]*>)[^<]*(</text>)` (printf "${1}%s${2}" $hint) $svg -}}
+  {{- end -}}
+{{- end -}}
+{{- if and (eq (.Get "mode") "baseline") (.Get "removed") -}}
+  {{- range split (.Get "removed") "," -}}
+    {{- $stage := strings.TrimSpace . -}}
+    {{- if not (findRE `^[a-zA-Z0-9_-]+$` $stage) -}}
+      {{- errorf "Invalid removed diagram stage %q" $stage -}}
+    {{- else -}}
+      {{- $nodes := findRE (printf `<rect\b[^>]* data-stage="%s"[^>]*/>` $stage) $svg -}}
+      {{- if not $nodes -}}
+        {{- errorf "Removed diagram stage %q not found in %s" $stage $src -}}
+      {{- end -}}
+      {{- range $nodes -}}
+        {{- if strings.Contains . `data-view="` -}}
+          {{- errorf "Removed diagram stage %q already has another change marker" $stage -}}
+        {{- end -}}
+        {{- $node := replace . "var(--diagram-base-fill, #edf3fc)" "var(--diagram-removed-fill, #fceded)" -}}
+        {{- $node = replace $node "var(--diagram-base-stroke, #537cc0)" "var(--diagram-removed-stroke, #c45656)" -}}
+        {{- $node = replace $node `data-change="base"` `data-change="removed"` -}}
+        {{- $node = replace $node "/>" ` data-view="removed" stroke-dasharray="5 3"/>` -}}
+        {{- $svg = replace $svg . $node -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $hint := "旧结构保持不变；橙色将改造，红色虚线模块将在本轮移出。" -}}
+  {{- $svg = replaceRE `(<desc[^>]*>)[^<]*(</desc>)` (printf "${1}%s${2}" $hint) $svg -}}
+  {{- $svg = replaceRE `(<text[^>]* x="24" y="55"[^>]*>)[^<]*(</text>)` (printf "${1}%s${2}" $hint) $svg -}}
+{{- end -}}
+{{- $scheme := .Get "legend" | default "architecture" -}}
+{{- if eq (.Get "mode") "baseline" -}}
+  {{- $scheme = "evolution" -}}
+{{- end -}}
+{{- if not (in (slice "architecture" "evolution" "status") $scheme) -}}
+  {{- errorf "Unknown architecture legend %q in %s" $scheme .Page.File.Path -}}
+{{- end -}}
+{{/* Keep one adjacent legend, with the same color tokens as the diagram. */}}
+{{- $svg = replaceRE `<(text|rect)\b[^>]* data-evolution-legend="true"[^>]*(/>|>[^<]*</text>)` "" $svg -}}
+<figure class="architecture-diagram"{{ if eq (.Get "trace") "true" }} data-diagram-trace{{ end }}{{ with .Get "functionExplorer" }} data-function-explorer="{{ . }}"{{ end }}{{ with .Get "figureId" }} id="{{ . }}"{{ end }}{{ with .Get "width" }} data-diagram-width="{{ . }}" style="--architecture-width: {{ . }}px"{{ end }}>
+  <div class="architecture-diagram__canvas" tabindex="0" role="region" aria-label="{{ .Get "label" | default "架构图，窄屏可左右滚动查看" }}">
+    {{ $svg | safeHTML }}
+  </div>
+  {{ partial "architecture-legend.html" (dict "svg" $svg "scheme" $scheme "baseline" (eq (.Get "mode") "baseline") "removedLabel" (.Get "removedLabel") "collapsible" (.Page.Param "compactDiagramLegends")) }}
+  <figcaption>
+    {{- with .Get "caption" }}{{ . }}{{ end -}}
+    {{- if eq (.Get "trace") "true" }}<span class="architecture-diagram__hint">悬停节点高亮输入、输出与引用连线；移开恢复。聚焦函数名也可预览，点击仍查看源码。</span>{{ end -}}
+    <span class="architecture-diagram__hint">左右滑动查看全图。</span>
+  </figcaption>
+</figure>
+{{- end -}}

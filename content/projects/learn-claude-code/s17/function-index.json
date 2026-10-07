@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "command",
+    "label": "命令与条件",
+    "module": "command",
+    "anchor": "goal-submit"
+  },
+  {
+    "stage": "worker",
+    "label": "原工作循环",
+    "module": "loop",
+    "anchor": "goal-query"
+  },
+  {
+    "stage": "gate",
+    "label": "退出门与决定",
+    "module": "gate",
+    "anchor": "goal-gate"
+  },
+  {
+    "stage": "evaluator",
+    "label": "证据与评估",
+    "module": "judge",
+    "anchor": "goal-evaluator"
+  },
+  {
+    "stage": "state",
+    "label": "状态与事件",
+    "module": "state",
+    "anchor": "goal-state"
+  },
+  {
+    "stage": "feedback",
+    "label": "原因写回续轮",
+    "module": "loop",
+    "anchor": "goal-query"
+  },
+  {
+    "stage": "background",
+    "label": "宿主稍后交付",
+    "module": "background",
+    "anchor": "goal-background"
+  },
+  {
+    "stage": "return",
+    "label": "交还控制权",
+    "module": "gate",
+    "anchor": "goal-limits"
+  }
+]

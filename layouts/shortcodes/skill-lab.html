@@ -1,0 +1,45 @@
+{{- $manifest := transform.Unmarshal (readFile "examples/s07-skills-lab/manifest.json") -}}
+{{- $mode := .Get "mode" | default "index" -}}
+{{- $group := .Get "group" -}}
+{{- $files := $manifest.files -}}
+{{- with $group -}}{{- $files = where $files "group" . -}}{{- end -}}
+{{- if eq $mode "index" -}}
+<div class="skill-lab-index">
+<table>
+  <thead><tr><th>文件路径</th><th>用途</th><th>具体讲解</th><th>注意点</th></tr></thead>
+  <tbody>
+  {{- range $files }}
+    <tr>
+      <td><a href="#{{ .id }}"><code>{{ .path }}</code></a></td>
+      <td>{{ .purpose }}</td>
+      <td>{{ range $i, $slug := .chapters }}{{ if $i }} · {{ end }}{{ $page := $.Page.Site.GetPage (printf "/projects/learn-claude-code/s07/%s" $slug) }}<a href="{{ $page.RelPermalink }}">{{ index (split $page.Title " ") 0 }}</a>{{ end }}</td>
+      <td>{{ .note }}</td>
+    </tr>
+  {{- end }}
+  </tbody>
+</table>
+</div>
+{{- else if eq $mode "files" -}}
+  {{- range $files -}}
+    {{- if or (strings.Contains .path "..") (strings.HasPrefix .path "/") -}}
+      {{- errorf "Invalid Skills lab file path %q" .path -}}
+    {{- end -}}
+    {{- $path := printf "examples/s07-skills-lab/%s" .path -}}
+    {{- if not (fileExists $path) -}}{{- errorf "Missing Skills lab file %s" $path -}}{{- end -}}
+    {{- $ext := path.Ext .path -}}
+    {{- $language := "text" -}}
+    {{- if eq $ext ".py" -}}{{- $language = "python" -}}
+    {{- else if eq $ext ".sh" -}}{{- $language = "bash" -}}
+    {{- else if eq $ext ".json" -}}{{- $language = "json" -}}
+    {{- else if eq $ext ".md" -}}{{- $language = "markdown" -}}{{- end -}}
+    <details class="skill-lab-file" id="{{ .id }}"{{ if .open }} open{{ end }}>
+      <summary><code>{{ .path }}</code></summary>
+      <p>{{ .purpose }}。具体讲解：{{ range $i, $slug := .chapters }}{{ if $i }} · {{ end }}{{ $page := $.Page.Site.GetPage (printf "/projects/learn-claude-code/s07/%s" $slug) }}<a href="{{ $page.RelPermalink }}">{{ $page.Title }}</a>{{ end }}。</p>
+      <p><strong>注意：</strong>{{ .note }}</p>
+      {{- $content := readFile $path -}}
+      {{- if $content -}}{{ highlight $content $language "" }}{{- else -}}<p>此文件为空。</p>{{- end -}}
+    </details>
+  {{- end -}}
+{{- else -}}
+  {{- errorf "Unknown Skills lab view %q" $mode -}}
+{{- end -}}

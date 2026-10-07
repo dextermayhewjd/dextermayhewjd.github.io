@@ -1,0 +1,10 @@
+.skill-lab-index { overflow-x: auto; margin: 18px 0; }
+.skill-lab-index table { min-width: 660px; font-size: .82rem; }
+.skill-lab-index td:first-child { min-width: 190px; }
+.skill-lab-index code { overflow-wrap: anywhere; }
+.skill-lab-file { border: 1px solid var(--border); border-radius: 8px; margin: 16px 0; padding: 12px 14px; }
+.skill-lab-file summary { cursor: pointer; font-weight: 600; }
+.skill-lab-file summary code { white-space: normal; overflow-wrap: anywhere; font-size: .82rem; }
+.skill-lab-file p { margin: 12px 0; }
+.skill-lab-file .highlight { margin-bottom: 0; }
+.skill-lab-file:target { border-color: var(--primary); }

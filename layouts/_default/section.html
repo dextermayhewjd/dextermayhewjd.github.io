@@ -1,0 +1,30 @@
+{{- define "main" }}
+{{- $showNav := in (slice "courses" "projects") .Section -}}
+{{- if $showNav }}<div class="project-layout">{{ partial "project-nav.html" . }}<div class="project-layout__content">{{ end }}
+
+{{- if .Title }}
+<header class="page-header">
+  {{- partial "breadcrumbs.html" . }}
+  <h1>{{ .Title }}</h1>
+  {{- with .Description }}<div class="post-description">{{ . | markdownify }}</div>{{ end }}
+</header>
+{{- end }}
+
+{{- if .Content }}
+<div class="post-content md-content">
+  {{- if not (.Param "disableAnchoredHeadings") }}{{ partial "anchored_headings.html" .Content }}{{ else }}{{ .Content }}{{ end }}
+</div>
+{{- end }}
+
+{{- $pages := union .RegularPages .Sections -}}
+{{- range sort $pages "Params.weight" }}
+<article class="post-entry">
+  <header class="entry-header"><h2 class="entry-hint-parent">{{ .Title }}</h2></header>
+  {{- if ne (.Param "hideSummary") true }}<div class="entry-content"><p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p></div>{{ end }}
+  <footer class="entry-footer">{{ partial "post_meta.html" . }}</footer>
+  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
+</article>
+{{- end }}
+
+{{- if $showNav }}</div></div>{{ end }}
+{{- end }}

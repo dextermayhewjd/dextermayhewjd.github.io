@@ -1,0 +1,23 @@
+{{- $section := .CurrentSection -}}
+{{- if .IsSection -}}
+  {{- $section = . -}}
+{{- end -}}
+{{- range .Ancestors -}}
+  {{- if and .Parent (eq .Parent.Section .Section) -}}
+    {{- $section = . -}}
+  {{- end -}}
+{{- end -}}
+{{- if and $section (in (slice "courses" "projects") $section.Section) -}}
+<aside class="project-nav" aria-label="{{ $section.Title }} 导航">
+  <div class="project-nav__heading">{{ $section.Title }}</div>
+  <details class="project-nav__mobile">
+    <summary>展开本方向导航</summary>
+    <div class="project-nav__mobile-content">
+      {{ partial "project-nav-items.html" (dict "section" $section "current" .) }}
+    </div>
+  </details>
+  <nav class="project-nav__desktop">
+    {{ partial "project-nav-items.html" (dict "section" $section "current" .) }}
+  </nav>
+</aside>
+{{- end -}}

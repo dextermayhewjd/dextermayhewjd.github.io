@@ -1,0 +1,72 @@
+{{- $id := .Get "id" | default "architecture-explorer" -}}
+{{- $resource := .Page.Resources.Get (.Get "modules") -}}
+{{- if not $resource -}}{{- errorf "Explorer modules not found in %s" .Page.File.Path -}}{{- end -}}
+{{- $modules := $resource.Content | transform.Unmarshal -}}
+{{- $roles := dict -}}
+{{- with .Get "roles" -}}
+  {{- $roleResource := $.Page.Resources.Get . -}}
+  {{- if not $roleResource -}}{{- errorf "Explorer function roles %q not found in %s" . $.Page.File.Path -}}{{- end -}}
+  {{- $roles = $roleResource.Content | transform.Unmarshal -}}
+{{- end -}}
+<div class="diagram-explorer" id="{{ $id }}" data-diagram-explorer data-selected=""{{ with .Get "width" }} style="--architecture-width: {{ . }}px"{{ end }}>
+  {{ partial "architecture-figure.html" . }}
+  <div class="diagram-explorer__toolbar" hidden>
+    <button type="button" data-explorer-reset>恢复默认总览</button>
+    <span data-explorer-status role="status" aria-live="polite">默认总览：尚未选择模块。</span>
+  </div>
+  <div class="diagram-explorer__connections" data-connection-summary role="status" aria-live="polite" hidden></div>
+  <p class="diagram-explorer__instruction" data-explorer-instruction>点击本章模块查看详情；局部图中的步骤与下方函数联动高亮。可拖动右下角，或用“放大／恢复尺寸”。</p>
+  <p class="diagram-explorer__hint">悬停总图节点即可预览输入、输出和引用连线；移开恢复原状态，点击可固定查看或打开详情。相关连线与箭头加粗，其他连线淡化；蓝、橙、紫等变化颜色含义不变。图 1 保持静态回顾；图 3 布局固定，可按章节设置预览连线。</p>
+  <div class="diagram-explorer__modules" aria-label="选择章节模块" hidden>
+    {{- range $modules -}}
+      <button type="button" data-module-button="{{ .key }}" aria-expanded="false" aria-controls="{{ $id }}-{{ .key }}">{{ .label }}</button>
+    {{- end -}}
+  </div>
+  <div class="diagram-explorer__details" data-explorer-panel role="region" aria-label="局部详情" tabindex="-1">
+    <div class="diagram-explorer__panel-header" hidden>
+      <span data-explorer-panel-title>模块详情</span>
+      <div class="diagram-explorer__panel-actions">
+        <button type="button" data-explorer-trace aria-label="收起详情，保留输入输出连线高亮">只看连线</button>
+        <button type="button" data-panel-enlarge aria-label="放大详情阅读区域">放大</button>
+        <button type="button" data-panel-size-reset aria-label="恢复默认详情尺寸">恢复尺寸</button>
+        <button type="button" data-explorer-close aria-label="关闭模块详情">关闭</button>
+      </div>
+    </div>
+    <div class="diagram-explorer__panel-body">
+    {{- range $modules -}}
+      <details name="{{ $id }}-modules" id="{{ $id }}-{{ .key }}" data-module-card="{{ .key }}" data-focus-module="{{ .focus }}" data-code-sections="{{ delimit .codeSections "," }}" data-code-functions="{{ delimit .codeFunctions "," }}" data-function-roles="{{ $roles | jsonify }}" data-stage-functions="{{ .stageFunctions | jsonify }}" data-include-snippets="{{ .includeSnippets | default false }}" data-figure-id="{{ .figure }}" data-label="{{ .label }}">
+        <summary>{{ .label }}：接口与实现</summary>
+        <details class="diagram-explorer__contract-details"><summary>接口说明：触发、输入、输出与控制流</summary>
+        <dl class="diagram-explorer__contract">
+          <dt>触发位置</dt><dd>{{ .trigger }}</dd>
+          <dt>输入</dt><dd>{{ .input }}</dd>
+          <dt>输出／状态</dt><dd>{{ .output }}</dd>
+          <dt>控制流</dt><dd>{{ .flow }}</dd>
+        </dl>
+        </details>
+        <p class="diagram-explorer__source"><a href="{{ .sourceLink }}">在正文查看这一部分的完整解释与代码</a></p>
+        <div class="diagram-explorer__step-reader" data-step-reader>
+        <div class="diagram-explorer__step-diagram" data-local-diagram>
+          {{- with .diagramResource -}}
+            {{- $diagram := $.Page.Resources.Get . -}}
+            {{- if not $diagram -}}{{- errorf "Module diagram %q not found" . -}}{{- end -}}
+            <div class="architecture-diagram">
+              <div class="architecture-diagram__canvas" tabindex="0" role="region" aria-label="异常压缩的局部流程">{{ $diagram.Content | safeHTML }}</div>
+              {{ partial "architecture-legend.html" (dict "svg" $diagram.Content "scheme" "evolution" "baseline" false "collapsible" true) }}
+            </div>
+          {{- end -}}
+        </div>
+        <p class="diagram-explorer__step-status" data-step-status role="status" aria-live="polite">选择图中步骤，对照下方函数；条件与状态节点显示其相关实现。</p>
+        <div class="diagram-explorer__function-list" data-module-code data-function-list></div>
+        </div>
+      </details>
+    {{- end -}}
+    </div>
+    <button type="button" class="diagram-explorer__resize" data-panel-resize hidden aria-label="调整详情尺寸：拖动右下角，或使用方向键" title="拖动调整大小；方向键也可调整">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 20L20 8M14 20L20 14M19 20L20 19" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </button>
+  </div>
+</div>
+{{- /* PaperMod caches the footer across section pages; load this here. */ -}}
+{{- $script := resources.Get "js/architecture-explorer.js" | minify | fingerprint -}}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>

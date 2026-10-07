@@ -28,6 +28,7 @@ hasCJKLanguage = true
   ShowCodeCopyButtons = true
   ShowToc = true
   math = true
+  mainSections = ["posts"]   # 首页/归档只列文章，感悟不混进去
 
   [params.homeInfoParams]
     Title = "Hi 👋"
@@ -38,12 +39,22 @@ hasCJKLanguage = true
     url = "https://github.com/dextermayhewjd"
 
 [[menu.main]]
-  identifier = "posts"
-  name = "文章"
-  url = "/posts/"
-  weight = 10
+identifier = "posts"
+name = "文章"
+url = "/posts/"
+weight = 10
 [[menu.main]]
-  identifier = "archives"
+  identifier = "courses"
+  name = "课程"
+  url = "/courses/"
+  weight = 15
+[[menu.main]]
+  identifier = "projects"
+  name = "项目"
+  url = "/projects/"
+  weight = 16
+[[menu.main]]
+identifier = "archives"
   name = "归档"
   url = "/archives/"
   weight = 20
@@ -63,5 +74,12 @@ hasCJKLanguage = true
   url = "/about/"
   weight = 50
 
+# 感悟抽屉的数据源：构建时生成 /notes.json
+[outputFormats.NotesJSON]
+  mediaType = "application/json"
+  baseName = "notes"
+  isPlainText = true
+  notAlternative = true
+
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+  home = ["HTML", "RSS", "JSON", "NotesJSON"]

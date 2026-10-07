@@ -1,0 +1,312 @@
+[
+  {
+    "key": "connect",
+    "label": "连接与发现",
+    "focus": "connect",
+    "trigger": "模型调用 connect_mcp。",
+    "input": "注册 server 名 docs / deploy。",
+    "output": "工厂创建 Client，保存定义与映射并返回确认。",
+    "flow": "本例无网络传输；新工具在下一轮才可见。",
+    "sourceLink": "#mcp-connect",
+    "codeSections": [
+      "mcp-connect"
+    ],
+    "codeFunctions": [
+      "connect_mcp",
+      "_mock_server_docs",
+      "_mock_server_deploy",
+      "__init__",
+      "register",
+      "assemble_tool_pool",
+      "normalize_mcp_name",
+      "agent_loop",
+      "assemble_system_prompt",
+      "permission_hook",
+      "trigger_hooks",
+      "execute_tool",
+      "call_tool"
+    ],
+    "stageFunctions": {
+      "connect": [
+        "connect_mcp",
+        "_mock_server_docs",
+        "_mock_server_deploy"
+      ],
+      "registry": [
+        "__init__",
+        "register"
+      ],
+      "pool": [
+        "assemble_tool_pool",
+        "normalize_mcp_name"
+      ],
+      "model": [
+        "agent_loop",
+        "assemble_system_prompt"
+      ],
+      "permission": [
+        "permission_hook",
+        "trigger_hooks"
+      ],
+      "call": [
+        "execute_tool",
+        "call_tool"
+      ],
+      "result": [
+        "agent_loop"
+      ],
+      "error": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s14-mcp-core"
+  },
+  {
+    "key": "client",
+    "label": "Client 内部登记",
+    "focus": "registry",
+    "trigger": "mock server 工厂调用 register。",
+    "input": "服务定义和原始名字到业务函数的映射。",
+    "output": "保存 tools / _handlers 到进程内 mcp_clients。",
+    "flow": "校验名字、同服务重复和缺失 handler，不做完整 schema 校验。",
+    "sourceLink": "#mcp-client",
+    "codeSections": [
+      "mcp-client"
+    ],
+    "codeFunctions": [
+      "__init__",
+      "register",
+      "connect_mcp",
+      "_mock_server_docs",
+      "_mock_server_deploy",
+      "assemble_tool_pool",
+      "normalize_mcp_name",
+      "agent_loop",
+      "assemble_system_prompt",
+      "permission_hook",
+      "trigger_hooks",
+      "execute_tool",
+      "call_tool"
+    ],
+    "stageFunctions": {
+      "connect": [
+        "connect_mcp",
+        "_mock_server_docs",
+        "_mock_server_deploy"
+      ],
+      "registry": [
+        "__init__",
+        "register"
+      ],
+      "pool": [
+        "assemble_tool_pool",
+        "normalize_mcp_name"
+      ],
+      "model": [
+        "agent_loop",
+        "assemble_system_prompt"
+      ],
+      "permission": [
+        "permission_hook",
+        "trigger_hooks"
+      ],
+      "call": [
+        "execute_tool",
+        "call_tool"
+      ],
+      "result": [
+        "agent_loop"
+      ],
+      "error": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s14-mcp-core"
+  },
+  {
+    "key": "pool",
+    "label": "名称、schema 与动态工具池",
+    "focus": "pool",
+    "trigger": "每轮模型请求前调用 assemble_tool_pool。",
+    "input": "内置工具、已连接 Client 与宿主权限配置。",
+    "output": "模型 tools、本地 handlers，以及 mcp_tool_policies。",
+    "flow": "前缀规范化、冲突和长度检查；缓存定义不会自动刷新。",
+    "sourceLink": "#mcp-assemble",
+    "codeSections": [
+      "mcp-assemble"
+    ],
+    "codeFunctions": [
+      "assemble_tool_pool",
+      "normalize_mcp_name",
+      "connect_mcp",
+      "_mock_server_docs",
+      "_mock_server_deploy",
+      "__init__",
+      "register",
+      "agent_loop",
+      "assemble_system_prompt",
+      "permission_hook",
+      "trigger_hooks",
+      "execute_tool",
+      "call_tool"
+    ],
+    "stageFunctions": {
+      "connect": [
+        "connect_mcp",
+        "_mock_server_docs",
+        "_mock_server_deploy"
+      ],
+      "registry": [
+        "__init__",
+        "register"
+      ],
+      "pool": [
+        "assemble_tool_pool",
+        "normalize_mcp_name"
+      ],
+      "model": [
+        "agent_loop",
+        "assemble_system_prompt"
+      ],
+      "permission": [
+        "permission_hook",
+        "trigger_hooks"
+      ],
+      "call": [
+        "execute_tool",
+        "call_tool"
+      ],
+      "result": [
+        "agent_loop"
+      ],
+      "error": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s14-mcp-core"
+  },
+  {
+    "key": "permission",
+    "label": "宿主权限与确认",
+    "focus": "permission",
+    "trigger": "execute_tool 的 PreToolUse。",
+    "input": "模型名称、参数、当前宿主策略。",
+    "output": "allow 放行，其他策略需 CLI 确认。",
+    "flow": "服务 annotations 不替代授权；拒绝返回 tool_result。",
+    "sourceLink": "#mcp-permission",
+    "codeSections": [
+      "mcp-permission"
+    ],
+    "codeFunctions": [
+      "permission_hook",
+      "trigger_hooks",
+      "connect_mcp",
+      "_mock_server_docs",
+      "_mock_server_deploy",
+      "__init__",
+      "register",
+      "assemble_tool_pool",
+      "normalize_mcp_name",
+      "agent_loop",
+      "assemble_system_prompt",
+      "execute_tool",
+      "call_tool"
+    ],
+    "stageFunctions": {
+      "connect": [
+        "connect_mcp",
+        "_mock_server_docs",
+        "_mock_server_deploy"
+      ],
+      "registry": [
+        "__init__",
+        "register"
+      ],
+      "pool": [
+        "assemble_tool_pool",
+        "normalize_mcp_name"
+      ],
+      "model": [
+        "agent_loop",
+        "assemble_system_prompt"
+      ],
+      "permission": [
+        "permission_hook",
+        "trigger_hooks"
+      ],
+      "call": [
+        "execute_tool",
+        "call_tool"
+      ],
+      "result": [
+        "agent_loop"
+      ],
+      "error": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s14-mcp-core"
+  },
+  {
+    "key": "call",
+    "label": "原名调用与循环回传",
+    "focus": "call",
+    "trigger": "模型选中的外部工具经本轮 handlers 分发。",
+    "input": "Client 引用、原始工具名、业务 kwargs。",
+    "output": "字符串结果或 MCP error，配对原调用 ID。",
+    "flow": "工具异常留在工具边界；组装／API 失败则结束本轮。",
+    "sourceLink": "#mcp-call",
+    "codeSections": [
+      "mcp-call"
+    ],
+    "codeFunctions": [
+      "execute_tool",
+      "call_tool",
+      "connect_mcp",
+      "_mock_server_docs",
+      "_mock_server_deploy",
+      "__init__",
+      "register",
+      "assemble_tool_pool",
+      "normalize_mcp_name",
+      "agent_loop",
+      "assemble_system_prompt",
+      "permission_hook",
+      "trigger_hooks"
+    ],
+    "stageFunctions": {
+      "connect": [
+        "connect_mcp",
+        "_mock_server_docs",
+        "_mock_server_deploy"
+      ],
+      "registry": [
+        "__init__",
+        "register"
+      ],
+      "pool": [
+        "assemble_tool_pool",
+        "normalize_mcp_name"
+      ],
+      "model": [
+        "agent_loop",
+        "assemble_system_prompt"
+      ],
+      "permission": [
+        "permission_hook",
+        "trigger_hooks"
+      ],
+      "call": [
+        "execute_tool",
+        "call_tool"
+      ],
+      "result": [
+        "agent_loop"
+      ],
+      "error": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s14-mcp-core"
+  }
+]

@@ -1,0 +1,483 @@
+{
+  "version": 1,
+  "verified_docs_date": "2026-10-04",
+  "groups": [
+    "核心文件",
+    "配置变体",
+    "发现实验",
+    "权限与对照",
+    "验证与追踪",
+    "说明与索引"
+  ],
+  "files": [
+    {
+      "path": "project/.claude/skills/review-diff/SKILL.md",
+      "id": "lab-project-claude-skills-review-diff-skill-md",
+      "group": "核心文件",
+      "purpose": "完整 inline 主例：元信息、参数、动态快照、资源路由、权限与 Hook",
+      "chapters": [
+        "01-structure",
+        "03-invocation",
+        "04-context",
+        "05-rendering",
+        "06-permissions"
+      ],
+      "note": "技能目录是 review-diff；Hook 脚本另在项目 .claude/hooks/ 下，不能只复制这个文件。",
+      "open": true
+    },
+    {
+      "path": "project/.claude/skills/review-diff/references/input-boundaries.md",
+      "id": "lab-project-claude-skills-review-diff-references-input-boundaries-md",
+      "group": "核心文件",
+      "purpose": "空输入与默认值审查准则",
+      "chapters": [
+        "01-structure",
+        "04-context",
+        "08-evaluation"
+      ],
+      "note": "涉及输入边界才读取；被发现不等于正文已进入上下文。",
+      "open": false
+    },
+    {
+      "path": "project/.claude/skills/review-diff/references/concurrency.md",
+      "id": "lab-project-claude-skills-review-diff-references-concurrency-md",
+      "group": "核心文件",
+      "purpose": "共享状态和交错执行的审查准则",
+      "chapters": [
+        "04-context",
+        "08-evaluation"
+      ],
+      "note": "与 input-boundaries 是按需选择关系，不要求每次全部加载。",
+      "open": false
+    },
+    {
+      "path": "project/.claude/skills/review-diff/assets/report-template.md",
+      "id": "lab-project-claude-skills-review-diff-assets-report-template-md",
+      "group": "核心文件",
+      "purpose": "输出报告结构",
+      "chapters": [
+        "01-structure",
+        "04-context",
+        "08-evaluation"
+      ],
+      "note": "模板是素材；模型仍需读取并按照证据填写。",
+      "open": false
+    },
+    {
+      "path": "project/.claude/skills/review-diff/scripts/inspect-diff.sh",
+      "id": "lab-project-claude-skills-review-diff-scripts-inspect-diff-sh",
+      "group": "核心文件",
+      "purpose": "通过普通工具调用刷新工作区信息",
+      "chapters": [
+        "04-context",
+        "05-rendering"
+      ],
+      "note": "脚本执行输出进入上下文，不自动注入全部脚本源码；未跟踪文件只列路径。",
+      "open": false
+    },
+    {
+      "path": "project/.claude/hooks/skill-hook.py",
+      "id": "lab-project-claude-hooks-skill-hook-py",
+      "group": "核心文件",
+      "purpose": "拒绝 Write/Edit，并记录一次性 Read 回调的输入事件",
+      "chapters": [
+        "06-permissions"
+      ],
+      "note": "once 由 Claude Code 管理；脚本本身每被调用一次都会写一条日志。Bash 仍有写能力。",
+      "open": true
+    },
+    {
+      "path": "variants/manual/SKILL.md",
+      "id": "lab-variants-manual-skill-md",
+      "group": "配置变体",
+      "purpose": "manual：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "03-invocation",
+        "07-subagents"
+      ],
+      "note": "只由用户显式启动；disable-model-invocation: true 的 Skill 不可作为预加载技能。",
+      "open": false
+    },
+    {
+      "path": "variants/model-only/SKILL.md",
+      "id": "lab-variants-model-only-skill-md",
+      "group": "配置变体",
+      "purpose": "model-only：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "03-invocation"
+      ],
+      "note": "只能由模型选择；用户命令入口不可用。",
+      "open": false
+    },
+    {
+      "path": "variants/fork-wait/SKILL.md",
+      "id": "lab-variants-fork-wait-skill-md",
+      "group": "配置变体",
+      "purpose": "fork-wait：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "05-rendering",
+        "07-subagents"
+      ],
+      "note": "正文成为子任务；background: false 等待结果，任务必须自包含。",
+      "open": false
+    },
+    {
+      "path": "variants/fork-background/SKILL.md",
+      "id": "lab-variants-fork-background-skill-md",
+      "group": "配置变体",
+      "purpose": "fork-background：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "05-rendering",
+        "07-subagents"
+      ],
+      "note": "交互环境可后台；-p、后台禁用等情况仍会等待。",
+      "open": false
+    },
+    {
+      "path": "variants/render-failure/SKILL.md",
+      "id": "lab-variants-render-failure-skill-md",
+      "group": "配置变体",
+      "purpose": "render-failure：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "05-rendering",
+        "08-evaluation"
+      ],
+      "note": "预授权的 Git 命令仍因不存在的引用失败，正文不应按成功装载继续。",
+      "open": false
+    },
+    {
+      "path": "variants/preload/SKILL.md",
+      "id": "lab-variants-preload-skill-md",
+      "group": "配置变体",
+      "purpose": "preload：替换主项目同路径的 SKILL.md",
+      "chapters": [
+        "03-invocation",
+        "04-context",
+        "07-subagents"
+      ],
+      "note": "这是纯方法版本：不带调用参数或动态命令，避免把预加载当成普通调用。",
+      "open": false
+    },
+    {
+      "path": "variants/preload/review-worker.md",
+      "id": "lab-variants-preload-review-worker-md",
+      "group": "配置变体",
+      "purpose": "在子 Agent 启动时预加载 review-diff",
+      "chapters": [
+        "07-subagents"
+      ],
+      "note": "生成后位于 project/.claude/agents/review-worker.md；任务由委派消息给出。",
+      "open": false
+    },
+    {
+      "path": "variants/worktree/review-worker.md",
+      "id": "lab-variants-worktree-review-worker-md",
+      "group": "配置变体",
+      "purpose": "预加载方法并启用隔离工作树",
+      "chapters": [
+        "07-subagents"
+      ],
+      "note": "先观察目录隔离；工作树不自动带入父目录未提交改动。字段是 isolation，而不是 Skill 的 context。",
+      "open": false
+    },
+    {
+      "path": "project/.claude/skills/origin-probe/SKILL.md",
+      "id": "lab-project-claude-skills-origin-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "项目根部来源标记",
+      "chapters": [
+        "02-discovery",
+        "03-invocation"
+      ],
+      "note": "与嵌套、个人、管理和插件模板对比，不参与 review-diff 的自动触发。",
+      "open": false
+    },
+    {
+      "path": "project/packages/api/.claude/skills/origin-probe/SKILL.md",
+      "id": "lab-project-packages-api-claude-skills-origin-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "嵌套目录同名来源标记",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "可通过处理 packages/api 下文件发现；按目录限定名称区分。",
+      "open": false
+    },
+    {
+      "path": "project/packages/api/example.py",
+      "id": "lab-project-packages-api-example-py",
+      "group": "发现实验",
+      "purpose": "触发嵌套目录发现的可读文件",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "读取它只提供发现机会，不代表模型调用了嵌套 Skill。",
+      "open": false
+    },
+    {
+      "path": "discovery/personal/origin-probe/SKILL.md",
+      "id": "lab-discovery-personal-origin-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "个人目录来源模板",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "对应 ~/.claude/skills/origin-probe/SKILL.md；生成器不自动安装或覆盖个人文件。",
+      "open": false
+    },
+    {
+      "path": "discovery/managed-template/.claude/skills/origin-probe/SKILL.md",
+      "id": "lab-discovery-managed-template-claude-skills-origin-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "组织管理来源模板",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "目标根目录由部署与操作系统决定；只有管理员部署后才能观察管理优先级。",
+      "open": false
+    },
+    {
+      "path": "discovery/additional/.claude/skills/extra-probe/SKILL.md",
+      "id": "lab-discovery-additional-claude-skills-extra-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "--add-dir 的额外来源",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "指定 discovery/additional 作为额外目录；文件访问权限设置不等于加载配置。",
+      "open": false
+    },
+    {
+      "path": "discovery/plugin/.claude-plugin/plugin.json",
+      "id": "lab-discovery-plugin-claude-plugin-plugin-json",
+      "group": "发现实验",
+      "purpose": "本地插件名称和版本",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "skills 在插件根的 skills/ 下，不放进 .claude-plugin/；命名空间来自 name。",
+      "open": false
+    },
+    {
+      "path": "discovery/plugin/skills/origin-probe/SKILL.md",
+      "id": "lab-discovery-plugin-skills-origin-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "插件来源标记",
+      "chapters": [
+        "02-discovery"
+      ],
+      "note": "调用名为 /skills-lab:origin-probe，与项目 /origin-probe 并存。",
+      "open": false
+    },
+    {
+      "path": "discovery/account-upload/account-probe/SKILL.md",
+      "id": "lab-discovery-account-upload-account-probe-skill-md",
+      "group": "发现实验",
+      "purpose": "账号来源上传素材",
+      "chapters": [
+        "02-discovery",
+        "05-rendering"
+      ],
+      "note": "通过产品支持的入口启用，不手写同步缓存；本地个人目录与云端可见性不同。",
+      "open": false
+    },
+    {
+      "path": "profiles/without-skill.json",
+      "id": "lab-profiles-without-skill-json",
+      "group": "权限与对照",
+      "purpose": "关闭 review-diff，用于基线比较",
+      "chapters": [
+        "03-invocation",
+        "08-evaluation"
+      ],
+      "note": "适用于个人或项目 Skill；插件不由 skillOverrides 关闭。",
+      "open": false
+    },
+    {
+      "path": "profiles/deny-snapshot.json",
+      "id": "lab-profiles-deny-snapshot-json",
+      "group": "权限与对照",
+      "purpose": "拒绝动态快照命令，观察调用失败",
+      "chapters": [
+        "05-rendering",
+        "06-permissions"
+      ],
+      "note": "拒绝规则不能被 Skill 的 allowed-tools 绕过。",
+      "open": false
+    },
+    {
+      "path": "profiles/no-dynamic-shell.json",
+      "id": "lab-profiles-no-dynamic-shell-json",
+      "group": "权限与对照",
+      "purpose": "禁止 Skill 动态 Shell 预处理",
+      "chapters": [
+        "05-rendering"
+      ],
+      "note": "按产品策略处理占位命令，不等于禁止模型后续的全部 Bash 调用。",
+      "open": false
+    },
+    {
+      "path": "evals/cases.json",
+      "id": "lab-evals-cases-json",
+      "group": "验证与追踪",
+      "purpose": "正例、反例、显式调用、资源选择和无 Skill 基线",
+      "chapters": [
+        "03-invocation",
+        "04-context",
+        "08-evaluation"
+      ],
+      "note": "这是本教程定义的记录格式，不是插件或 Claude Code 专用 eval API。",
+      "open": false
+    },
+    {
+      "path": "evals/result-template.json",
+      "id": "lab-evals-result-template-json",
+      "group": "验证与追踪",
+      "purpose": "记录实际观察结果",
+      "chapters": [
+        "08-evaluation"
+      ],
+      "note": "默认空值表示尚未运行；模型触发与效果不能由格式检查推断。",
+      "open": false
+    },
+    {
+      "path": "project/src/normalize.py",
+      "id": "lab-project-src-normalize-py",
+      "group": "验证与追踪",
+      "purpose": "空输入契约的正常实现",
+      "chapters": [
+        "08-evaluation"
+      ],
+      "note": "生成 empty-list 案例后，移除空输入保护以制造可验证回归。",
+      "open": false
+    },
+    {
+      "path": "project/src/counter.py",
+      "id": "lab-project-src-counter-py",
+      "group": "验证与追踪",
+      "purpose": "并发计数契约的正常实现",
+      "chapters": [
+        "04-context",
+        "08-evaluation"
+      ],
+      "note": "lost-update 案例在让出执行前缓存旧值，制造丢失更新。",
+      "open": false
+    },
+    {
+      "path": "project/src/__init__.py",
+      "id": "lab-project-src-init-py",
+      "group": "验证与追踪",
+      "purpose": "练习项目的 Python 包标记",
+      "chapters": [
+        "08-evaluation"
+      ],
+      "note": "空文件；不是 Skill 组成部分。",
+      "open": false
+    },
+    {
+      "path": "project/tests/test_contracts.py",
+      "id": "lab-project-tests-test-contracts-py",
+      "group": "验证与追踪",
+      "purpose": "验证空输入、普通输入与两个并发更新",
+      "chapters": [
+        "08-evaluation"
+      ],
+      "note": "回归案例故意让测试失败；先保存失败证据，不自动修复练习。",
+      "open": false
+    },
+    {
+      "path": "project/.gitignore",
+      "id": "lab-project-gitignore",
+      "group": "验证与追踪",
+      "purpose": "排除运行日志、缓存与本地配置",
+      "chapters": [
+        "08-evaluation"
+      ],
+      "note": "避免观察 Hook 时的日志改变审查 diff。",
+      "open": false
+    },
+    {
+      "path": "project/.s07-skill-lab",
+      "id": "lab-project-s07-skill-lab",
+      "group": "验证与追踪",
+      "purpose": "标识可丢弃练习项目",
+      "chapters": [
+        "08-evaluation",
+        "09-agent-loop"
+      ],
+      "note": "教学脚本用此标记确认目标；它不改变 Claude Code 行为。",
+      "open": false
+    },
+    {
+      "path": "tools/new_case.py",
+      "id": "lab-tools-new-case-py",
+      "group": "验证与追踪",
+      "purpose": "生成新项目、选择变体、建立基线再制造回归",
+      "chapters": [
+        "02-discovery",
+        "07-subagents",
+        "08-evaluation"
+      ],
+      "note": "目标目录必须不存在且位于示例源码之外；配置先提交到基线，便于 worktree 加载。",
+      "open": false
+    },
+    {
+      "path": "tools/trace_inline.py",
+      "id": "lab-tools-trace-inline-py",
+      "group": "验证与追踪",
+      "purpose": "输出目录、调用、渲染、交付和资源结果的教学轨迹",
+      "chapters": [
+        "04-context",
+        "05-rendering",
+        "09-agent-loop"
+      ],
+      "note": "没有 LLM；只处理本包固定格式和固定 Git 命令，不冒充官方消息协议。",
+      "open": true
+    },
+    {
+      "path": "tools/verify_lab.py",
+      "id": "lab-tools-verify-lab-py",
+      "group": "验证与追踪",
+      "purpose": "离线检查案例、Hook 协议和轨迹",
+      "chapters": [
+        "06-permissions",
+        "08-evaluation",
+        "09-agent-loop"
+      ],
+      "note": "不验证真实模型触发、官方权限生命周期或后台调度。",
+      "open": false
+    },
+    {
+      "path": "README.md",
+      "id": "lab-readme-md",
+      "group": "说明与索引",
+      "purpose": "下载包入口与运行方法",
+      "chapters": [
+        "01-structure",
+        "08-evaluation",
+        "09-agent-loop"
+      ],
+      "note": "从示例根运行生成器，在独立练习项目中启动 Claude Code。",
+      "open": false
+    },
+    {
+      "path": "manifest.json",
+      "id": "lab-manifest-json",
+      "group": "说明与索引",
+      "purpose": "文件用途、章节归属和注意点的单一索引",
+      "chapters": [
+        "01-structure",
+        "02-discovery",
+        "03-invocation",
+        "04-context",
+        "05-rendering",
+        "06-permissions",
+        "07-subagents",
+        "08-evaluation",
+        "09-agent-loop"
+      ],
+      "note": "附录页面从该文件与真实源码生成，保持显示和下载内容一致。",
+      "open": false
+    }
+  ]
+}

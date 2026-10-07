@@ -1,0 +1,21 @@
+{{- /* 感悟抽屉的数据：content/notes/ 下的全部条目，按首次发布时间 date 新→旧 */ -}}
+{{- $items := slice }}
+{{- with site.GetPage "/notes" }}
+  {{- range .Pages.ByDate.Reverse }}
+    {{- $item := dict
+      "category" (.Params.category | default "未分类")
+      "date" (.Date.Format "2006-01-02")
+      "title" .Title
+      "source" (.Params.source | default "")
+      "sourceURL" (.Params.sourceURL | default "")
+      "text" (.Plain | htmlUnescape)
+    }}
+    {{- if .RelPermalink }}
+      {{- $item = merge $item (dict "url" .RelPermalink "html" (.Summary | string)) }}
+    {{- else }}
+      {{- $item = merge $item (dict "html" (.Content | string)) }}
+    {{- end }}
+    {{- $items = $items | append $item }}
+  {{- end }}
+{{- end }}
+{{- $items | jsonify }}

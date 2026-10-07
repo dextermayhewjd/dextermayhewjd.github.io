@@ -1,0 +1,11 @@
+{{- define "main" }}
+<header class="page-header">
+  {{- partial "breadcrumbs.html" . }}
+  <h1>{{ .Title }}</h1>
+  {{- with .Description | default .Params.summary }}
+  <div class="post-description">{{ . }}</div>
+  {{- end }}
+</header>
+{{- /* 与抽屉共用同一套检索界面，由 assets/js/notes.js 挂载 */}}
+<div class="notes-root notes-root--page" data-notes-mount></div>
+{{- end }}

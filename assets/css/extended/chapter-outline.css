@@ -1,0 +1,43 @@
+.chapter-outline {
+  margin: 20px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--entry);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.post-content .chapter-outline__title { margin: 0 0 10px; font-weight: 650; }
+.post-content .chapter-outline ul { margin: 0; padding: 0; list-style: none; }
+.post-content .chapter-outline nav > ul > li { margin: 12px 0 0; }
+.post-content .chapter-outline nav > ul > li:first-child { margin-top: 0; }
+.post-content .chapter-outline nav > ul > li > a { font-weight: 650; }
+.post-content .chapter-outline li > ul {
+  margin: 4px 0 0 8px;
+  padding-left: 18px;
+  border-left: 1px solid var(--border);
+}
+.post-content .chapter-outline li > ul > li { position: relative; margin: 0; }
+.post-content .chapter-outline li > ul > li::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 14px;
+  width: 12px;
+  border-top: 1px solid var(--border);
+}
+.post-content .chapter-outline a {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 4px;
+  border-radius: 4px;
+  box-shadow: none;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+.post-content .chapter-outline a:hover,
+.post-content .chapter-outline a:focus-visible { background: var(--code-bg); text-decoration: underline; }
+.post-content .chapter-outline a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.post-content:has(.chapter-outline) :is(h2, h3, h4)[id] { scroll-margin-top: 24px; }
+.post-content:has(.chapter-outline) :is(h2, h3, h4):target { background: var(--code-bg); border-radius: 4px; }

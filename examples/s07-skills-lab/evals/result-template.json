@@ -1,0 +1,14 @@
+{
+  "case_id": "",
+  "claude_code_version": "",
+  "model": "",
+  "variant": "inline",
+  "skill_invoked": null,
+  "files_read": [],
+  "commands_run": [],
+  "findings": [],
+  "source_unchanged": null,
+  "duration_seconds": null,
+  "token_usage": null,
+  "notes": "尚未运行；不要把空值当成通过。"
+}
