@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 485" role="img" aria-labelledby="proof-title proof-desc">
+<title id="proof-title">核心证明：把学生足迹上的错误，接到专家足迹上的已知条件</title><desc id="proof-desc">上排是目标与拆账；下排的两个上界汇入每步代价，再累计时间。</desc>
+<defs><marker id="proof-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<g font-family="system-ui, sans-serif" fill="var(--diagram-text, #24334b)">
+<text x="24" y="30" font-size="20" font-weight="650">核心证明：把学生足迹上的错误，接到专家足迹上的已知条件</text>
+<text x="24" y="56" font-size="13" fill="var(--diagram-muted, #58677b)">上排是目标与拆账；下排的两个上界汇入每步代价，再累计时间。</text>
+<path data-lecture-edge="true" data-from="local" data-to="objective" data-reason="对状态取期望，再对时间求和" d="M264 148H344" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="objective" data-to="split" data-reason="需要把学生分布改写为专家分布加差异" d="M584 148H664" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="split" data-to="perstep" data-reason="两笔账分别等待适用的上界" d="M784 202V294" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="assumption" data-to="distance" data-reason="用每步专家误差控制发生分歧的概率" d="M264 348H344" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="distance" data-to="perstep" data-reason="分布距离压住差价项" d="M584 348H664" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="assumption" data-to="perstep" data-reason="专家误差上界直接压住基础项" d="M144 402V448H784V402" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<path data-lecture-edge="true" data-from="perstep" data-to="sum" data-reason="将每步代价上界从第 1 步加到第 H 步" d="M904 348H984" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#proof-arrow)"/>
+<a href="#formula-11" data-lecture-node="local" aria-label="01 局部犯错率">
+<rect x="24" y="94" width="240" height="108" rx="10" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="40" y="124" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">01 局部犯错率</text>
+<text x="40" y="150" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">固定状态，只平均动作</text>
+<text x="40" y="176" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 11 · 定义</text>
+</a>
+<a href="#formula-12" data-lecture-node="objective" aria-label="02 部署总错误">
+<rect x="344" y="94" width="240" height="108" rx="10" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="360" y="124" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">02 部署总错误</text>
+<text x="360" y="150" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">按学生足迹加权每一步</text>
+<text x="360" y="176" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 12 · 目标</text>
+</a>
+<a href="#formula-16" data-lecture-node="split" aria-label="03 加减专家分布">
+<rect x="664" y="94" width="240" height="108" rx="10" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="680" y="124" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">03 加减专家分布</text>
+<text x="680" y="150" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">基础误差 ＋ 分布差价</text>
+<text x="680" y="176" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 16 · 转接</text>
+</a>
+<a href="#formula-14" data-lecture-node="assumption" aria-label="04 专家足迹上错得少">
+<rect x="24" y="294" width="240" height="108" rx="10" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="40" y="324" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">04 专家足迹上错得少</text>
+<text x="40" y="350" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">每步平均误差有上界</text>
+<text x="40" y="376" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 14 · 已知条件</text>
+</a>
+<a href="#formula-15" data-lecture-node="distance" aria-label="05 两套足迹差多远">
+<rect x="344" y="294" width="240" height="108" rx="10" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="360" y="324" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">05 两套足迹差多远</text>
+<text x="360" y="350" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">耦合与 union bound</text>
+<text x="360" y="376" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 15 · 分布上界</text>
+</a>
+<a href="#formula-17" data-lecture-node="perstep" aria-label="06 压住两笔账">
+<rect x="664" y="294" width="240" height="108" rx="10" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="680" y="324" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">06 压住两笔账</text>
+<text x="680" y="350" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">基础项与差价项分别估计</text>
+<text x="680" y="376" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 17 · 每步上界</text>
+</a>
+<a href="#formula-17" data-lecture-node="sum" aria-label="07 累计时间">
+<rect x="984" y="294" width="190" height="108" rx="10" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.6"/>
+<text x="1000" y="324" font-size="16" font-weight="650" fill="var(--diagram-text, #24334b)">07 累计时间</text>
+<text x="1000" y="350" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">得到平方级最坏上界</text>
+<text x="1000" y="376" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">公式 17–18 · 收口</text>
+</a>
+</g>
+</svg>

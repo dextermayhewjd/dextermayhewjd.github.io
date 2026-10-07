@@ -1,0 +1,20 @@
+.main:has(> .project-layout [data-lecture-flow][data-diagram-width]) { max-width: 1790px; }
+.main:has(> .project-layout [data-lecture-flow][data-diagram-width="1660"]) { max-width: 2010px; }
+.lecture-flow { max-width: var(--lecture-flow-width, 1440px); }
+.lecture-flow__canvas { max-width: var(--lecture-flow-width, 1440px); margin: 0 auto; overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--theme); }
+.lecture-flow__canvas > svg { display: block; width: 100%; min-width: var(--lecture-flow-min-width, 1400px); height: auto; }
+.post-content .lecture-flow__canvas a { text-decoration: none; box-shadow: none; cursor: pointer; }
+.post-content .lecture-flow__canvas a text { text-decoration: none; }
+.lecture-flow__canvas a:focus-visible { outline: none; }
+.lecture-flow__canvas a:focus-visible rect { stroke-width: 3px; }
+.lecture-flow__canvas path.is-related { stroke-width: 3px; }
+.lecture-flow__canvas path.is-unrelated { opacity: .3; }
+.lecture-flow__inline-formula { display: flex; align-items: center; height: 100%; color: var(--diagram-text); font-size: 13px; line-height: 1.4; }
+.lecture-flow__formula-body { width: 100%; min-width: 0; }
+.lecture-flow__inline-formula .katex { font-size: 1.08em; }
+.post-content .lecture-flow__inline-formula p { margin: 0; }
+.post-content .lecture-flow__inline-formula .katex-display { margin: 3px 0; padding: 0; overflow: visible; }
+.lecture-flow__inline-formula .katex-display > .katex { text-align: left; }
+.lecture-flow__qualifier { display: block; margin-top: 5px; color: var(--diagram-muted); font-size: 10px; line-height: 1.45; }
+.post-content .lecture-flow__caption { font-size: 13px; color: var(--secondary); line-height: 1.8; }
+.lecture-flow__canvas:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }

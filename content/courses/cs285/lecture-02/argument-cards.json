@@ -1,0 +1,161 @@
+[
+  {
+    "key": "supervised",
+    "label": "监督学习",
+    "formulas": "公式 1",
+    "target": "#formula-1",
+    "mapFormula": "$$\\arg\\max_\\theta\\sum_{i=1}^N\\log p_\\theta(y^{(i)}\\mid x^{(i)})$$",
+    "mapNote": "先从输入与标签的最大似然拟合开始。"
+  },
+  {
+    "key": "bc",
+    "label": "Behavioral cloning",
+    "formulas": "公式 2–5",
+    "target": "#formula-5",
+    "mapFormula": "$$\\arg\\max_\\theta\\sum_{i=1}^N\\sum_{t=1}^H\\log\\pi_\\theta(a_t^{(i)}\\mid o_t^{(i)})$$",
+    "mapNote": "输入与标签换成观测、动作；每条轨迹多了一层时间求和 $\\sum_t$。"
+  },
+  {
+    "key": "actions",
+    "label": "动作分布",
+    "formulas": "公式 6–8",
+    "target": "#formula-6",
+    "mapFormula": "$$\\pi_\\theta(a\\mid o)$$",
+    "mapNote": "BC 的输出形式是一条支线；固定 $\\Sigma=I$ 时，高斯最大似然对应平方误差。",
+    "formulaQualifier": "依动作空间选择概率分布或密度"
+  },
+  {
+    "key": "shift",
+    "label": "训练分布与执行分布",
+    "formulas": "公式 9–10",
+    "target": "#formula-10",
+    "mapFormula": "$$p_{\\mathrm{train}}(o_t)\\ne p_{\\pi_\\theta}(o_t)$$",
+    "mapNote": "专家带路与学生自己带路，可能访问不同的状态。接下来先定义什么叫错，才能量化它。"
+  },
+  {
+    "key": "cost",
+    "label": "先定义一次错误",
+    "formulas": "公式 11",
+    "target": "#formula-11",
+    "mapFormula": "$$c(s,a)=\\begin{cases}0,&a=\\pi^\\star(s),\\\\1,&a\\ne\\pi^\\star(s).\\end{cases}$$",
+    "mapNote": "动作与专家一致记 0，不一致记 1。这是用于后续分析的 0/1 代价模型。"
+  },
+  {
+    "key": "local",
+    "label": "固定状态下，单步错的概率",
+    "formulas": "公式 11",
+    "target": "#formula-11",
+    "mapFormula": "$$\\begin{aligned}\\bar c_t(s)&=\\mathbb E_{a\\sim\\pi_\\theta(\\cdot\\mid s)}[c(s,a)]\\\\&=P(a\\ne\\pi^\\star(s)\\mid s).\\end{aligned}$$",
+    "mapNote": "此时 $s$ 是给定的；只对动作取期望。0/1 代价的期望，就是犯错概率。"
+  },
+  {
+    "key": "trajectory",
+    "label": "整条轨迹的期望总错误",
+    "formulas": "公式 12",
+    "target": "#formula-12",
+    "mapFormula": "$$\\begin{aligned}J(\\pi_\\theta)&=\\mathbb E_{\\tau\\sim p_{\\pi_\\theta}}\\!\\left[\\sum_{t=1}^H c(s_t,a_t)\\right]\\\\&=\\sum_{t=1}^H\\mathbb E_{s_t\\sim p_{\\pi_\\theta}}[\\bar c_t(s_t)].\\end{aligned}$$",
+    "mapNote": "再对实际遇到的状态平均，并累计 $H$ 步。这里是“整条轨迹预期错几次”；不是某条轨迹的发生概率，也不是“至少错一次”的概率。"
+  },
+  {
+    "key": "analysis",
+    "label": "开始分析：已知条件在哪里成立",
+    "formulas": "公式 13–14",
+    "target": "#formula-14",
+    "mapFormula": "$$\\mathbb E_{s_t\\sim p_{\\mathrm{train}}}[\\bar c_t(s_t)]\\le\\epsilon$$",
+    "mapNote": "已知的是专家状态分布上的单步平均错误上界。先按是否曾经犯错统一分解，再比较分布距离，最后拆解总代价。"
+  },
+  {
+    "key": "mixture",
+    "label": "此前一次没错／至少错过一次：统一分解",
+    "formulas": "公式 14",
+    "target": "#formula-14",
+    "mapFormula": "$$p_{\\pi_\\theta}(s_t)=\\underbrace{q_t\\,p_{\\pi_\\theta}(s_t\\mid E_t)}_{\\text{此前一次都没有错}}+\\underbrace{(1-q_t)\\,p_{\\pi_\\theta}(s_t\\mid E_t^c)}_{\\text{此前至少错过一次}}$$",
+    "formulaQualifier": "记 $E_t$ 为前 $t-1$ 步一直无错，$q_t=P(E_t)$；两项为相应的条件状态分布。",
+    "mapNote": "这是总概率公式。两种情况互斥且穷尽，权重分别为 $q_t$ 与 $1-q_t$；条件下的无错分布一般不能直接替换为无条件专家分布。"
+  },
+  {
+    "key": "distance",
+    "label": "先比较状态分布，得到距离上界",
+    "formulas": "公式 15",
+    "target": "#formula-15",
+    "mapFormula": "$$\\begin{aligned}D_{\\mathrm{TV}}(p_{\\mathrm{train}},p_{\\pi_\\theta})&=\\frac12\\sum_{s_t}\\left|p_{\\pi_\\theta}(s_t)-p_{\\mathrm{train}}(s_t)\\right|\\\\&\\le 1-q_t\\le(t-1)\\epsilon\\le t\\epsilon.\\end{aligned}$$",
+    "mapNote": "将专家与学生从同一初始状态、共享环境随机性耦合，无错部分相同。总变差不超过出错事件的概率，再用 union bound 得到上界。",
+    "formulaQualifier": "耦合后，此前全对的那部分相同；分布差异由至少错过一次的部分产生。"
+  },
+  {
+    "key": "split",
+    "label": "再把部署错误精确拆成两项",
+    "formulas": "公式 16–17",
+    "target": "#formula-16",
+    "mapFormula": "$$\\mathbb E_{p_{\\pi_\\theta}}[\\bar c_t]=\\underbrace{\\sum_s p_{\\mathrm{train}}(s)\\bar c_t(s)}_{A_t:\\,\\text{基础项}}+\\underbrace{\\sum_s\\left(p_{\\pi_\\theta}(s)-p_{\\mathrm{train}}(s)\\right)\\bar c_t(s)}_{B_t:\\,\\text{偏移项}}$$",
+    "mapNote": "先在学生分布里加减专家分布，将部署错误写为专家分布上的基础项，加上分布差异带来的偏移项。",
+    "formulaQualifier": "加减同一项：这里仍是等式；下一步分别给 $A_t$ 与 $B_t$ 找上界。"
+  },
+  {
+    "key": "base-error",
+    "label": "基础项有多大",
+    "formulas": "公式 17",
+    "target": "#formula-17",
+    "mapFormula": "$$A_t=\\mathbb E_{s_t\\sim p_{\\mathrm{train}}}[\\bar c_t(s_t)]\\le\\epsilon$$",
+    "mapNote": "直接使用分析起点给出的专家分布上的平均错误假设。"
+  },
+  {
+    "key": "shift-error",
+    "label": "偏移额外带来多少错误",
+    "formulas": "公式 16–17",
+    "target": "#formula-17",
+    "mapFormula": "$$\\begin{aligned}B_t&\\le\\sum_s|p_{\\pi_\\theta}-p_{\\mathrm{train}}|\\bar c_t(s)\\\\&\\le2D_{\\mathrm{TV}}\\le2\\epsilon t.\\end{aligned}$$",
+    "formulaQualifier": "使用 $0\\le\\bar c_t\\le1$；这是偏移项的上界。",
+    "mapNote": "先对分布差取绝对值，再使用局部代价不超过 1，最后接上刚得到的 TV 距离上界。偏移项本身可以为负。"
+  },
+  {
+    "key": "per-step",
+    "label": "合起来：单步错误上界",
+    "formulas": "公式 17",
+    "target": "#formula-17",
+    "mapFormula": "$$\\mathbb E_{p_{\\pi_\\theta}}[\\bar c_t]=A_t+B_t\\le\\underbrace{\\epsilon}_{\\text{基础项}}+\\underbrace{2\\epsilon t}_{\\text{偏移项上界}}$$",
+    "mapNote": "每一步的部署错误上界为基础项与偏移项上界之和。"
+  },
+  {
+    "key": "bound",
+    "label": "累计后：整条轨迹的错误上界",
+    "formulas": "公式 17–18",
+    "target": "#formula-17",
+    "mapFormula": "$$\\begin{aligned}J(\\pi_\\theta)&\\le\\sum_{t=1}^H(\\epsilon+2\\epsilon t)\\\\&=\\underbrace{\\epsilon H}_{\\text{基础项上界}}+\\underbrace{\\epsilon H(H+1)}_{\\text{偏移项累计上界}}=O(\\epsilon H^2).\\end{aligned}$$",
+    "mapNote": "偏移带来的额外部分累计上界为 $\\epsilon H(H+1)$；部署总错误还要加上基础项上界 $\\epsilon H$。这是最坏上界，实际总错误仍不超过 $H$。",
+    "formulaQualifier": "最坏上界；0/1 总错误仍不超过轨迹长度"
+  },
+  {
+    "key": "dagger",
+    "label": "DAgger：补上自己访问的状态",
+    "formulas": "公式 19–20",
+    "target": "#formula-20",
+    "mapFormula": "$$\\mathcal D\\leftarrow\\mathcal D\\cup\\widetilde{\\mathcal D}_\\pi$$",
+    "mapNote": "自己运行策略，请专家给访问到的状态标正确动作，聚合后重新拟合。"
+  },
+  {
+    "key": "discrete",
+    "label": "离散动作 · Softmax",
+    "formulas": "公式 6",
+    "target": "#formula-6",
+    "mapFormula": "$$\\pi_\\theta(a=k\\mid o)=\\frac{\\exp(f_k(o))}{\\sum_{j=1}^{A}\\exp(f_j(o))}$$",
+    "mapNote": "对有限的动作类别计算概率，所有概率相加为 1。"
+  },
+  {
+    "key": "gaussian",
+    "label": "连续动作 · 高斯分布",
+    "formulas": "公式 7",
+    "target": "#formula-7",
+    "mapFormula": "$$\\pi_\\theta(a\\mid o)=\\mathcal N(a\\mid\\mu_\\theta(o),\\Sigma_\\theta(o))$$",
+    "mapNote": "网络输出动作密度的均值与协方差；高斯是一种选择。"
+  },
+  {
+    "key": "regression",
+    "label": "固定协方差 · 平方误差",
+    "formulas": "公式 8",
+    "target": "#formula-8",
+    "mapFormula": "$$-\\log\\pi_\\theta(a\\mid o)=\\frac12\\|a-\\mu_\\theta(o)\\|^2+C$$",
+    "formulaQualifier": "协方差为单位阵：最大似然等价于最小平方误差",
+    "mapNote": "这里固定 $\\Sigma=I$，常数 $C$ 与要拟合的均值无关。"
+  }
+]

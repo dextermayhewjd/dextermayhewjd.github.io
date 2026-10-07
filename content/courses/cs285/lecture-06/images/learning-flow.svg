@@ -1,0 +1,286 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1660 5808" role="group" aria-labelledby="lec6-flow-title lec6-flow-desc">
+<title id="lec6-flow-title">Lecture 6：完整算法集中成框，数学依据逐步拆解</title>
+<desc id="lec6-flow-desc">每个节点右侧都有公式；完整循环的全部编号步骤集中在一起，其他推导公式尽量单行，点击跳转详细章节。</desc>
+<defs><marker id="lec6-flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<g font-family="system-ui, sans-serif" fill="var(--diagram-text, #24334b)">
+<path data-flow-edge="true" data-from="starting-loop" data-to="return-noise" data-reason="下一步" d="M144 173.0V334" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="return-noise" data-to="q" data-reason="下一步" d="M144 376V466" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="q" data-to="v" data-reason="下一步" d="M144 508V598" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="v" data-to="a" data-reason="下一步" d="M144 640V730" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="a" data-to="bellman" data-reason="下一步" d="M144 772V862" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bellman" data-to="mc-label" data-reason="下一步" d="M144 904V994" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="mc-label" data-to="regression" data-reason="下一步" d="M144 1036V1126" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="regression" data-to="bootstrap" data-reason="下一步" d="M144 1168V1258" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bootstrap" data-to="discount" data-reason="下一步" d="M144 1300V1390" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="discount" data-to="batch-loop" data-reason="下一步" d="M144 1432V1673.0" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="batch-loop" data-to="online-loop" data-reason="下一步" d="M144 1715.0V2067.0" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="online-loop" data-to="bias" data-reason="下一步" d="M144 2109.0V2310" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bias" data-to="n-step" data-reason="下一步" d="M144 2352V2442" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="n-step" data-to="weights" data-reason="下一步" d="M144 2484V2574" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="weights" data-to="td-sum" data-reason="下一步" d="M144 2616V2706" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="td-sum" data-to="coefficient" data-reason="下一步" d="M144 2748V2838" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="coefficient" data-to="gae" data-reason="下一步" d="M144 2880V2970" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gae" data-to="gae-loop" data-reason="下一步" d="M144 3012V3253.0" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gae-loop" data-to="centering" data-reason="下一步" d="M144 3295.0V3506" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="centering" data-to="replay" data-reason="下一步" d="M144 3548V3638" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="replay" data-to="q-target" data-reason="下一步" d="M144 3680V3770" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="q-target" data-to="q-fit" data-reason="下一步" d="M144 3812V3902" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="q-fit" data-to="actor-proxy" data-reason="下一步" d="M144 3944V4034" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="actor-proxy" data-to="score-integral" data-reason="下一步" d="M144 4076V4206" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="score-integral" data-to="score-identity" data-reason="下一步" d="M144 4248V4338" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="score-identity" data-to="score-loop" data-reason="下一步" d="M144 4380V4616.0" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gaussian" data-to="noise-expectation" data-reason="下一步" d="M144 4946V5036" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="noise-expectation" data-to="path-gradient" data-reason="下一步" d="M144 5078V5168" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="path-gradient" data-to="chain-rule" data-reason="下一步" d="M144 5210V5300" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="chain-rule" data-to="path-loop" data-reason="下一步" d="M144 5342V5568.0" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="actor-proxy" data-to="gaussian" data-reason="同一个固定 critic 代理的另一条导数路径" d="M100 4076V4132H14V4925H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="a" data-to="baseline-proof" data-reason="补充公式与依据" d="M248 762H270V840H728V751H752" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gae" data-to="gae-recursion" data-reason="补充公式与依据" d="M248 3002H270V3080H728V2991H752" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="starting-loop" data-to="starting-loop" data-reason="整个循环返回采样" d="M100 173.0V300H26V152.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="batch-loop" data-to="batch-loop" data-reason="整个循环返回采样" d="M100 1715.0V1892H26V1694.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="online-loop" data-to="online-loop" data-reason="整个循环返回采样" d="M100 2109.0V2276H26V2088.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gae-loop" data-to="gae-loop" data-reason="整个循环返回采样" d="M100 3295.0V3472H26V3274.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="score-loop" data-to="score-loop" data-reason="整个循环返回采样" d="M100 4658.0V4830H26V4637.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="path-loop" data-to="path-loop" data-reason="整个循环返回采样" d="M100 5610.0V5772H26V5589.0H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#lec6-flow-arrow)"/>
+<path data-flow-edge="true" data-from="starting-loop" data-to="starting-loop-formula" data-reason="右侧完整公式" d="M248 152.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#starting-loop" data-flow-node="starting-loop" data-flow-loop="true" aria-label="先看完整 REINFORCE 循环">
+<rect x="40" y="131.0" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="149.0" text-anchor="middle" font-size="13" font-weight="650">先看完整 REINFORCE 循环</text>
+<text x="144.0" y="164.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">1–3 步 · 找到随机乘子</text>
+</a>
+<foreignObject x="300" y="12" width="1336" height="280"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="starting-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-starting-loop --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="return-noise" data-to="return-noise-formula" data-reason="右侧完整公式" d="M248 355.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-1" data-flow-node="return-noise" aria-label="一次 rollout 的回报有噪声">
+<rect x="40" y="334" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="352" text-anchor="middle" font-size="13" font-weight="650">一次 rollout 的回报有噪声</text>
+<text x="144.0" y="367" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 1 · 单样本 reward-to-go</text>
+</a>
+<foreignObject x="300" y="316" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="return-noise"><div class="lecture-flow__formula-body"><!-- formula-return-noise --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="q" data-to="q-formula" data-reason="右侧完整公式" d="M248 487.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-2" data-flow-node="q" aria-label="把后续随机性条件平均成 Q">
+<rect x="40" y="466" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="484" text-anchor="middle" font-size="13" font-weight="650">把后续随机性条件平均成 Q</text>
+<text x="144.0" y="499" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 2 · 固定状态与动作</text>
+</a>
+<foreignObject x="300" y="448" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="q"><div class="lecture-flow__formula-body"><!-- formula-q --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="v" data-to="v-formula" data-reason="右侧完整公式" d="M248 619.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-3" data-flow-node="v" aria-label="再对当前动作平均成 V">
+<rect x="40" y="598" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="616" text-anchor="middle" font-size="13" font-weight="650">再对当前动作平均成 V</text>
+<text x="144.0" y="631" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 3 · 动作还未选定</text>
+</a>
+<foreignObject x="300" y="580" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="v"><div class="lecture-flow__formula-body"><!-- formula-v --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="a" data-to="a-formula" data-reason="右侧完整公式" d="M248 751.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-4" data-flow-node="a" aria-label="优势是相对状态平均的差">
+<rect x="40" y="730" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="748" text-anchor="middle" font-size="13" font-weight="650">优势是相对状态平均的差</text>
+<text x="144.0" y="763" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 3–4 · 将参照放回梯度</text>
+</a>
+<foreignObject x="300" y="712" width="404" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="a"><div class="lecture-flow__formula-body"><!-- formula-a --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="baseline-proof" data-to="baseline-proof-formula" data-reason="右侧完整公式" d="M960 751.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-13" data-flow-node="baseline-proof" aria-label="固定状态 baseline 贡献为零">
+<rect x="752" y="730" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="748" text-anchor="middle" font-size="13" font-weight="650">固定状态 baseline 贡献为零</text>
+<text x="856.0" y="763" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 13 · 正则与采样条件</text>
+</a>
+<foreignObject x="1010" y="712" width="626" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="baseline-proof"><div class="lecture-flow__formula-body"><!-- formula-baseline-proof --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="bellman" data-to="bellman-formula" data-reason="右侧完整公式" d="M248 883.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-5" data-flow-node="bellman" aria-label="Q 的未来尾部就是下一 V">
+<rect x="40" y="862" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="880" text-anchor="middle" font-size="13" font-weight="650">Q 的未来尾部就是下一 V</text>
+<text x="144.0" y="895" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 5 · Bellman 条件平均</text>
+</a>
+<foreignObject x="300" y="844" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="bellman"><div class="lecture-flow__formula-body"><!-- formula-bellman --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="mc-label" data-to="mc-label-formula" data-reason="右侧完整公式" d="M248 1015.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-7" data-flow-node="mc-label" aria-label="状态与实际剩余奖励配标签">
+<rect x="40" y="994" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1012" text-anchor="middle" font-size="13" font-weight="650">状态与实际剩余奖励配标签</text>
+<text x="144.0" y="1027" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 6–7 · MC 估 V</text>
+</a>
+<foreignObject x="300" y="976" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="mc-label"><div class="lecture-flow__formula-body"><!-- formula-mc-label --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="regression" data-to="regression-formula" data-reason="右侧完整公式" d="M248 1147.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-7" data-flow-node="regression" aria-label="用平方误差拟合 critic">
+<rect x="40" y="1126" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1144" text-anchor="middle" font-size="13" font-weight="650">用平方误差拟合 critic</text>
+<text x="144.0" y="1159" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 7 · 噪声标签可学条件均值</text>
+</a>
+<foreignObject x="300" y="1108" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="regression"><div class="lecture-flow__formula-body"><!-- formula-regression --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="bootstrap" data-to="bootstrap-formula" data-reason="右侧完整公式" d="M248 1279.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-8" data-flow-node="bootstrap" aria-label="用预测尾部替代长 rollout">
+<rect x="40" y="1258" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1276" text-anchor="middle" font-size="13" font-weight="650">用预测尾部替代长 rollout</text>
+<text x="144.0" y="1291" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 8 · 标签固定再回归</text>
+</a>
+<foreignObject x="300" y="1240" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="bootstrap"><div class="lecture-flow__formula-body"><!-- formula-bootstrap --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="discount" data-to="discount-formula" data-reason="右侧完整公式" d="M248 1411.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-9" data-flow-node="discount" aria-label="引入折扣并统一目标">
+<rect x="40" y="1390" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1408" text-anchor="middle" font-size="13" font-weight="650">引入折扣并统一目标</text>
+<text x="144.0" y="1423" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 9 · 起点权重是 γ 的 t−1 次方</text>
+</a>
+<foreignObject x="300" y="1372" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="discount"><div class="lecture-flow__formula-body"><!-- formula-discount --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="batch-loop" data-to="batch-loop-formula" data-reason="右侧完整公式" d="M248 1694.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-11" data-flow-node="batch-loop" data-flow-loop="true" aria-label="完整 batch actor-critic">
+<rect x="40" y="1673.0" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1691.0" text-anchor="middle" font-size="13" font-weight="650">完整 batch actor-critic</text>
+<text x="144.0" y="1706.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 11 · 1–6 步集中展示</text>
+</a>
+<foreignObject x="300" y="1504" width="1336" height="380"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="batch-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-batch-loop --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="online-loop" data-to="online-loop-formula" data-reason="右侧完整公式" d="M248 2088.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-12" data-flow-node="online-loop" data-flow-loop="true" aria-label="完整在线更新原型">
+<rect x="40" y="2067.0" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2085.0" text-anchor="middle" font-size="13" font-weight="650">完整在线更新原型</text>
+<text x="144.0" y="2100.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 12 · 一次转移的 1–6 步</text>
+</a>
+<foreignObject x="300" y="1908" width="1336" height="360"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="online-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-online-loop --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="bias" data-to="bias-formula" data-reason="右侧完整公式" d="M248 2331.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-13" data-flow-node="bias" aria-label="baseline 与 bootstrap 分开判">
+<rect x="40" y="2310" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2328" text-anchor="middle" font-size="13" font-weight="650">baseline 与 bootstrap 分开判</text>
+<text x="144.0" y="2343" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 13 · 下一状态受动作影响</text>
+</a>
+<foreignObject x="300" y="2292" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="bias"><div class="lecture-flow__formula-body"><!-- formula-bias --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="n-step" data-to="n-step-formula" data-reason="右侧完整公式" d="M248 2463.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-14" data-flow-node="n-step" aria-label="先看 n 步，再交给 critic">
+<rect x="40" y="2442" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2460" text-anchor="middle" font-size="13" font-weight="650">先看 n 步，再交给 critic</text>
+<text x="144.0" y="2475" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 14 · 只含 n 个奖励</text>
+</a>
+<foreignObject x="300" y="2424" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="n-step"><div class="lecture-flow__formula-body"><!-- formula-n-step --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="weights" data-to="weights-formula" data-reason="右侧完整公式" d="M248 2595.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-15" data-flow-node="weights" aria-label="把 n-step 权重先归一">
+<rect x="40" y="2574" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2592" text-anchor="middle" font-size="13" font-weight="650">把 n-step 权重先归一</text>
+<text x="144.0" y="2607" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 15 · λ 小于 1 的无限式</text>
+</a>
+<foreignObject x="300" y="2556" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="weights"><div class="lecture-flow__formula-body"><!-- formula-weights --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="td-sum" data-to="td-sum-formula" data-reason="右侧完整公式" d="M248 2727.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-15" data-flow-node="td-sum" aria-label="每个 n-step 都是 TD 的和">
+<rect x="40" y="2706" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2724" text-anchor="middle" font-size="13" font-weight="650">每个 n-step 都是 TD 的和</text>
+<text x="144.0" y="2739" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 15 · 中间价值相消</text>
+</a>
+<foreignObject x="300" y="2688" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="td-sum"><div class="lecture-flow__formula-body"><!-- formula-td-sum --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="coefficient" data-to="coefficient-formula" data-reason="右侧完整公式" d="M248 2859.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-15" data-flow-node="coefficient" aria-label="δ 在所有包含它的 n 中累权">
+<rect x="40" y="2838" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2856" text-anchor="middle" font-size="13" font-weight="650">δ 在所有包含它的 n 中累权</text>
+<text x="144.0" y="2871" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 15 · 不是无权重复奖励</text>
+</a>
+<foreignObject x="300" y="2820" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="coefficient"><div class="lecture-flow__formula-body"><!-- formula-coefficient --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="gae" data-to="gae-formula" data-reason="右侧完整公式" d="M248 2991.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-15" data-flow-node="gae" aria-label="换序后得到 GAE 的一行式">
+<rect x="40" y="2970" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="2988" text-anchor="middle" font-size="13" font-weight="650">换序后得到 GAE 的一行式</text>
+<text x="144.0" y="3003" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 15 · 有限轨迹按末端处理</text>
+</a>
+<foreignObject x="300" y="2952" width="404" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="gae"><div class="lecture-flow__formula-body"><!-- formula-gae --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="gae-recursion" data-to="gae-recursion-formula" data-reason="右侧完整公式" d="M960 2991.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#gae-detail" data-flow-node="gae-recursion" aria-label="也可从最后一步递推">
+<rect x="752" y="2970" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="2988" text-anchor="middle" font-size="13" font-weight="650">也可从最后一步递推</text>
+<text x="856.0" y="3003" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">GAE 精读 · 保留首端 baseline</text>
+</a>
+<foreignObject x="1010" y="2952" width="626" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="gae-recursion"><div class="lecture-flow__formula-body"><!-- formula-gae-recursion --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="gae-loop" data-to="gae-loop-formula" data-reason="右侧完整公式" d="M248 3274.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-16" data-flow-node="gae-loop" data-flow-loop="true" aria-label="完整 GAE 版 actor 更新">
+<rect x="40" y="3253.0" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="3271.0" text-anchor="middle" font-size="13" font-weight="650">完整 GAE 版 actor 更新</text>
+<text x="144.0" y="3286.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 16 · 1–6 步集中展示</text>
+</a>
+<foreignObject x="300" y="3084" width="1336" height="380"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="gae-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-gae-loop --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="centering" data-to="centering-formula" data-reason="右侧完整公式" d="M248 3527.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-16" data-flow-node="centering" aria-label="可选中心化与尺度处理">
+<rect x="40" y="3506" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="3524" text-anchor="middle" font-size="13" font-weight="650">可选中心化与尺度处理</text>
+<text x="144.0" y="3539" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 16 · 别把自项当独立 baseline</text>
+</a>
+<foreignObject x="300" y="3488" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="centering"><div class="lecture-flow__formula-body"><!-- formula-centering --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="replay" data-to="replay-formula" data-reason="右侧完整公式" d="M248 3659.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="replay" aria-label="想复用旧转移，先查动作来源">
+<rect x="40" y="3638" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="3656" text-anchor="middle" font-size="13" font-weight="650">想复用旧转移，先查动作来源</text>
+<text x="144.0" y="3671" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 17 · 行为动作不是当前动作</text>
+</a>
+<foreignObject x="300" y="3620" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="replay"><div class="lecture-flow__formula-body"><!-- formula-replay --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="q-target" data-to="q-target-formula" data-reason="右侧完整公式" d="M248 3791.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="q-target" aria-label="Q 保留旧动作条件">
+<rect x="40" y="3770" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="3788" text-anchor="middle" font-size="13" font-weight="650">Q 保留旧动作条件</text>
+<text x="144.0" y="3803" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 17 · 下一动作换当前策略</text>
+</a>
+<foreignObject x="300" y="3752" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="q-target"><div class="lecture-flow__formula-body"><!-- formula-q-target --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="q-fit" data-to="q-fit-formula" data-reason="右侧完整公式" d="M248 3923.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="q-fit" aria-label="对 Q 做固定目标回归">
+<rect x="40" y="3902" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="3920" text-anchor="middle" font-size="13" font-weight="650">对 Q 做固定目标回归</text>
+<text x="144.0" y="3935" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 17 · 输入多了动作</text>
+</a>
+<foreignObject x="300" y="3884" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="q-fit"><div class="lecture-flow__formula-body"><!-- formula-q-fit --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="actor-proxy" data-to="actor-proxy-formula" data-reason="右侧完整公式" d="M248 4055.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-18" data-flow-node="actor-proxy" aria-label="actor 优化固定 critic 的平均">
+<rect x="40" y="4034" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="4052" text-anchor="middle" font-size="13" font-weight="650">actor 优化固定 critic 的平均</text>
+<text x="144.0" y="4067" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 18–19 · 旧状态上取当前动作</text>
+</a>
+<foreignObject x="300" y="4016" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="actor-proxy"><div class="lecture-flow__formula-body"><!-- formula-actor-proxy --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="score-integral" data-to="score-integral-formula" data-reason="右侧完整公式" d="M248 4227.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-19" data-flow-node="score-integral" aria-label="路线 A：先把期望写成积分">
+<rect x="40" y="4206" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="4224" text-anchor="middle" font-size="13" font-weight="650">路线 A：先把期望写成积分</text>
+<text x="144.0" y="4239" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 19 · θ 在动作密度上</text>
+</a>
+<foreignObject x="300" y="4188" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="score-integral"><div class="lecture-flow__formula-body"><!-- formula-score-integral --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="score-identity" data-to="score-identity-formula" data-reason="右侧完整公式" d="M248 4359.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-19" data-flow-node="score-identity" aria-label="Log-trick 恢复可采样的密度">
+<rect x="40" y="4338" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="4356" text-anchor="middle" font-size="13" font-weight="650">Log-trick 恢复可采样的密度</text>
+<text x="144.0" y="4371" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 19 · 完整写出梯度</text>
+</a>
+<foreignObject x="300" y="4320" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="score-identity"><div class="lecture-flow__formula-body"><!-- formula-score-identity --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="score-loop" data-to="score-loop-formula" data-reason="右侧完整公式" d="M248 4637.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-19" data-flow-node="score-loop" data-flow-loop="true" aria-label="完整 score 版 replay 循环">
+<rect x="40" y="4616.0" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="4634.0" text-anchor="middle" font-size="13" font-weight="650">完整 score 版 replay 循环</text>
+<text x="144.0" y="4649.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 19 · 1–5 步集中展示</text>
+</a>
+<foreignObject x="300" y="4452" width="1336" height="370"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="score-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-score-loop --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="gaussian" data-to="gaussian-formula" data-reason="右侧完整公式" d="M248 4925.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-20" data-flow-node="gaussian" aria-label="路线 B：用固定噪声加工动作">
+<rect x="40" y="4904" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="4922" text-anchor="middle" font-size="13" font-weight="650">路线 B：用固定噪声加工动作</text>
+<text x="144.0" y="4937" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 20 · 标准差与方差分清</text>
+</a>
+<foreignObject x="300" y="4886" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="gaussian"><div class="lecture-flow__formula-body"><!-- formula-gaussian --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="noise-expectation" data-to="noise-expectation-formula" data-reason="右侧完整公式" d="M248 5057.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-20" data-flow-node="noise-expectation" aria-label="分布表示改变，期望相等">
+<rect x="40" y="5036" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="5054" text-anchor="middle" font-size="13" font-weight="650">分布表示改变，期望相等</text>
+<text x="144.0" y="5069" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 20 · θ 挪进被积函数</text>
+</a>
+<foreignObject x="300" y="5018" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="noise-expectation"><div class="lecture-flow__formula-body"><!-- formula-noise-expectation --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="path-gradient" data-to="path-gradient-formula" data-reason="右侧完整公式" d="M248 5189.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-20" data-flow-node="path-gradient" aria-label="满足条件后，导数穿过期望">
+<rect x="40" y="5168" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="5186" text-anchor="middle" font-size="13" font-weight="650">满足条件后，导数穿过期望</text>
+<text x="144.0" y="5201" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 20 · 这一步不能自动跳</text>
+</a>
+<foreignObject x="300" y="5150" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="path-gradient"><div class="lecture-flow__formula-body"><!-- formula-path-gradient --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="chain-rule" data-to="chain-rule-formula" data-reason="右侧完整公式" d="M248 5321.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-20" data-flow-node="chain-rule" aria-label="直接用 Q 对动作的导数">
+<rect x="40" y="5300" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="5318" text-anchor="middle" font-size="13" font-weight="650">直接用 Q 对动作的导数</text>
+<text x="144.0" y="5333" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 20 · critic 参数仍固定</text>
+</a>
+<foreignObject x="300" y="5282" width="1336" height="108"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="chain-rule"><div class="lecture-flow__formula-body"><!-- formula-chain-rule --></div></div></foreignObject>
+<path data-flow-edge="true" data-from="path-loop" data-to="path-loop-formula" data-reason="右侧完整公式" d="M248 5589.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec6-flow-arrow)"/>
+<a href="#formula-21" data-flow-node="path-loop" data-flow-loop="true" aria-label="完整 pathwise replay 循环">
+<rect x="40" y="5568.0" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="5586.0" text-anchor="middle" font-size="13" font-weight="650">完整 pathwise replay 循环</text>
+<text x="144.0" y="5601.0" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 21 · 1–5 步集中展示</text>
+</a>
+<foreignObject x="300" y="5414" width="1336" height="350"><div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="path-loop" data-flow-loop="true"><div class="lecture-flow__formula-body"><!-- formula-path-loop --></div></div></foreignObject>
+<text x="40" y="4161" font-size="12" font-weight="650" fill="var(--diagram-muted, #58677b)">固定 critic 代理的梯度路线 A · 动作概率的 score</text>
+<text x="40" y="4859" font-size="12" font-weight="650" fill="var(--diagram-muted, #58677b)">固定 critic 代理的梯度路线 B · 可导动作的 pathwise</text>
+</g>
+</svg>

@@ -1,0 +1,33 @@
+.lecture-map { max-width: 1200px; }
+.lecture-map [hidden] { display: none !important; }
+.lecture-map figure { margin: 0; }
+.lecture-map .architecture-diagram__canvas svg { min-width: calc(var(--architecture-width, 1200px) - 2px); }
+.lecture-map [data-lecture-node] { cursor: pointer; text-decoration: none; box-shadow: none; }
+.lecture-map [data-lecture-node] text { text-decoration: none; }
+.lecture-map [data-lecture-node]:focus-visible { outline: none; }
+.lecture-map [data-lecture-node]:focus-visible rect,
+.lecture-map [data-lecture-node].is-selected rect { stroke-width: 3.5px; }
+.lecture-map path.is-related { stroke-width: 3.5px; }
+.lecture-map path.is-unrelated { opacity: .2; }
+.lecture-map__legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 12px 0; color: var(--secondary); font-size: 12px; }
+.lecture-map__legend span { display: inline-flex; align-items: center; gap: 5px; }
+.lecture-map__swatch { display: inline-block; width: 14px; height: 12px; border: 1px solid; border-radius: 3px; }
+.lecture-map__swatch--base { background: var(--diagram-base-fill); border-color: var(--diagram-base-stroke); }
+.lecture-map__swatch--modified { background: var(--diagram-modified-fill); border-color: var(--diagram-modified-stroke); }
+.lecture-map__swatch--memory { background: var(--diagram-memory-fill); border-color: var(--diagram-memory-stroke); }
+.post-content .lecture-map__hint { color: var(--secondary); font-size: 13px; margin: 12px 0; }
+.lecture-map__controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.lecture-map__controls button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--entry); color: var(--primary); font: inherit; font-size: 13px; cursor: pointer; }
+.lecture-map__controls button[aria-expanded="true"] { border-color: var(--primary); font-weight: 700; }
+.lecture-map__controls button:focus-visible,
+.lecture-map__cards summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.post-content .lecture-map__relations { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--diagram-memory-stroke); background: var(--entry); font-size: 13px; line-height: 1.8; }
+.lecture-map__cards details { margin: 12px 0; padding: 14px 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--theme); }
+.lecture-map[data-ready="true"] .lecture-map__cards > details:not([open]) { display: none; }
+.lecture-map__cards summary { cursor: pointer; font-size: 15px; font-weight: 650; }
+.lecture-map__cards p { font-size: 15px; }
+.lecture-map__bridge { color: var(--secondary); }
+.lecture-map__cards .katex-display { font-size: .9em; }
+.lecture-checks details { padding: 12px 16px; margin: 12px 0; border: 1px solid var(--border); border-radius: 8px; }
+.lecture-checks summary { cursor: pointer; font-weight: 600; }
+.post-content:has(.lecture-map) .katex-display { overflow-x: auto; overflow-y: hidden; padding: 8px 0; }

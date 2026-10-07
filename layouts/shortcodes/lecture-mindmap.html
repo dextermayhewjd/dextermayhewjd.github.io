@@ -1,0 +1,28 @@
+{{- $id := .Get "id" -}}
+{{- $data := .Page.Resources.Get (.Get "cards") -}}
+{{- $diagram := .Page.Resources.Get (.Get "src" | default "images/learning-flow.svg") -}}
+{{- if or (not $data) (not $diagram) -}}{{- errorf "Lecture flow resources missing in %s" .Page.File.Path -}}{{- end -}}
+{{- $cards := $data.Content | transform.Unmarshal -}}
+{{- $width := int (.Get "width" | default 1440) -}}
+{{- $minWidth := 1400 -}}
+{{- if gt $width 1440 -}}{{- $minWidth = sub $width 80 -}}{{- end -}}
+{{- $svg := $diagram.Content -}}
+{{- range $cards -}}
+    {{- $formula := .mapFormula -}}
+    {{- if eq .key "bc" -}}
+      {{- $formula = replace $formula "\\sum_{t=1}^H" "\\underbrace{\\sum_{t=1}^H}_{\\text{时间步}}" -}}
+    {{- end -}}
+    {{- $html := $.Page.RenderString (dict "display" "block") $formula -}}
+    {{- with .formulaQualifier -}}
+      {{- $html = printf "%s<small class=\"lecture-flow__qualifier\">%s</small>" $html (. | htmlEscape) -}}
+    {{- end -}}
+    {{- $svg = replace $svg (printf "<!-- formula-%s -->" .key) $html -}}
+{{- end -}}
+<div class="lecture-map lecture-flow architecture-diagram" id="{{ $id }}" data-lecture-flow data-diagram-width="{{ $width }}" style="--lecture-flow-width: {{ $width }}px; --lecture-flow-min-width: {{ $minWidth }}px">
+  <div class="lecture-flow__canvas" tabindex="0" role="region" aria-label="{{ .Get "label" | default (printf "%s：每个节点右侧直接显示对应公式，窄屏可左右滑动" .Page.Title) }}">
+    {{ $svg | safeHTML }}
+  </div>
+  <p class="lecture-flow__caption">{{ .Get "caption" | default "每个节点右侧都有对应公式。先统一分解“此前一次没错／至少错过一次”，再比较状态分布、得到距离上界；接着拆开基础项与偏移项，逐项估计并累计时间。点击节点阅读逐行拆解，窄屏可在图内左右滑动。" }}</p>
+</div>
+{{- $script := resources.Get "js/lecture-flow.js" | minify | fingerprint -}}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>

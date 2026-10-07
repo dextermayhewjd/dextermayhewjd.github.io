@@ -1,0 +1,40 @@
+{{- $id := .Get "id" -}}
+{{- $diagram := .Page.Resources.Get (.Get "src") -}}
+{{- $data := .Page.Resources.Get (.Get "cards") -}}
+{{- if or (not $diagram) (not $data) -}}
+  {{- errorf "Lecture map resources missing in %s" .Page.File.Path -}}
+{{- end -}}
+{{- $cards := $data.Content | transform.Unmarshal -}}
+<div class="lecture-map architecture-diagram" id="{{ $id }}" data-lecture-map data-diagram-width="1200" style="--architecture-width: 1200px">
+  <figure>
+    <div class="architecture-diagram__canvas" tabindex="0" role="region" aria-label="{{ .Get "label" }}，窄屏可左右滑动">
+      {{ $diagram.Content | safeHTML }}
+    </div>
+    <figcaption>{{ .Get "caption" }}</figcaption>
+  </figure>
+  <div class="lecture-map__legend" aria-label="课程图图例">
+    <span><i class="lecture-map__swatch lecture-map__swatch--base" aria-hidden="true"></i>蓝：建模与定义</span>
+    <span><i class="lecture-map__swatch lecture-map__swatch--modified" aria-hidden="true"></i>橙：分布差异与误差</span>
+    <span><i class="lecture-map__swatch lecture-map__swatch--memory" aria-hidden="true"></i>紫：修复方法／证明关键步骤</span>
+    <span>箭头：{{ .Get "arrows" }}</span>
+  </div>
+  <p class="lecture-map__hint">悬停看前后关系；点击节点读“这一步为什么需要这个公式”，再跳到逐行拆解。窄屏可在图内左右滑动。</p>
+  <div class="lecture-map__controls" hidden>
+    {{ range $cards }}<button type="button" data-lecture-select="{{ .key }}" aria-controls="{{ $id }}-{{ .key }}" aria-expanded="false">{{ .label }}</button>{{ end }}
+    <button type="button" data-lecture-reset>回到总览</button>
+  </div>
+  <p class="lecture-map__relations" data-lecture-relations aria-live="polite" hidden></p>
+  <div class="lecture-map__cards">
+    {{ range $cards }}
+    <details id="{{ $id }}-{{ .key }}" data-lecture-card="{{ .key }}">
+      <summary>{{ .label }} · {{ .formulas }}</summary>
+      <p class="lecture-map__question"><strong>这一步要回答：</strong>{{ .question }}</p>
+      <div class="lecture-map__explanation">{{ $.Page.RenderString (dict "display" "block") .body }}</div>
+      <p class="lecture-map__bridge"><strong>交给下一步：</strong>{{ .next }}</p>
+      <p><a href="{{ .target }}">进入 {{ .formulas }} 的逐行拆解 →</a></p>
+    </details>
+    {{ end }}
+  </div>
+</div>
+{{- $script := resources.Get "js/lecture-map.js" | minify | fingerprint -}}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>
