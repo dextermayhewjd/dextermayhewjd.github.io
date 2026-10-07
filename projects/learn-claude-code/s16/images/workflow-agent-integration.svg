@@ -1,0 +1,257 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1420" role="img" aria-labelledby="s16-overview-title s16-overview-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s16-overview-title">图 2 · Workflow 接入 S15 工具循环</title>
+  <desc id="s16-overview-desc">S16 导入 S15 主运行时，仅增加 Workflow schema 和同步适配。下方 runtime 校验可信脚本、并发执行单步、读写 journal 并记录进度，全部结束后经原 PostToolUse 与配对结果回传；不提前异步返回。</desc>
+  <defs>
+    <marker id="s16-overview-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)" />
+    </marker>
+    <marker id="s16-overview-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s16-memory-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s16-task-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s16-background-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s16-cron-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+  </defs>
+  <text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">图 2 · 主循环保留，工具背后执行完整脚本</text>
+  <text x="24" y="55" text-anchor="start" font-size="13" fill="var(--diagram-muted, #58677b)">原 S15 接口保留；下方新增 Workflow，结束后只返回一次结果。</text>
+  <path data-from="history" data-to="prepare" data-kind="flow" data-label="待整理的 messages" data-route="s16-01" d="M170 128H230" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="prepare" data-to="model" data-kind="flow" data-label="整理与本轮工具组装完成后请求" data-route="s16-02" d="M360 128H420" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="model" data-to="decision" data-kind="flow" data-label="模型响应" data-route="s16-03" d="M550 128H610" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="decision" data-to="handler" data-kind="flow" data-label="有工具调用" data-route="s16-04" d="M740 128H800" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="handler" data-to="pre-event" data-kind="flow" data-label="普通工具调用" data-route="s16-05" d="M820 160V176H776V309H800" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="pre-event" data-to="added-file-tools" data-kind="flow" data-label="允许执行" data-route="s16-06" d="M865 280V265" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="added-file-tools" data-to="post-event" data-kind="flow" data-label="工具执行结果" data-route="s16-07" d="M930 223H990" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="post-event" data-to="result" data-kind="flow" data-label="观察后回传" data-route="s16-08" d="M1055 200V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="pre-event" data-to="result" data-kind="flow" data-label="拒绝也返回配对结果" data-route="s16-09" d="M930 326H954V350H1144V136H1120" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="decision" data-to="stop-event" data-kind="flow" data-label="无工具调用" data-route="s16-10" d="M675 160V200" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="stop-event" data-to="memory-persist" data-kind="flow" data-label="无工具调用，Stop 无反馈" data-route="s16-11" d="M675 258V616H626V640" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="input" data-to="input-event" data-kind="flow" data-label="用户问题" data-route="s16-13" d="M105 280V258" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="input-event" data-to="history" data-kind="flow" data-label="输入事件完成" data-route="s16-14" d="M105 200V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="tools" data-to="model" data-kind="reference" data-label="可用工具定义" data-route="s16-15" d="M485 183V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="system" data-to="model" data-kind="reference" data-label="请求背景" data-route="s16-16" data-relation="interface" d="M420 312H396V180H438V160" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="skill-catalog" data-to="model" data-kind="reference" data-label="技能名称与描述" data-route="s16-17" data-relation="interface" d="M485 380V364H586V172H512V160" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="input" data-to="skill-loading" data-kind="reference" data-label="显式选择技能" data-route="s16-18" data-relation="interface" d="M170 312H206V420H170" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="handler" data-to="skill-loading" data-kind="reference" data-label="按需装载技能" data-route="s16-19" data-relation="interface" d="M930 145H966V370H218V444H170" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="skill-loading" data-to="history" data-kind="flow" data-label="技能正文加入历史" data-route="s16-20" d="M105 400V380H28V176H92V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-from="prepare" data-to="compact-processor" data-kind="flow" data-label="整理后仍超限" data-route="s16-21" d="M360 154H384V486H865V476" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-added-arrow)" />
+  <path data-from="compact-processor" data-to="prepare" data-kind="flow" data-label="整理结束回到准备阶段，继续刷新 context、SYSTEM 和工具池" data-route="s16-22" d="M800 416H574V72H330V96" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-added-arrow)" />
+  <path data-from="handler" data-to="compact-registration" data-kind="flow" data-label="登记 compact 调用" data-route="s16-23" d="M930 154H942V272H1158V312H1120" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-added-arrow)" />
+  <path data-from="compact-registration" data-to="result" data-kind="flow" data-label="返回确认结果" data-route="s16-24" d="M1120 302H1172V152H1120" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-added-arrow)" />
+  <path data-from="result" data-to="compact-processor" data-kind="flow" data-label="已登记 compact 且本批结果交齐" data-route="s16-25" d="M1120 112H1130V386H950V400" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-added-arrow)" />
+  <path data-from="result" data-to="history" data-kind="flow" data-label="追加工具结果，下一轮" data-route="s16-27" d="M1120 128H1188V1370H12V128H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <rect data-stage="history" data-change="base" x="40" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Lead 对话历史</text>
+  <text x="105" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">允许整理与替换</text>
+  <rect data-stage="prepare" data-change="base" x="230" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="295" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求前处理</text>
+  <text x="295" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">注入、压缩、召回与组装</text>
+  <text x="295" y="153" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">每轮刷新 context 与 tools</text>
+  <rect data-stage="model" data-change="base" x="420" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="485" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+  <text x="485" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">接收已组装的三份输入</text>
+  <rect data-stage="decision" data-change="base" x="610" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">响应与工具判断</text>
+  <text x="675" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">ACK / tool_use</text>
+  <rect data-stage="handler" data-change="modified" x="800" y="96" width="130" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="865" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">分发调用</text>
+  <text x="865" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">同步 / Workflow / compact</text>
+  <rect data-stage="result" data-change="base" x="990" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="1055" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回传结果</text>
+  <text x="1055" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">所有调用按 ID 配对</text>
+  <rect data-stage="tools" data-change="modified" x="420" y="183" width="130" height="58" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="485" y="208" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">TOOLS</text>
+  <text x="485" y="229" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">27 schema + 动态 MCP</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-context" aria-label="查看记忆进入 SYSTEM 的实现">
+    <rect data-stage="system" data-change="base" x="420" y="280" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="485" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">SYSTEM</text>
+    <text x="485" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">规则 + Skills + Memory</text>
+  </a>
+  <rect data-stage="input" data-change="base" x="40" y="280" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">用户输入</text>
+  <text x="105" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">沿用 S04 入口</text>
+  <rect data-stage="input-event" data-change="base" x="40" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">输入事件</text>
+  <text x="105" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">UserPromptSubmit</text>
+  <rect data-stage="stop-event" data-change="base" x="610" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Stop</text>
+  <text x="675" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">统计回合后正常收尾</text>
+<a  class="diagram-chapter-link" href="/projects/learn-claude-code/s15/#harness-permission" aria-label="查看 S15 权限与同步分发"><rect data-stage="pre-event" data-change="base" x="800" y="280" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="865" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">PreToolUse</text>
+    <text x="865" y="326" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">Bash 确认 / 异步拒绝</text>
+  </a>
+  <rect data-stage="post-event" data-change="base" x="990" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="1055" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">PostToolUse</text>
+  <text x="1055" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">执行后观察</text>
+  <rect data-stage="skill-catalog" data-change="base" x="420" y="380" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="485" y="405" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">技能目录</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/02-discovery/" aria-label="查看技能目录 S07.2" tabindex="0">
+    <text x="485" y="426" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">名称 / 描述 · S07.2</text>
+  </a>
+  <rect data-stage="skill-loading" data-change="base" x="40" y="400" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="425" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Skill 装载</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/09-agent-loop/" aria-label="查看 Skills 正文交付 S07.9" tabindex="0">
+    <text x="105" y="446" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">正文入历史 → S07.9</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s08/#compact-manual" aria-label="查看compact ▸的接口、局部图和代码">
+    <rect data-stage="compact-registration" data-change="base" x="990" y="280" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="1055" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">compact</text>
+    <text x="1055" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">先登记并返回确认</text>
+  </a>
+  <rect data-stage="added-file-tools" data-change="base" x="800" y="183" width="130" height="82" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="865" y="205" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">工具实现</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s02/#file-tool-implementation" aria-label="查看 read / write / edit / glob" tabindex="0">
+    <text x="865" y="225" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">read / write / edit / glob</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s06/#subagent-core" aria-label="查看 task→S06" tabindex="0">
+    <text x="833" y="246" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">task→S06</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s05/#todo-tool-implementation" aria-label="查看 TODO→S05" tabindex="0">
+    <text x="896" y="246" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">TODO→S05</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s10/">
+    <text x="865" y="259" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">持久任务 / 依赖 → S10</text>
+  </a>
+  <text x="388" y="87" text-anchor="start" font-size="9" fill="var(--diagram-muted, #58677b)">足够 →</text>
+  <text x="390" y="472" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">整理后仍超限</text>
+  <text x="1030" y="378" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">主动 compact 且结果交齐</text>
+  <text x="693" y="182" text-anchor="start" font-size="9" fill="var(--diagram-muted, #58677b)">无工具 ↓</text>
+  <text x="1065" y="362" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">拒绝也返回配对结果</text>
+  <text x="640" y="1362" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">工具结果 → 更新历史 → 下一轮；无工具则正常收尾</text>
+  <text x="40" y="1408" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)" data-baseline-label="Workflow 保留原主循环，并在一个工具调用内完成脚本运行。">紫色是脚本、单步 runner 与 journal；父调用等待完整运行结束。</text>
+  <path data-from="memory-recall" data-to="system" data-kind="flow" data-label="相关正文加入背景" data-route="s16-29" d="M360 558H372V356H485V344" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-memory-arrow)" />
+  <path data-from="memory-store" data-to="memory-recall" data-kind="flow" data-label="读取磁盘中的文件与索引" data-route="s16-30" d="M200 640V596" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-memory-arrow)" />
+  <path data-from="memory-persist" data-to="end" data-kind="flow" data-label="记忆保存检查结束，再退出" data-route="s16-32" d="M626 716V744H675V760" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-memory-arrow)" />
+  <path data-from="memory-persist" data-to="memory-store" data-kind="flow" data-label="有长期新信息才更新记忆文件" data-route="s16-35" d="M605 716V736H200V716" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-memory-arrow)" />
+  <rect data-stage="compact-processor" data-change="base" x="800" y="400" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="960" y="425" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Compact 处理</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s08/">
+    <text x="960" y="446" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">请求前预算管线 / 主动摘要 → S08</text>
+  </a>
+  <text x="960" y="469" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">整理后继续组装本轮请求</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-recall" aria-label="查看 记忆召回 ▸">
+    <rect data-stage="memory-recall" data-change="base" x="40" y="520" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="200" y="545" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">记忆召回 ▸</text>
+    <text x="200" y="566" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">每个主模型轮次刷新</text>
+    <text x="200" y="589" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">选择相关文件，再读正文</text>
+  </a>
+  <rect data-stage="memory-store" x="40" y="640" width="320" height="76" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5" data-change="base" />
+  <text x="200" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">记忆文件与索引</text>
+  <text x="200" y="686" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">.memory / MEMORY.md</text>
+  <text x="200" y="709" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">主题文件跨回合保存</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-extract" aria-label="查看 提取与校验 ▸">
+    <rect data-stage="memory-persist" data-change="base" x="486" y="640" width="238" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="605" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Memory 保存接口</text>
+    <text x="605" y="686" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">正常无工具收尾才提取 → S09</text>
+    <text x="605" y="709" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">异常退出不统一运行此收尾</text>
+  </a>
+  <rect data-stage="end" data-change="base" x="610" y="760" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="785" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+  <text x="675" y="806" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">不等待后台线程</text>
+  <text x="231" y="500" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">每个主模型轮次</text>
+  <text x="684" y="611" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">无工具调用，Stop 无反馈</text>
+  <text x="709" y="756" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">保存检查完成 →</text>
+  <path data-route="s16-memory-read" data-from="memory-store" data-to="memory-persist" data-kind="flow" data-label="读取已有记忆，筛选长期新信息" d="M360 678H486" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-overview-arrow)" />
+  <path data-route="s16-bg-inject" data-from="background-collect" data-to="prepare" data-kind="flow" data-label="将通知合并到消息，再进入请求前处理" d="M460 760V730H402V168H300V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-background-arrow)" />
+  <a class="diagram-chapter-link"  href="/projects/learn-claude-code/s15/#harness-feedback" aria-label="查看 S15 后台终态收集">
+    <rect data-stage="background-collect" data-change="base" x="230" y="760" width="320" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="390.0" y="785" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">后台终态收集 ▸</text>
+    <text x="390.0" y="806" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">入口与结果批次共用 collect</text>
+  </a>
+<defs><marker id="s16-team-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/></marker></defs>
+<path data-route="cron-folded-register" data-from="pre-event" data-to="cron-interface" data-kind="reference" data-label="S12 调度工具的登记与返回接口索引，内部见 S12" d="M800 310H750V842H200V880" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="cron-folded-event" data-from="cron-interface" data-to="history" data-kind="flow" data-label="每轮 consume_cron_queue 后追加 Scheduled 用户消息" d="M40 918H20V120H40" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-team-arrow)"/>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s12/" aria-label="查看Cron 队列与 ACK → S12">
+<rect data-stage="cron-interface" data-change="base" x="40" y="880" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="200.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Cron 队列与 ACK → S12</text>
+<text x="200.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">每轮消费，响应成功后 ACK</text>
+<text x="200.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">S15 一次性 pending 语义见正文</text>
+</a>
+<defs><marker id="s16-mcp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/></marker></defs>
+<path data-route="team-folded-entry" data-from="pre-event" data-to="team-interface" data-kind="reference" data-label="S13 团队工具启动与控制入口索引" d="M800 318H736V742H746V836H610V880" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="team-folded-confirm" data-from="team-interface" data-to="post-event" data-kind="flow" data-label="S13 启动确认仍返回工具结果" d="M700 880V860H1150V266H1090V258" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-mcp-arrow)"/>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s13/" aria-label="查看Team / Worktree → S13">
+<rect data-stage="team-interface" data-change="base" x="400" y="880" width="340" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="570.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Team / Worktree → S13</text>
+<text x="570.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">独立 WORK / IDLE 与 owner</text>
+<text x="570.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">事件桥交付；协议／cwd → S13.1–4</text>
+</a>
+<defs><marker id="s16-harness-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<path data-route="harness-recall" data-from="prepare" data-to="memory-recall" data-kind="flow" data-label="每轮更新 context 并选择相关 Memory" d="M230 154H186V506H200V520" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-harness-arrow)"/>
+<path data-route="harness-assembly" data-from="prepare" data-to="assembly" data-kind="reference" data-label="准备阶段调用管线、上下文和工具池组装" d="M360 116H414V500H960V520" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-tools" data-from="pool" data-to="tools" data-kind="reference" data-label="26 个内置 schema 加动态 MCP 定义" d="M800 678H758V178H500V183" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-handlers" data-from="pool" data-to="handler" data-kind="reference" data-label="相同本轮 handlers 快照留在主循环" d="M1120 686H1168V80H850V96" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-prompt" data-from="assembly" data-to="system" data-kind="reference" data-label="当前 context 拼入 SYSTEM" d="M800 575H778V362H528V344" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-background-start" data-from="pre-event" data-to="background-start" data-kind="flow" data-label="权限允许后，显式后台 Bash 分支" d="M800 335H770V846H1166V918H1120" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-harness-arrow)"/>
+<path data-route="harness-background-placeholder" data-from="background-start" data-to="result" data-kind="flow" data-label="立即回传配对的启动占位，不先运行 PostToolUse" d="M1120 930H1134V180H1110V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-harness-arrow)"/>
+<path data-route="harness-background-complete" data-from="background-start" data-to="background-collect" data-kind="flow" data-label="worker 实际完成运行 PostToolUse 后发布终态" d="M800 918H786V830H540V824" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-harness-arrow)"/>
+<path data-route="harness-background-wake" data-from="background-collect" data-to="event-bridge" data-kind="reference" data-label="完成待投递可使事件桥启动一轮" d="M520 824V864H782V784H800" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-cron-wake" data-from="cron-interface" data-to="event-bridge" data-kind="reference" data-label="队列非空可唤醒主循环" d="M360 918H380V848H900V824" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-team-wake" data-from="team-interface" data-to="event-bridge" data-kind="reference" data-label="Lead 邮箱事件使桥接线程启动一轮" d="M720 880V856H1000V824" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="harness-event-history" data-from="event-bridge" data-to="history" data-kind="flow" data-label="agent_lock 串行调用同一主循环，Team 先追加 user 事件" d="M1120 806H1178V1008H24V112H40" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s16-harness-arrow)"/>
+<a class="diagram-chapter-link"  href="/projects/learn-claude-code/s15/#harness-prepare" aria-label="查看请求组装 ▸">
+<rect data-stage="assembly" data-change="base" x="800" y="520" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="960.0" y="545" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求组装 ▸</text>
+<text x="960.0" y="566" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">消息预算 → context → SYSTEM</text>
+<text x="960.0" y="586" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">Memory / Skills 目录与请求背景</text>
+</a>
+<a class="diagram-chapter-link"  href="/projects/learn-claude-code/s15/#harness-pool" aria-label="查看工具池与分发表 ▸">
+<rect data-stage="pool" data-change="modified" x="800" y="640" width="320" height="76" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="960.0" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">工具池与分发表 ▸</text>
+<text x="960.0" y="686" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">27 schema / 26 handlers / MCP</text>
+<text x="960.0" y="706" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">compact 在主循环中特判</text>
+</a>
+<a class="diagram-chapter-link"  href="/projects/learn-claude-code/s15/#harness-runtime" aria-label="查看异步事件桥 ▸">
+<rect data-stage="event-bridge" data-change="base" x="800" y="760" width="320" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="960.0" y="785" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">异步事件桥 ▸</text>
+<text x="960.0" y="806" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">Cron / 背景 / Team · 共用 agent_lock</text>
+</a>
+<a class="diagram-chapter-link"  href="/projects/learn-claude-code/s15/#harness-background" aria-label="查看后台 Bash 与两种回传 ▸">
+<rect data-stage="background-start" data-change="base" x="800" y="880" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="960.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">后台 Bash 与两种回传 ▸</text>
+<text x="960.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">先占位 tool_result；完成后 PostToolUse</text>
+<text x="960.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">通知原子收集，再回到主循环</text>
+</a>
+<path data-route="harness-pool-input" data-from="prepare" data-to="pool" data-kind="reference" data-label="请求前独立组装本轮 tools 与 handlers" d="M360 140H390V606H950V640" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<defs><marker id="s16-workflow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<path data-route="wf-entry" data-from="pre-event" data-to="wf-entry" data-kind="flow" data-label="父 PreToolUse 之后同步调用 Workflow 适配器" d="M800 324H722V608H764V1058H766V1118H800" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-script" data-from="wf-entry" data-to="wf-script" data-kind="flow" data-label="registry 取可信函数，持锁初始化 ctx 后等待脚本" d="M960 1156V1200" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-open-journal" data-from="wf-entry" data-to="wf-journal" data-kind="reference" data-label="新运行打开 journal，续跑先读快照和日志" d="M800 1100H780V1218H740" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="wf-record" data-from="wf-script" data-to="wf-journal" data-kind="flow" data-label="结构校验通过的单步逐条写 key / value" d="M800 1242H740" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-cache" data-from="wf-journal" data-to="wf-script" data-kind="flow" data-label="相同单步 key 命中直接复用，不调用 runner" d="M740 1260H760V1294H960V1276" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-complete" data-from="wf-script" data-to="wf-finish" data-kind="flow" data-label="完整脚本返回，汇总结果和最终 task 状态" d="M800 1230H762V1136H740" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-artifacts" data-from="wf-finish" data-to="wf-journal" data-kind="flow" data-label="启动与结束快照、最终输出与最近 run ID" d="M570 1156V1200" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<path data-route="wf-return" data-from="wf-finish" data-to="post-event" data-kind="flow" data-label="同步工具只在完整运行结束后返回 JSON，父级再运行 PostToolUse" d="M620 1080V1060H1160V188H1070V200" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s16-workflow-arrow)"/>
+<a class="diagram-module-link" data-module="entry" href="#workflow-adapter" aria-label="查看Workflow 工具入口 ▸">
+<rect data-stage="wf-entry" data-change="added" x="800" y="1080" width="320" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="1105" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Workflow 工具入口 ▸</text>
+<text x="960.0" y="1126" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">name / args / resume_from_run_id</text>
+<text x="960.0" y="1146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">同步适配器等待，不提前返回</text>
+</a>
+<a class="diagram-module-link" data-module="script" href="#workflow-primitives" aria-label="查看可信脚本与单步 runner ▸">
+<rect data-stage="wf-script" data-change="added" x="800" y="1200" width="320" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="1225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">可信脚本与单步 runner ▸</text>
+<text x="960.0" y="1246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">agent / parallel / pipeline / phase</text>
+<text x="960.0" y="1266" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">JSON 校验；中间值留在脚本</text>
+</a>
+<a class="diagram-module-link" data-module="journal" href="#workflow-journal" aria-label="查看journal 与运行产物 ▸">
+<rect data-stage="wf-journal" data-change="storage" x="400" y="1200" width="340" height="76" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="570.0" y="1225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">journal 与运行产物 ▸</text>
+<text x="570.0" y="1246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">稳定 key → 单步结果；整次 run 持锁</text>
+<text x="570.0" y="1266" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">snapshot / output / journal / lock</text>
+</a>
+<a class="diagram-module-link" data-module="finish" href="#workflow-lifecycle" aria-label="查看本地事件与最终回传 ▸">
+<rect data-stage="wf-finish" data-change="added" x="400" y="1080" width="340" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="570.0" y="1105" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本地事件与最终回传 ▸</text>
+<text x="570.0" y="1126" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">期间打印进度；结束后 task_notification</text>
+<text x="570.0" y="1146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">一次返回 launched + result + task</text>
+</a>
+</svg>

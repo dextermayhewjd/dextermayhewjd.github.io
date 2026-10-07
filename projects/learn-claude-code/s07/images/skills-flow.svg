@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" role="img" aria-labelledby="s07-skills-map-title s07-skills-map-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s07-skills-map-title">S07 · 先看 Skills 自身怎样工作</title><desc id="s07-skills-map-desc">紫色是 Skills 机制；蓝色执行会话暂作外部接口，最后再接回完整 Agent Loop。</desc>
+<defs><marker id="s07-skills-map-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s07-skills-map-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">S07 · 先看 Skills 自身怎样工作</text>
+<text x="24" y="55" text-anchor="start" font-size="13" fill="var(--diagram-muted, #58677b)">紫色是 Skills 机制；蓝色执行会话暂作外部接口，最后再接回完整 Agent Loop。</text>
+<rect data-stage="package" x="24" y="96" width="136" height="80" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="92" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">A 技能包</text>
+<text x="92" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">SKILL.md</text>
+<text x="92" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">元信息 + 正文</text>
+<rect data-stage="catalog" x="192" y="96" width="136" height="80" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="260" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">B 可见目录</text>
+<text x="260" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">名称与描述</text>
+<text x="260" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">发现范围 / 可见性</text>
+<rect data-stage="invocation" x="360" y="96" width="136" height="80" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="428" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">C 发起调用</text>
+<text x="428" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">用户点名</text>
+<text x="428" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">或模型按描述选择</text>
+<rect data-stage="delivery" x="528" y="96" width="208" height="80" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="632" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">D 准备与交付</text>
+<text x="632" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">取得正文，按配置处理</text>
+<text x="632" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">把指令交给目标上下文</text>
+<path d="M160 128H192" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-skills-map-base-arrow)"/>
+<path d="M328 128H360" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-skills-map-base-arrow)"/>
+<path d="M496 128H528" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-skills-map-base-arrow)"/>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/01-structure/" aria-label="阅读 07.1 内容结构" tabindex="0"><text x="34" y="193" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">07.1 内容结构</text></a>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/02-discovery/" aria-label="阅读 07.2 发现范围" tabindex="0"><text x="202" y="193" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">07.2 发现范围</text></a>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/03-invocation/" aria-label="阅读 07.3 调用入口" tabindex="0"><text x="370" y="193" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">07.3 调用入口</text></a>
+<path d="M92 176V222H512V158H528" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="290" y="216" text-anchor="start" font-size="10.5" fill="var(--diagram-muted, #58677b)">正文在调用时取用；不随目录全部进入模型</text>
+<rect data-stage="options" x="192" y="255" width="264" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="324" y="281" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">可选扩展</text>
+<text x="324" y="302" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">参数 / 动态内容：07.5</text>
+<text x="324" y="321" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">权限 / Hook：07.6</text>
+<text x="324" y="340" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">fork 执行上下文：07.7</text>
+<rect data-stage="executor" x="528" y="255" width="208" height="90" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="632" y="281" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">E 执行会话（外部）</text>
+<text x="632" y="302" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">模型依照指令行动</text>
+<text x="632" y="321" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">默认当前会话；可选子 Agent</text>
+<path d="M632 176V255" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" marker-end="url(#s07-skills-map-focus-arrow)"/>
+<rect data-stage="resources" x="24" y="386" width="136" height="64" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="92" y="412" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">F 按需资源</text>
+<text x="92" y="433" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">资料正文 / 脚本输出</text>
+<path d="M92 222V386" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<path d="M632 345V411H160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-skills-map-base-arrow)"/>
+<text x="302" y="401" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">执行中有需要，再读取资料或运行脚本</text>
+<path d="M160 432H504V316H528" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-skills-map-base-arrow)"/>
+<text x="268" y="454" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">实际取用的内容或结果返回执行会话</text>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/04-context/" aria-label="阅读 07.4 正文何时可见" tabindex="0"><text x="528" y="369" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">07.4 正文何时可见</text></a>
+<text x="24" y="486" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">可选扩展不组成必经流水线；外部会话的模型与工具回环在 07.9 再展开。</text>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/09-agent-loop/" aria-label="阅读 最后一步：07.9 接回 Agent Loop" tabindex="0"><text x="24" y="507" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">最后一步：07.9 接回 Agent Loop</text></a>
+</svg>

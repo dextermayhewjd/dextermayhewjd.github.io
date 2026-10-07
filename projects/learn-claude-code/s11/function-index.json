@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "select",
+    "label": "后台条件",
+    "module": "select",
+    "anchor": "background-select"
+  },
+  {
+    "stage": "launch",
+    "label": "启动与登记",
+    "module": "start",
+    "anchor": "background-start"
+  },
+  {
+    "stage": "continue",
+    "label": "继续主循环",
+    "module": "inject",
+    "anchor": "background-loop"
+  },
+  {
+    "stage": "worker",
+    "label": "worker 执行",
+    "module": "worker",
+    "anchor": "background-worker"
+  },
+  {
+    "stage": "queue",
+    "label": "共享状态",
+    "module": "collect",
+    "anchor": "background-state"
+  },
+  {
+    "stage": "collect",
+    "label": "收集通知",
+    "module": "collect",
+    "anchor": "background-collect"
+  },
+  {
+    "stage": "inject",
+    "label": "注入消息",
+    "module": "inject",
+    "anchor": "background-inject"
+  },
+  {
+    "stage": "end",
+    "label": "退出边界",
+    "module": "inject",
+    "anchor": "background-loop"
+  }
+]

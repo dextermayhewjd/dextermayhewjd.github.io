@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 390" role="img" aria-labelledby="s08-snip-title s08-snip-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s08-snip-title">局部 B · 归档中间历史，保护工具配对</title><desc id="s08-snip-desc">先保存当时的消息，再用归档标记替换中间部分。</desc>
+<defs><marker id="s08-snip-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s08-snip-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">局部 B · 归档中间历史，保护工具配对</text>
+<text x="24" y="55" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">先保存当时的消息，再用归档标记替换中间部分。</text>
+<path  d="M336 148H384" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-snip-added-arrow)"/>
+<path  d="M520 148H552" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-snip-added-arrow)"/>
+<path data-route="archive-before-snip" d="M452 192V244" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-snip-added-arrow)"/>
+<path data-relation="archive-reference" d="M520 280H540V160H552" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-relation="pair-boundary" d="M336 280H358V176H384" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<rect data-stage="before" data-change="modified" x="24" y="104" width="312" height="88" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="180" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">裁剪前 messages</text>
+<text x="180" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">头部 / 中间消息 / 最近消息</text>
+<rect data-stage="snip" data-change="added" x="384" y="104" width="136" height="88" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="452" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">归档与切分</text>
+<text x="452" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">切点保护配对</text>
+<rect data-stage="after" data-change="modified" x="552" y="104" width="184" height="88" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="644" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">裁剪后 messages</text>
+<text x="644" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">保留头尾 + 归档标记</text>
+<rect data-stage="pair" data-change="base" x="24" y="244" width="312" height="72" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="180" y="270" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">assistant(tool_use)</text>
+<text x="180" y="292" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">user(tool_result)</text>
+<rect data-stage="transcript" x="384" y="244" width="136" height="72" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="452" y="270" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">归档文件</text>
+<text x="452" y="292" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">.transcripts/</text>
+<text x="646" y="216" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">初始 3 条 / 最近 46 条</text>
+<text x="646" y="235" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">配对保护可能调整切点</text>
+<text x="24" y="350" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">示例目标是 50 条，不是硬上限；对应工具调用与结果不能被切成两半。</text>
+<text x="24" y="372" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">路径可用于回查，不表示模型自动读取了已经归档的正文。</text>
+</svg>

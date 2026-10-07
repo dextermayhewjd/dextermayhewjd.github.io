@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 370" role="img" aria-labelledby="s03-core-title s03-core-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s03-core-title">图 3 · S03：权限判断的最小核心</title>
+<desc id="s03-core-desc">先硬拒绝，再查规则；需要确认才暂停询问，拒绝也形成配对工具结果。</desc>
+<defs><marker id="s03-core-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s03-core-change-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-change-stroke, #c45656)"/></marker>
+<marker id="s03-core-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 3 · S03：权限判断的最小核心</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">先硬拒绝，再查规则；需要确认才暂停询问，拒绝也形成配对工具结果。</text>
+<rect data-stage="request" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">工具请求</text>
+<text x="80" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">name + input</text>
+<rect data-stage="hard-deny" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">硬拒绝检查</text>
+<text x="228" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">Bash 拒绝列表</text>
+<rect data-stage="rules" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">规则匹配</text>
+<text x="376" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">判断是否需确认</text>
+<rect data-stage="handler" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">执行 handler</text>
+<text x="524" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">获准后才执行</text>
+<rect data-stage="result" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">tool_result</text>
+<text x="672" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">输出或拒绝说明</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-core-base-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-core-base-arrow)"/>
+<text x="302" y="87" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">未命中</text>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="450" y="87" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">无需确认</text>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-core-base-arrow)"/>
+<rect data-stage="ask" x="320" y="182" width="112" height="54" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="208" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">询问用户</text>
+<text x="376" y="229" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">等待 y / yes</text>
+<path d="M376 160V182" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="389" y="174" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">需确认</text>
+<path d="M432 209H524V160" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="488" y="202" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">批准</text>
+<rect data-stage="denied" x="172" y="254" width="260" height="52" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="302" y="280" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">拒绝说明</text>
+<text x="302" y="301" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">工具没有执行</text>
+<path d="M228 160V254" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="216" y="244" text-anchor="end" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">硬拒绝命中</text>
+<path d="M320 209H284V254" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="278" y="244" text-anchor="end" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">用户拒绝</text>
+<path d="M432 280H600V145H616" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-core-focus-arrow)"/>
+<text x="24" y="340" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">三道判断汇入两种结果；结果交还模型后的完整回环在图 2。</text>
+</svg>

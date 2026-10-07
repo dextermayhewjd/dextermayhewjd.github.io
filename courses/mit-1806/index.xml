@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>MIT 18.06 线性代数 on dextermayhewjd</title><link>https://dextermayhewjd.github.io/courses/mit-1806/</link><description>Recent content in MIT 18.06 线性代数 on dextermayhewjd</description><generator>Hugo</generator><language>zh-cn</language><atom:link href="https://dextermayhewjd.github.io/courses/mit-1806/index.xml" rel="self" type="application/rss+xml"/><item><title>01 方程组与几何</title><link>https://dextermayhewjd.github.io/courses/mit-1806/01-systems/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dextermayhewjd.github.io/courses/mit-1806/01-systems/</guid><description>&lt;h2 id="核心问题"&gt;核心问题&lt;/h2&gt;
+&lt;p&gt;线性方程组可以看作几何对象的交汇：二维中是直线，三维中是平面。矩阵把这些方程的系数组织起来，使消元过程可以被稳定地表达和复用。&lt;/p&gt;
+&lt;h2 id="我的理解"&gt;我的理解&lt;/h2&gt;
+&lt;p&gt;这一章的入口是“方程组有没有解”，而不是“怎样机械地做消元”。行变换保留解集，主元的位置则告诉我们哪些变量被约束、哪些变量可以自由变化。&lt;/p&gt;</description></item><item><title>02 矩阵消元</title><link>https://dextermayhewjd.github.io/courses/mit-1806/02-elimination/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dextermayhewjd.github.io/courses/mit-1806/02-elimination/</guid><description>&lt;h2 id="核心问题"&gt;核心问题&lt;/h2&gt;
+&lt;p&gt;高斯消元把矩阵化成阶梯形，从而暴露秩、主元列和自由变量。它既是求解方程组的算法，也是理解矩阵可逆性和线性相关性的第一条主线。&lt;/p&gt;
+&lt;h2 id="我的理解"&gt;我的理解&lt;/h2&gt;
+&lt;p&gt;消元的每一步都对应一次可逆的行操作。把过程看成矩阵乘法后，消元矩阵、逆矩阵和 LU 分解就不再是孤立的技巧，而是同一件事的不同记录方式。&lt;/p&gt;</description></item><item><title>03 向量空间</title><link>https://dextermayhewjd.github.io/courses/mit-1806/03-vector-spaces/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dextermayhewjd.github.io/courses/mit-1806/03-vector-spaces/</guid><description>&lt;h2 id="核心问题"&gt;核心问题&lt;/h2&gt;
+&lt;p&gt;向量空间把“可以相加和数乘”的对象统一起来。子空间、基和维数描述了一个线性系统真正拥有多少自由度。&lt;/p&gt;
+&lt;h2 id="我的理解"&gt;我的理解&lt;/h2&gt;
+&lt;p&gt;基不是一组特殊的向量，而是一种坐标系统。换一组基不会改变线性对象本身，只会改变我们描述它的方式。&lt;/p&gt;</description></item></channel></rss>

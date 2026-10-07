@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 565" role="img" aria-labelledby="team-messaging-title team-messaging-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="team-messaging-title">文件邮箱：发送与消费</title>
+<desc id="team-messaging-desc">消息在模型之外暂存，再由收件人的运行时加入自己的历史。</desc>
+<defs><marker id="team-messaging-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">文件邮箱：发送与消费</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">消息在模型之外暂存，再由收件人的运行时加入自己的历史。</text>
+<path data-route="msg-send" data-from="sender" data-to="send" data-kind="flow" data-label="发送方给出目标、内容和类型" d="M244 170H268" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-messaging-arrow)"/>
+<path data-route="msg-file" data-from="send" data-to="read" data-kind="flow" data-label="JSONL 保存待投递消息" d="M488 170H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-messaging-arrow)"/>
+<path data-route="msg-context" data-from="read" data-to="context" data-kind="flow" data-label="handle_inbox 或 CLI 消费后注入" d="M732 170H756" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-messaging-arrow)"/>
+<path data-route="msg-wait" data-from="send" data-to="wait" data-kind="flow" data-label="notify_all 唤醒本进程等待者" d="M378 250V350" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-messaging-arrow)"/>
+<path data-route="msg-read" data-from="wait" data-to="read" data-kind="flow" data-label="有信才消费；等待也会再次检查条件" d="M622 350V250" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-messaging-arrow)"/>
+<rect data-stage="sender" data-change="base" x="24" y="100" width="220" height="150" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="134.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">发送者</text>
+<text x="134.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">Lead / Teammate</text>
+<rect data-stage="send" data-change="added" x="268" y="100" width="220" height="150" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="378.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">追加 JSONL</text>
+<text x="378.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">.mailboxes/&lt;to&gt;.jsonl</text>
+<a class="diagram-function-link" data-function="send" data-function-card="" href="#message-send" aria-label="查看 MessageBus.send 的实现"><text x="378.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="send">MessageBus.send()</text></a>
+<rect data-stage="read" data-change="added" x="512" y="100" width="220" height="150" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="622.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">收件人运行时消费</text>
+<text x="622.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">读出后删除文件</text>
+<a class="diagram-function-link" data-function="read_inbox" data-function-card="" href="#message-read" aria-label="查看 MessageBus.read_inbox 的实现"><text x="622.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="read_inbox">MessageBus.read_inbox()</text></a>
+<a class="diagram-function-link" data-function="_read_unlocked" data-function-card="" href="#message-read" aria-label="查看 _read_unlocked 的实现"><text x="622.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="_read_unlocked">_read_unlocked()</text></a>
+<rect data-stage="context" data-change="base" x="756" y="100" width="220" height="150" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="866.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">自己的 user 消息</text>
+<text x="866.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">下一次模型请求看到内容</text>
+<rect data-stage="wait" data-change="added" x="268" y="350" width="464" height="150" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="500.0" y="375" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">同进程等待与唤醒</text>
+<text x="500.0" y="396" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">Condition 通知；超时则返回空列表</text>
+<a class="diagram-function-link" data-function="wait_for_messages" data-function-card="" href="#message-wait" aria-label="查看 MessageBus.wait_for_messages 的实现"><text x="500.0" y="430" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="wait_for_messages">MessageBus.wait_for_messages()</text></a>
+<a class="diagram-function-link" data-function="peek" data-function-card="" href="#message-wait" aria-label="查看 MessageBus.peek 的实现"><text x="500.0" y="455" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="peek">MessageBus.peek()</text></a>
+</svg>

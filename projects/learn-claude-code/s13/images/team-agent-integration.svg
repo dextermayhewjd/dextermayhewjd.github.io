@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1080" role="img" aria-labelledby="s13-overview-title s13-overview-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s13-overview-title">图 2 · Team 连接多个 Agent Loop</title>
+  <desc id="s13-overview-desc">Lead 经工具启动队友并立即收到确认，队友有自己的工作循环和历史；邮箱在 CLI 等待边界唤醒 Lead，空闲队友可认领共享任务。旧机制为学习索引。</desc>
+  <defs>
+    <marker id="s13-overview-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)" />
+    </marker>
+    <marker id="s13-overview-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s13-memory-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s13-task-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s13-background-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="s13-cron-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+  </defs>
+  <text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">图 2 · Lead 与持久队友协作</text>
+  <text x="24" y="55" text-anchor="start" font-size="13" fill="var(--diagram-muted, #58677b)">上方是 Lead 循环；右侧与下方展开队友、邮箱、等待和唤醒。</text>
+  <path data-from="history" data-to="prepare" data-kind="flow" data-label="待整理的 messages" data-route="s13-01" d="M170 128H230" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="prepare" data-to="model" data-kind="flow" data-label="容量足够，继续请求" data-route="s13-02" d="M360 128H420" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="model" data-to="decision" data-kind="flow" data-label="模型响应" data-route="s13-03" d="M550 128H610" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="decision" data-to="handler" data-kind="flow" data-label="有工具调用" data-route="s13-04" d="M740 128H800" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="handler" data-to="pre-event" data-kind="flow" data-label="普通工具调用" data-route="s13-05" d="M820 160V176H776V309H800" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="pre-event" data-to="added-file-tools" data-kind="flow" data-label="允许执行" data-route="s13-06" d="M865 280V265" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="added-file-tools" data-to="post-event" data-kind="flow" data-label="工具执行结果" data-route="s13-07" d="M930 223H990" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="post-event" data-to="result" data-kind="flow" data-label="观察后回传" data-route="s13-08" d="M1055 200V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="pre-event" data-to="result" data-kind="flow" data-label="拒绝也返回配对结果" data-route="s13-09" d="M930 326H954V350H1144V136H1120" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="decision" data-to="stop-event" data-kind="flow" data-label="无工具调用" data-route="s13-10" d="M675 160V200" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="stop-event" data-to="memory-persist" data-kind="flow" data-label="无工具调用，Stop 无反馈" data-route="s13-11" d="M675 258V616H626V640" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="stop-event" data-to="history" data-kind="flow" data-label="要求继续，汇入主循环" data-route="s13-12" d="M610 240H598V508H12" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="input" data-to="input-event" data-kind="flow" data-label="用户问题" data-route="s13-13" d="M105 280V258" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="input-event" data-to="history" data-kind="flow" data-label="输入事件完成" data-route="s13-14" d="M105 200V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="tools" data-to="model" data-kind="reference" data-label="可用工具定义" data-route="s13-15" d="M485 183V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="system" data-to="model" data-kind="reference" data-label="请求背景" data-route="s13-16" data-relation="interface" d="M420 312H396V180H438V160" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="skill-catalog" data-to="model" data-kind="reference" data-label="技能名称与描述" data-route="s13-17" data-relation="interface" d="M485 380V364H586V172H512V160" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="input" data-to="skill-loading" data-kind="reference" data-label="显式选择技能" data-route="s13-18" data-relation="interface" d="M170 312H206V420H170" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="handler" data-to="skill-loading" data-kind="reference" data-label="按需装载技能" data-route="s13-19" data-relation="interface" d="M930 145H966V370H218V444H170" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3" />
+  <path data-from="skill-loading" data-to="history" data-kind="flow" data-label="技能正文加入历史" data-route="s13-20" d="M105 400V380H28V176H92V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-from="prepare" data-to="compact-processor" data-kind="flow" data-label="整理后仍超限" data-route="s13-21" d="M360 154H384V486H865V476" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="compact-processor" data-to="model" data-kind="flow" data-label="更新历史，继续请求" data-route="s13-22" d="M800 416H574V168H530V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="handler" data-to="compact-registration" data-kind="flow" data-label="登记 compact 调用" data-route="s13-23" d="M930 154H942V272H1158V312H1120" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="compact-registration" data-to="result" data-kind="flow" data-label="返回确认结果" data-route="s13-24" d="M1120 302H1172V152H1120" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="result" data-to="compact-processor" data-kind="flow" data-label="已登记 compact 且本批结果交齐" data-route="s13-25" d="M1120 112H1130V386H950V400" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="model" data-to="compact-processor" data-kind="flow" data-label="API 超长拒绝" data-route="s13-26" d="M550 154H562V488H1052V476" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-added-arrow)" />
+  <path data-from="result" data-to="history" data-kind="flow" data-label="追加工具结果，下一轮" data-route="s13-27" d="M1120 128H1188V1040H12V128H40" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <rect data-stage="history" data-change="modified" x="40" y="96" width="130" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="105" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Lead 对话历史</text>
+  <text x="105" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">允许整理与替换</text>
+  <rect data-stage="prepare" data-change="base" x="230" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="295" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求前处理</text>
+  <text x="295" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">先注入通知，再整理</text>
+  <text x="295" y="153" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">完成队列为空就跳过</text>
+  <rect data-stage="model" data-change="base" x="420" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="485" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+  <text x="485" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">继续原任务</text>
+  <rect data-stage="decision" data-change="base" x="610" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">响应与工具判断</text>
+  <text x="675" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">仍按原循环判断工具</text>
+  <rect data-stage="handler" data-change="modified" x="800" y="96" width="130" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="865" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">分发调用</text>
+  <text x="865" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">工作 / 团队 / compact</text>
+  <rect data-stage="result" data-change="base" x="990" y="96" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="1055" y="121" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回传结果</text>
+  <text x="1055" y="142" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">所有调用按 ID 配对</text>
+  <rect data-stage="tools" data-change="modified" x="420" y="183" width="130" height="58" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="485" y="208" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">TOOLS</text>
+  <text x="485" y="229" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">扩展团队 schema</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-context" aria-label="查看记忆进入 SYSTEM 的实现">
+    <rect data-stage="system" data-change="modified" x="420" y="280" width="130" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+    <text x="485" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">SYSTEM</text>
+    <text x="485" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">背景 + 团队协调约定</text>
+  </a>
+  <rect data-stage="input" data-change="base" x="40" y="280" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">用户输入</text>
+  <text x="105" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">沿用 S04 入口</text>
+  <rect data-stage="input-event" data-change="base" x="40" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">输入事件</text>
+  <text x="105" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">UserPromptSubmit</text>
+  <rect data-stage="stop-event" data-change="base" x="610" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Stop</text>
+  <text x="675" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">检查是否继续</text>
+  <rect data-stage="pre-event" data-change="modified" x="800" y="280" width="130" height="58" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="865" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">PreToolUse</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s04/" aria-label="查看权限与日志回调 S04" tabindex="0">
+    <text x="865" y="326" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">权限 / 审批 → S13.2</text>
+  </a>
+  <rect data-stage="post-event" data-change="base" x="990" y="200" width="130" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="1055" y="225" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">PostToolUse</text>
+  <text x="1055" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">执行后观察</text>
+  <rect data-stage="skill-catalog" data-change="base" x="420" y="380" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="485" y="405" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">技能目录</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/02-discovery/" aria-label="查看技能目录 S07.2" tabindex="0">
+    <text x="485" y="426" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">名称 / 描述 · S07.2</text>
+  </a>
+  <rect data-stage="skill-loading" data-change="base" x="40" y="400" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="105" y="425" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Skill 装载</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/09-agent-loop/" aria-label="查看 Skills 正文交付 S07.9" tabindex="0">
+    <text x="105" y="446" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">正文入历史 → S07.9</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s08/#compact-manual" aria-label="查看compact ▸的接口、局部图和代码">
+    <rect data-stage="compact-registration" data-change="base" x="990" y="280" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="1055" y="305" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">compact</text>
+    <text x="1055" y="326" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">先登记并返回确认</text>
+  </a>
+  <rect data-stage="added-file-tools" data-change="modified" x="800" y="183" width="130" height="82" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5" />
+  <text x="865" y="205" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">工具实现</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s02/#file-tool-implementation" aria-label="查看 read / write / edit / glob" tabindex="0">
+    <text x="865" y="225" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">read / write / edit / glob</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s06/#subagent-core" aria-label="查看 task→S06" tabindex="0">
+    <text x="833" y="246" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">task→S06</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s05/#todo-tool-implementation" aria-label="查看 TODO→S05" tabindex="0">
+    <text x="896" y="246" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">TODO→S05</text>
+  </a>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s10/">
+    <text x="865" y="259" text-anchor="middle" font-size="8" fill="var(--diagram-muted, #58677b)">持久任务 / 依赖 → S10</text>
+  </a>
+  <text x="388" y="87" text-anchor="start" font-size="9" fill="var(--diagram-muted, #58677b)">足够 →</text>
+  <text x="390" y="472" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">整理后仍超限</text>
+  <text x="1030" y="378" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">主动 compact 且结果交齐</text>
+  <text x="614" y="481" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">API 超长 → S08</text>
+  <text x="693" y="182" text-anchor="start" font-size="9" fill="var(--diagram-muted, #58677b)">无工具 ↓</text>
+  <text x="1065" y="362" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">拒绝也返回配对结果</text>
+  <text x="640" y="1032" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">工具结果或 Stop 反馈 → 更新历史 → 下一轮</text>
+  <text x="40" y="1068" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)" data-baseline-label="持久队友通过文件邮箱协作；旧接口为累积复习骨架。">紫色是持久队友与事件投递；旧接口为累积复习骨架，本脚本范围见正文。</text>
+  <path data-from="history" data-to="memory-recall" data-kind="flow" data-label="仅新用户回合入口，召回一次" data-route="s13-28" d="M170 145H182V504H200V520" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-memory-arrow)" />
+  <path data-from="memory-recall" data-to="system" data-kind="flow" data-label="相关正文加入背景" data-route="s13-29" d="M360 558H372V356H485V344" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-memory-arrow)" />
+  <path data-from="memory-store" data-to="memory-recall" data-kind="flow" data-label="读取磁盘中的文件与索引" data-route="s13-30" d="M200 640V596" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-memory-arrow)" />
+  <path data-from="memory-persist" data-to="end" data-kind="flow" data-label="记忆保存检查结束，再退出" data-route="s13-32" d="M626 716V744H675V760" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-memory-arrow)" />
+  <path data-from="memory-persist" data-to="memory-store" data-kind="flow" data-label="有长期新信息才更新记忆文件" data-route="s13-35" d="M605 716V736H200V716" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-memory-arrow)" />
+  <rect data-stage="compact-processor" data-change="base" x="800" y="400" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="960" y="425" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Compact 处理</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s08/">
+    <text x="960" y="446" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">自动 / 主动 / 超长补救 → S08</text>
+  </a>
+  <text x="960" y="469" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">细节合并；异常最多重试 1 次</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-recall" aria-label="查看 记忆召回 ▸">
+    <rect data-stage="memory-recall" data-change="base" x="40" y="520" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="200" y="545" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">记忆召回 ▸</text>
+    <text x="200" y="566" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">每个用户回合一次</text>
+    <text x="200" y="589" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">选择相关文件，再读正文</text>
+  </a>
+  <rect data-stage="memory-store" x="40" y="640" width="320" height="76" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5" data-change="base" />
+  <text x="200" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">记忆文件与索引</text>
+  <text x="200" y="686" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">.memory / MEMORY.md</text>
+  <text x="200" y="709" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">主题文件跨回合保存</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s09/#memory-extract" aria-label="查看 提取与校验 ▸">
+    <rect data-stage="memory-persist" data-change="base" x="486" y="640" width="238" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="605" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Memory 保存接口</text>
+    <text x="605" y="686" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">提取 / 保存 / 整理 → S09</text>
+    <text x="605" y="709" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">保留退出边界；内部细节合并</text>
+  </a>
+  <rect data-stage="end" data-change="base" x="610" y="760" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="675" y="785" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+  <text x="675" y="806" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">不等待后台线程</text>
+  <text x="231" y="500" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">新用户回合</text>
+  <text x="684" y="611" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">无工具调用，Stop 无反馈</text>
+  <text x="709" y="756" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">保存检查完成 →</text>
+  <path data-route="s13-memory-read" data-from="memory-store" data-to="memory-persist" data-kind="flow" data-label="读取已有记忆，筛选长期新信息" d="M360 678H486" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-overview-arrow)" />
+  <path data-route="s13-bg-inject" data-from="background-collect" data-to="prepare" data-kind="flow" data-label="将通知合并到消息，再进入请求前处理" d="M460 760V730H402V168H300V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-background-arrow)" />
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s11/#background-inject" aria-label="查看请求前收集与注入 ▸">
+    <rect data-stage="background-collect" data-change="base" x="230" y="760" width="320" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+    <text x="390.0" y="785" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">后台通知接口 → S11</text>
+    <text x="390.0" y="806" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">S11 结果注入保留为已学接口</text>
+  </a>
+<defs><marker id="s13-team-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<path data-route="team-spawn-input" data-from="pre-event" data-to="team-spawn" data-kind="flow" data-label="团队工具启动队友，先认领可选初始任务" d="M800 326H762V558H800" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-spawn-confirm" data-from="team-spawn" data-to="post-event" data-kind="flow" data-label="立即返回启动确认，仍经原 tool_result" d="M800 575H788V276H978V246H990" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-thread" data-from="team-spawn" data-to="team-work" data-kind="flow" data-label="启动独立线程与私有上下文" d="M960 596V640" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-result" data-from="team-work" data-to="team-mailbox" data-kind="flow" data-label="终轮 result、idle_notification 或协调消息" d="M960 716V760" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-events" data-from="team-mailbox" data-to="team-wake" data-kind="flow" data-label="CLI 等待边界发现 Lead 收件箱非空" d="M960 824V880" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-user-event" data-from="team-wake" data-to="history" data-kind="flow" data-label="消费事件，格式化为 Lead user 消息，再进入 agent_loop" d="M1120 918H1178V1008H24V112H40" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-wait" data-from="team-work" data-to="team-idle" data-kind="flow" data-label="无工具进入 IDLE，审批 pending 则等待回复" d="M800 680H762V852H570V880" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-continue" data-from="team-idle" data-to="team-work" data-kind="flow" data-label="收到消息或认领成功，继续同一个队友循环" d="M400 930H384V972H1148V678H1120" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="team-inbox" data-from="team-mailbox" data-to="team-idle" data-kind="flow" data-label="普通消息或协议回复到队友邮箱后结束等待" d="M800 800H776V850H720V880" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<path data-route="cron-folded-register" data-from="pre-event" data-to="cron-interface" data-kind="reference" data-label="S12 调度工具的登记与返回接口索引，内部见 S12" d="M800 310H750V842H200V880" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-route="cron-folded-event" data-from="cron-interface" data-to="history" data-kind="flow" data-label="S12 定时 prompt 入口索引，细节折叠但功能未删除" d="M40 918H20V120H40" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s13-team-arrow)"/>
+<a class="diagram-module-link" data-module="spawn" href="#team-spawn" aria-label="查看启动队友 ▸">
+<rect data-stage="team-spawn" data-change="added" x="800" y="520" width="320" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="545" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">启动队友 ▸</text>
+<text x="960.0" y="566" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">spawn → 先认领 → 启动线程</text>
+<text x="960.0" y="586" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">立即返回启动确认</text>
+</a>
+<a class="diagram-module-link" data-module="work" href="#team-work" aria-label="查看Teammate 独立循环 ▸">
+<rect data-stage="team-work" data-change="added" x="800" y="640" width="320" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="665" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Teammate 独立循环 ▸</text>
+<text x="960.0" y="686" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">自己的 system / messages / tools</text>
+<text x="960.0" y="706" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">模型 → 工具 → 结果 → 模型</text>
+</a>
+<a class="diagram-module-link" data-module="mailbox" href="#team-mailbox" aria-label="查看文件邮箱与事件 ▸">
+<rect data-stage="team-mailbox" data-change="added" x="800" y="760" width="320" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="785" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">文件邮箱与事件 ▸</text>
+<text x="960.0" y="806" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">.mailboxes · Lead ↔ Teammates</text>
+</a>
+<a class="diagram-module-link" data-module="idle" href="#team-idle" aria-label="查看IDLE：等待或认领 ▸">
+<rect data-stage="team-idle" data-change="added" x="400" y="880" width="340" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="570.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">IDLE：等待或认领 ▸</text>
+<text x="570.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">先等消息，超时扫描 ready task</text>
+<text x="570.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">共享任务 / owner / cwd → S13.3–4</text>
+</a>
+<a class="diagram-module-link" data-module="wake" href="#team-wake" aria-label="查看Lead 外层唤醒 ▸">
+<rect data-stage="team-wake" data-change="added" x="800" y="880" width="320" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="960.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Lead 外层唤醒 ▸</text>
+<text x="960.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">CLI 收信 → [Team events]</text>
+<text x="960.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">追加 user 消息，下一轮处理</text>
+</a>
+<a class="diagram-chapter-link" href="/projects/learn-claude-code/s12/" aria-label="查看定时事件接口 → S12">
+<rect data-stage="cron-interface" data-change="base" x="40" y="880" width="320" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="200.0" y="905" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">定时事件接口 → S12</text>
+<text x="200.0" y="926" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">到期排队 → 空闲交付 prompt</text>
+<text x="200.0" y="946" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">登记返回与确认／恢复细节 → S12</text>
+</a>
+</svg>

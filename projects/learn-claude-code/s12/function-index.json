@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "schedule",
+    "label": "规则创建",
+    "module": "schedule",
+    "anchor": "cron-schedule"
+  },
+  {
+    "stage": "poll",
+    "label": "时钟匹配",
+    "module": "poll",
+    "anchor": "cron-poll"
+  },
+  {
+    "stage": "queued",
+    "label": "到期入队",
+    "module": "poll",
+    "anchor": "cron-poll"
+  },
+  {
+    "stage": "gate",
+    "label": "空闲门控",
+    "module": "dispatch",
+    "anchor": "cron-dispatch"
+  },
+  {
+    "stage": "deliver",
+    "label": "prompt 交付",
+    "module": "dispatch",
+    "anchor": "cron-dispatch"
+  },
+  {
+    "stage": "storage",
+    "label": "持久化",
+    "module": "durable",
+    "anchor": "cron-durable"
+  },
+  {
+    "stage": "ack",
+    "label": "接收确认",
+    "module": "ack",
+    "anchor": "cron-ack"
+  },
+  {
+    "stage": "retry",
+    "label": "失败恢复",
+    "module": "ack",
+    "anchor": "cron-ack"
+  }
+]
