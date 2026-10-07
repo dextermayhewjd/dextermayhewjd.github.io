@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1338" width="1000" height="1338" role="img" aria-label="当前跨文件函数图：调用关系与外部边界">
+<defs><marker id="slime-chain-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#60768a" /></marker></defs>
+<style>text{font-family:system-ui,sans-serif;fill:var(--primary,#25374a)} .mono{font-family:monospace} path[data-from]{fill:none;stroke:#8799aa;stroke-width:1.5;marker-end:url(#slime-chain-arrow)} rect[data-stage]{fill:var(--code-bg,#eef3f8);stroke:#70879d;stroke-width:1.5;rx:8} a{cursor:pointer} .file-bg{fill:var(--code-bg,#fafbfd);stroke:var(--border,#c8d2dc);stroke-width:1;rx:12}</style>
+<text x="20" y="27" font-size="17" font-weight="600">当前跨文件函数图：调用关系与外部边界</text>
+<text x="20" y="49" font-size="11">阅读顺序与条件由步骤栏给出；当前图不是实际运行 Trace。</text>
+<g data-file-id="file-0" data-file-path="examples/coding_agent_rl/generate.py"><rect class="file-bg" data-file-group="file-0" x="18" y="270" width="180" height="590" />
+<text x="28" y="292" font-size="12" font-weight="600">generate.py</text>
+<text x="28" y="312" font-size="9">examples/coding_agent_rl/</text>
+<text x="28" y="325" font-size="9">generate.py</text>
+<a data-function="ref_2ff1e60ee9dab76e510c" data-function-card="file-0"><g><rect data-stage="fn-0" data-source-ref="ref_2ff1e60ee9dab76e510c" x="30" y="352" width="156" height="50" />
+<text x="37" y="371" font-size="10">generate</text>
+</g></a>
+<a data-function="ref_0b6526f03cb8f9109bcd" data-function-card="file-0"><g><rect data-stage="fn-7" data-source-ref="ref_0b6526f03cb8f9109bcd" x="30" y="422" width="156" height="50" />
+<text x="37" y="441" font-size="10">_AdapterService.__init_</text>
+<text x="37" y="455" font-size="10">_</text>
+</g></a>
+<a data-function="ref_150d2fd2b9062c14a74f" data-function-card="file-0"><g><rect data-stage="fn-10" data-source-ref="ref_150d2fd2b9062c14a74f" x="30" y="492" width="156" height="50" />
+<text x="37" y="511" font-size="10">boot_agent_sandbox</text>
+</g></a>
+<a data-function="ref_da8519fb210945772b6c" data-function-card="file-0"><g><rect data-stage="fn-15" data-source-ref="ref_da8519fb210945772b6c" x="30" y="562" width="156" height="50" />
+<text x="37" y="581" font-size="10">_eval_result</text>
+</g></a>
+<a data-function="ref_4fe524fd3a9fe7eff43e" data-function-card="file-0"><g><rect data-stage="fn-16" data-source-ref="ref_4fe524fd3a9fe7eff43e" x="30" y="632" width="156" height="50" />
+<text x="37" y="651" font-size="10">_abort_result</text>
+</g></a>
+<a data-function="ref_fd1c9dc9909e127848df" data-function-card="file-0"><g><rect data-stage="fn-17" data-source-ref="ref_fd1c9dc9909e127848df" x="30" y="702" width="156" height="50" />
+<text x="37" y="721" font-size="10">_log_timeout_diagnostic</text>
+</g></a>
+</g>
+<g data-file-id="file-1" data-file-path="examples/coding_agent_rl/swe.py"><rect class="file-bg" data-file-group="file-1" x="214" y="270" width="180" height="590" />
+<text x="224" y="292" font-size="12" font-weight="600">swe.py</text>
+<text x="224" y="312" font-size="9">examples/coding_agent_rl/</text>
+<text x="224" y="325" font-size="9">swe.py</text>
+<a data-function="ref_4c6ca49146189b82fe3a" data-function-card="file-1"><g><rect data-stage="fn-1" data-source-ref="ref_4c6ca49146189b82fe3a" x="226" y="352" width="156" height="50" />
+<text x="233" y="371" font-size="10">get_metadata</text>
+</g></a>
+<a data-function="ref_841d44afe66454a14945" data-function-card="file-1"><g><rect data-stage="fn-2" data-source-ref="ref_841d44afe66454a14945" x="226" y="422" width="156" height="50" />
+<text x="233" y="441" font-size="10">prepare_workspace</text>
+</g></a>
+<a data-function="ref_7d871d94225e6ea94c46" data-function-card="file-1"><g><rect data-stage="fn-4" data-source-ref="ref_7d871d94225e6ea94c46" x="226" y="492" width="156" height="50" />
+<text x="233" y="511" font-size="10">git_diff</text>
+</g></a>
+<a data-function="ref_1d80f579e94447f42e9f" data-function-card="file-1"><g><rect data-stage="fn-5" data-source-ref="ref_1d80f579e94447f42e9f" x="226" y="562" width="156" height="50" />
+<text x="233" y="581" font-size="10">run_evaluation</text>
+</g></a>
+<a data-function="ref_a148ec7e6477c757c7ea" data-function-card="file-1"><g><rect data-stage="fn-8" data-source-ref="ref_a148ec7e6477c757c7ea" x="226" y="632" width="156" height="50" />
+<text x="233" y="651" font-size="10">evaluability_check</text>
+</g></a>
+<a data-function="ref_1aaf9e7a5601f3d617ac" data-function-card="file-1"><g><rect data-stage="fn-13" data-source-ref="ref_1aaf9e7a5601f3d617ac" x="226" y="702" width="156" height="50" />
+<text x="233" y="721" font-size="10">_grade_scaleswe</text>
+</g></a>
+<a data-function="ref_028a31f4e7d3a53dc92f" data-function-card="file-1"><g><rect data-stage="fn-14" data-source-ref="ref_028a31f4e7d3a53dc92f" x="226" y="772" width="156" height="50" />
+<text x="233" y="791" font-size="10">_grade_swebench</text>
+</g></a>
+</g>
+<g data-file-id="file-2" data-file-path="slime/agent/harness/common.py"><rect class="file-bg" data-file-group="file-2" x="410" y="270" width="180" height="590" />
+<text x="420" y="292" font-size="12" font-weight="600">common.py</text>
+<text x="420" y="312" font-size="9">slime/agent/harness/commo</text>
+<text x="420" y="325" font-size="9">n.py</text>
+<a data-function="ref_04f27441abaa3dad3efa" data-function-card="file-2"><g><rect data-stage="fn-3" data-source-ref="ref_04f27441abaa3dad3efa" x="422" y="352" width="156" height="50" />
+<text x="429" y="371" font-size="10">BaseHarness.run</text>
+</g></a>
+<a data-function="ref_aaa45d19dca64ec1077e" data-function-card="file-2"><g><rect data-stage="fn-12" data-source-ref="ref_aaa45d19dca64ec1077e" x="422" y="422" width="156" height="50" />
+<text x="429" y="441" font-size="10">run_agent</text>
+</g></a>
+</g>
+<g data-file-id="file-3" data-file-path="slime/agent/adapters/common.py"><rect class="file-bg" data-file-group="file-3" x="606" y="270" width="180" height="590" />
+<text x="616" y="292" font-size="12" font-weight="600">common.py</text>
+<text x="616" y="312" font-size="9">slime/agent/adapters/comm</text>
+<text x="616" y="325" font-size="9">on.py</text>
+<a data-function="ref_69b33de09561cb5e2188" data-function-card="file-3"><g><rect data-stage="fn-6" data-source-ref="ref_69b33de09561cb5e2188" x="618" y="352" width="156" height="50" />
+<text x="625" y="371" font-size="10">BaseAdapter.finish_sess</text>
+<text x="625" y="385" font-size="10">ion</text>
+</g></a>
+<a data-function="ref_2ec90e943543c22e649e" data-function-card="file-3"><g><rect data-stage="fn-9" data-source-ref="ref_2ec90e943543c22e649e" x="618" y="422" width="156" height="50" />
+<text x="625" y="441" font-size="10">BaseAdapter.open_sessio</text>
+<text x="625" y="455" font-size="10">n</text>
+</g></a>
+<a data-function="ref_6f816a7d44c99d94a3fe" data-function-card="file-3"><g><rect data-stage="fn-18" data-source-ref="ref_6f816a7d44c99d94a3fe" x="618" y="492" width="156" height="50" />
+<text x="625" y="511" font-size="10">BaseAdapter.drop_sessio</text>
+<text x="625" y="525" font-size="10">n</text>
+</g></a>
+</g>
+<g data-file-id="file-4" data-file-path="slime/agent/sandbox.py"><rect class="file-bg" data-file-group="file-4" x="802" y="270" width="180" height="590" />
+<text x="812" y="292" font-size="12" font-weight="600">sandbox.py</text>
+<text x="812" y="312" font-size="9">slime/agent/sandbox.py</text>
+<a data-function="ref_71545e29cccdfd14f263" data-function-card="file-4"><g><rect data-stage="fn-11" data-source-ref="ref_71545e29cccdfd14f263" x="814" y="352" width="156" height="50" />
+<text x="821" y="371" font-size="10">E2BSandbox.__aenter__</text>
+</g></a>
+<a data-function="ref_ca9e07e4fd72b14e5bda" data-function-card="file-4"><g><rect data-stage="fn-19" data-source-ref="ref_ca9e07e4fd72b14e5bda" x="814" y="422" width="156" height="50" />
+<text x="821" y="441" font-size="10">E2BSandbox.__aexit__</text>
+</g></a>
+</g>
+<path data-from="fn-0" data-to="fn-1" data-kind="flow" data-label="统一任务输入" data-route="function-edge-0" d="M 186 377.0 L 202 377.0 L 202 78 L 209 78 L 209 377.0 L 226 377.0" data-goal-ids="01-agent-task/overview/metadata"><title>统一任务输入 — 训练模式成功路径</title></path>
+<path data-from="fn-0" data-to="fn-2" data-kind="flow" data-label="准备工作区" data-route="function-edge-1" d="M 186 377.0 L 202 377.0 L 202 86 L 209 86 L 209 447.0 L 226 447.0" data-goal-ids="01-agent-task/overview/workspace 01-agent-task/execution/prepare"><title>准备工作区 — 训练模式成功路径；准备任务文件 — 训练模式成功路径</title></path>
+<path data-from="fn-0" data-to="fn-3" data-kind="flow" data-label="执行 Agent" data-route="function-edge-2" d="M 186 377.0 L 202 377.0 L 202 94 L 405 94 L 405 377.0 L 422 377.0" data-goal-ids="01-agent-task/overview/agent 01-agent-task/execution/run"><title>执行 Agent — 训练模式成功路径；统一运行时入口 — 训练模式成功路径</title></path>
+<path data-from="fn-0" data-to="fn-4" data-kind="flow" data-label="收集代码改动" data-route="function-edge-3" d="M 186 377.0 L 202 377.0 L 202 102 L 209 102 L 209 517.0 L 226 517.0" data-goal-ids="01-agent-task/overview/diff 01-agent-task/execution/patch"><title>收集代码改动 — 训练模式成功路径；导出 patch — 训练模式成功路径</title></path>
+<path data-from="fn-0" data-to="fn-5" data-kind="flow" data-label="独立评估" data-route="function-edge-4" d="M 186 377.0 L 202 377.0 L 202 110 L 209 110 L 209 587.0 L 226 587.0" data-goal-ids="01-agent-task/overview/evaluation 01-agent-task/grade_export/dispatch"><title>独立评估 — 训练模式成功路径；评估协议派发 — 工作沙箱已经退出</title></path>
+<path data-from="fn-0" data-to="fn-6" data-kind="flow" data-label="导出训练样本" data-route="function-edge-5" d="M 186 377.0 L 202 377.0 L 202 118 L 601 118 L 601 377.0 L 618 377.0" data-goal-ids="01-agent-task/overview/samples 01-agent-task/grade_export/training_result"><title>导出训练样本 — 训练模式成功路径；返回训练轨迹 — evaluation=False</title></path>
+<path data-from="fn-0" data-to="fn-7" data-kind="flow" data-label="准备模型通道" data-route="function-edge-6" d="M 186 377.0 L 202 377.0 L 202 126 L 208 126 L 208 447.0 L 186 447.0" data-goal-ids="01-agent-task/input_session/adapter_service"><title>准备模型通道 — 进入单次任务</title></path>
+<path data-from="fn-0" data-to="fn-8" data-kind="flow" data-label="检查可评估条件" data-route="function-edge-7" d="M 186 377.0 L 202 377.0 L 202 134 L 209 134 L 209 657.0 L 226 657.0" data-goal-ids="01-agent-task/input_session/validity"><title>检查可评估条件 — 元数据已经统一</title></path>
+<path data-from="fn-0" data-to="fn-9" data-kind="flow" data-label="登记任务会话" data-route="function-edge-8" d="M 186 377.0 L 202 377.0 L 202 142 L 601 142 L 601 447.0 L 618 447.0" data-goal-ids="01-agent-task/input_session/session"><title>登记任务会话 — 输入预检查通过</title></path>
+<path data-from="fn-0" data-to="fn-10" data-kind="flow" data-label="进入工作沙箱上下文" data-route="function-edge-9" d="M 186 377.0 L 202 377.0 L 202 150 L 208 150 L 208 517.0 L 186 517.0" data-goal-ids="01-agent-task/input_session/sandbox"><title>进入工作沙箱上下文 — 训练模式成功路径</title></path>
+<path data-from="fn-10" data-to="fn-11" data-kind="flow" data-label="创建执行环境" data-route="function-edge-10" d="M 186 517.0 L 202 517.0 L 202 158 L 797 158 L 797 377.0 L 814 377.0" data-goal-ids="01-agent-task/input_session/enter"><title>创建执行环境 — 启动尝试</title></path>
+<path data-from="fn-5" data-to="fn-13" data-kind="flow" data-label="ScaleSWE 判分" data-route="function-edge-11" d="M 382 587.0 L 398 587.0 L 398 166 L 404 166 L 404 727.0 L 382 727.0" data-goal-ids="01-agent-task/grade_export/scaleswe"><title>ScaleSWE 判分 — protocol 不是 SWE-bench</title></path>
+<path data-from="fn-5" data-to="fn-14" data-kind="flow" data-label="SWE-bench 判分" data-route="function-edge-12" d="M 382 587.0 L 398 587.0 L 398 174 L 404 174 L 404 797.0 L 382 797.0" data-goal-ids="01-agent-task/grade_export/swebench"><title>SWE-bench 判分 — protocol 是 SWE-bench</title></path>
+<path data-from="fn-0" data-to="fn-15" data-kind="flow" data-label="返回评估结果" data-route="function-edge-13" d="M 186 377.0 L 202 377.0 L 202 182 L 208 182 L 208 587.0 L 186 587.0" data-goal-ids="01-agent-task/grade_export/eval_result"><title>返回评估结果 — evaluation=True</title></path>
+<path data-from="fn-0" data-to="fn-16" data-kind="flow" data-label="前置检查失败" data-route="function-edge-14" d="M 186 377.0 L 202 377.0 L 202 190 L 208 190 L 208 657.0 L 186 657.0" data-goal-ids="01-agent-task/branches/precheck_abort"><title>前置检查失败 — missing_image_or_workdir</title></path>
+<path data-from="fn-0" data-to="fn-17" data-kind="flow" data-label="任务超时诊断" data-route="function-edge-15" d="M 186 377.0 L 202 377.0 L 202 198 L 208 198 L 208 727.0 L 186 727.0" data-goal-ids="01-agent-task/branches/timeout"><title>任务超时诊断 — 捕获 asyncio.TimeoutError</title></path>
+<path data-from="fn-0" data-to="fn-18" data-kind="flow" data-label="会话清理" data-route="function-edge-16" d="M 186 377.0 L 202 377.0 L 202 206 L 601 206 L 601 517.0 L 618 517.0" data-goal-ids="01-agent-task/branches/session_cleanup"><title>会话清理 — 进入 try 的任务在 finally 执行</title></path>
+<path data-from="fn-10" data-to="fn-19" data-kind="flow" data-label="工作环境退出" data-route="function-edge-17" d="M 186 517.0 L 202 517.0 L 202 214 L 797 214 L 797 447.0 L 814 447.0" data-goal-ids="01-agent-task/branches/sandbox_cleanup"><title>工作环境退出 — boot_agent_sandbox 已经 yield 工作沙箱</title></path>
+<text x="20" y="880" font-size="11">外部边界（无假实现）：外部 Agent CLI；E2B SDK 与服务</text>
+<text x="20" y="904" font-size="11">函数节点按文件＋限定名合并；点击读定义，步骤切换读取准确调用处／实现处。</text>
+<text x="20" y="928" font-size="11">源码版本：2f2318653f6f · 本章目标深度 trace</text>
+<text x="20" y="996" font-size="9">function-edge-0: 统一任务输入 — 训练模式成功路径</text><text x="20" y="1014" font-size="9">function-edge-1: 准备工作区 — 训练模式成功路径；准备任务文件 — 训练模式成功路径</text><text x="20" y="1032" font-size="9">function-edge-2: 执行 Agent — 训练模式成功路径；统一运行时入口 — 训练模式成功路径</text><text x="20" y="1050" font-size="9">function-edge-3: 收集代码改动 — 训练模式成功路径；导出 patch — 训练模式成功路径</text><text x="20" y="1068" font-size="9">function-edge-4: 独立评估 — 训练模式成功路径；评估协议派发 — 工作沙箱已经退出</text><text x="20" y="1086" font-size="9">function-edge-5: 导出训练样本 — 训练模式成功路径；返回训练轨迹 — evaluation=False</text><text x="20" y="1104" font-size="9">function-edge-6: 准备模型通道 — 进入单次任务</text><text x="20" y="1122" font-size="9">function-edge-7: 检查可评估条件 — 元数据已经统一</text><text x="20" y="1140" font-size="9">function-edge-8: 登记任务会话 — 输入预检查通过</text><text x="20" y="1158" font-size="9">function-edge-9: 进入工作沙箱上下文 — 训练模式成功路径</text><text x="20" y="1176" font-size="9">function-edge-10: 创建执行环境 — 启动尝试</text><text x="20" y="1194" font-size="9">function-edge-11: ScaleSWE 判分 — protocol 不是 SWE-bench</text><text x="20" y="1212" font-size="9">function-edge-12: SWE-bench 判分 — protocol 是 SWE-bench</text><text x="20" y="1230" font-size="9">function-edge-13: 返回评估结果 — evaluation=True</text><text x="20" y="1248" font-size="9">function-edge-14: 前置检查失败 — missing_image_or_workdir</text><text x="20" y="1266" font-size="9">function-edge-15: 任务超时诊断 — 捕获 asyncio.TimeoutError</text><text x="20" y="1284" font-size="9">function-edge-16: 会话清理 — 进入 try 的任务在 finally 执行</text><text x="20" y="1302" font-size="9">function-edge-17: 工作环境退出 — boot_agent_sandbox 已经 yield 工作沙箱</text></svg>
