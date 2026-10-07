@@ -108,7 +108,7 @@
 {{- if eq (.Get "mode") "baseline" -}}
   {{- $scheme = "evolution" -}}
 {{- end -}}
-{{- if not (in (slice "architecture" "evolution" "status") $scheme) -}}
+{{- if not (in (slice "architecture" "evolution" "status" "reading") $scheme) -}}
   {{- errorf "Unknown architecture legend %q in %s" $scheme .Page.File.Path -}}
 {{- end -}}
 {{/* Keep one adjacent legend, with the same color tokens as the diagram. */}}

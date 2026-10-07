@@ -1,0 +1,47 @@
+{{- $resource := .Page.Resources.Get "agent-launch-flow.json" -}}
+{{- if not $resource -}}{{ errorf "Agent launch flow data missing" }}{{- end -}}
+{{- $flow := $resource.Content | transform.Unmarshal -}}
+{{- $nodes := dict -}}{{- range $flow.nodes -}}{{- $nodes = merge $nodes (dict .id .) -}}{{- end -}}
+{{- $steps := dict -}}{{- range $flow.mentalModel.steps -}}{{- $steps = merge $steps (dict .id .) -}}{{- end -}}
+<div class="agent-flow" data-agent-flow>
+<script type="application/json" data-flow-data>{{ $flow | jsonify | safeJS }}</script>
+<div class="flow-context">
+  <div class="model-navigation"><button type="button" data-flow-map-root>总流程</button><button type="button" data-flow-map-return>回流程图</button><button type="button" data-flow-back disabled>← 返回上一处</button></div>
+  <div class="model-location">流程位置：<span data-model-trail aria-live="polite"></span></div>
+  <div class="flow-location" data-source-location hidden>源码位置：<span data-flow-path></span><span data-flow-current-label></span></div>
+</div>
+<div class="mental-model" data-mental-model>
+{{ range $flow.mentalModel.steps }}{{ partial "agent-model-layer.html" (dict "step" . "steps" $steps "rootId" $flow.mentalModel.rootId) }}{{ end }}
+</div>
+<div class="flow-layout">
+<main class="flow-function-content" aria-label="当前函数">
+{{ range $flow.nodes }}{{ $node := . }}
+<section data-flow-current="{{ .id }}" hidden>
+  <h2>{{ .label }}</h2><p class="flow-role">{{ .role }}</p>
+  {{ range .explanation }}<p>{{ . | markdownify }}</p>{{ end }}
+  <div class="flow-io"><p><strong>输入：</strong>{{ delimit .inputs "；" }}</p><p><strong>交出：</strong>{{ .output }}</p></div>
+  <div class="flow-code">{{ highlight .source.text "python" "" }}</div>
+  <div class="flow-neighbors"><section><h3>谁调用它</h3>
+    {{ range $flow.edges }}{{ if eq .to $node.id }}<div><button type="button" data-flow-target="{{ .from }}">← {{ (index $nodes .from).label }}</button><small>{{ .label }} · {{ .condition }}</small></div>{{ end }}{{ end }}
+  </section><section><h3>它调用谁</h3>
+    {{ range $flow.edges }}{{ if eq .from $node.id }}<div><button type="button" data-flow-target="{{ .to }}">{{ (index $nodes .to).label }} →</button><small>{{ .label }} · {{ .condition }}</small></div>{{ end }}{{ end }}
+  </section></div>
+  <p>{{ .check.question }}</p><details><summary>展开复述参考</summary>{{ .check.answer | markdownify }}</details>
+  <p class="flow-understanding"><label><input type="checkbox" data-flow-understood="{{ .id }}"> 我能解释这个函数</label><small data-flow-save-status></small></p>
+  <details class="flow-source-detail"><summary>完整函数与源码出处</summary>
+    <p><code>{{ .source.path }}</code> · {{ .source.symbol }} · {{ $flow.revision }}</p>
+    <p><a href="{{ .source.url }}" target="_blank" rel="noopener noreferrer">短片段 L{{ .source.line }}–L{{ .source.endLine }}</a> · <a href="{{ .source.fullUrl }}" target="_blank" rel="noopener noreferrer">完整定义</a></p>
+    {{ highlight .source.fullText "python" "" }}
+  </details>
+</section>{{ end }}
+</main>
+<aside class="flow-tree" data-flow-tree aria-label="相关文件与函数">
+<details class="flow-tree-toggle" open><summary>相关文件与函数</summary>
+{{ partial "agent-flow-tree.html" (dict "prefix" "" "files" $flow.files "nodes" $nodes) }}
+<p class="flow-tree-note">看过表示本次打开过。能解释由你手动勾选，按本链路保存。</p>
+</details>
+</aside>
+</div>
+</div>
+{{- $script := resources.Get "js/agent-flow.js" | minify | fingerprint -}}
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>

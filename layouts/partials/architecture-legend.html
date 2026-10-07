@@ -41,6 +41,16 @@
   -}}
 {{- end -}}
 {{- $resolved := slice -}}
+{{- if eq $scheme "reading" -}}
+  {{- $items = slice
+    (dict "key" "base" "label" "蓝色：本章范围自检完成（自报，非全文件掌握）" "token" "--diagram-base-fill")
+    (dict "key" "modified" "label" "橙色：本章目标部分完成" "token" "--diagram-modified-fill")
+    (dict "key" "storage" "label" "灰色：未记录自检／本章未纳入（文字区分）" "token" "--diagram-storage-fill")
+    (dict "key" "memory" "label" "紫色边框：当前阅读焦点，不是历史新增" "token" "--diagram-memory-stroke")
+    (dict "key" "relation" "label" "虚线：引用或文件关联，非执行顺序" "token" "stroke-dasharray")
+    (dict "key" "flow" "label" "箭头：按标签区分调用、数据与生命周期；静态图非运行轨迹" "token" "marker-end")
+  -}}
+{{- end -}}
 {{- range $items -}}
   {{- $used := strings.Contains $svg .token -}}
   {{- if eq .key "storage" -}}
@@ -48,6 +58,7 @@
   {{- else if eq .key "relation" -}}
     {{- $used = gt (len (findRE `<path\b[^>]*stroke="var\(--diagram-(muted|line)[^>]*stroke-dasharray=` $svg)) 0 -}}
   {{- end -}}
+  {{- if eq $scheme "reading" -}}{{- $used = true -}}{{- end -}}
   {{- $resolved = $resolved | append (merge . (dict "used" $used)) -}}
 {{- end -}}
 {{- $compact := .collapsible | default false -}}
@@ -55,6 +66,7 @@
 {{- if .baseline -}}{{- $short = merge $short (dict "modified" "橙：将改造" "removed" "红：将移出") -}}{{- end -}}
 {{- if eq $scheme "architecture" -}}{{- $short = merge $short (dict "memory" "紫：本节机制") -}}{{- end -}}
 {{- if eq $scheme "status" -}}{{- $short = merge $short (dict "base" "蓝：进行中" "storage" "灰：待处理") -}}{{- end -}}
+{{- if eq $scheme "reading" -}}{{- $short = merge $short (dict "base" "蓝：本章范围完成" "modified" "橙：部分" "storage" "灰：未记录／未纳入" "memory" "紫边：本轮焦点") -}}{{- end -}}
 <div class="architecture-diagram__legend" role="group" aria-label="本图颜色与线型含义" data-scheme="{{ $scheme }}">
   {{- if $compact -}}
   <details class="architecture-diagram__legend-details">

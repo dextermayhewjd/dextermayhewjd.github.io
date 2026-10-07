@@ -1,0 +1,86 @@
+[
+  {
+    "key": "entry",
+    "label": "entry.py",
+    "focus": "entry",
+    "trigger": "测试夹具：文件选择",
+    "input": "测试输入",
+    "output": "阅读目标的示意返回",
+    "flow": "不代表真实 slime 调用",
+    "sourceLink": "#source-caller",
+    "codeSections": [],
+    "codeFunctions": [
+      "caller",
+      "run-a",
+      "run-b"
+    ],
+    "stageFunctions": {
+      "caller": [
+        "caller"
+      ],
+      "run-a": [
+        "run-a"
+      ],
+      "run-b": [
+        "run-b"
+      ]
+    },
+    "figure": "reading-chain"
+  },
+  {
+    "key": "a",
+    "label": "a.py",
+    "focus": "a",
+    "trigger": "测试夹具：文件选择",
+    "input": "测试输入",
+    "output": "阅读目标的示意返回",
+    "flow": "不代表真实 slime 调用",
+    "sourceLink": "#source-caller",
+    "codeSections": [],
+    "codeFunctions": [
+      "caller",
+      "run-a",
+      "run-b"
+    ],
+    "stageFunctions": {
+      "caller": [
+        "caller"
+      ],
+      "run-a": [
+        "run-a"
+      ],
+      "run-b": [
+        "run-b"
+      ]
+    },
+    "figure": "reading-chain"
+  },
+  {
+    "key": "b",
+    "label": "b.py",
+    "focus": "b",
+    "trigger": "测试夹具：文件选择",
+    "input": "测试输入",
+    "output": "阅读目标的示意返回",
+    "flow": "不代表真实 slime 调用",
+    "sourceLink": "#source-caller",
+    "codeSections": [],
+    "codeFunctions": [
+      "caller",
+      "run-a",
+      "run-b"
+    ],
+    "stageFunctions": {
+      "caller": [
+        "caller"
+      ],
+      "run-a": [
+        "run-a"
+      ],
+      "run-b": [
+        "run-b"
+      ]
+    },
+    "figure": "reading-chain"
+  }
+]

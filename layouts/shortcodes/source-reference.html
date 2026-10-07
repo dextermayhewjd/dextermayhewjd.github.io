@@ -1,0 +1,20 @@
+{{- $name := .Get "pack" | default "learning-pack.json" -}}
+{{- $resource := .Page.Resources.Get $name -}}
+{{- if not $resource -}}{{- errorf "Reading pack %q missing in %s" $name .Page.File.Path -}}{{- end -}}
+{{- $pack := $resource.Content | transform.Unmarshal -}}
+{{- $id := .Get "id" -}}
+{{- $ref := index $pack.references $id -}}
+{{- if not $ref -}}{{- errorf "Reading reference %q missing in %s" $id .Page.File.Path -}}{{- end -}}
+<section class="reading-source" id="source-{{ $id }}" data-source-ref="{{ $id }}">
+  {{- if $ref.available -}}
+  <p class="reading-source__identity"><strong>{{ $ref.symbol }}</strong><br>
+    <code>{{ $ref.path }}</code> · L{{ $ref.line }}–L{{ $ref.endLine }}<br>
+    快照 <code>{{ $pack.revision }}</code>
+    {{- $url := printf "%s/blob/%s/%s#L%d-L%d" $pack.repository $pack.revision $ref.path (int $ref.line) (int $ref.endLine) -}}
+    · <a href="{{ $url }}" target="_blank" rel="noopener noreferrer">查看固定版本源码</a>
+  </p>
+  {{ highlight $ref.text "python" "" }}
+  {{- else -}}
+  <p><strong>{{ $ref.label }}</strong>：{{ $ref.reason }}。本仓库没有可展示的对应实现。</p>
+  {{- end -}}
+</section>

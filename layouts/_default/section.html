@@ -18,12 +18,14 @@
 
 {{- $pages := union .RegularPages .Sections -}}
 {{- range sort $pages "Params.weight" }}
+{{- if ne (.Param "hideInOverview") true }}
 <article class="post-entry">
   <header class="entry-header"><h2 class="entry-hint-parent">{{ .Title }}</h2></header>
   {{- if ne (.Param "hideSummary") true }}<div class="entry-content"><p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p></div>{{ end }}
   <footer class="entry-footer">{{ partial "post_meta.html" . }}</footer>
   <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
 </article>
+{{- end }}
 {{- end }}
 
 {{- if $showNav }}</div></div>{{ end }}

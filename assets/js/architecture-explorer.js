@@ -24,11 +24,19 @@
     let manualBounds = null;
     let drag = null;
     const functionIndex = new Map();
+    const readingElement = root.querySelector('[data-reading-config]');
+    const readingPack = readingElement ? JSON.parse(readingElement.textContent) : null;
     document.querySelectorAll('.post-content .highlight, .post-content pre').forEach(block => {
       if (block.closest('[data-diagram-explorer]')) return;
       const match = block.textContent.match(/(?:^|\n)\s*(?:async\s+)?def\s+(\w+)\s*\(/);
       if (match && !functionIndex.has(match[1])) functionIndex.set(match[1], block);
     });
+    if (readingPack) {
+      document.querySelectorAll('section[data-source-ref]').forEach(block => {
+        if (!block.closest('[data-diagram-explorer]') && readingPack.references[block.dataset.sourceRef]?.available)
+          functionIndex.set(block.dataset.sourceRef, block);
+      });
+    }
 
     // Explicit endpoints express control/data/reference relationships; coordinates
     // alone cannot tell whether a crossing is a connection or a loop junction.
@@ -211,7 +219,7 @@
           cards.forEach((candidate, candidateKey) => { candidate.open = candidateKey === key; });
           populate(card);
           synchronize();
-          card.selectFunction(name);
+          card.selectFunction(readingPack ? link.dataset.function : name);
         });
       });
     });
@@ -356,7 +364,8 @@
         const title = document.createElement('button');
         title.type = 'button';
         title.className = 'diagram-explorer__function-title';
-        title.textContent = name + '()';
+        const reference = readingPack?.references[name];
+        title.textContent = reference ? reference.symbol : name + '()';
         if (roles[name]) {
           const role = document.createElement('span');
           role.className = 'diagram-explorer__function-role';
@@ -381,6 +390,7 @@
       });
       }
       connectSteps(card);
+      if (readingPack) root.dispatchEvent(new CustomEvent('diagram:populated'));
       card.querySelector('.diagram-explorer__contract-details').addEventListener('toggle', fitReader);
       card.dataset.populated = 'true';
     }
@@ -401,7 +411,10 @@
         });
         reader.querySelectorAll('a[data-function]').forEach(link =>
           link.classList.toggle('is-function-selected', names.includes(link.dataset.function)));
-        reader.querySelector('[data-step-status]').textContent = '对应函数：' + names.map(name => name + '()').join('、');
+        reader.querySelector('[data-step-status]').textContent = (readingPack ? '对应源码：' : '对应函数：') + names.map(name => {
+          const ref=readingPack?.references[name];
+          return ref ? ref.symbol+' · '+ref.path+' L'+ref.line+'–L'+ref.endLine : name+'()';
+        }).join('、');
         if (reveal) {
           const target = sections.find(section => section.dataset.functionCode === names[0]);
           if (target) code.scrollTop += target.getBoundingClientRect().top - code.getBoundingClientRect().top - 8;
@@ -413,6 +426,7 @@
         const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         group.dataset.stepStage = rect.dataset.stage;
         group.dataset.codeFunctions = names.join(' ');
+        const currentNames = () => group.dataset.codeFunctions.split(' ').filter(Boolean);
         group.setAttribute('role', 'button');
         group.setAttribute('tabindex', '0');
         group.setAttribute('aria-label', '对照 ' + names.map(name => name + '()').join('、'));
@@ -431,17 +445,17 @@
         }
         if (group.querySelector('a[data-function]')) group.setAttribute('role', 'group');
         steps.push(group);
-        group.addEventListener('pointerenter', () => highlight(names, false));
+        group.addEventListener('pointerenter', () => highlight(currentNames(), false));
         group.addEventListener('pointerleave', () => highlight(pinned, false));
-        group.addEventListener('focus', () => highlight(names, false));
+        group.addEventListener('focus', () => highlight(currentNames(), false));
         group.addEventListener('click', event => {
           if (event.target.closest('a')) return;
-          pinned = names; highlight(names, true);
+          pinned = currentNames(); highlight(pinned, true);
         });
         group.addEventListener('keydown', event => {
           if (event.target !== group) return;
           if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault(); pinned = names; highlight(names, true);
+            event.preventDefault(); pinned = currentNames(); highlight(pinned, true);
           }
         });
       });
@@ -458,13 +472,19 @@
             else if (node.right > view.right-8) canvas.scrollLeft += node.right-view.right+8;
           }
       }
-      card.selectFunction = name => selectFunction(name, true);
+      card.selectFunction = name => {
+        selectFunction(name, true);
+        if (readingPack) root.dispatchEvent(new CustomEvent('diagram:function-selected', {detail:{name}}));
+      };
       reader.querySelectorAll('a[data-function]').forEach(link => {
         if (sections.some(section => section.dataset.functionCode === link.dataset.function))
-          bindFunctionLink(link, () => selectFunction(link.dataset.function, true));
+          bindFunctionLink(link, () => card.selectFunction(link.dataset.function));
       });
       sections.forEach(section => {
-        section.querySelector('button').addEventListener('click', () => selectFunction(section.dataset.functionCode, false));
+        section.querySelector('button').addEventListener('click', () => {
+          selectFunction(section.dataset.functionCode, false);
+          if (readingPack) root.dispatchEvent(new CustomEvent('diagram:function-selected', {detail:{name:section.dataset.functionCode}}));
+        });
       });
       highlight(pinned, false);
     }
@@ -495,6 +515,7 @@
       // above the reader and trigger document scroll anchoring.
       if (!externalFunction) highlightConnections(hoveredStage || stage);
       positionPanel();
+      if (readingPack) root.dispatchEvent(new CustomEvent('diagram:selection', {detail:{module:selected}}));
     }
 
     function closePanel(restoreFocus = false) {
@@ -598,7 +619,20 @@
     root.querySelector('.diagram-explorer__panel-header').hidden = false;
     root.querySelector('.diagram-explorer__toolbar').hidden = false;
     root.querySelector('.diagram-explorer__modules').hidden = false;
+    if (readingPack) root.openReadingSource = (name, origin) => {
+      const ref = readingPack.references[name];
+      if (!ref?.available) return;
+      const node = [...overview.querySelectorAll('rect[data-file-path]')].find(rect => rect.dataset.filePath === ref.path);
+      const key = node?.closest('a[data-module]')?.dataset.module;
+      const card = cards.get(key);
+      if (!card || !functionIndex.has(name)) return;
+      anchor = origin || node;
+      selected = key; overviewStage = ''; hoveredStage = '';
+      cards.forEach((candidate, candidateKey) => { candidate.open = candidateKey === key; });
+      populate(card); synchronize(); card.selectFunction(name);
+    };
     root.dataset.ready = 'true';
+    if (readingPack && window.ReadingView) window.ReadingView.attach(root, readingPack);
     synchronize();
   });
   // Standalone figures opt in independently of the overview's selected module.

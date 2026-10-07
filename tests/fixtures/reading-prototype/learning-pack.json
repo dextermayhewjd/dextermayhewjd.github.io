@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "fixture": true,
+  "chapterId": "reading-fixture",
+  "title": "跨文件阅读器测试夹具",
+  "repository": "https://example.invalid/fixture",
+  "revision": "1111111111111111111111111111111111111111",
+  "generatedAt": "2026-10-07",
+  "files": {
+    "entry.py": {
+      "text": "def generate(task):\n    return Worker().run(task)\n",
+      "totalLines": 2,
+      "blobSha256": "dd809d14e3ffcba778e5d15592aaeb73c9b2dbe789e273f672b68d22c51b4d1b",
+      "functions": [
+        {
+          "symbol": "generate",
+          "line": 1,
+          "endLine": 2
+        }
+      ]
+    },
+    "a.py": {
+      "text": "class Worker:\n    def run(self, task):\n        return task\n\n    def hidden(self):\n        return None\n",
+      "totalLines": 6,
+      "blobSha256": "60cfa1406826799bba5986c29f36b9018d38137be1732a218b256030b3e06b68",
+      "functions": [
+        {
+          "symbol": "Worker.run",
+          "line": 2,
+          "endLine": 3
+        },
+        {
+          "symbol": "Worker.hidden",
+          "line": 5,
+          "endLine": 6
+        }
+      ]
+    },
+    "b.py": {
+      "text": "class Worker:\n    def run(self, task):\n        return str(task)\n",
+      "totalLines": 3,
+      "blobSha256": "4475ed4833163177e3f73538bb691a3268f3c55cc2f5846484f17e582b43f4d3",
+      "functions": [
+        {
+          "symbol": "Worker.run",
+          "line": 2,
+          "endLine": 3
+        }
+      ]
+    },
+    "other.py": {
+      "text": "def unused():\n    return None\n",
+      "totalLines": 2,
+      "blobSha256": "15dc1c656c4d536650850b1b7ad59405d889e87de63a87b5dc85b4bad929102c",
+      "functions": [
+        {
+          "symbol": "unused",
+          "line": 1,
+          "endLine": 2
+        }
+      ]
+    }
+  },
+  "references": {
+    "caller": {
+      "available": true,
+      "revision": "1111111111111111111111111111111111111111",
+      "path": "entry.py",
+      "symbol": "generate",
+      "line": 2,
+      "endLine": 2,
+      "blobSha256": "dd809d14e3ffcba778e5d15592aaeb73c9b2dbe789e273f672b68d22c51b4d1b",
+      "text": "    return Worker().run(task)",
+      "label": "generate"
+    },
+    "run-a": {
+      "available": true,
+      "revision": "1111111111111111111111111111111111111111",
+      "path": "a.py",
+      "symbol": "Worker.run",
+      "line": 2,
+      "endLine": 3,
+      "blobSha256": "60cfa1406826799bba5986c29f36b9018d38137be1732a218b256030b3e06b68",
+      "text": "    def run(self, task):\n        return task",
+      "label": "Worker.run"
+    },
+    "run-b": {
+      "available": true,
+      "revision": "1111111111111111111111111111111111111111",
+      "path": "b.py",
+      "symbol": "Worker.run",
+      "line": 2,
+      "endLine": 3,
+      "blobSha256": "4475ed4833163177e3f73538bb691a3268f3c55cc2f5846484f17e582b43f4d3",
+      "text": "    def run(self, task):\n        return str(task)",
+      "label": "Worker.run"
+    },
+    "external": {
+      "available": false,
+      "revision": "1111111111111111111111111111111111111111",
+      "label": "External.run",
+      "reason": "测试边界：外部实现不可获取"
+    }
+  },
+  "inventory": [
+    {
+      "path": "entry.py",
+      "category": "python",
+      "group": "fixture",
+      "inChapter": true
+    },
+    {
+      "path": "a.py",
+      "category": "python",
+      "group": "fixture",
+      "inChapter": true
+    },
+    {
+      "path": "b.py",
+      "category": "python",
+      "group": "fixture",
+      "inChapter": true
+    },
+    {
+      "path": "other.py",
+      "category": "python",
+      "group": "fixture",
+      "inChapter": false
+    }
+  ],
+  "views": [
+    {
+      "id": "input",
+      "label": "测试阶段：输入",
+      "description": "合成夹具",
+      "steps": [
+        {
+          "id": "one",
+          "label": "追踪输入合同",
+          "kind": "call",
+          "depth": "trace",
+          "summary": "交互夹具，不是 slime 的真实任务流程。",
+          "inputs": [
+            "task"
+          ],
+          "returns": {
+            "type": "object",
+            "fields": [
+              "result"
+            ]
+          },
+          "effect": "返回示意结果",
+          "condition": "仅测试界面",
+          "caller": "caller",
+          "callee": "run-a",
+          "files": [
+            "entry.py",
+            "a.py"
+          ]
+        },
+        {
+          "id": "two",
+          "label": "追踪返回合同",
+          "kind": "call",
+          "depth": "trace",
+          "summary": "交互夹具，不是 slime 的真实任务流程。",
+          "inputs": [
+            "task"
+          ],
+          "returns": {
+            "type": "object",
+            "fields": [
+              "result"
+            ]
+          },
+          "effect": "返回示意结果",
+          "condition": "仅测试界面",
+          "caller": "caller",
+          "callee": "run-a",
+          "files": [
+            "entry.py",
+            "a.py"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "execution",
+      "label": "测试阶段：执行",
+      "description": "合成夹具",
+      "steps": [
+        {
+          "id": "three",
+          "label": "追踪另一个同名方法",
+          "kind": "call",
+          "depth": "trace",
+          "summary": "交互夹具，不是 slime 的真实任务流程。",
+          "inputs": [
+            "task"
+          ],
+          "returns": {
+            "type": "object",
+            "fields": [
+              "result"
+            ]
+          },
+          "effect": "返回示意结果",
+          "condition": "仅测试界面",
+          "caller": "caller",
+          "callee": "run-b",
+          "files": [
+            "entry.py",
+            "b.py"
+          ]
+        }
+      ]
+    }
+  ]
+}

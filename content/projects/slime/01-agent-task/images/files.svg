@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 524" width="1200" height="524" role="img" aria-label="本章文件图：当前教学范围与文件之间的调用">
+<defs><marker id="slime-files-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10Z" fill="#60768a" /></marker></defs>
+<style>text{font-family:system-ui,sans-serif;fill:var(--primary,#25374a)} .mono{font-family:monospace} path[data-from]{fill:none;stroke:#8799aa;stroke-width:1.5;marker-end:url(#slime-files-arrow)} rect[data-stage]{fill:var(--code-bg,#eef3f8);stroke:#70879d;stroke-width:1.5;rx:8} a{cursor:pointer} .file-bg{fill:var(--code-bg,#fafbfd);stroke:var(--border,#c8d2dc);stroke-width:1;rx:12}</style>
+<text x="20" y="27" font-size="17" font-weight="600">本章文件图：当前教学范围与文件之间的调用</text>
+<a data-module="file-0"><g><rect data-stage="file-0" data-file-path="examples/coding_agent_rl/generate.py" x="20" y="115" width="220" height="170" />
+<text x="32" y="139" font-size="14" font-weight="600">generate.py</text>
+<text x="32" y="162" font-size="10">examples/coding_agent_rl/gen</text>
+<text x="32" y="178" font-size="10">erate.py</text>
+<text x="32" y="227" font-size="12">本章 21 项阅读目标</text>
+<text x="32" y="250" font-size="11">涉及 6 个符号；静态定义 8 个</text>
+<text x="32" y="269" font-size="10">初始未记录 · 完成仅限本章范围</text>
+</g></a>
+<a data-module="file-1"><g><rect data-stage="file-1" data-file-path="examples/coding_agent_rl/swe.py" x="254" y="115" width="220" height="170" />
+<text x="266" y="139" font-size="14" font-weight="600">swe.py</text>
+<text x="266" y="162" font-size="10">examples/coding_agent_rl/swe</text>
+<text x="266" y="178" font-size="10">.py</text>
+<text x="266" y="227" font-size="12">本章 10 项阅读目标</text>
+<text x="266" y="250" font-size="11">涉及 7 个符号；静态定义 23 个</text>
+<text x="266" y="269" font-size="10">初始未记录 · 完成仅限本章范围</text>
+</g></a>
+<a data-module="file-2"><g><rect data-stage="file-2" data-file-path="slime/agent/harness/common.py" x="488" y="115" width="220" height="170" />
+<text x="500" y="139" font-size="14" font-weight="600">common.py</text>
+<text x="500" y="162" font-size="10">slime/agent/harness/common.p</text>
+<text x="500" y="178" font-size="10">y</text>
+<text x="500" y="227" font-size="12">本章 3 项阅读目标</text>
+<text x="500" y="250" font-size="11">涉及 2 个符号；静态定义 7 个</text>
+<text x="500" y="269" font-size="10">初始未记录 · 完成仅限本章范围</text>
+</g></a>
+<a data-module="file-3"><g><rect data-stage="file-3" data-file-path="slime/agent/adapters/common.py" x="722" y="115" width="220" height="170" />
+<text x="734" y="139" font-size="14" font-weight="600">common.py</text>
+<text x="734" y="162" font-size="10">slime/agent/adapters/common.</text>
+<text x="734" y="178" font-size="10">py</text>
+<text x="734" y="227" font-size="12">本章 4 项阅读目标</text>
+<text x="734" y="250" font-size="11">涉及 3 个符号；静态定义 26 个</text>
+<text x="734" y="269" font-size="10">初始未记录 · 完成仅限本章范围</text>
+</g></a>
+<a data-module="file-4"><g><rect data-stage="file-4" data-file-path="slime/agent/sandbox.py" x="956" y="115" width="220" height="170" />
+<text x="968" y="139" font-size="14" font-weight="600">sandbox.py</text>
+<text x="968" y="162" font-size="10">slime/agent/sandbox.py</text>
+<text x="968" y="227" font-size="12">本章 3 项阅读目标</text>
+<text x="968" y="250" font-size="11">涉及 2 个符号；静态定义 24 个</text>
+<text x="968" y="269" font-size="10">初始未记录 · 完成仅限本章范围</text>
+</g></a>
+<path data-from="file-0" data-to="file-1" data-kind="flow" data-label="本章跨文件调用" data-route="file-edge-0" d="M 130.0 115 L 130.0 55 L 364.0 55 L 364.0 115" data-goal-ids="01-agent-task/overview/metadata 01-agent-task/overview/workspace 01-agent-task/overview/diff 01-agent-task/overview/evaluation 01-agent-task/input_session/validity 01-agent-task/execution/prepare 01-agent-task/execution/patch 01-agent-task/grade_export/dispatch"><title>统一任务输入 — 训练模式成功路径；准备工作区 — 训练模式成功路径；收集代码改动 — 训练模式成功路径；独立评估 — 训练模式成功路径；检查可评估条件 — 元数据已经统一；准备任务文件 — 训练模式成功路径；导出 patch — 训练模式成功路径；评估协议派发 — 工作沙箱已经退出</title></path>
+<path data-from="file-0" data-to="file-2" data-kind="flow" data-label="本章跨文件调用" data-route="file-edge-1" d="M 130.0 115 L 130.0 65 L 598.0 65 L 598.0 115" data-goal-ids="01-agent-task/overview/agent 01-agent-task/execution/run"><title>执行 Agent — 训练模式成功路径；统一运行时入口 — 训练模式成功路径</title></path>
+<path data-from="file-0" data-to="file-3" data-kind="flow" data-label="本章跨文件调用" data-route="file-edge-2" d="M 130.0 115 L 130.0 75 L 832.0 75 L 832.0 115" data-goal-ids="01-agent-task/overview/samples 01-agent-task/input_session/session 01-agent-task/grade_export/training_result 01-agent-task/branches/session_cleanup"><title>导出训练样本 — 训练模式成功路径；登记任务会话 — 输入预检查通过；返回训练轨迹 — evaluation=False；会话清理 — 进入 try 的任务在 finally 执行</title></path>
+<path data-from="file-0" data-to="file-4" data-kind="flow" data-label="本章跨文件调用" data-route="file-edge-3" d="M 130.0 115 L 130.0 85 L 1066.0 85 L 1066.0 115" data-goal-ids="01-agent-task/input_session/enter 01-agent-task/branches/sandbox_cleanup"><title>创建执行环境 — 启动尝试；工作环境退出 — boot_agent_sandbox 已经 yield 工作沙箱</title></path>
+<text x="20" y="340" font-size="12">灰蓝底色表示阅读范围，完成颜色由显式自报记录决定；箭头是调用关联。</text>
+<text x="20" y="363" font-size="12">完整原生目录共 645 个文件，本章提供其中 5 个文件的代码；其他文件可在页面目录中检索。</text>
+<text x="20" y="386" font-size="11">来源：THUDM/slime/main · 2f2318653f6f</text>
+<text x="20" y="434" font-size="9">file-edge-0: 统一任务输入 — 训练模式成功路径；准备工作区 — 训练模式成功路径；收集代码改动 — 训练模式成功路径；独立评估 — 训练模式成功路径；检查可评估条件 — 元数据已经统一；准备任务文件 — 训练模式成功路径；导出 patch — 训练模式成功路径；评估协议派发 — 工作沙箱已经退出</text><text x="20" y="452" font-size="9">file-edge-1: 执行 Agent — 训练模式成功路径；统一运行时入口 — 训练模式成功路径</text><text x="20" y="470" font-size="9">file-edge-2: 导出训练样本 — 训练模式成功路径；登记任务会话 — 输入预检查通过；返回训练轨迹 — evaluation=False；会话清理 — 进入 try 的任务在 finally 执行</text><text x="20" y="488" font-size="9">file-edge-3: 创建执行环境 — 启动尝试；工作环境退出 — boot_agent_sandbox 已经 yield 工作沙箱</text></svg>

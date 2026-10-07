@@ -1,0 +1,61 @@
+.main:has([data-agent-flow]) { max-width: 1400px; }
+.agent-flow { max-width: 1180px; margin: 0 auto; }
+.agent-flow [hidden] { display: none !important; }
+.model-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 7px; }
+.model-location { font-size: 13px; }
+[data-model-trail] { display: inline-flex; flex-wrap: wrap; gap: 5px; }
+[data-model-trail] button { font-size: 12px; padding: 3px 5px; }
+.mental-model { margin-top: 16px; }
+.mental-layer { border: 2px solid var(--border); border-radius: 10px; padding: 18px; }
+.mental-parent h2 { margin: 0 0 8px; font-size: 21px; }
+.mental-parent p { margin: 6px 0 10px; color: var(--secondary); font-size: 14px; }
+.mental-parent small { color: var(--secondary); }
+.mental-diagram { position: relative; }
+.mental-steps { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 40px 32px; padding: 44px 0 16px; }
+.mental-layer[data-layout="choice"] .mental-steps { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.mental-step { border: 1px solid var(--border); border-radius: 7px; padding: 10px; background: var(--theme); min-width: 0; z-index: 1; }
+.mental-step > button[data-model-step] { display: block; width: 100%; font-size: 14px; text-align: left; min-height: 54px; }
+.mental-step [aria-current="step"] { border: 2px solid var(--primary); }
+.mental-step small { display: block; color: var(--secondary); font-size: 12px; margin: 5px 0; }
+.mental-step .mental-source-link { font-size: 12px; margin-top: 7px; }
+.mental-arrows { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.mental-link-labels { display: flex; flex-wrap: wrap; gap: 10px; color: var(--secondary); font-size: 12px; }
+.mental-loop { font-size: 14px; }
+.flow-context { position: sticky; top: 0; z-index: 8; padding: 10px 0; background: var(--theme); border-bottom: 1px solid var(--border); }
+.flow-business { display: flex; gap: 6px; list-style: none !important; padding: 0 !important; margin: 0 0 8px !important; }
+.flow-business li { flex: 1; font-size: 13px; border: 1px solid var(--border); padding: 6px 8px; border-radius: 5px; text-align: center; }
+.flow-business .is-context { color: var(--secondary); }
+.flow-business .is-available { border: 2px solid var(--primary); font-weight: 650; }
+.flow-location { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.flow-location [data-flow-path] { font: 14px monospace; overflow-wrap: anywhere; }
+.flow-entry { margin: 8px 0 0; font-size: 12px; color: var(--secondary); }
+.flow-entry [data-flow-current-label] { margin-left: 14px; }
+.flow-layout { display: grid; grid-template-columns: minmax(0,1fr) 275px; gap: 26px; align-items: start; padding-top: 16px; }
+.flow-function-content { min-width: 0; }
+.flow-function-content h2 { margin: 10px 0; }
+.flow-role { font-weight: 600; }
+.flow-io { font-size: 13px; color: var(--secondary); }
+.flow-io p { margin: 6px 0; }
+.flow-code pre, .flow-code pre code { font-size: 14px; }
+.flow-tree { position: sticky; top: 125px; max-height: calc(100vh - 140px); overflow-y: auto; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 12px; }
+.flow-tree details { margin: 7px 0; }
+.flow-tree details details { margin-left: 10px; }
+.flow-tree summary { overflow-wrap: anywhere; cursor: pointer; }
+.flow-tree ul { list-style: none; padding: 0 0 0 10px; margin: 6px 0; }
+.flow-tree li { margin: 5px 0; }
+.flow-tree button { width: 100%; text-align: left; overflow-wrap: anywhere; }
+.flow-tree button[aria-current="location"] { border: 2px solid var(--primary); font-weight: 600; }
+.flow-tree .is-current-file > summary, .flow-tree .is-current-folder > summary { font-weight: 650; }
+.flow-tree small { display: block; color: var(--secondary); font-weight: 400; }
+.flow-tree-note { color: var(--secondary); font-size: 11px; }
+.agent-flow button { padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; font: inherit; cursor: pointer; }
+.agent-flow button:disabled { opacity: .5; cursor: default; }
+.agent-flow button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.flow-neighbors { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0; }
+.flow-neighbors h3 { font-size: 14px; margin: 8px 0; }
+.flow-neighbors small { display: block; font-size: 12px; color: var(--secondary); margin: 4px 0 8px; }
+.flow-source-detail { font-size: 12px; overflow-wrap: anywhere; }
+.flow-source-detail pre, .flow-source-detail pre code { font-size: 13px; }
+.flow-understanding { padding-top: 12px; border-top: 1px solid var(--border); }
+.flow-understanding small { display: block; color: var(--secondary); }
+@media(max-width:860px) { .flow-layout { grid-template-columns: minmax(0,1fr); } .flow-tree { grid-row: 1; position: static; max-height: none; } .flow-location { gap: 4px; } .flow-neighbors { grid-template-columns: 1fr; } .mental-steps { grid-template-columns: 1fr; gap: 36px; } .mental-layer { padding: 12px; } .mental-step > button[data-model-step] { min-height: 40px; } }
