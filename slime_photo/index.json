@@ -1,0 +1,715 @@
+{
+  "source": "https://codewiki.google/github.com/thudm/slime",
+  "verifiedAt": "2026-10-08T06:18:48.291Z",
+  "sections": [
+    {
+      "title": "Introduction to Slime Framework",
+      "level": 2,
+      "directory": "1.Introduction to Slime Framework",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/Introduction to Slime Framework.svg",
+          "sha256": "eaf0eb1ec48e7fb7d46c76aab75b1d5abeea146cef5ebf828046792a3ea41416"
+        }
+      ],
+      "number": "1"
+    },
+    {
+      "title": "Slime's Core Components and Architecture",
+      "level": 3,
+      "directory": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-slimes-core-components-and-architecture",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture/Slime's Core Components and Architecture.svg",
+          "sha256": "932ab210d89473f201c380e7f3c1f3ce3ef2099f358ce9b0de11263183d89beb"
+        }
+      ],
+      "number": "1.1"
+    },
+    {
+      "title": "High-Performance Training with Megatron-LM",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture/1.1.1.High-Performance Training with Megatron-LM",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-slimes-core-components-and-architecture-high-performance-training-with-megatron-lm",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture/1.1.1.High-Performance Training with Megatron-LM/High-Performance Training with Megatron-LM.svg",
+          "sha256": "6950728404565fa85cd8f6c09b538e12215d1a0533e5302b9b046e63cbe941d8"
+        }
+      ],
+      "number": "1.1.1"
+    },
+    {
+      "title": "Efficient Data Generation and Rollouts with SGLang",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture/1.1.2.Efficient Data Generation and Rollouts with SGLang",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-slimes-core-components-and-architecture-efficient-data-generation-and-rollouts-with-sglang",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.1.Slime's Core Components and Architecture/1.1.2.Efficient Data Generation and Rollouts with SGLang/Efficient Data Generation and Rollouts with SGLang.svg",
+          "sha256": "4000de957c561be3d5b1301207e67118e66bc48ca45e2c3f8be81a75e5ed98bd"
+        }
+      ],
+      "number": "1.1.2"
+    },
+    {
+      "title": "Extensibility and Customization Points",
+      "level": 3,
+      "directory": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-extensibility-and-customization-points",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/Extensibility and Customization Points.svg",
+          "sha256": "e4bbc4112d8f9422d1f17996bf5efb9d91e679b60e31474253844487f5033a84"
+        }
+      ],
+      "number": "1.2"
+    },
+    {
+      "title": "Dynamic Filtering and Processing Hooks",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.1.Dynamic Filtering and Processing Hooks",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-extensibility-and-customization-points-dynamic-filtering-and-processing-hooks",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.1.Dynamic Filtering and Processing Hooks/Dynamic Filtering and Processing Hooks.svg",
+          "sha256": "430e45fefc02d9251833ae73e28fd1754f33be1734b1bdba9fcaa232110b3a7d"
+        }
+      ],
+      "number": "1.2.1"
+    },
+    {
+      "title": "Custom Data Generation Functions",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.2.Custom Data Generation Functions",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-extensibility-and-customization-points-custom-data-generation-functions",
+      "svg": [],
+      "number": "1.2.2"
+    },
+    {
+      "title": "Custom Reward Functions",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.3.Custom Reward Functions",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-extensibility-and-customization-points-custom-reward-functions",
+      "svg": [],
+      "number": "1.2.3"
+    },
+    {
+      "title": "Evaluation Dataset Configuration",
+      "level": 4,
+      "directory": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.4.Evaluation Dataset Configuration",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-extensibility-and-customization-points-evaluation-dataset-configuration",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.2.Extensibility and Customization Points/1.2.4.Evaluation Dataset Configuration/Evaluation Dataset Configuration.svg",
+          "sha256": "4a40d4090c09d6bdea55a8885628586e2684208dc8486eccc3a005d989a9f9f1"
+        }
+      ],
+      "number": "1.2.4"
+    },
+    {
+      "title": "Distributed Job Orchestration and Management",
+      "level": 3,
+      "directory": "1.Introduction to Slime Framework/1.3.Distributed Job Orchestration and Management",
+      "url": "https://codewiki.google/github.com/thudm/slime#introduction-to-slime-framework-distributed-job-orchestration-and-management",
+      "svg": [
+        {
+          "file": "1.Introduction to Slime Framework/1.3.Distributed Job Orchestration and Management/Distributed Job Orchestration and Management.svg",
+          "sha256": "0e4497e41c5955463aba06bd080872eb532503a8fa523550ae92290aac4908e2"
+        }
+      ],
+      "number": "1.3"
+    },
+    {
+      "title": "Setting Up Your Development Environment",
+      "level": 2,
+      "directory": "2.Setting Up Your Development Environment",
+      "url": "https://codewiki.google/github.com/thudm/slime#setting-up-your-development-environment",
+      "svg": [
+        {
+          "file": "2.Setting Up Your Development Environment/Setting Up Your Development Environment.svg",
+          "sha256": "d2e3e7c23250e46cb21d08b2eee9f548d73475d5182b7044c0f4ee8253fe3a1d"
+        }
+      ],
+      "number": "2"
+    },
+    {
+      "title": "Docker Image Construction and Release Management",
+      "level": 3,
+      "directory": "2.Setting Up Your Development Environment/2.1.Docker Image Construction and Release Management",
+      "url": "https://codewiki.google/github.com/thudm/slime#setting-up-your-development-environment-docker-image-construction-and-release-management",
+      "svg": [
+        {
+          "file": "2.Setting Up Your Development Environment/2.1.Docker Image Construction and Release Management/Docker Image Construction and Release Management.svg",
+          "sha256": "b96ce875c55c554b89c3b51b5eefdb97ed353a2a579475f687ece2cc4db48824"
+        }
+      ],
+      "number": "2.1"
+    },
+    {
+      "title": "NPU Environment Setup and Patching",
+      "level": 3,
+      "directory": "2.Setting Up Your Development Environment/2.2.NPU Environment Setup and Patching",
+      "url": "https://codewiki.google/github.com/thudm/slime#setting-up-your-development-environment-npu-environment-setup-and-patching",
+      "svg": [
+        {
+          "file": "2.Setting Up Your Development Environment/2.2.NPU Environment Setup and Patching/NPU Environment Setup and Patching.svg",
+          "sha256": "f8eea08a6584937816499ba1aea797ecae61841d5946641a758ec7146b01973a"
+        }
+      ],
+      "number": "2.2"
+    },
+    {
+      "title": "GB10 Architecture Porting and Optimization",
+      "level": 3,
+      "directory": "2.Setting Up Your Development Environment/2.3.GB10 Architecture Porting and Optimization",
+      "url": "https://codewiki.google/github.com/thudm/slime#setting-up-your-development-environment-gb10-architecture-porting-and-optimization",
+      "svg": [],
+      "number": "2.3"
+    },
+    {
+      "title": "Extending and Customizing Slime",
+      "level": 2,
+      "directory": "3.Extending and Customizing Slime",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime",
+      "svg": [
+        {
+          "file": "3.Extending and Customizing Slime/Extending and Customizing Slime.svg",
+          "sha256": "cff37626b3df24775bea3cbb2cca1f7b17816519c75e414a34e93dbb68c4b6d5"
+        }
+      ],
+      "number": "3"
+    },
+    {
+      "title": "Integrating Custom Dynamic Filtering and Processing Hooks",
+      "level": 3,
+      "directory": "3.Extending and Customizing Slime/3.1.Integrating Custom Dynamic Filtering and Processing Hooks",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime-integrating-custom-dynamic-filtering-and-processing-hooks",
+      "svg": [
+        {
+          "file": "3.Extending and Customizing Slime/3.1.Integrating Custom Dynamic Filtering and Processing Hooks/Integrating Custom Dynamic Filtering and Processing Hooks.svg",
+          "sha256": "e69ef8a90c6eb7097e9ca9c7f8e84f882c8debe450a84ee38823bcc77142161d"
+        }
+      ],
+      "number": "3.1"
+    },
+    {
+      "title": "Configuring and Validating Evaluation Datasets",
+      "level": 3,
+      "directory": "3.Extending and Customizing Slime/3.2.Configuring and Validating Evaluation Datasets",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime-configuring-and-validating-evaluation-datasets",
+      "svg": [],
+      "number": "3.2"
+    },
+    {
+      "title": "Implementing and Integrating Custom Reward Functions",
+      "level": 3,
+      "directory": "3.Extending and Customizing Slime/3.3.Implementing and Integrating Custom Reward Functions",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime-implementing-and-integrating-custom-reward-functions",
+      "svg": [
+        {
+          "file": "3.Extending and Customizing Slime/3.3.Implementing and Integrating Custom Reward Functions/Implementing and Integrating Custom Reward Functions.svg",
+          "sha256": "3e8bef78713f8e5325bc0cf45f3d72963663c09ee66d9871287289b51edae767"
+        }
+      ],
+      "number": "3.3"
+    },
+    {
+      "title": "Developing Custom Data Generation Rollout Functions",
+      "level": 3,
+      "directory": "3.Extending and Customizing Slime/3.4.Developing Custom Data Generation Rollout Functions",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime-developing-custom-data-generation-rollout-functions",
+      "svg": [],
+      "number": "3.4"
+    },
+    {
+      "title": "Adding and Integrating Tests into CI",
+      "level": 3,
+      "directory": "3.Extending and Customizing Slime/3.5.Adding and Integrating Tests into CI",
+      "url": "https://codewiki.google/github.com/thudm/slime#extending-and-customizing-slime-adding-and-integrating-tests-into-ci",
+      "svg": [
+        {
+          "file": "3.Extending and Customizing Slime/3.5.Adding and Integrating Tests into CI/Adding and Integrating Tests into CI.svg",
+          "sha256": "a0912a16b4d66f04d3d7c3d07cef6f5ab57619bd0a8d2cbf694cc34e35e8cf53"
+        }
+      ],
+      "number": "3.5"
+    },
+    {
+      "title": "Slime Core Components and Orchestration",
+      "level": 2,
+      "directory": "4.Slime Core Components and Orchestration",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/Slime Core Components and Orchestration.svg",
+          "sha256": "ce5a3392befd2d60aaafc494e9264dcff79f9d3ab1f41507d481bf5a2f8dd6c7"
+        }
+      ],
+      "number": "4"
+    },
+    {
+      "title": "Agent Rollout Adapters and Harnesses",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-agent-rollout-adapters-and-harnesses",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Agent Rollout Adapters and Harnesses.svg",
+          "sha256": "539ea11eb0bca9caf047a3cc600433fa3cf1d7e87451bec60f238f219fca38dd"
+        }
+      ],
+      "number": "4.1"
+    },
+    {
+      "title": "Backend Orchestration for Megatron-LM Training",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.2.Backend Orchestration for Megatron-LM Training",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-backend-orchestration-for-megatron-lm-training",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.2.Backend Orchestration for Megatron-LM Training/Backend Orchestration for Megatron-LM Training.svg",
+          "sha256": "4dd1190383349fca64dde8d2037fbb174713edf581cb03c8a88a1879a835d81b"
+        }
+      ],
+      "number": "4.2"
+    },
+    {
+      "title": "SGLang Backend for Inference Serving and Rollouts",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.3.SGLang Backend for Inference Serving and Rollouts",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-sglang-backend-for-inference-serving-and-rollouts",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.3.SGLang Backend for Inference Serving and Rollouts/SGLang Backend for Inference Serving and Rollouts.svg",
+          "sha256": "4af17b31e7a51f398ade471f013ffadffd7b615aa402a7180c5035f0b6d8b9a2"
+        }
+      ],
+      "number": "4.3"
+    },
+    {
+      "title": "Distributed Ray Orchestration and Resource Management",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.4.Distributed Ray Orchestration and Resource Management",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-distributed-ray-orchestration-and-resource-management",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.4.Distributed Ray Orchestration and Resource Management/Distributed Ray Orchestration and Resource Management.svg",
+          "sha256": "fa243a60eb32c805d4e4212ca82d1aa013de6643b063be974f3c957db87d67e7"
+        }
+      ],
+      "number": "4.4"
+    },
+    {
+      "title": "Sample Generation and Reward Modeling Pipeline",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.5.Sample Generation and Reward Modeling Pipeline",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-sample-generation-and-reward-modeling-pipeline",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.5.Sample Generation and Reward Modeling Pipeline/Sample Generation and Reward Modeling Pipeline.svg",
+          "sha256": "0d32899c1514574d6e67ed6f10eba50ac6cfd378e33ee6a11eab7d61b1958085"
+        }
+      ],
+      "number": "4.5"
+    },
+    {
+      "title": "Core Utilities for System-Level Functionality",
+      "level": 3,
+      "directory": "4.Slime Core Components and Orchestration/4.6.Core Utilities for System-Level Functionality",
+      "url": "https://codewiki.google/github.com/thudm/slime#slime-core-components-and-orchestration-core-utilities-for-system-level-functionality",
+      "svg": [
+        {
+          "file": "4.Slime Core Components and Orchestration/4.6.Core Utilities for System-Level Functionality/Core Utilities for System-Level Functionality.svg",
+          "sha256": "f3e85deaba1cf74302f02d2db6e377ea216ea5165751880f8c282d78489c1112"
+        }
+      ],
+      "number": "4.6"
+    },
+    {
+      "title": "Distributed Training and Evaluation",
+      "level": 2,
+      "directory": "5.Distributed Training and Evaluation",
+      "url": "https://codewiki.google/github.com/thudm/slime#distributed-training-and-evaluation",
+      "svg": [
+        {
+          "file": "5.Distributed Training and Evaluation/Distributed Training and Evaluation.svg",
+          "sha256": "bf775de5c85f629e82445c02b44fb2a683950009c5f05c4358f69c989af71654"
+        }
+      ],
+      "number": "5"
+    },
+    {
+      "title": "Configuration of Distributed Training and Evaluation Jobs",
+      "level": 3,
+      "directory": "5.Distributed Training and Evaluation/5.1.Configuration of Distributed Training and Evaluation Jobs",
+      "url": "https://codewiki.google/github.com/thudm/slime#distributed-training-and-evaluation-configuration-of-distributed-training-and-evaluation-jobs",
+      "svg": [],
+      "number": "5.1"
+    },
+    {
+      "title": "Low-Precision Training and Inference",
+      "level": 3,
+      "directory": "5.Distributed Training and Evaluation/5.2.Low-Precision Training and Inference",
+      "url": "https://codewiki.google/github.com/thudm/slime#distributed-training-and-evaluation-low-precision-training-and-inference",
+      "svg": [],
+      "number": "5.2"
+    },
+    {
+      "title": "Model Implementations and Integration",
+      "level": 2,
+      "directory": "6.Model Implementations and Integration",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/Model Implementations and Integration.svg",
+          "sha256": "f7e67ee4e0f3fa45d599ad3f420bc38454171237373eaa74315a8f8cb902317d"
+        }
+      ],
+      "number": "6"
+    },
+    {
+      "title": "Megatron-LM Compatible Model Implementations",
+      "level": 3,
+      "directory": "6.Model Implementations and Integration/6.1.Megatron-LM Compatible Model Implementations",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration-megatron-lm-compatible-model-implementations",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/6.1.Megatron-LM Compatible Model Implementations/Megatron-LM Compatible Model Implementations.svg",
+          "sha256": "a5163002f1f64a7751fbe0eebf35d3301747418f5566632cd3d14cca1d275595"
+        }
+      ],
+      "number": "6.1"
+    },
+    {
+      "title": "Multi-Latent Attention (MLA) in GLM-5",
+      "level": 4,
+      "directory": "6.Model Implementations and Integration/6.1.Megatron-LM Compatible Model Implementations/6.1.1.Multi-Latent Attention (MLA) in GLM-5",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration-megatron-lm-compatible-model-implementations-multi-latent-attention-mla-in-glm-5",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/6.1.Megatron-LM Compatible Model Implementations/6.1.1.Multi-Latent Attention (MLA) in GLM-5/Multi-Latent Attention (MLA) in GLM-5.svg",
+          "sha256": "d08193d0725533e3a3c10c014c35e3d247c6f77c43f42bbd401a303c74fbfa8b"
+        }
+      ],
+      "number": "6.1.1"
+    },
+    {
+      "title": "Asynchronous Agent Trajectory Generation (Rollout Buffer)",
+      "level": 3,
+      "directory": "6.Model Implementations and Integration/6.2.Asynchronous Agent Trajectory Generation (Rollout Buffer)",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration-asynchronous-agent-trajectory-generation-rollout-buffer",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/6.2.Asynchronous Agent Trajectory Generation (Rollout Buffer)/Asynchronous Agent Trajectory Generation (Rollout Buffer).svg",
+          "sha256": "e86534b007bdd8fe960ec53a63ffca15c6f611787668a3d1dc4b0c414ee1db15"
+        }
+      ],
+      "number": "6.2"
+    },
+    {
+      "title": "Model Conversion Utilities",
+      "level": 3,
+      "directory": "6.Model Implementations and Integration/6.3.Model Conversion Utilities",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration-model-conversion-utilities",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/6.3.Model Conversion Utilities/Model Conversion Utilities.svg",
+          "sha256": "a91ace989b0d0e17441e7b31651f07a58eb733d8e2f202b216f0e2f020d7a3b4"
+        }
+      ],
+      "number": "6.3"
+    },
+    {
+      "title": "Numerical Alignment and Optimized Kernels",
+      "level": 3,
+      "directory": "6.Model Implementations and Integration/6.4.Numerical Alignment and Optimized Kernels",
+      "url": "https://codewiki.google/github.com/thudm/slime#model-implementations-and-integration-numerical-alignment-and-optimized-kernels",
+      "svg": [
+        {
+          "file": "6.Model Implementations and Integration/6.4.Numerical Alignment and Optimized Kernels/Numerical Alignment and Optimized Kernels.svg",
+          "sha256": "f74e50c40c1859809dea5df627bef16fc464d8731266309913ffbc144506c80f"
+        }
+      ],
+      "number": "6.4"
+    },
+    {
+      "title": "Practical Examples and Use Cases",
+      "level": 2,
+      "directory": "7.Practical Examples and Use Cases",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases",
+      "svg": [],
+      "number": "7"
+    },
+    {
+      "title": "Advanced Coding Agent RL Workflows",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.1.Advanced Coding Agent RL Workflows",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-advanced-coding-agent-rl-workflows",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.1.Advanced Coding Agent RL Workflows/Advanced Coding Agent RL Workflows.svg",
+          "sha256": "d860a79dc7a31629210002be527cfb6102183e0486a7738800f7bf9634f5eb6f"
+        }
+      ],
+      "number": "7.1"
+    },
+    {
+      "title": "Multi-Turn VLM Training with Interactive Environments",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.2.Multi-Turn VLM Training with Interactive Environments",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-multi-turn-vlm-training-with-interactive-environments",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.2.Multi-Turn VLM Training with Interactive Environments/Multi-Turn VLM Training with Interactive Environments.svg",
+          "sha256": "b42b8822b5e1a8526eed3386122d7dd30fa1f90dcf9e71a4ebc6a831643c8fec"
+        }
+      ],
+      "number": "7.2"
+    },
+    {
+      "title": "On-Policy Distillation (OPD) for Model Alignment",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.3.On-Policy Distillation (OPD) for Model Alignment",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-on-policy-distillation-opd-for-model-alignment",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.3.On-Policy Distillation (OPD) for Model Alignment/On-Policy Distillation (OPD) for Model Alignment.svg",
+          "sha256": "9aa75540595c0cfd74bffbe837846d894c48c029c5a39daaf43f84015c6ff9e0"
+        }
+      ],
+      "number": "7.3"
+    },
+    {
+      "title": "Tool-Enabled Language Model Generation with retool",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.4.Tool-Enabled Language Model Generation with retool",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-tool-enabled-language-model-generation-with-retool",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.4.Tool-Enabled Language Model Generation with retool/Tool-Enabled Language Model Generation with retool.svg",
+          "sha256": "7bbea23026847aa3afa5bfe2f75ce219bfe88e8eb3b5fc904efb6cda62c56151"
+        }
+      ],
+      "number": "7.4"
+    },
+    {
+      "title": "Multi-Turn Conversational Agents with Search-R1",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.5.Multi-Turn Conversational Agents with Search-R1",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-multi-turn-conversational-agents-with-search-r1",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.5.Multi-Turn Conversational Agents with Search-R1/Multi-Turn Conversational Agents with Search-R1.svg",
+          "sha256": "c6f82e6d6d89642afe949db086c6dfec09f11fc2c097808d2a471fabe3d211f1"
+        }
+      ],
+      "number": "7.5"
+    },
+    {
+      "title": "Multi-Agent Reinforcement Learning",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.6.Multi-Agent Reinforcement Learning",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-multi-agent-reinforcement-learning",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.6.Multi-Agent Reinforcement Learning/Multi-Agent Reinforcement Learning.svg",
+          "sha256": "0004ea3cd4ca95ae88b41b28eaa46fc35f4704b330e21f075bc80745eb02d5ba"
+        }
+      ],
+      "number": "7.6"
+    },
+    {
+      "title": "Fully Asynchronous Rollout Generation",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.7.Fully Asynchronous Rollout Generation",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-fully-asynchronous-rollout-generation",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.7.Fully Asynchronous Rollout Generation/Fully Asynchronous Rollout Generation.svg",
+          "sha256": "7acd84592249a7cd48b22142f08f5f386d2c146211ccadc1c1bb40a3b0a4b7a7"
+        }
+      ],
+      "number": "7.7"
+    },
+    {
+      "title": "Delta Weight Synchronization for Disaggregated Systems",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.8.Delta Weight Synchronization for Disaggregated Systems",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-delta-weight-synchronization-for-disaggregated-systems",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.8.Delta Weight Synchronization for Disaggregated Systems/Delta Weight Synchronization for Disaggregated Systems.svg",
+          "sha256": "c33eae799e4ca24585d07179c6a942bd987d50788ef20105a2d5bed2a6f851a3"
+        }
+      ],
+      "number": "7.8"
+    },
+    {
+      "title": "Rollout Correction Methods for Offline RL",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.9.Rollout Correction Methods for Offline RL",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-rollout-correction-methods-for-offline-rl",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.9.Rollout Correction Methods for Offline RL/Rollout Correction Methods for Offline RL.svg",
+          "sha256": "a24889e1a4ca7360666777a4688c7b2022b10f5163e65ce48064c1e639b0a0aa"
+        }
+      ],
+      "number": "7.9"
+    },
+    {
+      "title": "Agentic Multi-Turn Tool Use with Tau-bench",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.10.Agentic Multi-Turn Tool Use with Tau-bench",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-agentic-multi-turn-tool-use-with-tau-bench",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.10.Agentic Multi-Turn Tool Use with Tau-bench/Agentic Multi-Turn Tool Use with Tau-bench.svg",
+          "sha256": "35f03650dfac8ef77f7365c71091ce9eb7a5fcfa8b8837e85a4919a0109a9289"
+        }
+      ],
+      "number": "7.10"
+    },
+    {
+      "title": "Integration of strands-sglang for Agentic RL",
+      "level": 3,
+      "directory": "7.Practical Examples and Use Cases/7.11.Integration of strands-sglang for Agentic RL",
+      "url": "https://codewiki.google/github.com/thudm/slime#practical-examples-and-use-cases-integration-of-strands-sglang-for-agentic-rl",
+      "svg": [
+        {
+          "file": "7.Practical Examples and Use Cases/7.11.Integration of strands-sglang for Agentic RL/Integration of strands-sglang for Agentic RL.svg",
+          "sha256": "94173fff695299e2b3268930422c6dc90a45990cd3a7fcad3de9ac54381f8042"
+        }
+      ],
+      "number": "7.11"
+    },
+    {
+      "title": "Performance Analysis and Model Conversion Tools",
+      "level": 2,
+      "directory": "8.Performance Analysis and Model Conversion Tools",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools",
+      "svg": [],
+      "number": "8"
+    },
+    {
+      "title": "PyTorch Profiler Trace Analysis and Visualization",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.1.PyTorch Profiler Trace Analysis and Visualization",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-pytorch-profiler-trace-analysis-and-visualization",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.1.PyTorch Profiler Trace Analysis and Visualization/PyTorch Profiler Trace Analysis and Visualization.svg",
+          "sha256": "82df3021e03b0484f4ac103aa6b6424f2db2b31532eddc1adac17699ec573cb3"
+        }
+      ],
+      "number": "8.1"
+    },
+    {
+      "title": "Interactive Timeline Viewer for Rollout Debug Dumps",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.2.Interactive Timeline Viewer for Rollout Debug Dumps",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-interactive-timeline-viewer-for-rollout-debug-dumps",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.2.Interactive Timeline Viewer for Rollout Debug Dumps/Interactive Timeline Viewer for Rollout Debug Dumps.svg",
+          "sha256": "fcabcbf745531d6864532ba705f20ac62acef84072db9012a73e47c0458c8b1a"
+        }
+      ],
+      "number": "8.2"
+    },
+    {
+      "title": "Advanced Quantization Strategies (FP8, INT4 GPTQ, INT4 Direct Packing)",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.3.Advanced Quantization Strategies (FP8, INT4 GPTQ, INT4 Direct Packing)",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-advanced-quantization-strategies-fp8-int4-gptq-int4-direct-packing",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.3.Advanced Quantization Strategies (FP8, INT4 GPTQ, INT4 Direct Packing)/Advanced Quantization Strategies (FP8, INT4 GPTQ, INT4 Direct Packing).svg",
+          "sha256": "62c7eb167506befbd8d6c3ebd2b4d1e98fa3ec2e62703b3fdf30b6e392df4bf1"
+        }
+      ],
+      "number": "8.3"
+    },
+    {
+      "title": "Dequantization Processes (FP8 to BF16, K2-Thinking INT4 to BF16)",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.4.Dequantization Processes (FP8 to BF16, K2-Thinking INT4 to BF16)",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-dequantization-processes-fp8-to-bf16-k2-thinking-int4-to-bf16",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.4.Dequantization Processes (FP8 to BF16, K2-Thinking INT4 to BF16)/Dequantization Processes (FP8 to BF16, K2-Thinking INT4 to BF16).svg",
+          "sha256": "fa231fdb12b20c1e87c7a63f66909ef0f60843479974e095fdbe06efc322921c"
+        }
+      ],
+      "number": "8.4"
+    },
+    {
+      "title": "Megatron-LM to Hugging Face Model Conversion and Verification",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.5.Megatron-LM to Hugging Face Model Conversion and Verification",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-megatron-lm-to-hugging-face-model-conversion-and-verification",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.5.Megatron-LM to Hugging Face Model Conversion and Verification/Megatron-LM to Hugging Face Model Conversion and Verification.svg",
+          "sha256": "7cd301ddf60d6db0c7be29ae2792b8107bc54270d24405237fc025d97b437d1c"
+        }
+      ],
+      "number": "8.5"
+    },
+    {
+      "title": "Hugging Face to Megatron-LM Model Conversion and Distributed Saving",
+      "level": 3,
+      "directory": "8.Performance Analysis and Model Conversion Tools/8.6.Hugging Face to Megatron-LM Model Conversion and Distributed Saving",
+      "url": "https://codewiki.google/github.com/thudm/slime#performance-analysis-and-model-conversion-tools-hugging-face-to-megatron-lm-model-conversion-and-distributed-saving",
+      "svg": [
+        {
+          "file": "8.Performance Analysis and Model Conversion Tools/8.6.Hugging Face to Megatron-LM Model Conversion and Distributed Saving/Hugging Face to Megatron-LM Model Conversion and Distributed Saving.svg",
+          "sha256": "0a005131c843ffdb5d73b7136cf5eb66a2c4e01cf0a743984d04eaf189aa6eb2"
+        }
+      ],
+      "number": "8.6"
+    },
+    {
+      "title": "Observability and Monitoring",
+      "level": 2,
+      "directory": "9.Observability and Monitoring",
+      "url": "https://codewiki.google/github.com/thudm/slime#observability-and-monitoring",
+      "svg": [
+        {
+          "file": "9.Observability and Monitoring/Observability and Monitoring.svg",
+          "sha256": "c0cf794068f7022d480da4e4ca79f07693bf1978a037a800257f4539e458e0f5"
+        }
+      ],
+      "number": "9"
+    }
+  ],
+  "uiAssets": [
+    {
+      "file": "UI Assets/codewiki-logo-1.svg",
+      "sha256": "7e041a2d42b83ce7af5b3cb0e05b58c83bd8b052c4416eaa41bdc49eed641ea3"
+    },
+    {
+      "file": "UI Assets/codewiki-logo-2.svg",
+      "sha256": "852182d9573ddc41140d52c40e83cac6e29065c112865051b3f2d94b5138c02b"
+    },
+    {
+      "file": "UI Assets/github.svg",
+      "sha256": "f485e61d8f0d19718a3501db5aabc564b8756140c3d9998665c526e2a28f9594"
+    },
+    {
+      "file": "UI Assets/interface-graphic-2.svg",
+      "sha256": "a5173ceb21643c46be2c4cf16b0ad80a1ac8bc6fcfb8b67ed33bba242681a3eb"
+    },
+    {
+      "file": "UI Assets/interface-graphic-3.svg",
+      "sha256": "7d3db4f361fc4e946b58b7bb4b7fa10b07ad2fc9b998fa37ded1748693a94935"
+    },
+    {
+      "file": "UI Assets/interface-graphic-4.svg",
+      "sha256": "7a033361632e690b3591bd21753c4d929161a13a409697722d770cd4536c649a"
+    }
+  ]
+}
