@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>动作 3 Generate Tokens 纵向数据流</title><style>
+:root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+</style></head><body><main><nav><a href="../README.md">← 返回原架构图</a></nav><h1 id="动作-3-generate-tokens-纵向数据流">动作 3 Generate Tokens 纵向数据流</h1>
+<p><img src="flow.svg" alt="Generate Tokens 的局部数据流"></p>
+<p><a href="../README.md">返回原架构图</a> · <a href="../2.Translate%20&amp;%20Forward/%E7%BA%B5%E5%90%91%E6%95%B0%E6%8D%AE%E6%B5%81/README.md">上一站 动作 2 纵向数据流</a> · <a href="../3.5.%E5%AE%8C%E6%88%90%E4%B8%80%E6%AC%A1%E6%A8%A1%E5%9E%8B%E8%AF%B7%E6%B1%82/README.md">下一站 3.5 完成一次模型请求</a> · <a href="index.html">打开图文预览</a></p>
+<p><strong>动作 2 交出了消息列表和工具定义；动作 3 把它们编码为模型输入，再向 SGLang 请求生成，最后把结果整理成一份 <code>TurnRecord</code>。</strong> 本篇对应原图 <strong>Slime Core → SGLang Backend / Generate Tokens</strong>，读到生成记录交回共享 <code>_run_turn()</code> 为止。</p>
+<p>仍然沿用“读取 README.md，再用一句话概括”的请求。消息和工具定义走模板编码这条支路；原 <code>body</code> 中的 <code>max_tokens: 128</code> 与会话配置走采样参数这条支路。它们汇合后才发出生成请求。</p>
+<p>本例用 <strong>Qwen2.5-0.5B-Instruct 的本地 tokenizer</strong> 实际编码，得到 <strong>218 个输入 token IDs</strong>。这只是固定阅读示例使用的 tokenizer；运行时使用 <code>args.hf_checkpoint</code> 加载的当前模型 tokenizer。<strong>SGLang 返回数据和其中的 log probability 是构造的结构示例，未运行模型生成。</strong> 输出 token IDs 来自同一 tokenizer 对演示句子的编码，后续提取与封装按真实源码执行。<a href="%E7%A4%BA%E4%BE%8B.json">完整示例</a>保留每一步的数据。</p>
+<h2 id="1-接住动作-2-的两份结果">1 接住动作 2 的两份结果</h2>
+<p>此时共享流程仍持有原始 <code>body</code>，并已收到 <code>translated</code> 和 <code>tools_schema</code>。本例还有一个默认会话配置：<code>sampling_defaults</code> 为空，<code>max_context_tokens</code> 为 <code>0</code>，表示本例不启用额外的会话上下文上限。</p>
+<table>
+	<thead>
+			<tr>
+					<th>此时的数据</th>
+					<th>下一步交给谁</th>
+					<th>最小理解</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>translated</code></td>
+					<td><code>_render_token_ids()</code></td>
+					<td>5 条按历史顺序排列的消息</td>
+			</tr>
+			<tr>
+					<td><code>tools_schema</code></td>
+					<td><code>_render_token_ids()</code></td>
+					<td>1 个可用工具的定义</td>
+			</tr>
+			<tr>
+					<td>原始 <code>body</code></td>
+					<td><code>call_sglang_generate()</code> 内的 <code>_sampling_params()</code></td>
+					<td>本例读取 <code>max_tokens: 128</code></td>
+			</tr>
+			<tr>
+					<td>当前 <code>Session</code></td>
+					<td><code>call_sglang_generate()</code></td>
+					<td>提供默认采样参数和上下文预算</td>
+			</tr>
+	</tbody>
+</table>
+<details>
+<summary>展开消息列表与工具定义的完整输入</summary>
+<p><code>translated</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;tool_calls&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p><code>tools_schema</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;description&#34;</span>: <span style="color:#4070a0">&#34;读取文件&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;parameters&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;object&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;properties&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;string&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;required&#34;</span>: [
+</span></span><span style="display:flex;"><span>          <span style="color:#4070a0">&#34;path&#34;</span>
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>原始 <code>body</code> 与上一站相同，见<a href="../2.Translate%20&amp;%20Forward/%E7%BA%B5%E5%90%91%E6%95%B0%E6%8D%AE%E6%B5%81/%E7%A4%BA%E4%BE%8B.json">动作 2 示例</a>。这一次的转换并没有把 <code>max_tokens</code> 放入消息列表。</p>
+</details>
+<h2 id="2-模板编码-_render_token_ids">2 模板编码 _render_token_ids</h2>
+<p><strong>输入：</strong> 上面的消息列表、工具定义、当前 tokenizer，以及 <code>add_generation_prompt=True</code>。</p>
+<p><strong>输出：</strong> <code>prompt_ids</code>，一个 Python 整数列表，本例长度为 <strong>218</strong>。</p>
+<p>聊天模板决定每个角色如何分隔、工具定义怎样嵌入、历史工具调用怎样表示，以及下一条 assistant 内容从哪里开始。tokenizer 将这份模型输入编码成整数 ID。</p>
+<h3 id="21-先认出模板组织后的内容">2.1 先认出模板组织后的内容</h3>
+<p>下面是本例同一聊天模板实际生成的文本。为了观察内容，额外用 <code>tokenize=False</code> 查看；真实 <code>_render_token_ids()</code> 调用使用 <code>tokenize=True</code>，直接取得编码结果。</p>
+<details>
+<summary>展开完整模型输入文本</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>&lt;|im_start|&gt;system
+</span></span><span style="display:flex;"><span>你是代码助手。
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span># Tools
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>You may call one or more functions to assist with the user query.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>You are provided with function signatures within &lt;tools&gt;&lt;/tools&gt; XML tags:
+</span></span><span style="display:flex;"><span>&lt;tools&gt;
+</span></span><span style="display:flex;"><span>{&#34;type&#34;: &#34;function&#34;, &#34;function&#34;: {&#34;name&#34;: &#34;read_file&#34;, &#34;description&#34;: &#34;读取文件&#34;, &#34;parameters&#34;: {&#34;type&#34;: &#34;object&#34;, &#34;properties&#34;: {&#34;path&#34;: {&#34;type&#34;: &#34;string&#34;}}, &#34;required&#34;: [&#34;path&#34;]}}}
+</span></span><span style="display:flex;"><span>&lt;/tools&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>For each function call, return a json object with function name and arguments within &lt;tool_call&gt;&lt;/tool_call&gt; XML tags:
+</span></span><span style="display:flex;"><span>&lt;tool_call&gt;
+</span></span><span style="display:flex;"><span>{&#34;name&#34;: &lt;function-name&gt;, &#34;arguments&#34;: &lt;args-json-object&gt;}
+</span></span><span style="display:flex;"><span>&lt;/tool_call&gt;&lt;|im_end|&gt;
+</span></span><span style="display:flex;"><span>&lt;|im_start|&gt;user
+</span></span><span style="display:flex;"><span>读取 README.md 并概括内容。&lt;|im_end|&gt;
+</span></span><span style="display:flex;"><span>&lt;|im_start|&gt;assistant
+</span></span><span style="display:flex;"><span>我先读取文件。
+</span></span><span style="display:flex;"><span>&lt;tool_call&gt;
+</span></span><span style="display:flex;"><span>{&#34;name&#34;: &#34;read_file&#34;, &#34;arguments&#34;: {&#34;path&#34;: &#34;README.md&#34;}}
+</span></span><span style="display:flex;"><span>&lt;/tool_call&gt;&lt;|im_end|&gt;
+</span></span><span style="display:flex;"><span>&lt;|im_start|&gt;user
+</span></span><span style="display:flex;"><span>&lt;tool_response&gt;
+</span></span><span style="display:flex;"><span># Demo
+</span></span><span style="display:flex;"><span>这是一个学习项目。
+</span></span><span style="display:flex;"><span>&lt;/tool_response&gt;&lt;|im_end|&gt;
+</span></span><span style="display:flex;"><span>&lt;|im_start|&gt;user
+</span></span><span style="display:flex;"><span>请用一句话概括。&lt;|im_end|&gt;
+</span></span><span style="display:flex;"><span>&lt;|im_start|&gt;assistant
+</span></span></code></pre></div><p>原文件：<a href="%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%85%A5.txt">模型输入.txt</a>。文件保留结尾的真实换行。</p>
+</details>
+<table>
+	<thead>
+			<tr>
+					<th>请求里的内容</th>
+					<th>在这个模型模板中的样子</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>role: system</code></td>
+					<td>带 system 角色边界的文本</td>
+			</tr>
+			<tr>
+					<td><code>tools_schema</code></td>
+					<td>system 内容中的 <code>&lt;tools&gt;</code> 工具定义</td>
+			</tr>
+			<tr>
+					<td>assistant 历史里的 <code>tool_calls</code></td>
+					<td><code>&lt;tool_call&gt;</code> 内的名称与参数</td>
+			</tr>
+			<tr>
+					<td><code>role: tool</code> 的文件内容</td>
+					<td><code>&lt;tool_response&gt;</code> 包装的工具结果</td>
+			</tr>
+			<tr>
+					<td><code>add_generation_prompt=True</code></td>
+					<td>在末尾加入 assistant 起始标记，让模型接着写下一条助手内容</td>
+			</tr>
+	</tbody>
+</table>
+<p>这些标记属于本例固定的模型模板。适配器交出的字典经由模板变成模型输入；模型生成的是在这个输入之后的续写。</p>
+<h3 id="22-函数之后得到完整-prompt_ids">2.2 函数之后得到完整 prompt_ids</h3>
+<p>下面是实际编码结果，共 <strong>218 个整数</strong>，按 16 项换行展示，数值与顺序完整保留：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">151644</span>, <span style="color:#40a070">8948</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">105043</span>, <span style="color:#40a070">46100</span>, <span style="color:#40a070">110498</span>, <span style="color:#40a070">3407</span>, <span style="color:#40a070">2</span>, <span style="color:#40a070">13852</span>, <span style="color:#40a070">271</span>, <span style="color:#40a070">2610</span>, <span style="color:#40a070">1231</span>, <span style="color:#40a070">1618</span>, <span style="color:#40a070">825</span>, <span style="color:#40a070">476</span>, <span style="color:#40a070">803</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">5746</span>, <span style="color:#40a070">311</span>, <span style="color:#40a070">7789</span>, <span style="color:#40a070">448</span>, <span style="color:#40a070">279</span>, <span style="color:#40a070">1196</span>, <span style="color:#40a070">3239</span>, <span style="color:#40a070">382</span>, <span style="color:#40a070">2610</span>, <span style="color:#40a070">525</span>, <span style="color:#40a070">3897</span>, <span style="color:#40a070">448</span>, <span style="color:#40a070">729</span>, <span style="color:#40a070">32628</span>, <span style="color:#40a070">2878</span>, <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">15918</span>, <span style="color:#40a070">1472</span>, <span style="color:#40a070">15918</span>, <span style="color:#40a070">29</span>, <span style="color:#40a070">11874</span>, <span style="color:#40a070">9492</span>, <span style="color:#40a070">510</span>, <span style="color:#40a070">27</span>, <span style="color:#40a070">15918</span>, <span style="color:#40a070">397</span>, <span style="color:#40a070">4913</span>, <span style="color:#40a070">1313</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">1688</span>, <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">330</span>, <span style="color:#40a070">1688</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">5212</span>, <span style="color:#40a070">606</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">878</span>, <span style="color:#40a070">2458</span>, <span style="color:#40a070">497</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">4684</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">57553</span>, <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">26898</span>, <span style="color:#40a070">497</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">13786</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">5212</span>, <span style="color:#40a070">1313</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">1700</span>, <span style="color:#40a070">497</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">13193</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">5212</span>, <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">788</span>, <span style="color:#40a070">5212</span>, <span style="color:#40a070">1313</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">917</span>, <span style="color:#40a070">9207</span>, <span style="color:#40a070">2137</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">6279</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">4383</span>, <span style="color:#40a070">2343</span>, <span style="color:#40a070">1341</span>, <span style="color:#40a070">3417</span>, <span style="color:#40a070">532</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">522</span>, <span style="color:#40a070">15918</span>, <span style="color:#40a070">1339</span>, <span style="color:#40a070">2461</span>, <span style="color:#40a070">1817</span>, <span style="color:#40a070">729</span>, <span style="color:#40a070">1618</span>, <span style="color:#40a070">11</span>, <span style="color:#40a070">470</span>, <span style="color:#40a070">264</span>, <span style="color:#40a070">2951</span>, <span style="color:#40a070">1633</span>, <span style="color:#40a070">448</span>, <span style="color:#40a070">729</span>, <span style="color:#40a070">829</span>, <span style="color:#40a070">323</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">5977</span>, <span style="color:#40a070">2878</span>, <span style="color:#40a070">220</span>, <span style="color:#40a070">151657</span>, <span style="color:#40a070">151658</span>, <span style="color:#40a070">11874</span>, <span style="color:#40a070">9492</span>, <span style="color:#40a070">510</span>, <span style="color:#40a070">151657</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">4913</span>, <span style="color:#40a070">606</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">366</span>, <span style="color:#40a070">1688</span>, <span style="color:#40a070">11494</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">8066</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">16370</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">366</span>, <span style="color:#40a070">2116</span>, <span style="color:#40a070">56080</span>, <span style="color:#40a070">40432</span>, <span style="color:#40a070">31296</span>, <span style="color:#40a070">151658</span>, <span style="color:#40a070">151645</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">151644</span>, <span style="color:#40a070">872</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">18158</span>, <span style="color:#40a070">61945</span>, <span style="color:#40a070">21324</span>, <span style="color:#40a070">74577</span>, <span style="color:#40a070">114</span>, <span style="color:#40a070">109193</span>, <span style="color:#40a070">43815</span>, <span style="color:#40a070">1773</span>, <span style="color:#40a070">151645</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">151644</span>, <span style="color:#40a070">77091</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">35946</span>, <span style="color:#40a070">60726</span>, <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">18158</span>, <span style="color:#40a070">26898</span>, <span style="color:#40a070">8997</span>, <span style="color:#40a070">151657</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">4913</span>, <span style="color:#40a070">606</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">878</span>, <span style="color:#40a070">2458</span>, <span style="color:#40a070">497</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">16370</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">2343</span>, <span style="color:#40a070">788</span>, <span style="color:#40a070">330</span>, <span style="color:#40a070">54675</span>, <span style="color:#40a070">21324</span>, <span style="color:#40a070">95642</span>, <span style="color:#40a070">151658</span>, <span style="color:#40a070">151645</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">151644</span>, <span style="color:#40a070">872</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">27</span>, <span style="color:#40a070">14172</span>, <span style="color:#40a070">9655</span>, <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">2</span>, <span style="color:#40a070">28523</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">105464</span>, <span style="color:#40a070">100134</span>, <span style="color:#40a070">73345</span>, <span style="color:#40a070">8997</span>, <span style="color:#40a070">522</span>, <span style="color:#40a070">14172</span>, <span style="color:#40a070">9655</span>, <span style="color:#40a070">29</span>, <span style="color:#40a070">151645</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">151644</span>, <span style="color:#40a070">872</span>, <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">14880</span>, <span style="color:#40a070">11622</span>, <span style="color:#40a070">105321</span>, <span style="color:#40a070">109193</span>, <span style="color:#40a070">1773</span>, <span style="color:#40a070">151645</span>, <span style="color:#40a070">198</span>, <span style="color:#40a070">151644</span>, <span style="color:#40a070">77091</span>, <span style="color:#40a070">198</span>
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>消息和工具定义已经组织在这份编码里。后端生成请求使用这些 <code>input_ids</code>；本实现这一步没有再把 Anthropic 原始消息和 <code>tools</code> 原样发给后端。</p>
+<h2 id="3-进入生成函数-先整理采样参数">3 进入生成函数 先整理采样参数</h2>
+<p><code>_run_turn()</code> 拿到 <code>prompt_ids</code> 后进入 <code>call_sglang_generate()</code>。该函数内部先调用 <code>_sampling_params()</code>。本节与后面两节都在这一次生成函数调用内部发生。</p>
+<p><strong>输入：</strong> 当前 <code>Session</code>、完整原始 <code>body</code>，以及 AnthropicAdapter 的参数键配置。本例相关值如下；这段展示对象属性及请求中会读取的字段：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;session&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;sampling_defaults&#34;</span>: {},
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;max_context_tokens&#34;</span>: <span style="color:#40a070">0</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;body_field_used&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;max_tokens&#34;</span>: <span style="color:#40a070">128</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;adapter_keys&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;max_token_keys&#34;</span>: [
+</span></span><span style="display:flex;"><span>      <span style="color:#4070a0">&#34;max_tokens&#34;</span>
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;stop_keys&#34;</span>: [
+</span></span><span style="display:flex;"><span>      <span style="color:#4070a0">&#34;stop_sequences&#34;</span>
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>输出：</strong> 采样参数字典 <code>sp</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;skip_special_tokens&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;spaces_between_special_tokens&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;no_stop_trim&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;max_new_tokens&#34;</span>: <span style="color:#40a070">128</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>max_tokens: 128</code> 成为 <code>max_new_tokens: 128</code>，限制本轮最多生成多少新 token。其余三个布尔值来自共享流程的默认参数，控制返回文本对特殊 token 和停止标记的处理；先认出它们属于生成选项即可。</p>
+<p>本例没有额外会话默认参数，额外上下文上限也未启用，因此这里得到的 <code>sp</code> 会直接进入请求。实际配置了上下文上限时，生成函数会继续按剩余预算调整最大生成长度。</p>
+<h2 id="4-同一生成函数-发出-sglang-请求">4 同一生成函数 发出 SGLang 请求</h2>
+<p>现在两条支路汇合：<code>prompt_ids</code> 提供模型输入，<code>sp</code> 提供生成选项。</p>
+<p><strong>输入：</strong> 上面的 <code>prompt_ids</code> 和 <code>sp</code>，再加请求标识 <code>rid</code> 与 <code>return_logprob=True</code>。</p>
+<p><strong>发出的数据：</strong> 向 SGLang 的 <code>/generate</code> 发送 POST 请求。本例的地址、请求标识和会话标识仅用于展示结构。</p>
+<table>
+	<thead>
+			<tr>
+					<th>请求部分</th>
+					<th>本例内容</th>
+					<th>用途</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>URL</td>
+					<td><code>http://sglang.example.invalid:30000/generate</code></td>
+					<td>示例地址，真实运行使用 <code>adapter.sglang_url</code></td>
+			</tr>
+			<tr>
+					<td><code>input_ids</code></td>
+					<td>第 2 节的完整 218 项列表</td>
+					<td>模型接收的输入</td>
+			</tr>
+			<tr>
+					<td><code>sampling_params</code></td>
+					<td>第 3 节的完整 <code>sp</code></td>
+					<td>本轮生成选项</td>
+			</tr>
+			<tr>
+					<td><code>rid</code></td>
+					<td><code>0123456789abcdef0123456789abcdef</code></td>
+					<td>标识这一次生成请求</td>
+			</tr>
+			<tr>
+					<td><code>return_logprob</code></td>
+					<td><code>true</code></td>
+					<td>要求返回输出 token 的 log probability</td>
+			</tr>
+	</tbody>
+</table>
+<details>
+<summary>展开实际源码组装出的完整请求 JSON</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;rid&#34;</span>: <span style="color:#4070a0">&#34;0123456789abcdef0123456789abcdef&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;input_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8948</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105043</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">46100</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">110498</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3407</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13852</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">271</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1231</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">825</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">476</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">803</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5746</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">311</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">7789</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1196</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3239</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">382</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">525</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3897</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">32628</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1472</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4684</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13786</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1700</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">917</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9207</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2137</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">6279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4383</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1341</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3417</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">532</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1339</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2461</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1817</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">470</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">264</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2951</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1633</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">829</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">323</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5977</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">220</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11494</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8066</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2116</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">56080</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">40432</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">31296</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">61945</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">74577</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">114</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">43815</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">35946</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">60726</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">54675</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">95642</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">28523</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14880</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11622</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105321</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;sampling_params&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;skip_special_tokens&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;spaces_between_special_tokens&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;no_stop_trim&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;max_new_tokens&#34;</span>: <span style="color:#40a070">128</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;return_logprob&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本例的请求头是：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;X-SMG-Routing-Key&#34;</span>: <span style="color:#4070a0">&#34;demo-session&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>X-SMG-Routing-Key</code> 来自会话标识；先知道它是请求头上的路由信息即可。完整请求已保存在<a href="%E7%A4%BA%E4%BE%8B.json">示例.json</a>的 <code>request</code> 中。</p>
+</details>
+<p>在这一步，模型后端根据输入 token 和生成选项产生新的 token。后端如何调度请求、管理 KV cache 和执行模型，可以在读通这次交接之后继续展开。</p>
+<h2 id="5-同一生成函数-从返回数据提取结果">5 同一生成函数 从返回数据提取结果</h2>
+<p><strong>输入：</strong> SGLang 响应中的 <code>meta_info</code>。以下是本例构造的完整响应结构，log probability 为人为选取的演示值：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;meta_info&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;output_token_logprobs&#34;</span>: [
+</span></span><span style="display:flex;"><span>      [
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">-0.12</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      ],
+</span></span><span style="display:flex;"><span>      [
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">-0.08</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      ],
+</span></span><span style="display:flex;"><span>      [
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">-0.06</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      ],
+</span></span><span style="display:flex;"><span>      [
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">-0.03</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      ],
+</span></span><span style="display:flex;"><span>      [
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">-0.01</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;stop&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>output_token_logprobs</code> 的每一项按“log probability、token ID、附加文本位置”组织。此实现只读取每项的前两个位置；本例将第三项置为 <code>null</code>。下面可以逐项对应：</p>
+<table>
+	<thead>
+			<tr>
+					<th>生成位置</th>
+					<th>第 0 项 log probability</th>
+					<th>第 1 项 token ID</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>1</td>
+					<td><code>-0.12</code></td>
+					<td><code>105464</code></td>
+			</tr>
+			<tr>
+					<td>2</td>
+					<td><code>-0.08</code></td>
+					<td><code>100134</code></td>
+			</tr>
+			<tr>
+					<td>3</td>
+					<td><code>-0.06</code></td>
+					<td><code>73345</code></td>
+			</tr>
+			<tr>
+					<td>4</td>
+					<td><code>-0.03</code></td>
+					<td><code>1773</code></td>
+			</tr>
+			<tr>
+					<td>5</td>
+					<td><code>-0.01</code></td>
+					<td><code>151645</code></td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>提取后的数据：</strong></p>
+<p><code>output_ids</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">151645</span>
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p><code>output_log_probs</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">-0.12</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">-0.08</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">-0.06</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">-0.03</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">-0.01</span>
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p><code>finish_reason</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#4070a0">&#34;stop&#34;</span>
+</span></span></code></pre></div><p>两份列表按位置一一对应。本例的输出 ID 是演示句子“这是一个学习项目。”的编码，再附结束标记 ID <code>151645</code>；SGLang 的结构示例据此提供 5 项记录。<code>stop</code> 表示这份示例响应的结束类型。真实内容和概率由模型生成决定。</p>
+<p>这一步还没有解析正文或工具调用。解码与 <code>parse_model_output()</code> 是共享流程拿到 <code>TurnRecord</code> 后的下一段。</p>
+<h2 id="6-封装-turnrecord-交回共享流程">6 封装 TurnRecord 交回共享流程</h2>
+<p><strong>输入：</strong> 本轮已有的 <code>prompt_ids</code>，以及刚提取出的 <code>output_ids</code>、<code>output_log_probs</code>、<code>finish_reason</code>。</p>
+<p><strong>输出：</strong> 一份 <code>TurnRecord</code> 对象。下面用 JSON 展示其字段；实际返回的是 Python dataclass 实例：</p>
+<details>
+<summary>展开本例完整 TurnRecord 字段</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;prompt_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8948</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105043</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">46100</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">110498</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3407</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13852</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">271</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1231</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">825</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">476</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">803</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5746</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">311</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">7789</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1196</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3239</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">382</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">525</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3897</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">32628</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1472</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4684</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13786</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1700</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">917</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9207</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2137</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">6279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4383</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1341</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3417</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">532</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1339</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2461</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1817</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">470</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">264</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2951</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1633</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">829</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">323</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5977</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">220</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11494</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8066</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2116</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">56080</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">40432</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">31296</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">61945</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">74577</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">114</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">43815</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">35946</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">60726</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">54675</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">95642</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">28523</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14880</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11622</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105321</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: <span style="color:#4070a0">&#34;stop&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_log_probs&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.12</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.08</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.06</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.03</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.01</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;ill_formed&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></details>
+<table>
+	<thead>
+			<tr>
+					<th>字段</th>
+					<th>本例数据</th>
+					<th>先理解到哪一层</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>prompt_ids</code></td>
+					<td>218 个输入 token IDs</td>
+					<td>保留模型本轮看到了什么</td>
+			</tr>
+			<tr>
+					<td><code>output_ids</code></td>
+					<td>5 个输出 token IDs</td>
+					<td>保留本轮产生了什么</td>
+			</tr>
+			<tr>
+					<td><code>output_log_probs</code></td>
+					<td>5 个对应值</td>
+					<td>每个输出 token 的 log probability</td>
+			</tr>
+			<tr>
+					<td><code>finish_reason</code></td>
+					<td><code>stop</code></td>
+					<td>这一轮为何结束</td>
+			</tr>
+			<tr>
+					<td><code>ill_formed</code></td>
+					<td>默认 <code>false</code></td>
+					<td>后续解析阶段可以更新的格式标记</td>
+			</tr>
+	</tbody>
+</table>
+<p>共享 <code>_run_turn()</code> 用变量 <code>turn</code> 接收它。<strong>动作 3 到这里完成：消息和工具定义成为输入 token，本轮生成结果成为可继续处理的记录。</strong></p>
+<p>接下来的阅读顺序是：<code>turn.output_ids</code> 解码成文本 → 解析正文和工具调用 → 构造客户端协议响应 → 保存本轮轨迹。它们继续沿同一次请求展开，下一站见 <a href="../3.5.%E5%AE%8C%E6%88%90%E4%B8%80%E6%AC%A1%E6%A8%A1%E5%9E%8B%E8%AF%B7%E6%B1%82/README.md">3.5 完成一次模型请求</a>；更广的函数说明保留在 <a href="../Slime%20Core%20%E5%AE%8C%E6%95%B4%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B.md">Slime Core 完整请求流程</a>。<code>TurnRecord</code> 是生成结果的数据容器；<code>TrajectoryManager</code> 将在轨迹记录那一站使用它。</p>
+<details>
+<summary>末尾校验 源码定义 调用位置与示例来源</summary>
+<p>Slime 源码版本：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。源码路径相对于 Slime 仓库根目录。</p>
+<table>
+	<thead>
+			<tr>
+					<th>要核对的步骤</th>
+					<th>定义位置</th>
+					<th>调用或关键位置</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>加载当前模型 tokenizer</td>
+					<td><code>slime/utils/processing_utils.py:18</code></td>
+					<td><code>examples/coding_agent_rl/generate.py:139</code></td>
+			</tr>
+			<tr>
+					<td>准备输入 token</td>
+					<td><code>slime/agent/adapters/common.py:58</code></td>
+					<td><code>_run_turn()</code> 中 <code>:342</code></td>
+			</tr>
+			<tr>
+					<td>调用聊天模板</td>
+					<td>tokenizer 提供</td>
+					<td><code>common.py:66</code>，<code>tokenize=True</code>、<code>add_generation_prompt</code></td>
+			</tr>
+			<tr>
+					<td>整理采样参数</td>
+					<td><code>common.py:416</code></td>
+					<td><code>call_sglang_generate()</code> 中 <code>:455</code></td>
+			</tr>
+			<tr>
+					<td>Anthropic 参数键</td>
+					<td><code>slime/agent/adapters/anthropic.py:45</code></td>
+					<td><code>max_tokens</code> 与 <code>stop_sequences</code></td>
+			</tr>
+			<tr>
+					<td>本轮生成函数</td>
+					<td><code>common.py:442</code></td>
+					<td><code>_run_turn()</code> 中 <code>:344</code></td>
+			</tr>
+			<tr>
+					<td>可选上下文预算</td>
+					<td>生成函数内部</td>
+					<td><code>common.py:457–468</code></td>
+			</tr>
+			<tr>
+					<td>发出 POST</td>
+					<td>生成函数内部</td>
+					<td><code>common.py:475</code>；请求 JSON 在 <code>:477–482</code></td>
+			</tr>
+			<tr>
+					<td>读取响应和提取列表</td>
+					<td>生成函数内部</td>
+					<td><code>common.py:496–501</code></td>
+			</tr>
+			<tr>
+					<td>构造生成记录</td>
+					<td><code>slime/agent/trajectory.py:29</code></td>
+					<td><code>common.py:509–514</code></td>
+			</tr>
+			<tr>
+					<td>下一段解码和解析</td>
+					<td>共享 <code>_run_turn()</code></td>
+					<td><code>common.py:346–347</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>关键交接语句仅供核对：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>prompt_ids <span style="color:#666">=</span> _render_token_ids(translated, tok, tools<span style="color:#666">=</span>tools_schema, add_generation_prompt<span style="color:#666">=</span><span style="color:#007020;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>turn <span style="color:#666">=</span> <span style="color:#007020;font-weight:bold">await</span> call_sglang_generate(prompt_ids, s, body, adapter<span style="color:#666">=</span><span style="color:#007020">self</span>, session_id<span style="color:#666">=</span>sid)
+</span></span></code></pre></div><p>tokenizer：<code>Qwen/Qwen2.5-0.5B-Instruct</code>，缓存 revision <code>7ae557604adf67be50417f59c2c2f167def9a775</code>；本例实际编码环境为 Transformers <code>5.1.0</code>、Tokenizers <code>0.22.2</code>。完整 tokenizer 文件校验值见<a href="%E7%A4%BA%E4%BE%8B.json">示例.json</a>。</p>
+<p>输入 token 编码与模型输入文本由该 tokenizer 实际计算。响应结构与概率是示意数据；复核提取过程时，以本地响应替代网络返回，执行原始 <code>call_sglang_generate()</code>。本篇没有调用真实 SGLang 服务。</p>
+</details>
+</main></body></html>

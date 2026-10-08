@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Translate &amp; Forward 纵向数据流</title><style>
+:root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+</style></head><body><main><nav><a href="../README.md">← 返回动作 2</a></nav><h1 id="translate--forward-纵向数据流">Translate &amp; Forward 纵向数据流</h1>
+<p><img src="flow.svg" alt="动作 2 的纵向数据流：body 分成消息和工具两路，返回两份列表交给 Core"></p>
+<p>这张局部图只展开 <strong>HTTP Adapters → Slime Core</strong> 的动作 2：把 Anthropic 请求里的消息和工具定义，整理成共享流程能继续使用的两份数据。顺着图向下看，下面所有输入和输出都来自<a href="%E7%A4%BA%E4%BE%8B.json">同一个完整示例</a>。</p>
+<p>图上的两路表示数据分工。真实执行时，<code>_translate()</code> <strong>先完成消息转换，再转换工具定义</strong>，最后一起返回。</p>
+<p><a href="../../3.Generate%20Tokens/README.md">下一站 动作 3 Generate Tokens</a>：继续使用这两份结果，查看模型输入与生成记录。</p>
+<h2 id="1-入口手里已经有-body">1. 入口：手里已经有 body</h2>
+<p>此时 <code>BaseAdapter._run_turn()</code> 已读取请求 JSON 并完成预处理，<code>body</code> 是 Python <code>dict</code>。本例没有消息列表中途插入的 system 消息，预处理没有改变它。</p>
+<table>
+	<thead>
+			<tr>
+					<th>body 中的字段</th>
+					<th>这一步的去向</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>system</code> + <code>messages</code></td>
+					<td>进入 <code>_translate_messages()</code>，成为 <code>translated</code></td>
+			</tr>
+			<tr>
+					<td><code>tools</code></td>
+					<td>单独进入 <code>_tools_to_chat_tools()</code>，成为 <code>tools_schema</code></td>
+			</tr>
+			<tr>
+					<td><code>max_tokens: 128</code></td>
+					<td>留在 <code>body</code> 中，供后续采样参数使用</td>
+			</tr>
+	</tbody>
+</table>
+<details>
+<summary>展开完整输入 body：下面各步骤一直使用这一份请求</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;system&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;messages&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;tool_use&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;id&#34;</span>: <span style="color:#4070a0">&#34;toolu_demo&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;input&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;tool_result&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;tool_use_id&#34;</span>: <span style="color:#4070a0">&#34;toolu_demo&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>              <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>              <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>          ]
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;tools&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;description&#34;</span>: <span style="color:#4070a0">&#34;读取文件&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;input_schema&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;object&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;properties&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;string&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;required&#34;</span>: [
+</span></span><span style="display:flex;"><span>          <span style="color:#4070a0">&#34;path&#34;</span>
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;max_tokens&#34;</span>: <span style="color:#40a070">128</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></details>
+<p><code>read_file</code> 已经在客户端执行过。本次请求把历史 <code>tool_use</code> 和对应 <code>tool_result</code> 一起带回来；这里做的是历史记录规范化。工具定义则告诉后续模型：本轮仍然可以选择调用 <code>read_file</code>。</p>
+<h2 id="2-消息路_translate_messages-按历史顺序处理">2. 消息路：_translate_messages() 按历史顺序处理</h2>
+<p>它收到上面 <code>body.messages</code> 的三条消息，以及 <code>body.system</code>。辅助函数处理的是其中的局部值，不会让整个 <code>body</code> 依次穿过所有 helper。</p>
+<h3 id="21-system-文本块--一条-system-消息">2.1 system 文本块 → 一条 system 消息</h3>
+<p><code>flatten_content()</code> 收到的是 <code>body.system</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>实际输出是一段字符串：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span></code></pre></div><p><code>_translate_messages()</code> 把这段输出放进第一条消息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="22-第一条-user-文本块--一条-user-消息">2.2 第一条 user 文本块 → 一条 user 消息</h3>
+<p>输入：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>实际输出：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本例的 <code>content</code> 已经是文本块列表，转换函数直接取块中的 <code>text</code>。这里没有调用 <code>flatten_content()</code>。</p>
+<h3 id="23-assistant-历史--文本--tool_calls">2.3 assistant 历史 → 文本 + tool_calls</h3>
+<p>这一条消息的输入：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;tool_use&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;id&#34;</span>: <span style="color:#4070a0">&#34;toolu_demo&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;input&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>文本块提供 <code>content: &quot;我先读取文件。&quot;</code>。处理 <code>tool_use</code> 块时，转换函数只把工具名和输入参数交给 <code>tool_call_dict()</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>上面两项对应实际调用的两个参数：<code>name = &quot;read_file&quot;</code>，<code>arguments = {&quot;path&quot;: &quot;README.md&quot;}</code>。helper 的实际输出是：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这个对象装入 <code>tool_calls</code> 列表后，整条 assistant 消息成为：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;tool_calls&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>注意两个具体变化：<code>id: &quot;toolu_demo&quot;</code> 被丢弃；<code>input</code> 改为 <code>arguments</code>，其值仍然是 Python <code>dict</code>，没有变成 JSON 字符串。</p>
+<h3 id="24-第二条-user-历史--一条-tool--一条-user">2.4 第二条 user 历史 → 一条 tool + 一条 user</h3>
+<p>这一条输入消息同时带了工具结果和后续文本：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;tool_result&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;tool_use_id&#34;</span>: <span style="color:#4070a0">&#34;toolu_demo&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>遇到 <code>tool_result</code> 时，<code>flatten_content()</code> 收到的是 <strong>该块的 content</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>实际输出：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span></code></pre></div><p>转换函数先追加一条 <code>role: tool</code> 消息，再把紧接着的文本块追加成 <code>role: user</code> 消息：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>因此，一条 Anthropic <code>user</code> 消息在这里拆成了两条内部消息。<code>tool_use_id: &quot;toolu_demo&quot;</code> 也没有进入输出。</p>
+<h3 id="25-消息路的完整返回值translated">2.5 消息路的完整返回值：translated</h3>
+<p>到这里，<code>_translate_messages()</code> 已按原来的历史顺序组装出 <strong>5 条消息</strong>。这是它返回的完整 Python 列表，用 JSON 形式展示：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;tool_calls&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><h2 id="3-工具路_tools_to_chat_tools-转换工具定义">3. 工具路：_tools_to_chat_tools() 转换工具定义</h2>
+<p>消息路返回后，<code>_translate()</code> 再把 <code>body.tools</code> 交给 <code>_tools_to_chat_tools()</code>。这一支不经过上面的历史消息 helper。</p>
+<p>完整输入：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;description&#34;</span>: <span style="color:#4070a0">&#34;读取文件&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;input_schema&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;object&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;properties&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;string&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;required&#34;</span>: [
+</span></span><span style="display:flex;"><span>        <span style="color:#4070a0">&#34;path&#34;</span>
+</span></span><span style="display:flex;"><span>      ]
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p>实际输出 <code>tools_schema</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;description&#34;</span>: <span style="color:#4070a0">&#34;读取文件&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;parameters&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;object&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;properties&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;string&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;required&#34;</span>: [
+</span></span><span style="display:flex;"><span>          <span style="color:#4070a0">&#34;path&#34;</span>
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p><code>name</code>、<code>description</code> 和参数内容保留下来；外面增加 <code>type: &quot;function&quot;</code> 与 <code>function</code> 包装，<code>input_schema</code> 改名为 <code>parameters</code>。这份定义与 assistant 历史里的 <code>tool_calls</code> 是两种数据：前者声明可用工具，后者记录已经发生的调用。</p>
+<h2 id="4-汇合_translate-返回core-接收">4. 汇合：_translate() 返回，Core 接收</h2>
+<p><code>AnthropicAdapter._translate(body)</code> 的完整输入就是第 1 步的 <code>body</code>。它返回一个二元组：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>(translated, tools_schema)
+</span></span></code></pre></div><p>两个元素分别是上面完整展示的 <strong>5 条消息列表</strong> 和 <strong>1 个工具定义列表</strong>。本例两者都是 Python <code>list</code>；没有有效工具时，第二项才会是 <code>None</code>。</p>
+<p><code>AnthropicAdapter</code> 继承 <code>BaseAdapter</code>。共享的 <code>_run_turn()</code> 在同一个适配器实例上调用 <code>self._translate(body)</code>，把返回值接收到 <code>translated</code> 和 <code>tools_schema</code> 两个变量中。这就是图中“Forward”的实际交接方式：Python 函数调用与返回值，没有独立的 Core HTTP 请求。</p>
+<p>**动作 2 到这里完成。**它的成果是两份规范化数据；此时尚未生成 token，也没有模型响应。<code>body.max_tokens</code> 仍为 <code>128</code>，并未塞进消息或工具定义里。</p>
+<p>下一步定位到 <code>_render_token_ids()</code>：它使用两份列表和当前模型的聊天模板准备 token IDs；具体数值取决于 tokenizer 和模板，本例不虚构。</p>
+<details>
+<summary>已经理解数据流后：源码位置与进一步校验</summary>
+<p>固定源码版本：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。以下路径均相对于 Slime 仓库根目录；<a href="%E7%A4%BA%E4%BE%8B.json">示例</a>中的输出由该版本真实函数计算。</p>
+<table>
+	<thead>
+			<tr>
+					<th>要校验的事实</th>
+					<th>定义 / 调用位置</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>继承共享流程</td>
+					<td><code>slime/agent/adapters/anthropic.py:39</code>，<code>AnthropicAdapter(BaseAdapter)</code></td>
+			</tr>
+			<tr>
+					<td>读取与预处理 body</td>
+					<td><code>slime/agent/adapters/common.py:325</code>、<code>:326</code></td>
+			</tr>
+			<tr>
+					<td>本例预处理不变</td>
+					<td><code>slime/agent/adapters/anthropic.py:55</code>；<code>_fold_mid_list_system_into_user</code> 定义 <code>:291</code>，无中途 system 时返回 <code>False</code></td>
+			</tr>
+			<tr>
+					<td><code>_translate()</code> 先消息、后工具，再返回</td>
+					<td><code>slime/agent/adapters/anthropic.py:58</code>，调用 <code>:59</code>、<code>:60</code>，返回 <code>:61</code></td>
+			</tr>
+			<tr>
+					<td><code>_translate_messages()</code> 定义与完整返回</td>
+					<td><code>slime/agent/adapters/anthropic.py:81</code>、<code>:120</code></td>
+			</tr>
+			<tr>
+					<td>system 使用 <code>flatten_content()</code></td>
+					<td><code>slime/agent/adapters/anthropic.py:85</code></td>
+			</tr>
+			<tr>
+					<td>assistant 使用 <code>tool_call_dict()</code></td>
+					<td><code>slime/agent/adapters/anthropic.py:111</code></td>
+			</tr>
+			<tr>
+					<td>tool_result 使用 <code>flatten_content()</code></td>
+					<td><code>slime/agent/adapters/anthropic.py:94</code></td>
+			</tr>
+			<tr>
+					<td><code>flatten_content()</code> 定义</td>
+					<td><code>slime/agent/adapters/common.py:76</code></td>
+			</tr>
+			<tr>
+					<td><code>tool_call_dict()</code> 定义，arguments 保持 dict</td>
+					<td><code>slime/agent/adapters/common.py:110</code></td>
+			</tr>
+			<tr>
+					<td><code>_tools_to_chat_tools()</code> 定义，input_schema → parameters</td>
+					<td><code>slime/agent/adapters/anthropic.py:123</code>、<code>:137</code></td>
+			</tr>
+			<tr>
+					<td>Core 调用转换并接收两份数据</td>
+					<td><code>slime/agent/adapters/common.py:341</code></td>
+			</tr>
+			<tr>
+					<td>下一步渲染 token IDs</td>
+					<td><code>slime/agent/adapters/common.py:342</code>；定义 <code>:58</code></td>
+			</tr>
+			<tr>
+					<td>后续采样读取 max_tokens</td>
+					<td><code>slime/agent/adapters/anthropic.py:45</code>；<code>slime/agent/adapters/common.py:425</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>Core 接收点的实际语句（<code>common.py:341</code>）：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>translated, tools_schema <span style="color:#666">=</span> <span style="color:#007020">self</span><span style="color:#666">.</span>_translate(body)
+</span></span></code></pre></div><p>需要补看更广的上下文时，可读<a href="../README.md">原动作 2 入口</a>、<a href="../1.%E6%B6%88%E6%81%AF%E5%92%8C%E5%B7%A5%E5%85%B7%E8%BD%AC%E6%8D%A2.md">原消息和工具转换</a>、<a href="../2.%E4%B8%BB%E8%B7%AF%E5%BE%84%E5%92%8C%E6%BA%90%E7%A0%81%E5%87%BD%E6%95%B0.md">原主路径和源码函数</a>。</p>
+</details>
+</main></body></html>

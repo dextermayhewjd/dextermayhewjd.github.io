@@ -2,6 +2,10 @@
 
 [返回架构图与源码文件对应](README.md) · [返回动作 2 最小心智模型](<2.Translate & Forward/README.md>)
 
+先沿具体数据理解模型输入与生成，可读[动作 3 Generate Tokens 纵向数据流](<3.Generate Tokens/README.md>)。读到 `TurnRecord` 后，从本篇第 5 节继续看解码、解析、协议响应与轨迹记录。
+
+这段生成后的主路径也整理为[3.5 完成一次模型请求 纵向数据流](<3.5.完成一次模型请求/README.md>)，沿同一份示例展示各步输入输出，再接回 Launch Agent 的阅读位置。
+
 这篇延伸阅读展开共享处理流程中的模型输入准备、生成、输出解析、响应、轨迹记录和会话结束。动作 2 的转换与交接先从其入口文档阅读。
 
 图中的 Slime Core 包含 `BaseAdapter` 和 `TrajectoryManager`。`BaseAdapter._run_turn()` 组织一次请求的处理流程，`TrajectoryManager` 保存会话轨迹。下面从适配器返回转换结果的位置开始，按正常请求的实际执行顺序展开；其中生成请求属于后续动作 3。

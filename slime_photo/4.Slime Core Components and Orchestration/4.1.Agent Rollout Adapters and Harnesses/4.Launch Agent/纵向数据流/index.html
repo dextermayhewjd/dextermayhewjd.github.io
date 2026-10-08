@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Launch Agent 调度与准备数据流</title><style>
+:root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+
+main{overflow-wrap:anywhere}pre{overflow-wrap:normal}
+</style></head><body><main><nav><a href="../README.md">← 返回动作 4</a></nav><h1>Launch Agent 调度与准备数据流</h1>
+<p><img src="flow.svg" alt="动作 4：run 调度配置与启动准备，在 CLI 执行处标出下一动作" /></p>
+<p><a href="../README.md">返回动作 4</a> · <a href="../../README.md">返回原架构图</a> · <a href="index.html">图文预览</a> · <a href="%E7%A4%BA%E4%BE%8B.json">完整示例</a></p>
+<p>动作 4 从 Slime 侧调用 <code>run()</code> 开始，读清 Harness 的调度、配置与启动信息准备。Sandbox 的接收与落实在动作 5 下钻，真正执行 CLI 时接动作 6。本图给出分层骨架，不展开 CLI 运行或模型请求。</p>
+<h2>1 <code>generate()</code> 交出任务上下文</h2>
+<p>输入是已准备的 <code>sb</code>、工作目录、会话 ID、Adapter 地址、指令和时间预算。示例使用 <code>/workspace/demo</code>、<code>cagent-demo-0-0</code>、<code>http://192.0.2.10:18001</code> 和 <code>1800</code> 秒，均为教学值。</p>
+<p>调用位置：<code>examples/coding_agent_rl/generate.py:205</code>，<code>await HARNESS_CLS().run(...)</code>。</p>
+<h2>2 <code>run()</code> 调度共同步骤</h2>
+<pre><code class="language-text">ensure_agent_user(sb, workdir)
+    → HarnessContext(workdir, session_id, adapter_url)
+    → self.write_config(sb, ctx)
+    → self.launch_and_wait(sb, ctx, prompt, time_budget_sec)
+</code></pre>
+<p>前三个上下文字段原样保留，另有默认 <code>model_label=&quot;slime-actor&quot;</code>。<code>sb</code>、指令与预算继续独立传递。源码为 <code>slime/agent/harness/common.py:81</code>。</p>
+<h2>3 <code>write_config()</code>：配置内容 → 沙箱操作</h2>
+<table>
+<thead>
+<tr>
+<th>Harness</th>
+<th>内容</th>
+<th>交给 Sandbox</th>
+<th>预期成果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code</td>
+<td>onboarding、运行权限设置 JSON</td>
+<td><code>sb.exec()</code> 写用户目录中的设置文件</td>
+<td>配置可供 Agent 读取</td>
+</tr>
+<tr>
+<td>Codex</td>
+<td>模型、provider 地址、chat 协议 TOML</td>
+<td>编码后经 <code>sb.exec()</code> 写配置文件</td>
+<td>指定模型入口配置就位</td>
+</tr>
+</tbody>
+</table>
+<p>函数返回 <code>None</code>，成果是环境变化。记录器只捕获实际提交的命令，没有执行环境变化。动作 5 继续解释 <code>E2BSandbox.exec()</code> 怎样接收这些命令和用户参数。</p>
+<h2>4 <code>launch_and_wait()</code>：上下文与指令 → <code>cmd + env</code></h2>
+<p>Claude 分支构造 <code>/usr/local/bin/claude -p ...</code>，并把 <code>adapter_url</code>、<code>session_id</code>、模型标签映射到进程环境变量。Codex 分支构造 <code>codex exec ...</code>，使用相应的模型入口和会话环境变量。</p>
+<p>两者将工作目录、命令、环境和预算交给同一个 <code>run_agent()</code>。完整捕获值见示例中的 <code>exec_and_wait_input</code>。本例没有额外环境覆盖。</p>
+<h2>5 <code>run_agent()</code>：运行要求 → Sandbox 准备接口</h2>
+<p>先请求创建 <code>.harness</code> 日志目录，再交给 <code>exec_and_wait()</code>：</p>
+<pre><code class="language-text">cmd + user + env + workdir + out_file + time_budget_sec
+</code></pre>
+<p>动作 5 从这里继续：写启动脚本、清理旧状态、将准备好的启动请求交给执行后端。到真正启动 CLI 的 <code>setsid bash</code> / SDK <code>commands.run()</code> 接缝，进入动作 6。</p>
+<p><strong>准备命令本身也会使用 <code>sb.exec()</code></strong>；它们的目的仍是管理环境。动作 6 专指这条图上通往 Agent CLI 的执行关系。</p>
+<h2>6 返回契约</h2>
+<p><code>run()</code> 最终返回 <code>int</code>，调用者保存为 <code>agent_exit_code</code>。这个返回依赖下游执行与等待完成；本例的 <code>simulated_exit_code</code> 是记录器提供的模拟状态，不代表 Agent 已运行。</p>
+<h2>源码与校验</h2>
+<p>固定源码：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。</p>
+<p>已执行真实的公共 <code>run()</code>、两种 Harness 的配置与启动参数计算，以及 <code>run_agent()</code>。沙箱操作全部替换为记录器，<code>exec_and_wait()</code> 替换为参数捕获与模拟返回；单例元类以普通 ABC 元类替代。示例展示真实方法算出的配置请求、命令与环境数据。</p>
+<p>Sandbox 后端、准备操作的实际副作用、CLI 启动和等待仅静态定位，未执行。环境接收端详见<a href="../../5.Manage%20Sandbox/README.md">动作 5</a>。</p>
+</main></body></html>

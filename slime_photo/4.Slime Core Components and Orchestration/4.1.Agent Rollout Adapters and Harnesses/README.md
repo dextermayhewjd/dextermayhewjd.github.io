@@ -54,6 +54,28 @@
 ## 动作详解
 
 - [动作 2 Translate & Forward](<2.Translate & Forward/README.md>)：HTTP Adapters (AnthropicAdapter, OpenAIAdapter) → Slime Core (BaseAdapter, TrajectoryManager)。
+- [动作 3 Generate Tokens](<3.Generate Tokens/README.md>)：Slime Core → SGLang Backend，从模板编码到本轮生成记录的纵向数据流。
+- [3.5 完成一次模型请求](<3.5.完成一次模型请求/README.md>)：接住生成记录，展开解码、解析、协议响应、轨迹记录和本轮请求收尾；这是补充阅读编号。
+- [动作 4 Launch Agent](<4.Launch Agent/README.md>)：从 Slime 侧进入 `run()`，展开 Harness 的用户准备、配置和启动信息调度；沙箱实现下钻动作 5，CLI 执行接动作 6。
+- [动作 5 Manage Sandbox](<5.Manage Sandbox/README.md>)：Agent Harnesses → Sandbox Environment，从命令与文件操作读到 E2B 实现、创建和收尾。
+
+## 按一次模型请求继续阅读
+
+原图用于定位组件和动作；下面按一次请求的数据处理顺序连接阅读入口。
+
+| 阅读顺序 | 入口 | 看清什么输入输出 |
+| --- | --- | --- |
+| 1 | [动作 2 纵向数据流](<2.Translate & Forward/纵向数据流/README.md>) | 原始请求 → 消息列表与工具定义 |
+| 2 | [动作 3 纵向数据流](<3.Generate Tokens/README.md>) · [图文预览](<3.Generate Tokens/index.html>) | 消息与工具定义 → 输入 token → SGLang 请求与生成记录 |
+| 3 | [3.5 完成一次模型请求](<3.5.完成一次模型请求/README.md>) · [图文预览](<3.5.完成一次模型请求/index.html>) | 输出 token → 解析结果与 Reply → 客户端响应，并保存会话轨迹、结束本轮请求 |
+
+`BaseAdapter._run_turn()` 贯穿这次请求；`TrajectoryManager` 在轨迹记录处展开。响应和记录读通后，再回到原图的动作 4–7，看 Agent 怎样启动并多次发起这些请求。
+
+## 按一次 Agent 启动继续阅读
+
+从[动作 4 Launch Agent](<4.Launch Agent/README.md>)开始，或沿[启动参数的纵向数据流](<4.Launch Agent/纵向数据流/README.md>)查看[图文预览](<4.Launch Agent/纵向数据流/index.html>)。
+
+原图的 Core → Harness 箭头表达任务组织职责。这个版本的真实组装点是 `examples/coding_agent_rl/generate.py`，在这里将已有执行环境与启动参数交给 Harness 的 `run()`。动作 4 展开 Harness 的调度与准备，动作 5 下钻沙箱的接收和落实，动作 6 从 CLI 真正执行处继续，动作 7 展开模型请求。各动作按跨组件职责分层，同一函数可连接多条边。
 
 ## 组件延伸阅读
 

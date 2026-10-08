@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="2100" viewBox="0 0 1200 2100" role="img" aria-labelledby="title desc">
+  <title id="title">动作 5：同一个 Harness 任务的纵向数据流</title>
+  <desc id="desc">输入是已有沙箱 sb 和同一份任务参数。BaseHarness.run 依次准备 agent 用户、构造上下文、写 Claude 配置，再经 run_agent 和 exec_and_wait 写启动脚本、清理旧状态、后台启动并轮询退出标记。Sandbox 接口由 E2BSandbox 映射到命令和文件 SDK。最后退出码沿调用链返回。命令、配置和脚本由固定源码函数生成；执行结果由记录器模拟，未连接 E2B 或运行 CLI。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+    <style>
+      text {font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", sans-serif; fill: #172334; font-size: 22px;}
+      .title {font-size: 32px; font-weight: 700;}
+      .head {font-size: 25px; font-weight: 700;}
+      .small {font-size: 20px;}
+      .muted {fill: #526173;}
+      .mono {font-family: "DejaVu Sans Mono", monospace; font-size: 20px;}
+      .box {stroke: #91a3b8; stroke-width: 2; rx: 14;}
+      .link {fill: none; stroke: #475569; stroke-width: 3; marker-end: url(#arrow);}
+    </style>
+  </defs>
+  <rect width="1200" height="2100" fill="#fff"/>
+  <text x="50" y="52" class="title">动作 5：Manage Sandbox</text>
+  <text x="50" y="88" class="muted">Agent Harnesses → Sandbox Environment · 沿同一个任务向下看</text>
+
+  <rect x="50" y="115" width="1100" height="170" class="box" fill="#f1f5f9"/>
+  <text x="75" y="154" class="head">① 输入 · 已创建的 sb + 一份任务参数</text>
+  <text x="75" y="193" class="mono">workdir: /workspace/demo     session_id: cagent-demo-0-0</text>
+  <text x="75" y="231" class="small">adapter_url：http://192.0.2.10:18001　等待预算：1800 秒</text>
+  <text x="75" y="267" class="small muted">prompt：Read PROBLEM_STATEMENT.md and resolve the issue.</text>
+  <path class="link" d="M600 285 V330"/>
+
+  <rect x="50" y="333" width="1100" height="160" class="box" fill="#eff6ff"/>
+  <text x="75" y="374" class="head">② ensure_agent_user(sb, workdir) → sb.exec()</text>
+  <text x="75" y="413">检查或创建 agent → 调整用户目录与仓库所有权 → 配置 Git</text>
+  <text x="75" y="451" class="small">执行选项：root / check=True / timeout=60</text>
+  <text x="75" y="480" class="small muted">成功时环境就位；辅助函数返回 None，继续使用同一个 sb</text>
+  <path class="link" d="M600 493 V538"/>
+
+  <rect x="50" y="541" width="1100" height="190" class="box" fill="#eff6ff"/>
+  <text x="75" y="582" class="head">③ ctx → ClaudeCodeHarness.write_config() → sb.exec()</text>
+  <text x="75" y="622">JSON：hasCompletedOnboarding / bypassPermissionsModeAccepted = true</text>
+  <text x="75" y="660" class="mono">/home/agent/.claude.json</text>
+  <text x="75" y="695" class="mono">/home/agent/.claude/settings.json</text>
+  <text x="75" y="720" class="small muted">以 root 写入并 chown；这个步骤没有调用 write_file()</text>
+  <path class="link" d="M600 731 V776"/>
+
+  <rect x="50" y="779" width="1100" height="190" class="box" fill="#eff6ff"/>
+  <text x="75" y="820" class="head">④ launch_and_wait() → run_agent()</text>
+  <text x="75" y="859" class="small">start_cmd：Claude CLI + 同一份 prompt + 固定启动标志</text>
+  <text x="75" y="897" class="small">env：ANTHROPIC_BASE_URL / AUTH_TOKEN / MODEL 等启动环境</text>
+  <text x="75" y="933" class="small">准备 /workspace/demo/.harness；CLI 输出写入 trajectory.jsonl</text>
+  <text x="75" y="958" class="small muted">目录准备使用 root；后续启动与状态读取使用 agent</text>
+  <path class="link" d="M600 969 V1014"/>
+
+  <rect x="50" y="1017" width="1100" height="235" class="box" fill="#f0fdf4"/>
+  <text x="75" y="1058" class="head">⑤ exec_and_wait() → 文件与命令操作</text>
+  <text x="75" y="1097" class="mono">write_file("/tmp/.run.sh", launcher_body, user="agent")</text>
+  <text x="75" y="1135" class="small">脚本：cd 工作目录 → 设置 HOME → CLI 命令 → 写 /tmp/.run.done</text>
+  <text x="75" y="1173" class="small">exec()：清理旧日志、标记与锁 → 带 mkdir 防重的 setsid 后台启动</text>
+  <text x="75" y="1211" class="small">同一份 env 随后台启动请求传入；输出重定向到日志文件</text>
+  <text x="75" y="1239" class="small muted">启动请求返回，不代表 CLI 任务已经结束</text>
+  <path class="link" d="M600 1252 V1297"/>
+
+  <rect x="50" y="1300" width="1100" height="190" class="box" fill="#dcfce7"/>
+  <text x="75" y="1341" class="head">⑥ 接收端 · E2BSandbox 的接口映射</text>
+  <text x="75" y="1380" class="mono">exec(...)       → SDK commands.run(..., envs=env)</text>
+  <text x="75" y="1418" class="mono">write_file(...) → SDK files.write(...)</text>
+  <text x="75" y="1456" class="small">命令返回 (exit_code, stdout, stderr)；文件写入成功返回 None</text>
+  <text x="75" y="1479" class="small muted">这里定位前述操作的共同接收层；SDK 映射按源码静态核对</text>
+  <path class="link" d="M600 1490 V1535"/>
+
+  <rect x="50" y="1538" width="1100" height="175" class="box" fill="#f0fdf4"/>
+  <text x="75" y="1579" class="head">⑦ _await_done_marker() → sb.exec() 检查退出标记</text>
+  <text x="75" y="1618" class="mono">test -f /tmp/.run.done &amp;&amp; cat /tmp/.run.done</text>
+  <text x="75" y="1656">第一次模拟结果：未读到标记；第二次：标记文本 &quot;0\n&quot; → 整数 0</text>
+  <text x="75" y="1694" class="small muted">轮询和时钟使用替身；本次没有等待真实 CLI</text>
+  <path class="link" d="M600 1713 V1758"/>
+
+  <rect x="50" y="1761" width="1100" height="190" class="box" fill="#fff7ed"/>
+  <text x="75" y="1802" class="head">⑧ 返回 Harness · 同一条调用链中的结果</text>
+  <text x="75" y="1841" class="mono">exec_and_wait() → (0, "") → run_agent() → 0</text>
+  <text x="75" y="1879" class="mono">launch_and_wait() → 0 → BaseHarness.run() → 0</text>
+  <text x="75" y="1917" class="small">动作 5 的成果：环境操作已提交，执行结果交回 Harness</text>
+  <text x="75" y="1940" class="small muted">本例的 0 来自模拟退出标记；不是实际 Agent 运行结果</text>
+
+  <text x="50" y="2010" class="small muted">命令、环境和脚本来自固定源码函数；沙箱执行结果由记录器模拟。</text>
+  <text x="50" y="2050" class="small muted">范围到 SDK 接收边界与返回路径；创建、销毁和更多分支在补充阅读中。</text>
+</svg>

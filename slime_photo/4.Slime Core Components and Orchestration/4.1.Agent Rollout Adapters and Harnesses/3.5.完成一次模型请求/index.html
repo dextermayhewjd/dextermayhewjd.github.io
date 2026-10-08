@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>3.5 完成一次模型请求 纵向数据流</title><style>
+:root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+</style></head><body><main><nav><a href="../README.md">← 返回原架构图</a></nav><h1 id="35-完成一次模型请求-纵向数据流">3.5 完成一次模型请求 纵向数据流</h1>
+<p><img src="flow.svg" alt="生成之后到本轮请求完成的纵向数据流"></p>
+<p><a href="../README.md">返回原架构图</a> · <a href="../3.Generate%20Tokens/README.md">上一站 动作 3</a> · <a href="../4.Launch%20Agent/README.md">下一站 Launch Agent</a> · <a href="index.html">打开图文预览</a></p>
+<p><strong>动作 3 交回 <code>TurnRecord</code>；本篇接着把输出 token 解码、解析并封装为客户端响应，再保存本轮轨迹，让 <code>_run_turn()</code> 完成这一次请求。</strong> <code>3.5</code> 是补充阅读编号，用来连接生成与返回路径；原架构图仍保留原来的 8 条箭头。</p>
+<p>沿用动作 3 的同一份示例：218 个输入 token，5 个输出 token。生成记录和 log probability 仍是上一站的结构演示数据；本篇的解码、解析、Reply 构造和轨迹记录由本地真实源码计算。示例采用 Anthropic 协议、非流式响应，专用工具与推理解析器配置均为 <code>None</code>，可选调试回调未启用。</p>
+<p>主路径有两个去向：<strong>客户端拿到协议响应，轨迹管理器保存输入与模型输出。</strong> <code>Reply</code> 会同时准备这两类数据，后续函数分别使用它们。<a href="%E7%A4%BA%E4%BE%8B.json">完整示例</a>保留每一步的快照。</p>
+<h2 id="1-接住动作-3-的生成记录">1 接住动作 3 的生成记录</h2>
+<p><strong>输入：</strong> 共享 <code>_run_turn()</code> 中的 <code>turn</code>，以及仍然持有的 <code>translated</code>、<code>tools_schema</code> 和原始 <code>body</code>。</p>
+<p>生成记录的输出部分如下。<code>prompt_ids</code> 仍是上一站完整的 218 项列表，放在完整示例中。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: <span style="color:#4070a0">&#34;stop&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_log_probs&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.12</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.08</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.06</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.03</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.01</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;ill_formed&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>数据</th>
+					<th>这里的去向</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>turn.output_ids</code></td>
+					<td>解码为 <code>raw_output</code></td>
+			</tr>
+			<tr>
+					<td><code>tools_schema</code> 与解析器配置</td>
+					<td>帮助识别正文中的工具调用与推理内容</td>
+			</tr>
+			<tr>
+					<td><code>turn.finish_reason</code></td>
+					<td>帮助构造协议结束原因</td>
+			</tr>
+			<tr>
+					<td><code>translated</code>、本轮助手消息与更新后的 <code>turn</code></td>
+					<td>交给轨迹管理器</td>
+			</tr>
+			<tr>
+					<td>原始 <code>body</code></td>
+					<td>用于响应方式及协议字段；本例选择非流式响应</td>
+			</tr>
+	</tbody>
+</table>
+<details>
+<summary>展开从动作 3 接收到的完整 TurnRecord</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;prompt_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8948</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105043</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">46100</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">110498</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3407</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13852</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">271</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1231</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">825</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">476</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">803</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5746</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">311</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">7789</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1196</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3239</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">382</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2610</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">525</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3897</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">32628</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1472</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4684</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13786</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1700</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">13193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1313</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">917</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9207</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2137</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">6279</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4383</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1341</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">3417</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">532</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">15918</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1339</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2461</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1817</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1618</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">470</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">264</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2951</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1633</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">448</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">729</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">829</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">323</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5977</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">220</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11874</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9492</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">510</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1688</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11494</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8066</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">366</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2116</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">56080</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">40432</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">31296</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">61945</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">74577</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">114</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">43815</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">35946</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">60726</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">57553</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">18158</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">26898</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151657</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">4913</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">606</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">878</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2458</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">497</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">16370</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">5212</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2343</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">788</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">330</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">54675</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">21324</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">95642</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151658</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">27</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">397</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">2</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">28523</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">8997</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">522</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14172</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">9655</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">29</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">872</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">14880</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">11622</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105321</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">109193</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151644</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">77091</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">198</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_ids&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">151645</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: <span style="color:#4070a0">&#34;stop&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;output_log_probs&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.12</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.08</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.06</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.03</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#40a070">-0.01</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;ill_formed&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></details>
+<h2 id="2-解码-输出-token-变成-raw_output">2 解码 输出 token 变成 raw_output</h2>
+<p>共享流程调用 <code>tokenizer.decode()</code>，参数为 <code>skip_special_tokens=False</code>。</p>
+<p><strong>输入：</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>[
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">105464</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">100134</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">73345</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">1773</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#40a070">151645</span>
+</span></span><span style="display:flex;"><span>]
+</span></span></code></pre></div><p><strong>输出：</strong> 一个字符串 <code>raw_output</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span></code></pre></div><p>这一步恢复 token 对应的文本，还没有分离正文和工具调用。本例的最后一个 ID <code>151645</code> 对应 <code>&lt;|im_end|&gt;</code>；因为保留特殊 token，它会出现在解码结果中。</p>
+<h2 id="3-parse_model_output-分离输出的不同部分">3 parse_model_output 分离输出的不同部分</h2>
+<p><strong>输入：</strong> 上面的 <code>raw_output</code>、上一站的 <code>tools_schema</code>，以及解析器配置。本例配置如下：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;tool_parser_name&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;reasoning_parser_name&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>输出：</strong> <code>ParsedModelOutput</code> 对象，下面用 JSON 展示字段：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;reasoning&#34;</span>: <span style="color:#4070a0">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;tool_uses&#34;</span>: [],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;ill_formed&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>字段</th>
+					<th>本例结果</th>
+					<th>含义</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>reasoning</code></td>
+					<td>空字符串</td>
+					<td>本例没有解析出推理内容</td>
+			</tr>
+			<tr>
+					<td><code>text</code></td>
+					<td>解码后的这段文本</td>
+					<td>给后续响应构造使用的正文</td>
+			</tr>
+			<tr>
+					<td><code>tool_uses</code></td>
+					<td>空列表</td>
+					<td>本轮没有解析出工具调用</td>
+			</tr>
+			<tr>
+					<td><code>ill_formed</code></td>
+					<td><code>false</code></td>
+					<td>本例没有标记工具参数格式异常</td>
+			</tr>
+	</tbody>
+</table>
+<p>本例未启用专用解析器，文本中也没有回退解析器能识别的工具调用。因此 <code>text</code> 保留了 <code>&lt;|im_end|&gt;</code>。<strong>解码与解析承担不同职责，调用解析函数并不保证所有模型标记都会被移除。</strong> 这里保留源码的实际输出，不手工删改示例。</p>
+<details>
+<summary>再看一个小对照 有工具调用时 ParsedModelOutput 怎样变化</summary>
+<p>下面是另一个构造的输出文本，仅用于观察同一函数如何分离工具调用。它使用本实现的 XML 回退格式，仍然提供同一个 <code>read_file</code> 工具定义。</p>
+<p>输入 <code>raw_output</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#4070a0">&#34;我先读取文件。&lt;tool_call&gt;&lt;function=read_file&gt;&lt;parameter=path&gt;README.md&lt;/parameter&gt;&lt;/function&gt;&lt;/tool_call&gt;&#34;</span>
+</span></span></code></pre></div><p>真实函数输出：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;reasoning&#34;</span>: <span style="color:#4070a0">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;tool_uses&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;input&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;ill_formed&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>正文与调用已经分开：<code>text</code> 只剩“我先读取文件。”，调用信息进入 <code>tool_uses</code>。这里仅识别和描述调用，实际执行工具的是客户端 Agent。</p>
+<p>专用 SGLang 推理与工具解析器的配置、格式分支及异常处理，可以在理解这一契约后继续展开。</p>
+</details>
+<h2 id="4-_build_reply-同时准备协议内容与轨迹消息">4 _build_reply 同时准备协议内容与轨迹消息</h2>
+<p><strong>输入：</strong> <code>parsed</code>、生成结束原因 <code>stop</code>，以及共享流程传入的消息和工具定义。这个 Anthropic 构造函数根据解析结果和结束原因组织回复内容。</p>
+<p><strong>输出：</strong> 一个 <code>Reply</code> 对象。字段如下；其中 <code>wire</code> 在 Python 中是 <code>(blocks, stop_reason)</code> 二元组，用 JSON 展示时成为数组。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;manager_message&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: <span style="color:#4070a0">&#34;stop&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;wire&#34;</span>: [
+</span></span><span style="display:flex;"><span>    [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;end_turn&#34;</span>
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>Reply 字段</th>
+					<th>谁使用</th>
+					<th>本例表达什么</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>wire</code> 的第 1 项 <code>blocks</code></td>
+					<td><code>_respond()</code></td>
+					<td>Anthropic 内容块列表</td>
+			</tr>
+			<tr>
+					<td><code>wire</code> 的第 2 项 <code>stop_reason</code></td>
+					<td><code>_respond()</code></td>
+					<td><code>end_turn</code>，用于客户端协议</td>
+			</tr>
+			<tr>
+					<td><code>manager_message</code></td>
+					<td><code>record_turn()</code></td>
+					<td>统一的 <code>role: assistant</code> 消息</td>
+			</tr>
+			<tr>
+					<td><code>finish_reason</code></td>
+					<td>Reply 中的内部结束标记</td>
+					<td>本例为 <code>stop</code>；这个版本的后续记录仍使用 <code>turn.finish_reason</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>客户端的内容块和内部助手消息描述同一段内容，但结构不同；协议结束原因 <code>end_turn</code> 和生成结束类型 <code>stop</code> 也分别用于不同位置。此版本的 <code>_run_turn()</code> 后续使用 <code>reply.wire</code> 和 <code>reply.manager_message</code>，没有读取 <code>reply.finish_reason</code>；轨迹记录中的结束原因来自 <code>turn</code>。</p>
+<p>共享流程接着用 <code>parsed.ill_formed</code> 更新本轮 <code>TurnRecord</code>。本例为 <code>false</code>，所以记录字段与动作 3 相同；格式异常时这一步可以改变记录中的标记。</p>
+<details>
+<summary>补充工具调用例子的 Reply 对照</summary>
+<p>前面解析出的 <code>read_file</code> 调用会成为协议的 <code>tool_use</code> 内容块，并成为内部助手消息的 <code>tool_calls</code>。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;manager_message&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;tool_calls&#34;</span>: [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>            <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;finish_reason&#34;</span>: <span style="color:#4070a0">&#34;tool_calls&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;wire&#34;</span>: [
+</span></span><span style="display:flex;"><span>    [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;tool_use&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;id&#34;</span>: <span style="color:#4070a0">&#34;toolu_aaaaaaaaaaaaaaaa&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;input&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;tool_use&#34;</span>
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>示例中的工具调用 ID 已固定，便于逐项对照；真实运行会生成新的 ID。ID 保留在客户端协议块中，内部规范化的 <code>tool_calls</code> 只保留名称和参数。协议的 <code>stop_reason</code> 变成 <code>tool_use</code>，内部 <code>finish_reason</code> 变成 <code>tool_calls</code>。</p>
+</details>
+<h2 id="5-_respond-构造客户端-http-响应">5 _respond 构造客户端 HTTP 响应</h2>
+<p><strong>输入：</strong> <code>Reply.wire</code>、原始 <code>body</code>、输入和输出 token 数量，以及响应方式。</p>
+<p>本例 <code>body.stream</code> 没有设为 <code>true</code>，请求头也没有要求事件流，因此走非流式分支：先 <code>_render_response()</code> 构造协议字典，再用 <code>web.json_response()</code> 构造响应对象。</p>
+<p><strong>输出：</strong> HTTP 响应对象，协议 body 的完整内容是：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;id&#34;</span>: <span style="color:#4070a0">&#34;msg_aaaaaaaaaaaaaaaaaaaaaaaa&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;message&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;model&#34;</span>: <span style="color:#4070a0">&#34;slime-actor&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;text&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#062873;font-weight:bold">&#34;text&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;stop_reason&#34;</span>: <span style="color:#4070a0">&#34;end_turn&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;stop_sequence&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;usage&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;input_tokens&#34;</span>: <span style="color:#40a070">218</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;output_tokens&#34;</span>: <span style="color:#40a070">5</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本例的状态为 <code>200</code>，内容类型为 <code>application/json</code>。<code>usage</code> 中的 <code>218</code> 和 <code>5</code> 来自本轮输入、输出 ID 列表的长度。请求没有指定 <code>model</code> 字段，所以响应采用源码默认值 <code>slime-actor</code>；实际服务的模型配置和上一站使用的 tokenizer 是另一层信息。</p>
+<p>响应 ID 为便于对照而固定。协议 body 由真实构造函数计算，示例用本地对象承载 HTTP 响应，没有启动网络服务。</p>
+<p><strong>此时 <code>_respond()</code> 已返回响应对象，主路径接着记录轨迹。</strong> 对于本例的非流式分支，最终由 HTTP 处理器返回这个对象；流式分支会在 <code>_respond()</code> 内写出事件。读主路径时先保持这两种情况的区别，事件格式可以以后展开。</p>
+<h2 id="6-record_turn-保存本轮输入与模型输出">6 record_turn 保存本轮输入与模型输出</h2>
+<p><strong>输入：</strong></p>
+<table>
+	<thead>
+			<tr>
+					<th>参数</th>
+					<th>本例数据</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>sid</code></td>
+					<td><code>demo-session</code></td>
+			</tr>
+			<tr>
+					<td><code>prompt_messages</code></td>
+					<td>动作 2 的完整 5 条 <code>translated</code> 消息</td>
+			</tr>
+			<tr>
+					<td><code>response_message</code></td>
+					<td>上面 <code>Reply.manager_message</code></td>
+			</tr>
+			<tr>
+					<td><code>turn</code></td>
+					<td>包含输入 ID、输出 ID、log probability 和格式标记的本轮记录</td>
+			</tr>
+			<tr>
+					<td><code>metadata</code></td>
+					<td><code>{&quot;sid&quot;: &quot;demo-session&quot;}</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>本例从一个尚未记录任何交互的会话树开始；请求自带的历史消息也会接入树中。</p>
+<p><strong>函数返回值：</strong> Python <code>None</code>。变化发生在 <code>TrajectoryManager</code> 的会话状态里。</p>
+<p>记录前的状态：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;has_session&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;turn_count&#34;</span>: <span style="color:#40a070">0</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;paths&#34;</span>: []
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>记录后的状态摘要如下。这是为了阅读而提取的观察视图，不是 <code>record_turn()</code> 的返回值：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;has_session&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;turn_count&#34;</span>: <span style="color:#40a070">1</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;path_roles&#34;</span>: [
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#4070a0">&#34;assistant&#34;</span>
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;last_message&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;last_node_has_turn&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本例形成一条消息路径，其中前 5 条来自输入，第 6 条是本轮输出：</p>
+<table>
+	<thead>
+			<tr>
+					<th>路径位置</th>
+					<th>角色</th>
+					<th>来源</th>
+					<th>是否挂有生成记录</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>1</td>
+					<td><code>system</code></td>
+					<td>请求带来的历史消息</td>
+					<td>无</td>
+			</tr>
+			<tr>
+					<td>2</td>
+					<td><code>user</code></td>
+					<td>请求带来的历史消息</td>
+					<td>无</td>
+			</tr>
+			<tr>
+					<td>3</td>
+					<td><code>assistant</code></td>
+					<td>请求带来的历史消息</td>
+					<td>无</td>
+			</tr>
+			<tr>
+					<td>4</td>
+					<td><code>tool</code></td>
+					<td>请求带来的历史消息</td>
+					<td>无</td>
+			</tr>
+			<tr>
+					<td>5</td>
+					<td><code>user</code></td>
+					<td>请求带来的历史消息</td>
+					<td>无</td>
+			</tr>
+			<tr>
+					<td>6</td>
+					<td><code>assistant</code></td>
+					<td>本轮模型输出</td>
+					<td>本轮 TurnRecord</td>
+			</tr>
+	</tbody>
+</table>
+<p>历史里已经有一条 assistant 消息，但它来自客户端带回的历史。本次记录只给新的助手节点挂上当前 <code>TurnRecord</code>，因此会话的已记录轮数为 <code>1</code>。</p>
+<details>
+<summary>展开记录后的完整路径快照</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;has_session&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;turn_count&#34;</span>: <span style="color:#40a070">1</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;paths&#34;</span>: [
+</span></span><span style="display:flex;"><span>    [
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;system&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;你是代码助手。&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;读取 README.md 并概括内容。&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;我先读取文件。&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;tool_calls&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>              <span style="color:#062873;font-weight:bold">&#34;type&#34;</span>: <span style="color:#4070a0">&#34;function&#34;</span>,
+</span></span><span style="display:flex;"><span>              <span style="color:#062873;font-weight:bold">&#34;function&#34;</span>: {
+</span></span><span style="display:flex;"><span>                <span style="color:#062873;font-weight:bold">&#34;name&#34;</span>: <span style="color:#4070a0">&#34;read_file&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#062873;font-weight:bold">&#34;arguments&#34;</span>: {
+</span></span><span style="display:flex;"><span>                  <span style="color:#062873;font-weight:bold">&#34;path&#34;</span>: <span style="color:#4070a0">&#34;README.md&#34;</span>
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>              }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>          ]
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;tool&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;# Demo\n这是一个学习项目。&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;请用一句话概括。&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">false</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#007020;font-weight:bold">null</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      {
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;message&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;role&#34;</span>: <span style="color:#4070a0">&#34;assistant&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#062873;font-weight:bold">&#34;content&#34;</span>: <span style="color:#4070a0">&#34;这是一个学习项目。&lt;|im_end|&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>        },
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;has_generation_record&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#062873;font-weight:bold">&#34;turn_index&#34;</span>: <span style="color:#40a070">1</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>完整记录入参和更新后的 <code>TurnRecord</code> 见<a href="%E7%A4%BA%E4%BE%8B.json">示例.json</a>中的 <code>record_input</code>。消息节点匹配、分叉和重写合并的内部算法，留到轨迹管理专题继续展开。</p>
+</details>
+<p>这一阶段保存会话轨迹。会话结束后再导出训练样本，是另一阶段，见 <a href="../Slime%20Core%20%E5%AE%8C%E6%95%B4%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B.md">Slime Core 完整请求流程</a>的会话结束部分。</p>
+<h2 id="7-_run_turn-返回响应并结束这一次请求">7 _run_turn 返回响应并结束这一次请求</h2>
+<p>轨迹记录完成后，共享处理器返回第 5 节构造的同一个响应对象；退出时从 <code>inflight[sid]</code> 中移除当前任务。</p>
+<p>本例退出后的观察结果：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;returned_same_response_object&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;inflight_session_key_exists&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;inflight_task_count&#34;</span>: <span style="color:#40a070">0</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;session_trajectory_retained&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>inflight</code> 仍有这个会话的空任务集合，但当前请求已经不在其中。会话轨迹继续保留，Agent 可以发起下一次请求。本轮请求完成不等于整个 Agent 任务结束。</p>
+<h2 id="接回-launch-agent-的阅读位置">接回 Launch Agent 的阅读位置</h2>
+<p>接下来可以读 <a href="../4.Launch%20Agent/README.md">动作 4 Launch Agent</a>，看谁启动了会持续请求模型的 Agent。<code>2 → 3 → 3.5 → 4</code> 是学习顺序；实际执行时先启动 Agent，再发生一轮或多轮请求：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Launch Agent
+</span></span><span style="display:flex;"><span>    -&gt; Agent makes an API request
+</span></span><span style="display:flex;"><span>    -&gt; Translate &amp; Forward
+</span></span><span style="display:flex;"><span>    -&gt; Generate Tokens
+</span></span><span style="display:flex;"><span>    -&gt; Decode / Parse / Respond / Record
+</span></span><span style="display:flex;"><span>    -&gt; Agent continues
+</span></span></code></pre></div><p><code>_run_turn()</code> 处理的是上述一次 API 请求。Harness 启动、沙箱管理以及 CLI 的运行属于外层 Agent 生命周期。</p>
+<details>
+<summary>末尾校验 源码定义 调用顺序与示例来源</summary>
+<p>源码版本：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。路径相对于 Slime 仓库根目录。</p>
+<table>
+	<thead>
+			<tr>
+					<th>步骤</th>
+					<th>定义位置</th>
+					<th>调用或关键位置</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>本轮共享处理器</td>
+					<td><code>slime/agent/adapters/common.py:318</code></td>
+					<td>下列步骤均在这个函数内</td>
+			</tr>
+			<tr>
+					<td>解码输出</td>
+					<td>tokenizer 提供</td>
+					<td><code>common.py:346</code>，<code>skip_special_tokens=False</code></td>
+			</tr>
+			<tr>
+					<td>主解析器</td>
+					<td><code>slime/agent/parsing.py:25</code></td>
+					<td><code>common.py:347–352</code></td>
+			</tr>
+			<tr>
+					<td>工具调用解析</td>
+					<td><code>parsing.py:59</code></td>
+					<td><code>parsing.py:50</code></td>
+			</tr>
+			<tr>
+					<td>XML 回退解析</td>
+					<td><code>parsing.py:93</code></td>
+					<td><code>parsing.py:88</code></td>
+			</tr>
+			<tr>
+					<td>构造 Reply</td>
+					<td><code>slime/agent/adapters/anthropic.py:63</code></td>
+					<td><code>common.py:353</code></td>
+			</tr>
+			<tr>
+					<td>构造协议块与内部助手消息</td>
+					<td><code>anthropic.py:147</code></td>
+					<td><code>anthropic.py:64</code></td>
+			</tr>
+			<tr>
+					<td>更新格式标记</td>
+					<td>共享处理器内部</td>
+					<td><code>common.py:354</code></td>
+			</tr>
+			<tr>
+					<td>选择响应方式</td>
+					<td>共享处理器内部</td>
+					<td><code>common.py:357</code></td>
+			</tr>
+			<tr>
+					<td>返回非流式响应对象</td>
+					<td><code>anthropic.py:71</code></td>
+					<td><code>common.py:363</code>；构造协议 body 的函数位于 <code>anthropic.py:198</code></td>
+			</tr>
+			<tr>
+					<td>可选调试回调</td>
+					<td><code>common.py:308</code></td>
+					<td><code>common.py:376</code>；本例未启用</td>
+			</tr>
+			<tr>
+					<td>记录会话轨迹</td>
+					<td><code>slime/agent/trajectory.py:283</code></td>
+					<td><code>common.py:384–390</code></td>
+			</tr>
+			<tr>
+					<td>返回响应、移除本轮任务</td>
+					<td>共享处理器内部</td>
+					<td><code>common.py:391</code>、<code>:393</code></td>
+			</tr>
+			<tr>
+					<td>外层启动 Harness</td>
+					<td><code>examples/coding_agent_rl/generate.py:182</code></td>
+					<td><code>:205</code> 调用 <code>HARNESS_CLS().run()</code></td>
+			</tr>
+	</tbody>
+</table>
+<p>关键交接语句：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>raw_output <span style="color:#666">=</span> tok<span style="color:#666">.</span>decode(turn<span style="color:#666">.</span>output_ids, skip_special_tokens<span style="color:#666">=</span><span style="color:#007020;font-weight:bold">False</span>) <span style="color:#007020;font-weight:bold">if</span> turn<span style="color:#666">.</span>output_ids <span style="color:#007020;font-weight:bold">else</span> <span style="color:#4070a0">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>parsed <span style="color:#666">=</span> parse_model_output(raw_output, tools_schema<span style="color:#666">=</span>tools_schema,
+</span></span><span style="display:flex;"><span>                            tool_parser_name<span style="color:#666">=</span><span style="color:#007020">self</span><span style="color:#666">.</span>tool_parser,
+</span></span><span style="display:flex;"><span>                            reasoning_parser_name<span style="color:#666">=</span><span style="color:#007020">self</span><span style="color:#666">.</span>reasoning_parser)
+</span></span><span style="display:flex;"><span>reply <span style="color:#666">=</span> <span style="color:#007020">self</span><span style="color:#666">.</span>_build_reply(parsed, turn<span style="color:#666">.</span>finish_reason, translated, tools_schema)
+</span></span><span style="display:flex;"><span>turn <span style="color:#666">=</span> dataclasses<span style="color:#666">.</span>replace(turn, ill_formed<span style="color:#666">=</span>parsed<span style="color:#666">.</span>ill_formed)
+</span></span><span style="display:flex;"><span>response <span style="color:#666">=</span> <span style="color:#007020;font-weight:bold">await</span> <span style="color:#007020">self</span><span style="color:#666">.</span>_respond(request, body, reply, in_tok, out_tok, stream)
+</span></span><span style="display:flex;"><span><span style="color:#007020">self</span><span style="color:#666">.</span>manager<span style="color:#666">.</span>record_turn(sid, turn<span style="color:#666">=</span>turn, prompt_messages<span style="color:#666">=</span>translated,
+</span></span><span style="display:flex;"><span>                         response_message<span style="color:#666">=</span>reply<span style="color:#666">.</span>manager_message, metadata<span style="color:#666">=</span>{<span style="color:#4070a0">&#34;sid&#34;</span>: sid})
+</span></span><span style="display:flex;"><span><span style="color:#007020;font-weight:bold">return</span> response
+</span></span></code></pre></div><p>本例用上一站缓存的 Qwen2.5 tokenizer 实际解码。执行真实 <code>_run_turn()</code> 时，用动作 3 的记录代替网络生成返回；本地响应对象替代 aiohttp 的响应工厂。主解析函数、Anthropic Reply 和协议 body 构造、轨迹管理方法均按原始源码执行。完整调用顺序、配置、状态和补充工具样例见<a href="%E7%A4%BA%E4%BE%8B.json">示例.json</a>。</p>
+<p>本篇保持正常成功请求的主路径。客户端断连、取消请求、流式事件以及专用解析器的具体分支，放在需要时深入阅读。</p>
+</details>
+</main></body></html>

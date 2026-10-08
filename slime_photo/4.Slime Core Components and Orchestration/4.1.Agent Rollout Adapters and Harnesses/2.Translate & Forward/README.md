@@ -4,6 +4,8 @@
 
 [返回架构图与源码文件对应](../README.md)
 
+想先沿着具体请求看清每个函数之后的数据，可以从[纵向数据流](纵向数据流/README.md)开始，或直接[打开图文预览](纵向数据流/index.html)。源码位置集中在末尾供校验。
+
 这条箭头连接 **HTTP Adapters (AnthropicAdapter, OpenAIAdapter)** 和 **Slime Core (BaseAdapter, TrajectoryManager)**。先理解它要解决什么问题，再以 Anthropic 请求为例逐步阅读源码。
 
 ## 先理解动作 2 为了什么
@@ -117,6 +119,8 @@ BaseAdapter._run_turn()
 
 这篇会接到真实的 Core 接收点：`_run_turn()` 调用转换函数，并接收 `translated` 与 `tools_schema`。下一步 Core 用这两份数据准备模型输入。
 
+继续按输入输出阅读，可进入[动作 3 Generate Tokens 纵向数据流](<../3.Generate Tokens/README.md>)，从模型模板编码读到 SGLang 返回本轮生成记录。
+
 采样、SGLang 请求、生成结果解析、响应和轨迹管理放在 [Slime Core 完整请求流程](<../Slime Core 完整请求流程.md>)，可以在动作 2 读完之后继续看。
 
-`Launch Agent` 的启动链路属于动作 4。实际示例由外层 `generate()` 调用 Harness 启动 Agent；Agent 发出的模型请求会进入适配器。原架构图表达职责关系，箭头编号用于定位动作，各动作的实际调用顺序以源码为准。
+[`Launch Agent` 的启动链路](<../4.Launch Agent/README.md>)属于动作 4。实际示例由外层 `generate()` 调用 Harness 启动 Agent；Agent 发出的模型请求会进入适配器。原架构图表达职责关系，箭头编号用于定位动作，各动作的实际调用顺序以源码为准。

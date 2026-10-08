@@ -1,0 +1,161 @@
+{
+  "source_revision": "8c17b676cb57af1d17ee4402e91e9209af84b60b",
+  "source_root": "/home/fredkeira/projects/slime",
+  "body": {
+    "system": [
+      {
+        "type": "text",
+        "text": "你是代码助手。"
+      }
+    ],
+    "messages": [
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "读取 README.md 并概括内容。"
+          }
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "我先读取文件。"
+          },
+          {
+            "type": "tool_use",
+            "id": "toolu_demo",
+            "name": "read_file",
+            "input": {
+              "path": "README.md"
+            }
+          }
+        ]
+      },
+      {
+        "role": "user",
+        "content": [
+          {
+            "type": "tool_result",
+            "tool_use_id": "toolu_demo",
+            "content": [
+              {
+                "type": "text",
+                "text": "# Demo\n这是一个学习项目。"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "请用一句话概括。"
+          }
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "name": "read_file",
+        "description": "读取文件",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    ],
+    "max_tokens": 128
+  },
+  "helper_outputs": {
+    "flatten_system": "你是代码助手。",
+    "tool_call_dict": {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "arguments": {
+          "path": "README.md"
+        }
+      }
+    },
+    "flatten_tool_result": "# Demo\n这是一个学习项目。"
+  },
+  "translated": [
+    {
+      "role": "system",
+      "content": "你是代码助手。"
+    },
+    {
+      "role": "user",
+      "content": "读取 README.md 并概括内容。"
+    },
+    {
+      "role": "assistant",
+      "content": "我先读取文件。",
+      "tool_calls": [
+        {
+          "type": "function",
+          "function": {
+            "name": "read_file",
+            "arguments": {
+              "path": "README.md"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": "# Demo\n这是一个学习项目。"
+    },
+    {
+      "role": "user",
+      "content": "请用一句话概括。"
+    }
+  ],
+  "tools_schema": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "读取文件",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    }
+  ],
+  "locations": {
+    "flatten_content": {
+      "file": "slime/agent/adapters/common.py",
+      "line": 76
+    },
+    "tool_call_dict": {
+      "file": "slime/agent/adapters/common.py",
+      "line": 110
+    },
+    "_translate_messages": {
+      "file": "slime/agent/adapters/anthropic.py",
+      "line": 81
+    },
+    "_tools_to_chat_tools": {
+      "file": "slime/agent/adapters/anthropic.py",
+      "line": 123
+    }
+  }
+}

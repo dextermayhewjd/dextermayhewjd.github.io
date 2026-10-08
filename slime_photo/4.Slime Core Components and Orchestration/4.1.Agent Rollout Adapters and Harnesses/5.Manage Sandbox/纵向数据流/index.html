@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Manage Sandbox 纵向数据流</title><style>
+:root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+</style></head><body><main><nav><a href="../README.md">← 返回动作 5</a></nav><h1 id="manage-sandbox-纵向数据流">Manage Sandbox 纵向数据流</h1>
+<p><img src="flow.svg" alt="动作 5：沿同一个 Harness 任务，看用户、配置、脚本与命令怎样交给 Sandbox"></p>
+<p><a href="../README.md">返回动作 5</a> · <a href="index.html">打开图文预览</a></p>
+<p>这张局部图只展开 <strong>Agent Harnesses → Sandbox Environment</strong> 的动作 5。顺着图向下看，下面所有参数、命令和文件内容都来自<a href="%E7%A4%BA%E4%BE%8B.json">同一个完整示例</a>。</p>
+<p>本例选择 <code>ClaudeCodeHarness</code>，手里已经有创建好的 <code>sb</code> 和准备好的工作目录。Harness 逐步把用户准备、配置写入和运行命令交给沙箱接口。<strong>命令与文件内容由固定版本的真实函数生成；沙箱执行结果由记录器模拟。</strong></p>
+<p>图上的顺序表示本例的真实调用顺序。对执行环境的修改通过 <code>sb.exec()</code> / <code>sb.write_file()</code> 提交；E2B 实现怎样接收这些操作在第 6 步单独定位。</p>
+<h2 id="1-入口手里已经有-sb-和一份任务参数">1. 入口：手里已经有 sb 和一份任务参数</h2>
+<p><code>BaseHarness.run()</code> 接收沙箱对象 <code>sb</code>，以及以下字段。</p>
+<details>
+<summary>展开完整输入：下面各步骤一直使用这一份参数</summary>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;workdir&#34;</span>: <span style="color:#4070a0">&#34;/workspace/demo&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;session_id&#34;</span>: <span style="color:#4070a0">&#34;cagent-demo-0-0&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;adapter_url&#34;</span>: <span style="color:#4070a0">&#34;http://192.0.2.10:18001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;time_budget_sec&#34;</span>: <span style="color:#40a070">1800</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;prompt&#34;</span>: <span style="color:#4070a0">&#34;Read PROBLEM_STATEMENT.md and resolve the issue.&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></details>
+<table>
+	<thead>
+			<tr>
+					<th>输入</th>
+					<th>后面用在哪里</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>sb</code></td>
+					<td>同一个沙箱对象，供用户准备、配置写入与运行辅助函数使用</td>
+			</tr>
+			<tr>
+					<td><code>workdir</code></td>
+					<td>调整目录所有权；指定 CLI 工作目录和日志位置</td>
+			</tr>
+			<tr>
+					<td><code>adapter_url</code>、<code>session_id</code></td>
+					<td>在 CLI 启动时放入环境变量</td>
+			</tr>
+			<tr>
+					<td><code>prompt</code></td>
+					<td>组成 CLI 的启动命令</td>
+			</tr>
+			<tr>
+					<td><code>time_budget_sec</code></td>
+					<td>用于等待退出标记</td>
+			</tr>
+	</tbody>
+</table>
+<p><code>sb</code> 是操作对象，没有把它伪装成 JSON 字段。上面的地址与目录是教学值。创建沙箱和安装 CLI 已由外层完成；这次从 Harness 使用环境的入口开始。</p>
+<h2 id="2-用户准备ensure_agent_user--sbexec">2. 用户准备：ensure_agent_user() → sb.exec()</h2>
+<p>它收到的是 <strong>同一个 <code>sb</code> 和 <code>workdir=&quot;/workspace/demo&quot;</code></strong>。生成的完整命令为：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>id agent &gt;/dev/null 2&gt;&amp;<span style="color:#40a070">1</span> <span style="color:#666">||</span> useradd -m -s /bin/bash agent <span style="color:#666">&amp;&amp;</span> chown -R agent:agent /home/agent /workspace/demo <span style="color:#666">&amp;&amp;</span> git config --system --add safe.directory <span style="color:#4070a0">&#39;*&#39;</span> <span style="color:#666">&amp;&amp;</span> id agent
+</span></span></code></pre></div><p>交给沙箱接口的执行选项：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;user&#34;</span>: <span style="color:#4070a0">&#34;root&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;timeout&#34;</span>: <span style="color:#40a070">60</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;check&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>子操作</th>
+					<th>成功时环境中的成果</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>id agent</code>，不存在时 <code>useradd</code></td>
+					<td>确认沙箱中的 <code>agent</code> 用户存在</td>
+			</tr>
+			<tr>
+					<td><code>chown -R</code></td>
+					<td>让 <code>agent</code> 拥有用户目录和工作目录</td>
+			</tr>
+			<tr>
+					<td>设置 Git safe.directory，最后再执行 <code>id agent</code></td>
+					<td>准备 Git 访问并检查用户状态</td>
+			</tr>
+	</tbody>
+</table>
+<p><code>sb.exec()</code> 返回三元组。记录器在这一步模拟返回 <code>(0, &quot;&quot;, &quot;&quot;)</code>；辅助函数不使用 stdout/stderr，返回 <code>None</code>。<strong>该步骤的主要成果是沙箱中的用户与权限就位；本次记录器没有实际修改这些状态。</strong></p>
+<h2 id="3-配置准备ctx--write_config--sbexec">3. 配置准备：ctx → write_config() → sb.exec()</h2>
+<p>用户准备返回后，<code>BaseHarness.run()</code> 从原输入中取出三项，构造上下文：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;workdir&#34;</span>: <span style="color:#4070a0">&#34;/workspace/demo&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;session_id&#34;</span>: <span style="color:#4070a0">&#34;cagent-demo-0-0&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;adapter_url&#34;</span>: <span style="color:#4070a0">&#34;http://192.0.2.10:18001&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;model_label&#34;</span>: <span style="color:#4070a0">&#34;slime-actor&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>model_label</code> 来自默认值。随后 <code>ClaudeCodeHarness.write_config(sb, ctx)</code> 准备这一份 JSON：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;hasCompletedOnboarding&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;bypassPermissionsModeAccepted&#34;</span>: <span style="color:#007020;font-weight:bold">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>实际提交给 <code>sb.exec()</code> 的完整命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p /home/agent/.claude <span style="color:#666">&amp;&amp;</span> <span style="color:#007020">echo</span> <span style="color:#4070a0">&#39;{&#34;hasCompletedOnboarding&#34;: true, &#34;bypassPermissionsModeAccepted&#34;: true}&#39;</span> | tee /home/agent/.claude.json /home/agent/.claude/settings.json &gt; /dev/null <span style="color:#666">&amp;&amp;</span> chown -R agent:agent /home/agent/.claude /home/agent/.claude.json
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>输入或选项</th>
+					<th>输出或副作用</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>配置 JSON</td>
+					<td>写入 <code>/home/agent/.claude.json</code> 和 <code>/home/agent/.claude/settings.json</code></td>
+			</tr>
+			<tr>
+					<td><code>user=&quot;root&quot;</code>、<code>check=True</code>、<code>timeout=60</code></td>
+					<td>以 root 准备目录、写文件并调整所有权</td>
+			</tr>
+			<tr>
+					<td>模拟成功的执行结果</td>
+					<td><code>write_config()</code> 返回 <code>None</code>，公共流程继续</td>
+			</tr>
+	</tbody>
+</table>
+<p>**这里通过 shell 命令写配置。**这个步骤没有调用 <code>sb.write_file()</code>，两个文件内容相同。对于该 Claude 分支，模型地址与会话 ID 稍后进入启动环境变量。</p>
+<h2 id="4-运行准备命令和环境--run_agent">4. 运行准备：命令和环境 → run_agent()</h2>
+<p><code>launch_and_wait()</code> 收到 <code>sb + ctx + prompt + time_budget_sec</code>。它从同一份参数组成 CLI 命令与环境，交给公共 <code>run_agent()</code>：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;workdir&#34;</span>: <span style="color:#4070a0">&#34;/workspace/demo&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;start_cmd&#34;</span>: <span style="color:#4070a0">&#34;/usr/local/bin/claude -p &#39;Read PROBLEM_STATEMENT.md and resolve the issue.&#39; --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;env&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;ANTHROPIC_BASE_URL&#34;</span>: <span style="color:#4070a0">&#34;http://192.0.2.10:18001&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;ANTHROPIC_AUTH_TOKEN&#34;</span>: <span style="color:#4070a0">&#34;cagent-demo-0-0&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;ANTHROPIC_MODEL&#34;</span>: <span style="color:#4070a0">&#34;slime-actor&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC&#34;</span>: <span style="color:#4070a0">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS&#34;</span>: <span style="color:#4070a0">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#062873;font-weight:bold">&#34;CLAUDE_CODE_ATTRIBUTION_HEADER&#34;</span>: <span style="color:#4070a0">&#34;0&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;time_budget_sec&#34;</span>: <span style="color:#40a070">1800</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本例没有额外参数或环境覆盖。<code>prompt</code> 已用 shell 引号处理，<code>workdir</code> 和等待预算保持原值。</p>
+<p><code>run_agent()</code> 先向同一个沙箱提交日志目录准备命令：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p /workspace/demo/.harness <span style="color:#666">&amp;&amp;</span> chown agent:agent /workspace/demo/.harness
+</span></span></code></pre></div><p>这一条仍以 <code>root</code> 执行，<code>timeout=30</code>、<code>check=True</code>。接着把 CLI 命令交给 <code>exec_and_wait()</code>，指定 <strong><code>user=&quot;agent&quot;</code>、<code>tag=&quot;run&quot;</code>、<code>want_output=False</code></strong>，日志路径为 <code>/workspace/demo/.harness/trajectory.jsonl</code>。</p>
+<p>日志保存 CLI 的 stdout/stderr；这里没有展开 CLI 内部执行工具和请求模型的循环。</p>
+<h2 id="5-文件与启动操作exec_and_wait--sandbox">5. 文件与启动操作：exec_and_wait() → Sandbox</h2>
+<h3 id="51-输入命令--启动脚本">5.1 输入命令 → 启动脚本</h3>
+<p><code>exec_and_wait()</code> 把原来的 <code>workdir</code>、用户和命令放进脚本。实际交给 <code>sb.write_file()</code> 的路径与用户是：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;sandbox_path&#34;</span>: <span style="color:#4070a0">&#34;/tmp/.run.sh&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#062873;font-weight:bold">&#34;user&#34;</span>: <span style="color:#4070a0">&#34;agent&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>完整文件内容：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#007020">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#007020">cd</span> /workspace/demo
+</span></span><span style="display:flex;"><span><span style="color:#007020">export</span> <span style="color:#bb60d5">HOME</span><span style="color:#666">=</span>/home/agent
+</span></span><span style="display:flex;"><span>/usr/local/bin/claude -p <span style="color:#4070a0">&#39;Read PROBLEM_STATEMENT.md and resolve the issue.&#39;</span> --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose
+</span></span><span style="display:flex;"><span><span style="color:#007020">echo</span> <span style="color:#bb60d5">$?</span> &gt; /tmp/.run.done
+</span></span></code></pre></div><p>成功时 <code>write_file()</code> 返回 <code>None</code>。脚本在 CLI 命令之后，把它的退出码写入 <code>/tmp/.run.done</code>。其中 <code>HOME</code> 是现有源码在沙箱脚本中设置的进程环境。</p>
+<h3 id="52-清理旧状态--提交后台启动">5.2 清理旧状态 → 提交后台启动</h3>
+<p>先用单独一次 <code>sb.exec()</code> 清理本次 tag 的旧状态：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rm -rf /tmp/.run.spawned; rm -f /workspace/demo/.harness/trajectory.jsonl /tmp/.run.done
+</span></span></code></pre></div><p>再用下一次 <code>sb.exec()</code> 启动：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chmod +x /tmp/.run.sh; mkdir /tmp/.run.spawned 2&gt;/dev/null <span style="color:#666">||</span> <span style="color:#007020">exit</span> 0; setsid bash /tmp/.run.sh &lt; /dev/null &gt; /workspace/demo/.harness/trajectory.jsonl 2&gt;&amp;<span style="color:#40a070">1</span> &amp;
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>启动输入</th>
+					<th>接口实际接收的值</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>user</code></td>
+					<td><code>agent</code></td>
+			</tr>
+			<tr>
+					<td><code>env</code></td>
+					<td>第 4 步展示的完整环境变量字典</td>
+			</tr>
+			<tr>
+					<td><code>timeout</code></td>
+					<td><code>30</code>，限制这次启动命令请求</td>
+			</tr>
+			<tr>
+					<td><code>check</code>、<code>idempotent</code></td>
+					<td>均为 <code>True</code></td>
+			</tr>
+	</tbody>
+</table>
+<p><code>mkdir /tmp/.run.spawned</code> 是同一次启动 RPC 的重放防护。锁目录已经存在时，这条命令提前退出。不同逻辑调用会先清理旧状态；同一沙箱里不能并发使用相同 tag。</p>
+<p>**启动这条 shell 命令结束后，CLI 任务仍可能在后台运行。**退出标记用于后面的等待。</p>
+<h2 id="6-接收端e2bsandbox-把操作交给-sdk">6. 接收端：E2BSandbox 把操作交给 SDK</h2>
+<p>前面各步调用的是 <code>Sandbox</code> 接口。本例的实际后端若为 <code>E2BSandbox</code>，它会作以下交接；这一节按源码静态对应，没有连接 E2B。</p>
+<table>
+	<thead>
+			<tr>
+					<th>收到的操作</th>
+					<th>下层接收点</th>
+					<th>回给调用方什么</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>sb.exec(cmd, user=..., env=..., timeout=...)</code></td>
+					<td><code>self._sb.commands.run(cmd, user=user, envs=env, timeout=timeout, ...)</code></td>
+					<td><code>(exit_code, stdout, stderr)</code></td>
+			</tr>
+			<tr>
+					<td><code>sb.write_file(path, launcher_body, user=&quot;agent&quot;)</code></td>
+					<td><code>self._sb.files.write(path, launcher_body, user=&quot;agent&quot;)</code></td>
+					<td>成功返回 <code>None</code>，脚本写入沙箱</td>
+			</tr>
+	</tbody>
+</table>
+<p>以第 5.2 步的启动操作为例，<strong><code>cmd</code> 保持原字符串，<code>env</code> 改用 SDK 的参数名 <code>envs</code></strong>。<code>check</code> 和 <code>idempotent</code> 留在 Slime 包装层处理，不作为这次 SDK 命令的参数。</p>
+<p><code>E2BSandbox.exec()</code> 成功时将 SDK 结果整理成：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>(res<span style="color:#666">.</span>exit_code, res<span style="color:#666">.</span>stdout <span style="color:#007020;font-weight:bold">or</span> <span style="color:#4070a0">&#34;&#34;</span>, res<span style="color:#666">.</span>stderr <span style="color:#007020;font-weight:bold">or</span> <span style="color:#4070a0">&#34;&#34;</span>)
+</span></span></code></pre></div><p>这就是图中的 Harness → Sandbox 交接：调用方提供环境操作，接收方执行对应的 SDK 调用并返回结果。远端网关和 CLI 本体到这里作为外部边界。</p>
+<h2 id="7-等待与返回退出标记--harness-的整数结果">7. 等待与返回：退出标记 → Harness 的整数结果</h2>
+<p><code>_await_done_marker()</code> 继续通过同一个 <code>sb.exec()</code> 检查：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#007020">test</span> -f /tmp/.run.done <span style="color:#666">&amp;&amp;</span> cat /tmp/.run.done
+</span></span></code></pre></div><p>每次检查使用 <code>user=&quot;agent&quot;</code>、<code>timeout=15</code>、<code>check=False</code>。本例记录器模拟两次检查：</p>
+<table>
+	<thead>
+			<tr>
+					<th>检查</th>
+					<th><code>sb.exec()</code> 的模拟返回</th>
+					<th>等待函数怎样处理</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>第一次</td>
+					<td><code>(1, &quot;&quot;, &quot;&quot;)</code></td>
+					<td>没有读到标记，继续等待</td>
+			</tr>
+			<tr>
+					<td>第二次</td>
+					<td><code>(0, &quot;0\n&quot;, &quot;&quot;)</code></td>
+					<td>将标记内容转成整数 <code>0</code>，返回</td>
+			</tr>
+	</tbody>
+</table>
+<p>这两次检查间隔由替身时钟模拟，没有真的等待或运行 CLI。返回值继续沿原来的调用链交回：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#f0f0f0;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>_await_done_marker() -&gt; 0
+</span></span><span style="display:flex;"><span>exec_and_wait()      -&gt; (0, &#34;&#34;)
+</span></span><span style="display:flex;"><span>run_agent()          -&gt; 0
+</span></span><span style="display:flex;"><span>launch_and_wait()    -&gt; 0
+</span></span><span style="display:flex;"><span>BaseHarness.run()   -&gt; 0
+</span></span></code></pre></div><p><code>want_output=False</code> 且退出码为 <code>0</code> 时，<code>exec_and_wait()</code> 返回空输出，不读日志。<strong>此处的 <code>0</code> 是记录器提供的示例结果，用于核对返回路径；不是这次真实 Agent 运行成功的证据。</strong></p>
+<h2 id="8-动作-5-到这里结束">8. 动作 5 到这里结束</h2>
+<p>同一个 <code>sb</code> 接收了用户准备、配置、目录、启动脚本、后台启动和状态读取操作。Harness 最后收到一个整数退出码。模型输入转换、训练轨迹和任务评分都没有混入这条局部链。</p>
+<p>创建与销毁由外层上下文管理，按需补看<a href="../3.%E5%88%9B%E5%BB%BA%E5%85%A5%E5%8F%A3%E5%92%8C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.md">创建入口和生命周期</a>。读懂本图的操作与返回之后，再展开这些边界。</p>
+<details>
+<summary>已经理解数据流后：源码位置与进一步校验</summary>
+<p>固定源码版本：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。路径均相对于 Slime 仓库根目录。</p>
+<table>
+	<thead>
+			<tr>
+					<th>要校验的事实</th>
+					<th>定义 / 调用位置</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>公共入口接收已有沙箱</td>
+					<td><code>slime/agent/harness/common.py:81</code></td>
+			</tr>
+			<tr>
+					<td>先准备用户，再构造上下文、写配置、启动等待</td>
+					<td><code>slime/agent/harness/common.py:97</code>–<code>:104</code></td>
+			</tr>
+			<tr>
+					<td>用户准备生成命令</td>
+					<td><code>slime/agent/sandbox.py:390</code>、<code>:392</code></td>
+			</tr>
+			<tr>
+					<td>Claude 配置内容与沙箱写入命令</td>
+					<td><code>slime/agent/harness/claude_code.py:44</code>–<code>:55</code></td>
+			</tr>
+			<tr>
+					<td>命令与环境传给 runner</td>
+					<td><code>slime/agent/harness/claude_code.py:57</code>–<code>:71</code></td>
+			</tr>
+			<tr>
+					<td>日志目录准备与长命令调用</td>
+					<td><code>slime/agent/harness/common.py:107</code>、<code>:110</code>、<code>:111</code></td>
+			</tr>
+			<tr>
+					<td>启动脚本内容与写入</td>
+					<td><code>slime/agent/sandbox.py:107</code>–<code>:113</code></td>
+			</tr>
+			<tr>
+					<td>清理旧状态与后台启动</td>
+					<td><code>slime/agent/sandbox.py:122</code>、<code>:129</code></td>
+			</tr>
+			<tr>
+					<td>检查并读取退出标记</td>
+					<td><code>slime/agent/sandbox.py:65</code>、<code>:76</code></td>
+			</tr>
+			<tr>
+					<td>E2B 命令接口与成功返回</td>
+					<td><code>slime/agent/sandbox.py:309</code>、<code>:324</code>、<code>:334</code></td>
+			</tr>
+			<tr>
+					<td>文本文件写入 SDK</td>
+					<td><code>slime/agent/sandbox.py:342</code>、<code>:377</code></td>
+			</tr>
+			<tr>
+					<td>等待结果与整数返回</td>
+					<td><code>slime/agent/sandbox.py:139</code>–<code>:145</code>；<code>slime/agent/harness/common.py:122</code></td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>已执行校验：</strong> 从上述 Git blob 提取公共入口、Claude 子类、runner 与长命令辅助函数，替换沙箱为记录器；真实函数生成本例的命令、环境、脚本，并走完模拟两次轮询后的成功返回路径。单例元类替换为普通 ABC 元类，环境覆盖为空；等待与时钟使用替身。</p>
+<p><strong>静态核对：</strong> <code>E2BSandbox</code> 的 SDK 参数映射。没有执行 E2B SDK、远端用户或文件修改、CLI、模型请求。示例中的命令返回值都是模拟值。</p>
+<p>需要更广的上下文时，可读<a href="../README.md">动作 5 入口</a>、<a href="../1.%E5%91%BD%E4%BB%A4%E5%92%8C%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C.md">命令和文件操作</a>、<a href="../2.%E4%B8%BB%E8%B7%AF%E5%BE%84%E5%92%8C%E6%BA%90%E7%A0%81%E5%87%BD%E6%95%B0.md">主路径和源码函数</a>。</p>
+</details>
+</main></body></html>
