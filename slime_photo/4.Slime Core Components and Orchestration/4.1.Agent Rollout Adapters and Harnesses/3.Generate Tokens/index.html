@@ -1,7 +1,18 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>动作 3 Generate Tokens 纵向数据流</title><style>
 :root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+
+main{overflow-wrap:anywhere}pre{overflow-wrap:normal}
 </style></head><body><main><nav><a href="../README.md">← 返回原架构图</a></nav><h1 id="动作-3-generate-tokens-纵向数据流">动作 3 Generate Tokens 纵向数据流</h1>
+<h2 id="在任务生命周期中的位置">在任务生命周期中的位置</h2>
+<p>本章：消息与工具定义 → 输入 token → SGLang 生成记录。</p>
+<p><a href="../../../../static/images/slime-lifecycle/action-3.svg"><img
+src="../../../../static/images/slime-lifecycle/action-3.svg"
+alt="当前位置：动作 3：Generate Tokens" /></a></p>
+<p><a href="../README.md#任务生命周期与原图的用途">返回生命周期总览</a>
+· <a
+href="../../../../static/images/slime-lifecycle/action-3.svg">放大当前位置图</a></p>
+
 <p><img src="flow.svg" alt="Generate Tokens 的局部数据流"></p>
 <p><a href="../README.md">返回原架构图</a> · <a href="../2.Translate%20&amp;%20Forward/%E7%BA%B5%E5%90%91%E6%95%B0%E6%8D%AE%E6%B5%81/README.md">上一站 动作 2 纵向数据流</a> · <a href="../3.5.%E5%AE%8C%E6%88%90%E4%B8%80%E6%AC%A1%E6%A8%A1%E5%9E%8B%E8%AF%B7%E6%B1%82/README.md">下一站 3.5 完成一次模型请求</a> · <a href="index.html">打开图文预览</a></p>
 <p><strong>动作 2 交出了消息列表和工具定义；动作 3 把它们编码为模型输入，再向 SGLang 请求生成，最后把结果整理成一份 <code>TurnRecord</code>。</strong> 本篇对应原图 <strong>Slime Core → SGLang Backend / Generate Tokens</strong>，读到生成记录交回共享 <code>_run_turn()</code> 为止。</p>

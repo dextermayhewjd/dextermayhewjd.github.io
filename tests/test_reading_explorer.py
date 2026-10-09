@@ -57,7 +57,10 @@ def build_fixture(output):
     temporary=output/'fixture-content';dst=temporary/'reviews/reading-prototype';dst.parent.mkdir(parents=True,exist_ok=True)
     shutil.copytree(ROOT/'tests/fixtures/reading-prototype',dst)
     config=tomllib.loads((ROOT/'hugo.toml').read_text())
-    config['module']={'mounts':[{'source':'content','target':'content'},{'source':str(temporary),'target':'content'}]}
+    config.setdefault('module',{}).setdefault('mounts',[]).extend([
+        {'source':'content','target':'content'},
+        {'source':str(temporary),'target':'content'},
+    ])
     config_path=output/'fixture-config.json';config_path.write_text(json.dumps(config))
     return subprocess.run(['hugo','--config',str(config_path),'--destination',str(output/'public')],cwd=ROOT,capture_output=True,text=True)
 

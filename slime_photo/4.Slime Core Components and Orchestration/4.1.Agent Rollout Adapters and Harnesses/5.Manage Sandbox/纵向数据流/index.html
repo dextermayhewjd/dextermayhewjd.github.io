@@ -1,7 +1,34 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Manage Sandbox 纵向数据流</title><style>
 :root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+
+main{overflow-wrap:anywhere}pre{overflow-wrap:normal}
+
 </style></head><body><main><nav><a href="../README.md">← 返回动作 5</a></nav><h1 id="manage-sandbox-纵向数据流">Manage Sandbox 纵向数据流</h1>
+<h2 id="先看源码阅读路线">先看源码阅读路线</h2>
+<p>源码目录：<code>/home/hongshi/projects/slime/</code>。下面列出完整文件路径；点击链接可查看固定版本 <code>8c17b676</code> 的函数入口。</p>
+<pre class="text"><code>sandbox.py：认识接口和 E2BSandbox 实现
+  → generate.py：读 boot_agent_sandbox()，看谁创建和释放
+  → Harness 文件：看调用方怎样使用 sb
+  → 回到 sandbox.py：看具体操作怎样落实</code></pre>
+<ol type="1">
+<li><a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/sandbox.py#L28">slime/agent/sandbox.py:28</a>：先认识 <code>Sandbox</code> 接口和 <code>:160</code> 的 <code>E2BSandbox</code>，确认 <code>sb</code> 提供哪些操作。</li>
+<li><a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/generate.py#L96">examples/coding_agent_rl/generate.py:96</a>：读 <code>boot_agent_sandbox()</code>，看创建、安装 CLI、交出 <code>sb</code> 和退出时释放的过程。</li>
+<li>读 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81">slime/agent/harness/common.py:81</a>，再选 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/claude_code.py#L36">slime/agent/harness/claude_code.py:36</a> 或 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/codex.py#L48">slime/agent/harness/codex.py:48</a>：看用户准备、安装、写配置等调用怎样使用 <code>sb</code>。</li>
+<li>回到 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/sandbox.py#L281">slime/agent/sandbox.py:281</a>：读创建与释放、<code>exec()</code>、<code>write_file()</code>、<code>read_file()</code> 和 <code>ensure_agent_user()</code>；<code>exec_and_wait()</code> 的进程启动与等待再沿动作 6 深入。</li>
+</ol>
+
+<h2 id="在任务生命周期中的位置">在任务生命周期中的位置</h2>
+<p>本章：环境能力贯穿准备、运行、收尾；不是仅在启动前执行的一步。</p>
+<p><a
+href="../../../../../static/images/slime-lifecycle/action-5.svg"><img
+src="../../../../../static/images/slime-lifecycle/action-5.svg"
+alt="当前位置：动作 5：Manage Sandbox" /></a></p>
+<p><a
+href="../../README.md#任务生命周期与原图的用途">返回生命周期总览</a> ·
+<a
+href="../../../../../static/images/slime-lifecycle/action-5.svg">放大当前位置图</a></p>
+
 <p><img src="flow.svg" alt="动作 5：沿同一个 Harness 任务，看用户、配置、脚本与命令怎样交给 Sandbox"></p>
 <p><a href="../README.md">返回动作 5</a> · <a href="index.html">打开图文预览</a></p>
 <p>这张局部图只展开 <strong>Agent Harnesses → Sandbox Environment</strong> 的动作 5。顺着图向下看，下面所有参数、命令和文件内容都来自<a href="%E7%A4%BA%E4%BE%8B.json">同一个完整示例</a>。</p>

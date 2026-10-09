@@ -1,7 +1,20 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Translate &amp; Forward 纵向数据流</title><style>
 :root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
+
+main{overflow-wrap:anywhere}pre{overflow-wrap:normal}
 </style></head><body><main><nav><a href="../README.md">← 返回动作 2</a></nav><h1 id="translate--forward-纵向数据流">Translate &amp; Forward 纵向数据流</h1>
+<h2 id="在任务生命周期中的位置">在任务生命周期中的位置</h2>
+<p>本章：一次模型请求内的消息与工具转换；接收入口见动作 7。</p>
+<p><a
+href="../../../../../static/images/slime-lifecycle/action-2.svg"><img
+src="../../../../../static/images/slime-lifecycle/action-2.svg"
+alt="当前位置：动作 2：Translate &amp; Forward" /></a></p>
+<p><a
+href="../../README.md#任务生命周期与原图的用途">返回生命周期总览</a> ·
+<a
+href="../../../../../static/images/slime-lifecycle/action-2.svg">放大当前位置图</a></p>
+
 <p><img src="flow.svg" alt="动作 2 的纵向数据流：body 分成消息和工具两路，返回两份列表交给 Core"></p>
 <p>这张局部图只展开 <strong>HTTP Adapters → Slime Core</strong> 的动作 2：把 Anthropic 请求里的消息和工具定义，整理成共享流程能继续使用的两份数据。顺着图向下看，下面所有输入和输出都来自<a href="%E7%A4%BA%E4%BE%8B.json">同一个完整示例</a>。</p>
 <p>图上的两路表示数据分工。真实执行时，<code>_translate()</code> <strong>先完成消息转换，再转换工具定义</strong>，最后一起返回。</p>

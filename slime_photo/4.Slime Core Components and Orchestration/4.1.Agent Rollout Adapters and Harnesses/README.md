@@ -1,6 +1,31 @@
-![Agent Rollout Adapters and Harnesses 架构图](<Agent Rollout Adapters and Harnesses.svg>)
+# Agent Rollout Adapters and Harnesses 阅读入口
 
-# Agent Rollout Adapters and Harnesses 图中文字与源码对应
+## 任务生命周期与原图的用途
+
+先从[项目开头的任务生命周期总览](https://dextermayhewjd.github.io/projects/slime/#agent-lifecycle)建立任务顺序，再选择下面的动作。每个动作使用同一定位图，高亮本章负责的部分，随后展开具体数据流。
+
+[![一个 Agent 样本的任务生命周期](../../../static/images/slime-lifecycle/overview.svg)](../../../static/images/slime-lifecycle/overview.svg)
+
+外层 `generate()` 负责准备、调用 Harness、收集结果与清理；`Harness.run()` 准备并启动 CLI、等待结束；CLI 发出的模型请求进入 Adapter 的 `_run_turn()`。Sandbox 能力贯穿准备、运行和回收。生命周期总览依据固定源码 `8c17b676` 的 coding-agent 示例。
+
+**下面的 CodeWiki 原图用于认识组件和选择阅读主题。** 它的箭头编号不是执行顺序，部分方框与连线是概括：图中将启动画在 `BaseAdapter / TrajectoryManager → Harness`，实际调用者是外层 `generate()`。
+
+**本例没有独立的 External Platforms 实现。** 请求的直接客户端是沙箱中的 Claude / Codex CLI；Anthropic / OpenAI 是适配的协议。Adapter 的生成请求交给 SGLang，不是转发到 Anthropic / OpenAI 模型服务。
+
+| 原图关系 | 本例怎样阅读 |
+| --- | --- |
+| 4 Launch Agent | 追踪外层启动参数与 Harness 的配置、命令和委派 |
+| 5 Manage Sandbox | 展开准备、运行、回收中的环境接口 |
+| 6 Exec Commands | 展开 CLI 进程启动、输出与完成等待 |
+| 7 Make API Calls + 1 API Requests | 同一次 CLI 模型请求的发起端与 Adapter 接收端，在动作 7 接起来 |
+| 2 Translate & Forward、3 Generate Tokens | 一次 `_run_turn()` 内的输入转换与模型生成 |
+| 8 API Responses | 返回当前请求客户端的协议响应，在 3.5 中展开 |
+
+各条边不一定需要独立章节；以本例真实交接和已有讲解范围决定。
+
+![CodeWiki 组件关系概览](<Agent Rollout Adapters and Harnesses.svg>)
+
+## CodeWiki 组件导航图与源码对应
 
 图中包含 7 个方框和 8 条箭头。以下将方框主标题与括号内容合并展示，保留全部英文原文，并列出每条箭头的起点、终点和文字，以及各方框对应的源码文件。
 
@@ -58,6 +83,8 @@
 - [3.5 完成一次模型请求](<3.5.完成一次模型请求/README.md>)：接住生成记录，展开解码、解析、协议响应、轨迹记录和本轮请求收尾；这是补充阅读编号。
 - [动作 4 Launch Agent](<4.Launch Agent/README.md>)：从 Slime 侧进入 `run()`，展开 Harness 的用户准备、配置和启动信息调度；沙箱实现下钻动作 5，CLI 执行接动作 6。
 - [动作 5 Manage Sandbox](<5.Manage Sandbox/README.md>)：Agent Harnesses → Sandbox Environment，从命令与文件操作读到 E2B 实现、创建和收尾。
+- [动作 6 Exec Commands](<6.Exec Commands/README.md>)：从启动脚本、后台进程与退出标记，追踪 CLI 的执行和完成等待。
+- [动作 7 Make API Calls](<7.Make API Calls/README.md>)：从 CLI 配置到 Adapter HTTP 路由，接起原图动作 1 的请求接收；响应返回沿 3.5 展开。
 
 ## 按一次模型请求继续阅读
 

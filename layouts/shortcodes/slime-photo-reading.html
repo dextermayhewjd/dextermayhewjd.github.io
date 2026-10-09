@@ -1,0 +1,26 @@
+{{- $source := .Get "source" -}}
+{{- $directory := printf "slime-photo/%s" $source -}}
+{{- $document := resources.Get (path.Join $directory "README.md") -}}
+{{- $diagram := resources.Get (path.Join $directory "flow.svg") -}}
+{{- $example := resources.Get (path.Join $directory "示例.json") -}}
+{{- if not (and $document $diagram $example) -}}
+  {{- errorf "Slime reading resources missing for %s" $source -}}
+{{- else -}}
+  {{- $body := replaceRE `^# [^\n]+\n+` "" $document.Content -}}
+  {{- $body = replace $body "(../../../../../static/images/slime-lifecycle/" "(/images/slime-lifecycle/" -}}
+  {{- $body = replace $body "(../../README.md#任务生命周期与原图的用途)" "(/projects/slime/#agent-lifecycle)" -}}
+  {{- $body = replace $body "(flow.svg)" (printf "(<%s>)" $diagram.RelPermalink) -}}
+  {{- $body = replace $body "(示例.json)" (printf "(<%s>)" $example.RelPermalink) -}}
+  {{- $body = replace $body "(../README.md)" (printf "(%s)" .Page.Parent.RelPermalink) -}}
+  {{- with .Site.GetPage .Page.Params.nextPage -}}
+    {{- $body = replace $body "(<../../3.Generate Tokens/README.md>)" (printf "(%s)" .RelPermalink) -}}
+  {{- else -}}
+    {{- errorf "Slime next chapter missing: %s" .Page.Params.nextPage -}}
+  {{- end -}}
+  {{- range slice "1.消息和工具转换.md" "2.主路径和源码函数.md" -}}
+    {{- $url := printf "https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/%s/%s" (path.Dir $source) . -}}
+    {{- $url = replace (replace $url " " "%20") "&" "%26" -}}
+    {{- $body = replace $body (printf "(../%s)" .) (printf "(<%s>)" $url) -}}
+  {{- end -}}
+  {{- .Page.RenderString (dict "display" "block") $body -}}
+{{- end -}}

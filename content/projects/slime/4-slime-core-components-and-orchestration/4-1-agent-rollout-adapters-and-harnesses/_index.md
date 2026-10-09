@@ -8,7 +8,11 @@ ShowPostNavLinks: false
 hideMeta: true
 ---
 
-{{< figure src="diagram.svg" alt="Agent Rollout Adapters and Harnesses" class="slime-diagram" >}}
+先看[项目开头的任务生命周期总览](/projects/slime/#agent-lifecycle)，再从各动作页的定位图进入具体数据流。
+
+下面保留 CodeWiki 原图作为组件导航。原图的启动调用实际由外层 `generate()` 发起；本例的直接 HTTP 客户端是沙箱中的 CLI，没有独立 External Platforms 实现。原图动作 1 的接收入口与动作 7 一起说明，动作 8 的响应返回在 3.5 展开。
+
+{{< figure src="diagram.svg" alt="CodeWiki 组件关系概览，用于选择阅读主题" class="slime-diagram" >}}
 
 ## 阅读材料
 

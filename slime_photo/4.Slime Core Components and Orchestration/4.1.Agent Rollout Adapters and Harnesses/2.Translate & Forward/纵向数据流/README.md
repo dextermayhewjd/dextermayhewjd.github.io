@@ -1,5 +1,13 @@
 # Translate & Forward 纵向数据流
 
+## 在任务生命周期中的位置
+
+本章：一次模型请求内的消息与工具转换；接收入口见动作 7。
+
+[![当前位置：动作 2：Translate & Forward](../../../../../static/images/slime-lifecycle/action-2.svg)](../../../../../static/images/slime-lifecycle/action-2.svg)
+
+[返回生命周期总览](../../README.md#任务生命周期与原图的用途) · [放大当前位置图](../../../../../static/images/slime-lifecycle/action-2.svg)
+
 ![动作 2 的纵向数据流：body 分成消息和工具两路，返回两份列表交给 Core](flow.svg)
 
 这张局部图只展开 **HTTP Adapters → Slime Core** 的动作 2：把 Anthropic 请求里的消息和工具定义，整理成共享流程能继续使用的两份数据。顺着图向下看，下面所有输入和输出都来自[同一个完整示例](示例.json)。

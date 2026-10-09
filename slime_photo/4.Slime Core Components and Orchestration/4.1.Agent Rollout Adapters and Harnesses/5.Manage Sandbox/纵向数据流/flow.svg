@@ -7,6 +7,7 @@
       text {font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", sans-serif; fill: #172334; font-size: 22px;}
       .title {font-size: 32px; font-weight: 700;}
       .head {font-size: 25px; font-weight: 700;}
+      .source-location {font-size: 14px; font-weight: 400; fill: #596777;}
       .small {font-size: 20px;}
       .muted {fill: #526173;}
       .mono {font-family: "DejaVu Sans Mono", monospace; font-size: 20px;}
@@ -20,6 +21,7 @@
 
   <rect x="50" y="115" width="1100" height="170" class="box" fill="#f1f5f9"/>
   <text x="75" y="154" class="head">① 输入 · 已创建的 sb + 一份任务参数</text>
+  <text x="1125" y="154" text-anchor="end" class="source-location">slime/agent/harness/common.py:81–104</text>
   <text x="75" y="193" class="mono">workdir: /workspace/demo     session_id: cagent-demo-0-0</text>
   <text x="75" y="231" class="small">adapter_url：http://192.0.2.10:18001　等待预算：1800 秒</text>
   <text x="75" y="267" class="small muted">prompt：Read PROBLEM_STATEMENT.md and resolve the issue.</text>
@@ -27,6 +29,7 @@
 
   <rect x="50" y="333" width="1100" height="160" class="box" fill="#eff6ff"/>
   <text x="75" y="374" class="head">② ensure_agent_user(sb, workdir) → sb.exec()</text>
+  <text x="1125" y="374" text-anchor="end" class="source-location">slime/agent/sandbox.py:390–399</text>
   <text x="75" y="413">检查或创建 agent → 调整用户目录与仓库所有权 → 配置 Git</text>
   <text x="75" y="451" class="small">执行选项：root / check=True / timeout=60</text>
   <text x="75" y="480" class="small muted">成功时环境就位；辅助函数返回 None，继续使用同一个 sb</text>
@@ -34,6 +37,7 @@
 
   <rect x="50" y="541" width="1100" height="190" class="box" fill="#eff6ff"/>
   <text x="75" y="582" class="head">③ ctx → ClaudeCodeHarness.write_config() → sb.exec()</text>
+  <text x="1125" y="582" text-anchor="end" class="source-location">slime/agent/harness/claude_code.py:44–55</text>
   <text x="75" y="622">JSON：hasCompletedOnboarding / bypassPermissionsModeAccepted = true</text>
   <text x="75" y="660" class="mono">/home/agent/.claude.json</text>
   <text x="75" y="695" class="mono">/home/agent/.claude/settings.json</text>
@@ -42,6 +46,8 @@
 
   <rect x="50" y="779" width="1100" height="190" class="box" fill="#eff6ff"/>
   <text x="75" y="820" class="head">④ launch_and_wait() → run_agent()</text>
+  <text x="1125" y="811" text-anchor="end" class="source-location">slime/agent/harness/claude_code.py:57–71</text>
+  <text x="1125" y="829" text-anchor="end" class="source-location">slime/agent/harness/common.py:107–122</text>
   <text x="75" y="859" class="small">start_cmd：Claude CLI + 同一份 prompt + 固定启动标志</text>
   <text x="75" y="897" class="small">env：ANTHROPIC_BASE_URL / AUTH_TOKEN / MODEL 等启动环境</text>
   <text x="75" y="933" class="small">准备 /workspace/demo/.harness；CLI 输出写入 trajectory.jsonl</text>
@@ -50,6 +56,7 @@
 
   <rect x="50" y="1017" width="1100" height="235" class="box" fill="#f0fdf4"/>
   <text x="75" y="1058" class="head">⑤ exec_and_wait() → 文件与命令操作</text>
+  <text x="1125" y="1058" text-anchor="end" class="source-location">slime/agent/sandbox.py:82–138</text>
   <text x="75" y="1097" class="mono">write_file("/tmp/.run.sh", launcher_body, user="agent")</text>
   <text x="75" y="1135" class="small">脚本：cd 工作目录 → 设置 HOME → CLI 命令 → 写 /tmp/.run.done</text>
   <text x="75" y="1173" class="small">exec()：清理旧日志、标记与锁 → 带 mkdir 防重的 setsid 后台启动</text>
@@ -59,6 +66,8 @@
 
   <rect x="50" y="1300" width="1100" height="190" class="box" fill="#dcfce7"/>
   <text x="75" y="1341" class="head">⑥ 接收端 · E2BSandbox 的接口映射</text>
+  <text x="1125" y="1332" text-anchor="end" class="source-location">slime/agent/sandbox.py:309–340</text>
+  <text x="1125" y="1350" text-anchor="end" class="source-location">slime/agent/sandbox.py:342–378</text>
   <text x="75" y="1380" class="mono">exec(...)       → SDK commands.run(..., envs=env)</text>
   <text x="75" y="1418" class="mono">write_file(...) → SDK files.write(...)</text>
   <text x="75" y="1456" class="small">命令返回 (exit_code, stdout, stderr)；文件写入成功返回 None</text>
@@ -67,6 +76,7 @@
 
   <rect x="50" y="1538" width="1100" height="175" class="box" fill="#f0fdf4"/>
   <text x="75" y="1579" class="head">⑦ _await_done_marker() → sb.exec() 检查退出标记</text>
+  <text x="1125" y="1579" text-anchor="end" class="source-location">slime/agent/sandbox.py:65–79</text>
   <text x="75" y="1618" class="mono">test -f /tmp/.run.done &amp;&amp; cat /tmp/.run.done</text>
   <text x="75" y="1656">第一次模拟结果：未读到标记；第二次：标记文本 &quot;0\n&quot; → 整数 0</text>
   <text x="75" y="1694" class="small muted">轮询和时钟使用替身；本次没有等待真实 CLI</text>
@@ -74,6 +84,8 @@
 
   <rect x="50" y="1761" width="1100" height="190" class="box" fill="#fff7ed"/>
   <text x="75" y="1802" class="head">⑧ 返回 Harness · 同一条调用链中的结果</text>
+  <text x="1125" y="1793" text-anchor="end" class="source-location">slime/agent/sandbox.py:139–145</text>
+  <text x="1125" y="1811" text-anchor="end" class="source-location">slime/agent/harness/common.py:104–122</text>
   <text x="75" y="1841" class="mono">exec_and_wait() → (0, "") → run_agent() → 0</text>
   <text x="75" y="1879" class="mono">launch_and_wait() → 0 → BaseHarness.run() → 0</text>
   <text x="75" y="1917" class="small">动作 5 的成果：环境操作已提交，执行结果交回 Harness</text>

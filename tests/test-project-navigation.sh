@@ -345,7 +345,7 @@ for chapter in 01-structure 02-discovery 03-invocation 04-context 05-rendering 0
   done
 done
 
-post_page="$output_dir/posts/hello-world/index.html"
+post_page="$output_dir/about/index.html"
 if grep -q 'project-nav' "$post_page"; then
   echo "普通文章错误地显示了方向导航" >&2
   exit 1

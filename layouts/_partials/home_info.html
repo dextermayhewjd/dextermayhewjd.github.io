@@ -1,0 +1,29 @@
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+  <header class="entry-header">
+    <h1>{{ .Title | markdownify }}</h1>
+  </header>
+  <div class="entry-content md-content">
+    {{ $opts := dict "display" "block" }}
+    {{ .Content | $.Page.RenderString $opts }}
+  </div>
+  <footer class="entry-footer">
+    {{ partial "social_icons.html" (dict "align" .AlignSocialIconsTo) }}
+  </footer>
+</article>
+{{- end }}
+
+{{- range slice "/projects/learn-claude-code" "/projects/slime" "/courses/cs285" }}
+{{- with site.GetPage . }}
+<article class="post-entry">
+  <header class="entry-header">
+    <h2>{{ .Title }}</h2>
+  </header>
+  <div class="entry-content">
+    <p>{{ .Description }}</p>
+  </div>
+  <footer class="entry-footer">进入学习 →</footer>
+  <a class="entry-link" aria-label="进入 {{ .Title }}" href="{{ .RelPermalink }}"></a>
+</article>
+{{- end }}
+{{- end }}

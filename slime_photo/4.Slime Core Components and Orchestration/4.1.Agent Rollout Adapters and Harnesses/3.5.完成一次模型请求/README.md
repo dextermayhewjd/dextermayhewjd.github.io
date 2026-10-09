@@ -1,5 +1,13 @@
 # 3.5 完成一次模型请求 纵向数据流
 
+## 在任务生命周期中的位置
+
+本章：解码、解析、协议响应与轨迹记录；包含原图动作 8 的返回路径。
+
+[![当前位置：3.5：完成一次模型请求](../../../../static/images/slime-lifecycle/action-3-5.svg)](../../../../static/images/slime-lifecycle/action-3-5.svg)
+
+[返回生命周期总览](../README.md#任务生命周期与原图的用途) · [放大当前位置图](../../../../static/images/slime-lifecycle/action-3-5.svg)
+
 ![生成之后到本轮请求完成的纵向数据流](flow.svg)
 
 [返回原架构图](../README.md) · [上一站 动作 3](<../3.Generate Tokens/README.md>) · [下一站 Launch Agent](<../4.Launch Agent/README.md>) · [打开图文预览](index.html)

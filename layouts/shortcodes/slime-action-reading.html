@@ -1,0 +1,30 @@
+{{- $source := .Get "source" -}}
+{{- $document := resources.Get (printf "slime-photo/%s/README.md" $source) -}}
+{{- if not $document -}}
+  {{- errorf "Slime action reading resource missing: %s" $source -}}
+{{- else -}}
+  {{- $body := replaceRE `^# [^\n]+\n+` "" $document.Content -}}
+  {{- $body = replace $body "(../../../../static/images/slime-lifecycle/" "(/images/slime-lifecycle/" -}}
+  {{- $body = replace $body "(../README.md#任务生命周期与原图的用途)" "(/projects/slime/#agent-lifecycle)" -}}
+  {{- $pages := dict
+    "2.Translate & Forward" "2-translate-forward"
+    "3.Generate Tokens" "3-generate-tokens"
+    "3.5.完成一次模型请求" "3-5"
+    "4.Launch Agent" "4-launch-agent"
+    "5.Manage Sandbox" "5-manage-sandbox"
+    "6.Exec Commands" "6-exec-commands"
+    "7.Make API Calls" "7-make-api-calls"
+  -}}
+  {{- range $directory, $slug := $pages -}}
+    {{- with $.Site.GetPage (printf "%s%s" $.Page.Parent.RelPermalink $slug) -}}
+      {{- $body = replace $body (printf "(<../%s/README.md>)" $directory) (printf "(%s)" .RelPermalink) -}}
+    {{- else -}}
+      {{- errorf "Slime action page missing: %s" $slug -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $supplement := "../2.Translate & Forward/3.请求入口和特殊分支.md" -}}
+  {{- $url := printf "https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/%s/2.Translate %%26 Forward/3.请求入口和特殊分支.md" (path.Dir $source) -}}
+  {{- $url = replace $url " " "%20" -}}
+  {{- $body = replace $body (printf "(<%s>)" $supplement) (printf "(<%s>)" $url) -}}
+  {{- $.Page.RenderString (dict "display" "block") $body -}}
+{{- end -}}

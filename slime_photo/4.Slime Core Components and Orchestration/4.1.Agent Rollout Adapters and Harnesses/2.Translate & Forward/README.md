@@ -1,6 +1,14 @@
-![Agent Rollout Adapters and Harnesses 架构图](<../Agent Rollout Adapters and Harnesses.svg>)
-
 # 动作 2 Translate & Forward 渐进阅读
+
+## 在任务生命周期中的位置
+
+本章：一次模型请求内的消息与工具转换；接收入口见动作 7。
+
+[![当前位置：动作 2：Translate & Forward](../../../../static/images/slime-lifecycle/action-2.svg)](../../../../static/images/slime-lifecycle/action-2.svg)
+
+[返回生命周期总览](../README.md#任务生命周期与原图的用途) · [放大当前位置图](../../../../static/images/slime-lifecycle/action-2.svg)
+
+![Agent Rollout Adapters and Harnesses 架构图](<../Agent Rollout Adapters and Harnesses.svg>)
 
 [返回架构图与源码文件对应](../README.md)
 

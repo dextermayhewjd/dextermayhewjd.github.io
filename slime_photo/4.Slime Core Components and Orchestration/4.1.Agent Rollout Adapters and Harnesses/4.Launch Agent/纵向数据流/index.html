@@ -1,61 +1,360 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Launch Agent 调度与准备数据流</title><style>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Launch Agent：参数来源到 CLI 启动的纵向数据流</title><style>
 :root{color-scheme:light;--ink:#172b42;--muted:#52657b;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.8 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1080px;margin:auto;padding:32px 40px 80px;background:var(--paper)}h1{font-size:30px;line-height:1.4}h2{font-size:23px;margin-top:36px}h3{font-size:19px;margin-top:28px}a{color:#165dac}img{display:block;max-width:100%;height:auto;margin:24px auto;border-radius:12px}pre{padding:18px;overflow:auto;border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.65;background:#f8fafc}code{font-family:"Cascadia Code","Noto Sans Mono CJK SC",monospace;font-size:.9em}p code,li code,td code{background:#eef3f8;padding:2px 5px;border-radius:4px}table{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}th,td{padding:12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fa}details{margin:16px 0;padding:14px 18px;border:1px solid var(--line);border-radius:10px}summary{cursor:pointer;color:#164f87;font-weight:600}blockquote{margin:20px 0;padding:8px 18px;background:#f0f6ff;border-left:4px solid #6594cc}nav{margin-bottom:24px;font-size:14px;color:var(--muted)}@media(max-width:700px){main{padding:20px 16px 48px}h1{font-size:25px}table{display:block;overflow:auto}pre{font-size:13px}}
 
 main{overflow-wrap:anywhere}pre{overflow-wrap:normal}
-</style></head><body><main><nav><a href="../README.md">← 返回动作 4</a></nav><h1>Launch Agent 调度与准备数据流</h1>
-<p><img src="flow.svg" alt="动作 4：run 调度配置与启动准备，在 CLI 执行处标出下一动作" /></p>
-<p><a href="../README.md">返回动作 4</a> · <a href="../../README.md">返回原架构图</a> · <a href="index.html">图文预览</a> · <a href="%E7%A4%BA%E4%BE%8B.json">完整示例</a></p>
-<p>动作 4 从 Slime 侧调用 <code>run()</code> 开始，读清 Harness 的调度、配置与启动信息准备。Sandbox 的接收与落实在动作 5 下钻，真正执行 CLI 时接动作 6。本图给出分层骨架，不展开 CLI 运行或模型请求。</p>
-<h2>1 <code>generate()</code> 交出任务上下文</h2>
-<p>输入是已准备的 <code>sb</code>、工作目录、会话 ID、Adapter 地址、指令和时间预算。示例使用 <code>/workspace/demo</code>、<code>cagent-demo-0-0</code>、<code>http://192.0.2.10:18001</code> 和 <code>1800</code> 秒，均为教学值。</p>
-<p>调用位置：<code>examples/coding_agent_rl/generate.py:205</code>，<code>await HARNESS_CLS().run(...)</code>。</p>
-<h2>2 <code>run()</code> 调度共同步骤</h2>
-<pre><code class="language-text">ensure_agent_user(sb, workdir)
-    → HarnessContext(workdir, session_id, adapter_url)
-    → self.write_config(sb, ctx)
-    → self.launch_and_wait(sb, ctx, prompt, time_budget_sec)
-</code></pre>
-<p>前三个上下文字段原样保留，另有默认 <code>model_label=&quot;slime-actor&quot;</code>。<code>sb</code>、指令与预算继续独立传递。源码为 <code>slime/agent/harness/common.py:81</code>。</p>
-<h2>3 <code>write_config()</code>：配置内容 → 沙箱操作</h2>
+
+</style></head><body><main><nav><a href="../README.md">← 返回动作 4</a></nav>
+<h1 id="launch-agent参数来源到-cli-启动的纵向数据流">Launch
+Agent：参数来源到 CLI 启动的纵向数据流</h1>
+<h2 id="先看源码阅读路线">先看源码阅读路线</h2>
+<p>源码目录：<code>/home/hongshi/projects/slime/</code>。下面列出完整文件路径；点击链接可查看固定版本 <code>8c17b676</code> 的函数入口。</p>
+<pre class="text"><code>generate.py：找到 HARNESS_CLS().run(...)
+  → common.py：读 BaseHarness.run()
+  → claude_code.py 或 codex.py：读配置与启动命令
+  → common.py：读 run_agent() 的执行委派</code></pre>
+<ol type="1">
+<li><a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/generate.py#L205">examples/coding_agent_rl/generate.py:205</a>：找到 <code>HARNESS_CLS().run(...)</code>，向上看启动参数怎样准备。</li>
+<li><a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81">slime/agent/harness/common.py:81</a>：读 <code>BaseHarness.run()</code>，看用户准备、上下文、写配置和启动等待的顺序。</li>
+<li>选择 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/claude_code.py#L44">slime/agent/harness/claude_code.py:44</a> 或 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/codex.py#L56">slime/agent/harness/codex.py:56</a>：先读 <code>write_config()</code>，接着读 <code>launch_and_wait()</code>，看配置、命令和环境变量怎样形成。</li>
+<li>回到 <a href="https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L107">slime/agent/harness/common.py:107</a>：读 <code>run_agent()</code>，看它怎样把执行要求交给 <code>exec_and_wait()</code>。</li>
+</ol>
+
+<h2 id="在任务生命周期中的位置">在任务生命周期中的位置</h2>
+<p>本章：启动参数来源 → CLI 配置、命令与环境 → 委派运行。</p>
+<p><a
+href="../../../../../static/images/slime-lifecycle/action-4.svg"><img
+src="../../../../../static/images/slime-lifecycle/action-4.svg"
+alt="当前位置：动作 4：Launch Agent" /></a></p>
+<p><a
+href="../../README.md#任务生命周期与原图的用途">返回生命周期总览</a> ·
+<a
+href="../../../../../static/images/slime-lifecycle/action-4.svg">放大当前位置图</a></p>
+<p><strong>沿一个样本追踪：任务、模型入口和会话怎样准备，怎样交给
+Harness，又怎样成为 CLI 的配置、指令与请求身份。</strong>
+<code>HARNESS_CLS().run(...)</code> 是中间的交接点。前面的动作 2、3、3.5
+位于 CLI 启动后发起的一次模型请求中；本篇回到启动这次任务的外层。</p>
+<p><a href="../README.md">返回动作 4</a> · <a
+href="../../README.md">返回原架构图</a> · <a
+href="index.html">图文预览</a> · <a href="示例.json">完整示例</a> · <a
+href="flow.svg">放大流程图</a></p>
+<p><a href="flow.svg"><img src="flow.svg"
+alt="动作 4：外层准备、Harness 参数转换与 Sandbox 执行交接" /></a></p>
+<p>下面的局部图聚焦启动参数、配置与命令的形成，以及向执行接口的委派。点击流程图可以放大阅读。</p>
+<p>本篇按源码正常路径展开。地址、目录和会话 ID
+使用现有示例的教学值：<code>/workspace/demo</code>、<code>cagent-demo-0-0</code>、<code>http://192.0.2.10:18001</code>、<code>1800</code>
+秒。它们不是某次真实部署的记录。</p>
+<h2 id="1-外层入口选择-agent建立模型入口读取任务">1 外层入口：选择
+Agent，建立模型入口，读取任务</h2>
+<p>外层入口是 <code>examples/coding_agent_rl/generate.py:182</code> 的
+<code>generate(args, base_sample, sampling_params, evaluation=False)</code>。本篇从这个入口开始追踪输入；它上游的数据集加载与
+rollout 调度不在这里展开。</p>
 <table>
 <thead>
-<tr>
-<th>Harness</th>
-<th>内容</th>
-<th>交给 Sandbox</th>
-<th>预期成果</th>
+<tr class="header">
+<th>输入</th>
+<th>在这次启动中的用途</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>Claude Code</td>
-<td>onboarding、运行权限设置 JSON</td>
-<td><code>sb.exec()</code> 写用户目录中的设置文件</td>
-<td>配置可供 Agent 读取</td>
+<tr class="odd">
+<td><code>args</code></td>
+<td>提供 tokenizer 检查点、SGLang Router 地址和上下文设置等</td>
 </tr>
-<tr>
-<td>Codex</td>
-<td>模型、provider 地址、chat 协议 TOML</td>
-<td>编码后经 <code>sb.exec()</code> 写配置文件</td>
-<td>指定模型入口配置就位</td>
+<tr class="even">
+<td><code>base_sample</code></td>
+<td>提供任务元数据、题目与样本身份</td>
+</tr>
+<tr class="odd">
+<td><code>sampling_params</code></td>
+<td>作为这次会话的默认生成设置，保存到 Adapter</td>
+</tr>
+<tr class="even">
+<td><code>evaluation</code></td>
+<td>决定采用训练还是评估的数据协议</td>
+</tr>
+<tr class="odd">
+<td>环境变量</td>
+<td>提供 Agent 选择、Adapter 对外地址、运行预算、CLI
+安装包与额外启动设置等</td>
 </tr>
 </tbody>
 </table>
-<p>函数返回 <code>None</code>，成果是环境变化。记录器只捕获实际提交的命令，没有执行环境变化。动作 5 继续解释 <code>E2BSandbox.exec()</code> 怎样接收这些命令和用户参数。</p>
-<h2>4 <code>launch_and_wait()</code>：上下文与指令 → <code>cmd + env</code></h2>
-<p>Claude 分支构造 <code>/usr/local/bin/claude -p ...</code>，并把 <code>adapter_url</code>、<code>session_id</code>、模型标签映射到进程环境变量。Codex 分支构造 <code>codex exec ...</code>，使用相应的模型入口和会话环境变量。</p>
-<p>两者将工作目录、命令、环境和预算交给同一个 <code>run_agent()</code>。完整捕获值见示例中的 <code>exec_and_wait_input</code>。本例没有额外环境覆盖。</p>
-<h2>5 <code>run_agent()</code>：运行要求 → Sandbox 准备接口</h2>
-<p>先请求创建 <code>.harness</code> 日志目录，再交给 <code>exec_and_wait()</code>：</p>
-<pre><code class="language-text">cmd + user + env + workdir + out_file + time_budget_sec
-</code></pre>
-<p>动作 5 从这里继续：写启动脚本、清理旧状态、将准备好的启动请求交给执行后端。到真正启动 CLI 的 <code>setsid bash</code> / SDK <code>commands.run()</code> 接缝，进入动作 6。</p>
-<p><strong>准备命令本身也会使用 <code>sb.exec()</code></strong>；它们的目的仍是管理环境。动作 6 专指这条图上通往 Agent CLI 的执行关系。</p>
-<h2>6 返回契约</h2>
-<p><code>run()</code> 最终返回 <code>int</code>，调用者保存为 <code>agent_exit_code</code>。这个返回依赖下游执行与等待完成；本例的 <code>simulated_exit_code</code> 是记录器提供的模拟状态，不代表 Agent 已运行。</p>
-<h2>源码与校验</h2>
-<p>固定源码：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。</p>
-<p>已执行真实的公共 <code>run()</code>、两种 Harness 的配置与启动参数计算，以及 <code>run_agent()</code>。沙箱操作全部替换为记录器，<code>exec_and_wait()</code> 替换为参数捕获与模拟返回；单例元类以普通 ABC 元类替代。示例展示真实方法算出的配置请求、命令与环境数据。</p>
-<p>Sandbox 后端、准备操作的实际副作用、CLI 启动和等待仅静态定位，未执行。环境接收端详见<a href="../../5.Manage%20Sandbox/README.md">动作 5</a>。</p>
+<p>模块加载时，<code>SWE_AGENT</code>
+选择一对组件（<code>generate.py:45–52</code>）：</p>
+<pre class="text"><code>claude_code → ClaudeCodeHarness + AnthropicAdapter
+codex       → CodexHarness      + OpenAIAdapter</code></pre>
+<p>进入 <code>generate()</code>
+后，先执行以下源码（<code>generate.py:184–187</code>）：</p>
+<pre class="python"><code>state = _AdapterService(args)
+protocol = CONFIG.eval_protocol if evaluation else CONFIG.train_protocol
+md = swe.get_metadata(base_sample, protocol)
+instance_id = md[&quot;instance_id&quot;]</code></pre>
+<p>这里形成两路数据：</p>
+<table>
+<thead>
+<tr class="header">
+<th>数据路</th>
+<th>怎样形成</th>
+<th>后续交给谁</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>模型入口</td>
+<td><code>_AdapterService</code> 创建配套 Adapter 并启动 HTTP 服务；以
+<code>ADAPTER_PUBLIC_HOST</code> 和实际监听端口组合
+<code>state.adapter_url</code></td>
+<td>Harness 将地址写入 CLI 配置或进程环境</td>
+</tr>
+<tr class="even">
+<td>任务信息</td>
+<td><code>swe.get_metadata()</code> 按协议提取
+<code>image</code>、<code>workdir</code>、<code>problem_statement</code>、<code>instance_id</code>
+等</td>
+<td>创建沙箱、准备工作区、产生会话 ID</td>
+</tr>
+</tbody>
+</table>
+<p>Adapter 的对外地址用于沙箱中的 CLI
+回连；<code>ADAPTER_BIND_HOST</code> 是服务监听地址。Adapter 请求 SGLang
+的地址另由 <code>args.sglang_router_ip</code> 与
+<code>args.sglang_router_port</code> 组合。CLI 连接 Adapter，Adapter
+再连接 SGLang。</p>
+<p>源码位置：<code>generate.py:137–171</code>；任务解析在
+<code>examples/coding_agent_rl/swe.py:77–137</code>。Adapter
+服务由共享对象管理，不需要为每次模型请求重新启动。外层还会检查任务是否有镜像和目录、是否可评估，检查通过后才继续启动。</p>
+<h2 id="2-会话把任务身份与采样设置先存入-adapter">2
+会话：把任务身份与采样设置先存入 Adapter</h2>
+<p>模型入口建立后，外层生成会话 ID，并在 Adapter
+注册（<code>generate.py:194–199</code>）：</p>
+<pre class="python"><code>session_id = base_sample.session_id = _session_id(base_sample, instance_id)
+state.adapter.open_session(
+    session_id,
+    sampling_defaults=sampling_params,
+    max_context_tokens=state.max_context_len,
+)</code></pre>
+<p><code>_session_id()</code>（<code>generate.py:308–313</code>）优先复用样本已有
+ID；否则用任务
+ID、样本索引和分组索引构造，索引不全时使用随机后缀。教学值
+<code>cagent-demo-0-0</code> 对应任务 <code>demo</code> 与两个索引
+<code>0</code>。</p>
+<p><code>open_session()</code> 将默认采样设置与上下文限制保存到
+<code>adapter.store[session_id]</code>。<strong>采样设置留在
+Adapter；同一个 <code>session_id</code> 将继续交给 Harness，再进入 CLI
+的请求凭据。</strong> 后续 <code>_run_turn()</code> 识别请求的会话
+ID，从会话存储取出相应状态供生成步骤使用。</p>
+<pre class="text"><code>sampling_params → Adapter 会话中的 sampling_defaults
+session_id      → Harness → CLI 请求凭据 → Adapter 找到同一会话</code></pre>
+<p>源码位置：<code>slime/agent/adapters/common.py:210–223</code>、<code>:327–336</code>。具体采样参数合并与生成请求沿动作
+3 展开。</p>
+<h2 id="3-执行环境与题目获得-sb安装-cli准备问题文件">3
+执行环境与题目：获得 sb，安装 CLI，准备问题文件</h2>
+<p>外层接着执行（<code>generate.py:203–204</code>）：</p>
+<pre class="python"><code>async with boot_agent_sandbox(md[&quot;image&quot;], instance_id) as sb:
+    await swe.prepare_workspace(sb, md[&quot;workdir&quot;], md)</code></pre>
+<p><code>boot_agent_sandbox()</code> 以任务镜像创建 E2B 沙箱，并在返回
+<code>sb</code> 前调用 <code>HARNESS_CLS().install_cli(cand)</code>
+安装所选 CLI。安装时使用的 Node 与 CLI 安装包路径由相应
+<code>SLIME_AGENT_*</code>
+环境变量提供。沙箱创建、重试与回收的实现沿动作 5 展开。</p>
+<p><code>prepare_workspace()</code>
+确认用户与权限、运行需要的任务准备命令，随后写入（<code>swe.py:194–198</code>）：</p>
+<pre class="python"><code>await sb.write_file(
+    f&quot;{workdir}/PROBLEM_STATEMENT.md&quot;,
+    md.get(&quot;problem_statement&quot;) or &quot;&quot;,
+    user=&quot;agent&quot;,
+)</code></pre>
+<p>因此 CLI 得到题目的路径分成两条：</p>
+<table>
+<thead>
+<tr class="header">
+<th>内容</th>
+<th>来源</th>
+<th>交付方式</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>本样本的具体题目</td>
+<td><code>md["problem_statement"]</code>，按协议从元数据或样本 prompt
+中提取</td>
+<td>写入工作目录的 <code>PROBLEM_STATEMENT.md</code></td>
+</tr>
+<tr class="even">
+<td>启动指令</td>
+<td><code>swe.SWE_PROMPT</code>，可由 <code>SWE_CC_PROMPT</code>
+覆盖</td>
+<td>作为 <code>run(prompt=...)</code> 的参数，随后成为 CLI 命令参数</td>
+</tr>
+</tbody>
+</table>
+<p>默认启动指令要求读取问题文件、修改源码并验证。<strong>问题正文通过文件交付，启动指令告诉
+CLI 读取这个文件并工作。</strong> <code>run()</code> 开始前，沙箱、CLI
+安装和问题文件都已经准备完毕。</p>
+<h2 id="4-启动交接六项输入怎样进入-run">4 启动交接：六项输入怎样进入
+run</h2>
+<p>调用点为 <code>generate.py:205–212</code>，原样摘录：</p>
+<pre class="python"><code>agent_exit_code = await HARNESS_CLS().run(
+    sb,
+    workdir=md[&quot;workdir&quot;],
+    session_id=session_id,
+    adapter_url=state.adapter_url,
+    time_budget_sec=CONFIG.agent_time_budget_sec,
+    prompt=swe.SWE_PROMPT,
+)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th>输入</th>
+<th>前面已经追踪的来源</th>
+<th>Harness 中的去向</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>sb</code></td>
+<td>第 3 节获得的执行环境对象</td>
+<td>用户准备、配置写入与执行接口</td>
+</tr>
+<tr class="even">
+<td><code>workdir</code></td>
+<td>第 1 节解析的任务元数据</td>
+<td>上下文与 CLI 运行目录</td>
+</tr>
+<tr class="odd">
+<td><code>session_id</code></td>
+<td>第 2 节产生并注册的会话</td>
+<td>上下文与请求身份</td>
+</tr>
+<tr class="even">
+<td><code>adapter_url</code></td>
+<td>第 1 节建立的模型入口</td>
+<td>上下文与 CLI 的请求地址</td>
+</tr>
+<tr class="odd">
+<td><code>time_budget_sec</code></td>
+<td><code>SWE_AGENT_TIME_BUDGET_SEC</code>，默认
+<code>1800</code>（<code>generate.py:71</code>）</td>
+<td>CLI 运行等待预算</td>
+</tr>
+<tr class="even">
+<td><code>prompt</code></td>
+<td>第 3 节的启动指令</td>
+<td>CLI 命令参数</td>
+</tr>
+</tbody>
+</table>
+<p>公共 <code>BaseHarness.run()</code>
+的主体为（<code>slime/agent/harness/common.py:97–104</code>）：</p>
+<pre class="python"><code>await _sandbox.ensure_agent_user(sb, workdir)
+ctx = HarnessContext(
+    workdir=workdir,
+    session_id=session_id,
+    adapter_url=adapter_url,
+)
+await self.write_config(sb, ctx)
+return await self.launch_and_wait(sb, ctx, prompt, time_budget_sec)</code></pre>
+<p>用户准备在工作区准备时已经做过；这里再次确认，便于 Harness
+独立使用。上下文保留目录、会话和入口，并带有默认
+<code>model_label="slime-actor"</code>；<code>sb</code>、指令与预算继续独立传递。这个模型标签用于
+CLI 配置，实际生成模型由上游 SGLang 加载的模型决定。</p>
+<h2 id="5-harness-转换启动上下文怎样变成配置cmd-与-env">5 Harness
+转换：启动上下文怎样变成配置、cmd 与 env</h2>
+<p><code>run()</code>
+接下来的两步由所选子类实现：<code>write_config()</code>
+准备配置，<code>launch_and_wait()</code>
+形成命令与环境，再委派运行。</p>
+<table>
+<thead>
+<tr class="header">
+<th>产物</th>
+<th>Claude Code 分支</th>
+<th>Codex 分支</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>配置文件</td>
+<td><code>/home/agent/.claude.json</code> 与
+<code>.claude/settings.json</code>，设置 onboarding 与运行权限确认</td>
+<td><code>/home/agent/.codex/config.toml</code>，指定模型标签、slime
+provider 地址、凭据变量与 chat 协议</td>
+</tr>
+<tr class="even">
+<td>CLI 命令</td>
+<td><code>/usr/local/bin/claude -p {引用后的 prompt}</code> 加固定
+flags</td>
+<td><code>codex exec --skip-git-repo-check {引用后的 prompt}</code></td>
+</tr>
+<tr class="odd">
+<td>模型入口</td>
+<td><code>ANTHROPIC_BASE_URL=ctx.adapter_url</code></td>
+<td>TOML 中的 <code>base_url</code>，以及
+<code>OPENAI_BASE_URL=ctx.adapter_url + "/v1"</code></td>
+</tr>
+<tr class="even">
+<td>请求身份</td>
+<td><code>ANTHROPIC_AUTH_TOKEN=ctx.session_id</code></td>
+<td><code>OPENAI_API_KEY=ctx.session_id</code></td>
+</tr>
+</tbody>
+</table>
+<p>以 Claude 分支的教学值为例，关键映射结果为：</p>
+<pre class="text"><code>运行目录：/workspace/demo
+启动指令：读取该目录的 PROBLEM_STATEMENT.md 并解决问题
+ANTHROPIC_BASE_URL=http://192.0.2.10:18001
+ANTHROPIC_AUTH_TOKEN=cagent-demo-0-0
+ANTHROPIC_MODEL=slime-actor</code></pre>
+<p>至此，两条模型连接都落实了：<strong>地址决定 CLI 请求哪个
+Adapter；请求凭据携带会话标识，让 Adapter 关联第 2
+节保存的状态。</strong> 这里的会话标识用于此训练链路的请求关联。</p>
+<p>源码位置：<code>slime/agent/harness/claude_code.py:44–71</code>、<code>slime/agent/harness/codex.py:56–86</code>。两种分支还支持相应
+<code>*_EXTRA_ARGS</code> 追加命令参数、<code>*_EXTRA_ENVS</code>
+最后覆盖环境；现有示例使用空覆盖，完整固定 flags 和捕获值见<a
+href="示例.json">示例.json</a> 的 <code>branches</code>。</p>
+<h2 id="6-向-sandbox-委派从启动要求到进程执行">6 向 Sandbox
+委派：从启动要求到进程执行</h2>
+<p>两种 Harness 都把工作目录、<code>cmd</code>、<code>env</code>
+和预算交给 <code>run_agent()</code>。它先请求创建日志目录，再调用
+<code>exec_and_wait()</code>（<code>slime/agent/harness/common.py:107–122</code>）。Claude
+教学分支的主要交接值是：</p>
+<pre class="text"><code>cmd             = /usr/local/bin/claude -p ...
+user            = agent
+env             = 第 5 节形成的环境变量
+workdir         = /workspace/demo
+out_file        = /workspace/demo/.harness/trajectory.jsonl
+time_budget_sec = 1800
+tag             = run
+want_output     = False</code></pre>
+<p>这是完整示例中的 <code>exec_and_wait_input</code>。日志文件用于接收
+CLI 进程输出；模型 token 与训练轨迹由 Adapter 的会话流程另行保存。</p>
+<p><strong>本章在运行要求交出时停下。</strong> <a
+href="../../5.Manage Sandbox/README.md">动作 5 Manage
+Sandbox</a>从前面的用户、配置和日志目录等沙箱调用处深入环境接口；<a
+href="../../6.Exec Commands/README.md">动作 6 Exec
+Commands</a>继续解释启动脚本、后台进程、输出与完成等待。CLI
+运行后的模型请求沿<a href="../../7.Make API Calls/README.md">动作 7 Make
+API Calls</a>进入 Adapter。</p>
+<h2 id="7-返回契约与任务总览">7 返回契约与任务总览</h2>
+<p><code>run()</code> 使用 <code>await</code>
+等待下游运行结束，最终返回整数运行状态，外层以
+<code>agent_exit_code</code> 接收。这个等待覆盖整次 CLI 运行；其间 CLI
+可以请求模型，但不是 Harness 直接调用 <code>_run_turn()</code>。</p>
+<p>收集 diff、评分、导出结果与清理资源由外层 <code>generate()</code>
+组织，位置见<a
+href="../../README.md#任务生命周期与原图的用途">任务生命周期总览</a>。本章保留返回契约，具体完成等待机制在动作
+6 深入。</p>
+<h2 id="源码与示例边界">源码与示例边界</h2>
+<p>固定源码：<code>8c17b676cb57af1d17ee4402e91e9209af84b60b</code>。路径均相对于
+Slime 仓库根目录。</p>
+<p>上游参数准备按固定源码静态追踪。现有<a
+href="示例.json">示例.json</a>从六项启动输入开始：先前已执行源代码摘录中的公共
+<code>run()</code>、两种 Harness 的配置与启动参数计算及
+<code>run_agent()</code>，沙箱操作使用记录器，<code>exec_and_wait()</code>使用参数捕获与模拟返回，单例元类以普通
+ABC 元类替代。</p>
+<p>示例中的 <code>simulated_exit_code</code> 是记录器返回值；HTTP
+请求头也是教学示意。它没有运行外层
+<code>generate()</code>、真实沙箱、CLI、HTTP
+请求或模型。本次文档更新保留捕获数据，聚焦其输入来源、参数转换与委派边界。</p>
 </main></body></html>

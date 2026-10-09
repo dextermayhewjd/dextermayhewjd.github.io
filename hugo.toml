@@ -83,3 +83,10 @@ identifier = "archives"
 
 [outputs]
   home = ["HTML", "RSS", "JSON", "NotesJSON"]
+
+[[module.mounts]]
+  source = "assets"
+  target = "assets"
+[[module.mounts]]
+  source = "slime_photo"
+  target = "assets/slime-photo"

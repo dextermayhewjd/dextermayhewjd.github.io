@@ -1,5 +1,13 @@
 # 动作 3 Generate Tokens 纵向数据流
 
+## 在任务生命周期中的位置
+
+本章：消息与工具定义 → 输入 token → SGLang 生成记录。
+
+[![当前位置：动作 3：Generate Tokens](../../../../static/images/slime-lifecycle/action-3.svg)](../../../../static/images/slime-lifecycle/action-3.svg)
+
+[返回生命周期总览](../README.md#任务生命周期与原图的用途) · [放大当前位置图](../../../../static/images/slime-lifecycle/action-3.svg)
+
 ![Generate Tokens 的局部数据流](flow.svg)
 
 [返回原架构图](../README.md) · [上一站 动作 2 纵向数据流](<../2.Translate & Forward/纵向数据流/README.md>) · [下一站 3.5 完成一次模型请求](<../3.5.完成一次模型请求/README.md>) · [打开图文预览](index.html)

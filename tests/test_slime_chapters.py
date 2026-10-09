@@ -5,6 +5,7 @@ import json
 import subprocess
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -30,7 +31,7 @@ class Page(HTMLParser):
             self.links.append(self.current_link)
         if tag == 'img':
             self.images.append(attrs)
-        if tag == 'h1':
+        if tag in ('h1', 'h2'):
             self.current_heading = ''
 
     def handle_data(self, text):
@@ -42,7 +43,7 @@ class Page(HTMLParser):
     def handle_endtag(self, tag):
         if tag == 'a':
             self.current_link = None
-        if tag == 'h1' and self.current_heading is not None:
+        if tag in ('h1', 'h2') and self.current_heading is not None:
             self.headings.append(self.current_heading.strip())
             self.current_heading = None
 
@@ -115,11 +116,21 @@ class SlimeChapters(unittest.TestCase):
             '3.5. 完成一次模型请求',
             '4. Launch Agent',
             '5. Manage Sandbox',
+            '6. Exec Commands',
+            '7. Make API Calls',
         }
         for title in expected:
             with self.subTest(action=title):
                 self.assertTrue(title in self.navigation, 'Missing action: ' + title)
                 page = self.page(self.navigation[title])
+                if title == '2. Translate & Forward':
+                    self.assertFalse(any(heading.startswith('阅读材料') for heading in page.headings))
+                    self.assertTrue(any(
+                        link.get('href', '').startswith(self.navigation[title])
+                        and link.get('href', '').endswith('/data-flow/')
+                        for link in page.links
+                    ), 'Translate & Forward has no local data-flow child page')
+                    continue
                 self.assertTrue(any(
                     '/blob/main/slime_photo/' in link.get('href', '')
                     and unquote(link['href']).endswith('/README.md')
@@ -127,6 +138,107 @@ class SlimeChapters(unittest.TestCase):
                 ), 'Action has no README reading entry')
         for old in ['agent', 'agent-launch', '01-agent-task']:
             self.assertFalse((self.output / 'projects/slime' / old).exists(), old)
+
+    def test_translate_data_flow_renders_source_and_example_on_site(self):
+        parent_url = self.navigation['2. Translate & Forward']
+        parent = self.page(parent_url)
+        child_links = [
+            link['href'] for link in parent.links
+            if link.get('href', '').startswith(parent_url)
+            and link.get('href', '').endswith('/data-flow/')
+        ]
+        self.assertTrue(child_links, 'Data-flow page is missing')
+        page = self.page(child_links[0])
+        self.assertIn('纵向数据流', page.headings)
+        source = ROOT / 'slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流'
+        self.assertTrue(page.images, 'Data-flow diagram is missing')
+        diagrams = [image for image in page.images if urlsplit(image['src']).path.endswith('/flow.svg')]
+        self.assertTrue(diagrams, 'Detailed data-flow diagram is missing')
+        diagram = self.output / unquote(urlsplit(diagrams[0]['src']).path).lstrip('/')
+        self.assertEqual(diagram.read_bytes(), (source / 'flow.svg').read_bytes())
+        examples = [
+            link['href'] for link in page.links
+            if urlsplit(link.get('href', '')).path.endswith('.json')
+        ]
+        self.assertTrue(examples, 'Complete example link is missing')
+        example = self.output / unquote(urlsplit(examples[0]).path).lstrip('/')
+        self.assertEqual(json.loads(example.read_text()), json.loads((source / '示例.json').read_text()))
+        self.assertTrue(any(link.get('href') == parent_url for link in page.links))
+        next_url = self.navigation['3. Generate Tokens']
+        self.assertTrue(any(link.get('href') == next_url for link in page.links), 'Next action link is broken')
+        self.assertTrue(any('消息路' in heading for heading in page.headings))
+        self.assertTrue(any('工具路' in heading for heading in page.headings))
+
+    def test_project_entry_starts_with_agent_task_lifecycle(self):
+        self.assertIn('先看一个 Agent 样本的任务生命周期', [heading.removesuffix('#') for heading in self.home.headings])
+        self.assertTrue(any(
+            urlsplit(image['src']).path == '/images/slime-lifecycle/overview.svg'
+            for image in self.home.images
+        ), 'Project entry has no lifecycle overview')
+        self.assertTrue(any(
+            link.get('href', '').endswith('/4-launch-agent/')
+            for link in self.home.links
+        ), 'Overview has no launch reading entry')
+
+    def test_each_action_has_a_position_map_and_overview_link(self):
+        actions = {
+            '2. Translate & Forward': '2',
+            '3. Generate Tokens': '3',
+            '3.5. 完成一次模型请求': '3-5',
+            '4. Launch Agent': '4',
+            '5. Manage Sandbox': '5',
+            '6. Exec Commands': '6',
+            '7. Make API Calls': '7',
+        }
+        for title, action in actions.items():
+            with self.subTest(action=title):
+                self.assertTrue(title in self.navigation, 'Missing action: ' + title)
+                page = self.page(self.navigation[title])
+                path = '/images/slime-lifecycle/action-' + action + '.svg'
+                self.assertTrue(any(urlsplit(image['src']).path == path for image in page.images))
+                self.assertTrue(any(
+                    link.get('href') == '/projects/slime/#agent-lifecycle'
+                    for link in page.links
+                ), 'Action cannot return to the lifecycle overview')
+                diagram = ET.parse(self.output / path.lstrip('/')).getroot()
+                stages = diagram.findall('.//*[@data-stage]')
+                self.assertTrue(any(stage.get('data-focus') == 'true' for stage in stages))
+
+    def test_sandbox_position_spans_preparation_running_and_cleanup(self):
+        path = self.output / 'images/slime-lifecycle/action-5.svg'
+        self.assertTrue(path.exists(), 'Sandbox position map is missing')
+        diagram = ET.parse(path).getroot()
+        focused = {
+            stage.get('data-stage') for stage in diagram.findall('.//*[@data-stage]')
+            if stage.get('data-focus') == 'true'
+        }
+        self.assertTrue({'prepare', 'run', 'finish'}.issubset(focused))
+
+    def test_execution_and_api_call_guides_render_their_source_on_site(self):
+        execution = self.page(self.navigation['6. Exec Commands'])
+        self.assertIn('4 哪一步真正启动进程', [heading.removesuffix('#') for heading in execution.headings])
+        calls = self.page(self.navigation['7. Make API Calls'])
+        self.assertIn('3 HTTP 路由怎样进入共享流程', [heading.removesuffix('#') for heading in calls.headings])
+        self.assertTrue(any(
+            link.get('href') == self.navigation['2. Translate & Forward']
+            for link in calls.links
+        ), 'API call guide cannot continue to input translation')
+
+    def test_material_position_maps_match_their_action(self):
+        material = ROOT / 'slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses'
+        actions = {
+            '2.Translate & Forward': '2',
+            '3.Generate Tokens': '3',
+            '3.5.完成一次模型请求': '3-5',
+            '4.Launch Agent': '4',
+            '5.Manage Sandbox': '5',
+            '6.Exec Commands': '6',
+            '7.Make API Calls': '7',
+        }
+        for directory, action in actions.items():
+            for page in (material / directory).rglob('README.md'):
+                with self.subTest(page=str(page.relative_to(material))):
+                    self.assertIn('static/images/slime-lifecycle/action-' + action + '.svg', page.read_text())
 
 
 if __name__ == '__main__':
