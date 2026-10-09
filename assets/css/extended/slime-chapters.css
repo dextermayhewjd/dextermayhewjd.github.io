@@ -1,0 +1,13 @@
+.post-content figure.slime-diagram {
+  margin: 0 0 24px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #17212b;
+}
+
+.post-content figure.slime-diagram img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}

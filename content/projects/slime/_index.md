@@ -1,21 +1,10 @@
 ---
-title: "Learn Slime：从 Agent 基础开始"
-description: "一课一个问题，从执行环境、记录输出和模型接入，读到完整任务。"
+title: "Slime：架构与实践目录"
+description: "按原始章节顺序，从架构图进入各部分的阅读材料。"
 weight: 20
-draft: false
+ShowToc: false
 ---
 
-从 Agent 最小组成开始，每课用一段源码解释一个问题，再连接上一层。
+从下面的章节或左侧导航开始。编号与原始章节顺序一致；各节先收录已有图片和阅读入口。
 
-读懂一课后勾选已学，进度保存在这个浏览器。图只展示已学的部分。
-
-[体验任务总图：逐层展开，再读源码](./agent-launch/)
-
-{{< agent-course >}}
-
-<details>
-<summary>进阶串联</summary>
-
-[单任务闭环：把已学组件接起来](./01-agent-task/)。文件目录、完整函数图与范围说明保留在该页，作为后续复习入口。
-
-</details>
+[查看全部原始材料](<https://github.com/dextermayhewjd/dextermayhewjd.github.io/tree/main/slime_photo>)
