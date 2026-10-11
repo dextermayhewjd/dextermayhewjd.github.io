@@ -92,6 +92,27 @@ class SlimeChapters(unittest.TestCase):
     def page(self, url):
         return Page((self.output / unquote(urlsplit(url).path).lstrip('/') / 'index.html').read_text())
 
+    def test_trajectory_management_note_has_local_page_and_downloads(self):
+        chapter = '/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/'
+        note_url = chapter + 'trajectory-management/'
+        self.assertEqual(self.navigation.get('专题：轨迹管理'), note_url)
+        for source_url in (chapter, '/projects/slime/code-reading/'):
+            page = self.page(source_url)
+            self.assertTrue(any(link['href'] == note_url for link in page.links), source_url)
+
+        note = self.page(note_url)
+        for heading in ('单元 1：新请求怎样接回历史', '单元 2：历史中的 assistant 被改写怎么办', '单元 3：消息树怎样变成可训练片段'):
+            self.assertTrue(any(text.rstrip('#').rstrip() == heading for text in note.headings), heading)
+        source = ROOT / 'slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Trajectory Management'
+        for filename in ('README.md', 'SOURCE-CHECK.md'):
+            urls = [link['href'] for link in note.links
+                    if unquote(urlsplit(link['href']).path).endswith('/' + filename)
+                    and not urlsplit(link['href']).netloc]
+            self.assertTrue(urls, filename + ' has no local download')
+            target = self.output / unquote(urlsplit(urls[0]).path).lstrip('/')
+            self.assertEqual(target.read_bytes(), (source / filename).read_bytes())
+        self.assertFalse(any(link['href'].startswith('../') for link in note.links))
+
     def test_every_photo_chapter_is_reachable_in_original_order(self):
         expected_top = []
         for section in self.index['sections']:

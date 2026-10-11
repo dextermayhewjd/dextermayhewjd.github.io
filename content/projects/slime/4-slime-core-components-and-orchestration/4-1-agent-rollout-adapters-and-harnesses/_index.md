@@ -10,6 +10,8 @@ hideMeta: true
 
 **当前推荐先读：[沿 generate 走完一次 Agent 任务](./task-walkthrough/)。** 先按完整任务顺序进入各职责组件，讲完回到主线，再用下面的动作页展开具体交接。
 
+**读过 `generate()` 和 `_run_turn()` 后，进入 [Trajectory Management 专题](./trajectory-management/)**，专门理解历史接续、改写、分叉与训练片段。正文与下载文件来自 `slime_photo` 中的同一份笔记。
+
 ## 按任务阶段阅读
 
 | 阶段 | 从这里读 | 这一段在做什么 |
@@ -37,6 +39,7 @@ Pre-4 在目录中放于 3.5 后、4 前，表示给动作 4 增加前置阅读�
 
 ## 阅读材料
 
+- [Trajectory Management 专题阅读入口](./trajectory-management/)：在 `generate()`／`_run_turn()` 主线之后，专门理解历史分叉、assistant 改写与训练 Sample 导出。
 - [本节 README](<https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/4.Slime%20Core%20Components%20and%20Orchestration/4.1.Agent%20Rollout%20Adapters%20and%20Harnesses/README.md>)
 - [Slime Core 完整请求流程](<https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/4.Slime%20Core%20Components%20and%20Orchestration/4.1.Agent%20Rollout%20Adapters%20and%20Harnesses/Slime%20Core%20%E5%AE%8C%E6%95%B4%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B.md>)
 

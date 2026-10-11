@@ -10,6 +10,8 @@
 
 起步：扫 README 架构段与 train.main 的角色，再从 01 的 Sample 字段和 02 的 generate 骨架进入。当前 4.1 连续导览先选 Claude/Anthropic，沿用现有图文；下表中的 Codex/OpenAI 是同一职责的实现对照，完整链读通后再比较，避免同时展开两套协议。
 
+已确认的第 2 章深入入口：[Trajectory Management 专题](<../4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Trajectory Management/README.md>)。沿 `record_turn()` 的历史接续、assistant 改写，再进入 `get_trajectory()` 的 token 对齐与训练片段导出；保留原有 26 项清单和学习状态。
+
 ### 00 全局职责
 
 | 顺序 | 阅读入口 | 第一遍读到这里 | 第二遍与边界 | 配套验证材料（先读） |

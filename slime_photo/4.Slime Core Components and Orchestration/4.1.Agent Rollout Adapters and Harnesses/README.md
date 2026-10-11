@@ -119,3 +119,4 @@
 ## 组件延伸阅读
 
 - [Slime Core 完整请求流程](<Slime Core 完整请求流程.md>)：模型输入、生成、响应和轨迹管理的逐步函数说明。
+- [Trajectory Management 专题阅读入口](<Trajectory Management/README.md>)：**专门理解轨迹管理**。在 `generate()`／`_run_turn()` 主线之后，按“历史接续与分叉 → assistant 改写 → token 对齐和 Sample 导出”三个小单元继续；消息树与 CLI 内部任务图的边界也在这里说明。

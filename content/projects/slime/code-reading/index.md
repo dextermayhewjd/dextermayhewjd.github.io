@@ -12,6 +12,8 @@ ShowToc: true
 
 **当前先完成 4.1：[沿 generate 走完一次 Agent 任务](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough/)。** 以完整任务为主线，进入组件读清职责后返回调用处，再继续下一步。
 
+**第 2 章的深入阅读已设立专用入口：[Trajectory Management 专题笔记](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/trajectory-management/)。** 读过 `generate()`／`_run_turn()` 后，按“历史接续与分叉 → assistant 改写 → token 对齐和 Sample 导出”继续。它属于现有第 2 章，不新增执行阶段，也不表示已完成学习。
+
 ## 第一遍：认识每个部分
 
 | 顺序 | 阅读单元 | 图文对照 | 第一遍的目标 | 首个源码入口 |

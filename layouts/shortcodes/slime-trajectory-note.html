@@ -1,0 +1,21 @@
+{{- $directory := printf "slime-photo/%s" (.Get "source") -}}
+{{- $document := resources.Get (path.Join $directory "README.md") -}}
+{{- $evidence := resources.Get (path.Join $directory "SOURCE-CHECK.md") -}}
+{{- if not (and $document $evidence) -}}
+  {{- errorf "Slime trajectory note or source check missing: %s" $directory -}}
+{{- else -}}
+  {{- $body := replaceRE `^# [^\n]+\n+` "" $document.Content -}}
+  {{- $body = replace $body "(../README.md)" (printf "(%s)" .Page.Parent.RelPermalink) -}}
+  {{- with .Site.GetPage "/projects/slime/code-reading" -}}
+    {{- $body = replace $body "(../../../code-reading/chapters/02-model-context/README.md)" (printf "(%s)" .RelPermalink) -}}
+    {{- $body = replace $body "(../../../code-reading/repo-reading-route.md)" (printf "(%s)" .RelPermalink) -}}
+  {{- else -}}
+    {{- errorf "Slime code reading page missing" -}}
+  {{- end -}}
+  {{- $body = replace $body "(SOURCE-CHECK.md)" (printf "(<%s>)" $evidence.RelPermalink) -}}
+  {{- .Page.RenderString (dict "display" "block") $body -}}
+  <p class="reading-downloads">
+    <a href="{{ $document.RelPermalink }}" download>下载本篇 Markdown</a>
+    · <a href="{{ $evidence.RelPermalink }}" download>下载源码核对记录</a>
+  </p>
+{{- end -}}

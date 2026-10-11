@@ -236,6 +236,8 @@ Search-R1、Tau-bench 和独立 Rollout Buffer 作为策略/环境/服务对照�
 3. 从 TurnRecord 到 record_turn，再到 finish_session/get_trajectory，核对 token、logprob、mask 与 reward 的来源。
 4. 第二遍只选择一种上下文变化：追加工具结果、上下文压缩或分支；用 test_trajectory_manager_branching 理解行为。
 
+**已确认的第二遍细分（2026-10-11）：** `generate()`／`_run_turn()` 主线之后，进入 [Trajectory Management 专题阅读入口](<../4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Trajectory Management/README.md>)。每轮只展开一个机制：① `record_turn()` 的历史接续与分叉；② `_try_merge_assistant_rewrite()` 的改写合并；③ `get_trajectory()` 的 token 对齐、共享前缀去重和 Sample 导出。入口已建立，不表示用户已完成这些阅读单元。
+
 **验收问题：** 一轮协议响应和一份训练 Sample 有什么关系？为什么仅保存最终文本无法还原生成时的全部训练信息？
 
 **证据状态：** 文件与符号已静态定位；建议的行为验证尚未执行，学习状态尚未由用户复述确认。
