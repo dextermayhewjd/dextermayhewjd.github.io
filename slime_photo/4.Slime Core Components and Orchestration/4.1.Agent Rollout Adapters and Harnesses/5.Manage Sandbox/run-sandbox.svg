@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="title desc">
+  <title id="title">从 Harness.run 进入 Sandbox 操作，再返回主线</title>
+  <desc id="desc">BaseHarness.run 在用户准备处调用 ensure_agent_user。helper 使用已有 sb 的 exec 接口，E2BSandbox 将命令交给 E2B SDK，由远端环境执行。退出码和输出返回 helper，环境状态保留，helper 返回 None，run 继续上下文、配置和启动等待。图只表示一次用户准备调用，不表示创建新环境或 CLI 模型工具循环。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+    <style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;font-size:21px;fill:#172334}.title{font-size:31px;font-weight:700}.head{font-size:23px;font-weight:700}.body{font-size:20px}.small{font-size:16px;fill:#526173}.muted{font-size:19px;fill:#526173}.flow{fill:none;stroke:#64748b;stroke-width:2.5;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="650" fill="#fff"/>
+  <text x="30" y="48" class="title">动作 5：从 run 的调用下钻，读清后回到主线</text>
+  <text x="30" y="86" class="muted">已有 sb 是环境操作对象；先走用户准备这一条真实调用</text>
+  <g data-role="caller"><rect x="30" y="135" width="250" height="180" rx="12" fill="#eff6ff" stroke="#93b8e8" stroke-width="1.5"/><text x="50" y="174" class="head">Harness.run()</text><text x="50" y="210" class="body">用户准备调用</text><text x="50" y="246" class="body">sb + workdir</text><text x="50" y="286" class="small">common.py:97</text></g>
+  <path d="M281 222 H317" class="flow"/>
+  <g data-role="helper"><rect x="320" y="135" width="250" height="180" rx="12" fill="#eef2ff" stroke="#8b83ce" stroke-width="1.5"/><text x="340" y="174" class="body">ensure_agent_user()</text><text x="340" y="210" class="body">用户 / 权限 / Git 设置</text><text x="340" y="246" class="body">sb.exec(cmd, root, ...)</text><text x="340" y="286" class="small">sandbox.py:390</text></g>
+  <path d="M571 222 H607" class="flow"/>
+  <g data-role="backend"><rect x="610" y="135" width="250" height="180" rx="12" fill="#eef2ff" stroke="#8b83ce" stroke-width="1.5"/><text x="630" y="174" class="body">E2BSandbox.exec()</text><text x="630" y="210" class="body">SDK 调用 / 返回转换</text><text x="630" y="246" class="body">传输异常与命令失败</text><text x="630" y="286" class="small">sandbox.py:309</text></g>
+  <path d="M861 222 H897" class="flow"/>
+  <g data-role="sdk"><rect x="900" y="135" width="270" height="180" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="920" y="174" class="head">E2B SDK</text><text x="920" y="210" class="body">commands.run()</text><text x="920" y="246" class="body">命令在远端环境执行</text><text x="920" y="286" class="small">SDK 内部为外部边界</text></g>
+  <path d="M1035 316 V360 H735 V318" class="flow"/>
+  <text x="800" y="348" class="body">SDK 返回操作结果对象</text>
+  <path d="M670 316 V405 H515 V318" class="flow"/>
+  <text x="490" y="430" class="body">包装返回：(exit_code, stdout, stderr)</text>
+  <path d="M380 316 V455 H155 V318" class="flow"/>
+  <text x="32" y="478" class="body">返回 None；环境变化保留</text>
+  <rect x="30" y="500" width="1140" height="94" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/>
+  <text x="50" y="533" class="head">回到 run 的下一行</text>
+  <text x="50" y="568" class="body">:98 建立 ctx → :103 写配置（再次使用 sb）→ :104 启动等待 → 动作 6 执行机制</text>
+  <text x="30" y="635" class="small">22a89f9 · 正常路径的调用与返回 · 用户准备时没有创建新 Sandbox，也没有发起模型请求</text>
+</svg>

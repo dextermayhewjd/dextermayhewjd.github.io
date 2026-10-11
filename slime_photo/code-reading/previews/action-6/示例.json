@@ -1,0 +1,447 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "verification": {
+    "mode": "unchanged-source-AST-functions-with-recording-dependencies",
+    "executed_functions": [
+      "exec_and_wait",
+      "_await_done_marker"
+    ],
+    "simulated": [
+      "Sandbox responses",
+      "sleep",
+      "wall clock",
+      "CLI output and exit values"
+    ],
+    "not_executed": [
+      "E2B SDK",
+      "remote commands",
+      "CLI",
+      "model requests"
+    ],
+    "spawn_lock_semantics": "statically reviewed; recording fake does not execute shell"
+  },
+  "input": {
+    "workdir": "/workspace/demo",
+    "start_cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+    "env": {
+      "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+      "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+      "ANTHROPIC_MODEL": "slime-actor",
+      "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+      "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+      "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+    },
+    "out_file": "/workspace/demo/.harness/trajectory.jsonl"
+  },
+  "cases": {
+    "success_without_output": {
+      "arguments": {
+        "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+        "workdir": "/workspace/demo",
+        "user": "agent",
+        "env": {
+          "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+          "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+          "ANTHROPIC_MODEL": "slime-actor",
+          "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+          "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+          "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+        },
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "tag": "run",
+        "time_budget_sec": 1800,
+        "want_output": false
+      },
+      "simulated_cli_exit": 0,
+      "operations": [
+        {
+          "method": "write_file",
+          "path": "/tmp/.run.sh",
+          "content": "#!/bin/bash\ncd /workspace/demo\nexport HOME=/home/agent\n/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose\necho $? > /tmp/.run.done\n",
+          "user": "agent"
+        },
+        {
+          "method": "exec",
+          "cmd": "rm -rf /tmp/.run.spawned; rm -f /workspace/demo/.harness/trajectory.jsonl /tmp/.run.done",
+          "user": "agent",
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "chmod +x /tmp/.run.sh; mkdir /tmp/.run.spawned 2>/dev/null || exit 0; setsid bash /tmp/.run.sh < /dev/null > /workspace/demo/.harness/trajectory.jsonl 2>&1 &",
+          "user": "agent",
+          "env": {
+            "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+            "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+            "ANTHROPIC_MODEL": "slime-actor",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+            "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+          },
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            1,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            0,
+            "0\n",
+            ""
+          ]
+        }
+      ],
+      "simulated_sleep_seconds": [
+        5,
+        5
+      ],
+      "return_value": [
+        0,
+        ""
+      ],
+      "passed": true
+    },
+    "nonzero_exit_with_tail": {
+      "arguments": {
+        "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+        "workdir": "/workspace/demo",
+        "user": "agent",
+        "env": {
+          "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+          "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+          "ANTHROPIC_MODEL": "slime-actor",
+          "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+          "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+          "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+        },
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "tag": "run",
+        "time_budget_sec": 1800,
+        "want_output": false
+      },
+      "simulated_cli_exit": 7,
+      "operations": [
+        {
+          "method": "write_file",
+          "path": "/tmp/.run.sh",
+          "content": "#!/bin/bash\ncd /workspace/demo\nexport HOME=/home/agent\n/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose\necho $? > /tmp/.run.done\n",
+          "user": "agent"
+        },
+        {
+          "method": "exec",
+          "cmd": "rm -rf /tmp/.run.spawned; rm -f /workspace/demo/.harness/trajectory.jsonl /tmp/.run.done",
+          "user": "agent",
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "chmod +x /tmp/.run.sh; mkdir /tmp/.run.spawned 2>/dev/null || exit 0; setsid bash /tmp/.run.sh < /dev/null > /workspace/demo/.harness/trajectory.jsonl 2>&1 &",
+          "user": "agent",
+          "env": {
+            "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+            "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+            "ANTHROPIC_MODEL": "slime-actor",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+            "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+          },
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            1,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            0,
+            "7\n",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "tail -c 512 /workspace/demo/.harness/trajectory.jsonl 2>/dev/null",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            0,
+            "cli-error\n",
+            ""
+          ]
+        }
+      ],
+      "simulated_sleep_seconds": [
+        5,
+        5
+      ],
+      "return_value": [
+        7,
+        "cli-error\n"
+      ],
+      "passed": true
+    },
+    "explicit_full_output": {
+      "arguments": {
+        "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+        "workdir": "/workspace/demo",
+        "user": "agent",
+        "env": {
+          "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+          "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+          "ANTHROPIC_MODEL": "slime-actor",
+          "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+          "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+          "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+        },
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "tag": "run",
+        "time_budget_sec": 1800,
+        "want_output": true
+      },
+      "simulated_cli_exit": 0,
+      "operations": [
+        {
+          "method": "write_file",
+          "path": "/tmp/.run.sh",
+          "content": "#!/bin/bash\ncd /workspace/demo\nexport HOME=/home/agent\n/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose\necho $? > /tmp/.run.done\n",
+          "user": "agent"
+        },
+        {
+          "method": "exec",
+          "cmd": "rm -rf /tmp/.run.spawned; rm -f /workspace/demo/.harness/trajectory.jsonl /tmp/.run.done",
+          "user": "agent",
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "chmod +x /tmp/.run.sh; mkdir /tmp/.run.spawned 2>/dev/null || exit 0; setsid bash /tmp/.run.sh < /dev/null > /workspace/demo/.harness/trajectory.jsonl 2>&1 &",
+          "user": "agent",
+          "env": {
+            "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+            "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+            "ANTHROPIC_MODEL": "slime-actor",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+            "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+          },
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            1,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            0,
+            "0\n",
+            ""
+          ]
+        },
+        {
+          "method": "read_file",
+          "path": "/workspace/demo/.harness/trajectory.jsonl",
+          "user": "agent"
+        }
+      ],
+      "simulated_sleep_seconds": [
+        5,
+        5
+      ],
+      "return_value": [
+        0,
+        "cli-complete\n"
+      ],
+      "passed": true
+    },
+    "wait_budget_exhausted": {
+      "arguments": {
+        "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+        "workdir": "/workspace/demo",
+        "user": "agent",
+        "env": {
+          "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+          "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+          "ANTHROPIC_MODEL": "slime-actor",
+          "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+          "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+          "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+        },
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "tag": "run",
+        "time_budget_sec": 10,
+        "want_output": false
+      },
+      "simulated_cli_exit": null,
+      "operations": [
+        {
+          "method": "write_file",
+          "path": "/tmp/.run.sh",
+          "content": "#!/bin/bash\ncd /workspace/demo\nexport HOME=/home/agent\n/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md and resolve the issue.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose\necho $? > /tmp/.run.done\n",
+          "user": "agent"
+        },
+        {
+          "method": "exec",
+          "cmd": "rm -rf /tmp/.run.spawned; rm -f /workspace/demo/.harness/trajectory.jsonl /tmp/.run.done",
+          "user": "agent",
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "chmod +x /tmp/.run.sh; mkdir /tmp/.run.spawned 2>/dev/null || exit 0; setsid bash /tmp/.run.sh < /dev/null > /workspace/demo/.harness/trajectory.jsonl 2>&1 &",
+          "user": "agent",
+          "env": {
+            "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+            "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+            "ANTHROPIC_MODEL": "slime-actor",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+            "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+            "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+          },
+          "timeout": 30,
+          "check": true,
+          "idempotent": true,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            1,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "test -f /tmp/.run.done && cat /tmp/.run.done",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            1,
+            "",
+            ""
+          ]
+        },
+        {
+          "method": "exec",
+          "cmd": "tail -c 512 /workspace/demo/.harness/trajectory.jsonl 2>/dev/null",
+          "user": "agent",
+          "timeout": 15,
+          "check": false,
+          "simulated_result": [
+            0,
+            "",
+            ""
+          ]
+        }
+      ],
+      "simulated_sleep_seconds": [
+        5,
+        5
+      ],
+      "return_value": [
+        -1,
+        ""
+      ],
+      "passed": true
+    }
+  }
+}

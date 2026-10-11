@@ -1,9 +1,40 @@
 {{- $source := .Get "source" -}}
-{{- $document := resources.Get (printf "slime-photo/%s/README.md" $source) -}}
+{{- $chapterRoot := .Get "chapterRoot" | default .Page.Parent.RelPermalink -}}
+  {{- $documentName := .Get "document" | default "README.md" -}}
+  {{- $document := resources.Get (printf "slime-photo/%s/%s" $source $documentName) -}}
 {{- if not $document -}}
   {{- errorf "Slime action reading resource missing: %s" $source -}}
 {{- else -}}
   {{- $body := replaceRE `^# [^\n]+\n+` "" $document.Content -}}
+  {{- with .Get "localDiagramAlt" -}}
+    {{- $localImage := printf "![%s](flow.svg)" . -}}
+    {{- $parts := split $body $localImage -}}
+    {{- if eq (len $parts) 2 -}}
+      {{- $body = printf "%s\n\n<details class=\"reading-extra\">\n<summary>查看这一步在完整任务中的位置</summary>\n\n%s\n\n</details>\n\n%s" $localImage (index $parts 0) (index $parts 1) -}}
+    {{- else -}}
+      {{- errorf "Expected one local diagram in %s" $source -}}
+    {{- end -}}
+    {{- range $filename := slice "flow.svg" "示例.json" -}}
+      {{- with resources.Get (printf "slime-photo/%s/%s" $source $filename) -}}
+        {{- $body = replace $body (printf "(%s)" $filename) (printf "(<%s>)" .RelPermalink) -}}
+      {{- else -}}
+        {{- errorf "Slime local reading resource missing: %s/%s" $source $filename -}}
+      {{- end -}}
+    {{- end -}}
+    {{- with resources.Get (printf "slime-photo/%s/模型输入.txt" $source) -}}
+      {{- $body = replace $body "(模型输入.txt)" (printf "(<%s>)" .RelPermalink) -}}
+    {{- end -}}
+    {{- $body = replace $body "(index.html)" (printf "(%s)" $.Page.RelPermalink) -}}
+    {{- $body = replace $body "(../README.md)" (printf "(%s)" $chapterRoot) -}}
+    {{- with $.Site.GetPage (printf "%s2-translate-forward" $chapterRoot) -}}
+      {{- $body = replace $body "(<../2.Translate & Forward/纵向数据流/README.md>)" (printf "(%s)" .RelPermalink) -}}
+    {{- end -}}
+    {{- range $relative := slice "2.Translate & Forward/纵向数据流/示例.json" "Slime Core 完整请求流程.md" -}}
+      {{- $url := printf "https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/%s/%s" (path.Dir $source) $relative -}}
+      {{- $url = replace (replace $url " " "%20") "&" "%26" -}}
+      {{- $body = replace $body (printf "(<../%s>)" $relative) (printf "(<%s>)" $url) -}}
+    {{- end -}}
+  {{- end -}}
   {{- $body = replace $body "(../../../../static/images/slime-lifecycle/" "(/images/slime-lifecycle/" -}}
   {{- $body = replace $body "(../README.md#任务生命周期与原图的用途)" "(/projects/slime/#agent-lifecycle)" -}}
   {{- $pages := dict
@@ -16,7 +47,7 @@
     "7.Make API Calls" "7-make-api-calls"
   -}}
   {{- range $directory, $slug := $pages -}}
-    {{- with $.Site.GetPage (printf "%s%s" $.Page.Parent.RelPermalink $slug) -}}
+    {{- with $.Site.GetPage (printf "%s%s" $chapterRoot $slug) -}}
       {{- $body = replace $body (printf "(<../%s/README.md>)" $directory) (printf "(%s)" .RelPermalink) -}}
     {{- else -}}
       {{- errorf "Slime action page missing: %s" $slug -}}
@@ -26,5 +57,17 @@
   {{- $url := printf "https://github.com/dextermayhewjd/dextermayhewjd.github.io/blob/main/slime_photo/%s/2.Translate %%26 Forward/3.请求入口和特殊分支.md" (path.Dir $source) -}}
   {{- $url = replace $url " " "%20" -}}
   {{- $body = replace $body (printf "(<%s>)" $supplement) (printf "(<%s>)" $url) -}}
+  {{- with .Get "context" -}}
+    {{- $context := partial "slime-action-context.html" (dict "key" . "Page" $.Page) -}}
+    {{- $headings := findRE `(?m)^## 1[^\n]*` $body 1 -}}
+    {{- if $headings -}}
+      {{- $heading := index $headings 0 -}}
+      {{- $body = replace $body $heading (printf "%s\n\n%s" $context $heading) 1 -}}
+    {{- else -}}
+      {{- errorf "No insertion point for Slime action context in %s" $source -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if .Get "localDiagramAlt" }}<div class="slime-reading-guide">{{ end -}}
   {{- $.Page.RenderString (dict "display" "block") $body -}}
+  {{- if .Get "localDiagramAlt" }}</div>{{ end -}}
 {{- end -}}

@@ -2,7 +2,7 @@
 
 ## 先看源码阅读路线
 
-源码目录：`/home/hongshi/projects/slime/`。下面列出完整文件路径；点击链接可查看固定版本 `8c17b676` 的函数入口。
+以下路径相对于 Slime 源码仓库根目录。下面列出完整文件路径；点击链接可查看固定版本 `22a89f9` 的函数入口。
 
 ```text
 sandbox.py：认识接口和 E2BSandbox 实现
@@ -11,10 +11,10 @@ sandbox.py：认识接口和 E2BSandbox 实现
   → 回到 sandbox.py：看具体操作怎样落实
 ```
 
-1. [slime/agent/sandbox.py:28](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/sandbox.py#L28)：先认识 `Sandbox` 接口和 `:160` 的 `E2BSandbox`，确认 `sb` 提供哪些操作。
-2. [examples/coding_agent_rl/generate.py:96](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/generate.py#L96)：读 `boot_agent_sandbox()`，看创建、安装 CLI、交出 `sb` 和退出时释放的过程。
-3. 读 [slime/agent/harness/common.py:81](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81)，再选 [slime/agent/harness/claude_code.py:36](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/claude_code.py#L36) 或 [slime/agent/harness/codex.py:48](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/codex.py#L48)：看用户准备、安装、写配置等调用怎样使用 `sb`。
-4. 回到 [slime/agent/sandbox.py:281](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/sandbox.py#L281)：读创建与释放、`exec()`、`write_file()`、`read_file()` 和 `ensure_agent_user()`；`exec_and_wait()` 的进程启动与等待再沿动作 6 深入。
+1. [slime/agent/sandbox.py:28](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L28)：先认识 `Sandbox` 接口和 `:160` 的 `E2BSandbox`，确认 `sb` 提供哪些操作。
+2. [examples/coding_agent_rl/generate.py:96](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L96)：读 `boot_agent_sandbox()`，看创建、安装 CLI、交出 `sb` 和退出时释放的过程。
+3. 读 [slime/agent/harness/common.py:81](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L81)，再选 [slime/agent/harness/claude_code.py:36](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L36) 或 [slime/agent/harness/codex.py:48](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/codex.py#L48)：看用户准备、安装、写配置等调用怎样使用 `sb`。
+4. 回到 [slime/agent/sandbox.py:281](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L281)：读创建与释放、`exec()`、`write_file()`、`read_file()` 和 `ensure_agent_user()`；`exec_and_wait()` 的进程启动与等待再沿动作 6 深入。
 
 ## 在任务生命周期中的位置
 

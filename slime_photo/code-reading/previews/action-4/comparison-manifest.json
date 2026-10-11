@@ -1,0 +1,58 @@
+{
+  "adopted": true,
+  "baselinePage": "/previews/slime-action-4/baseline/",
+  "candidatePage": "/previews/slime-action-4/",
+  "comparisonPage": "/previews/slime-action-4/compare/",
+  "preservedFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/1.启动参数和模型入口.md": "f1f8fdf7bd42ea18eb2fdc9521d1bee8d792352c617ef6de4456ccfd429be0ed",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/2.主路径和源码函数.md": "711c9b04b08b0d893d6b405c6a1497b60560fbcce4b1ed6ca769fdbab1493fb6",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/README.md": "f666820b8c84a201adfd3b3d03082e33bf828117421e1081a12f186d72a7b080",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/4.Harness.run调用与职责.md": "af4f9bf0831fa85092c875a7cd570b070d85b6b665f46be37d90a2feaf906e19",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/3.会话入口和生命周期.md": "3f441d170ecf1efff6d7e08f600685f4862be80605e4bd5dd628f639309fbd90",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/纵向数据流/示例.json": "35e01a8364017e02d64915930f5a2754696e64a9f83fe0cfbafff16155612152",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/纵向数据流/flow.svg": "b14167184ccc1718798be70b5385da44ec1c95121a1994186acbadfc59878536",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/纵向数据流/README.md": "24323f1b7631528385dc69ae80a73060dafded2cf64881143e649c781b163ec0",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/纵向数据流/index.html": "da7f9ff8fc94fca16a3b3d17338d93c5d90df2323b368682a3d234ef3fd4847b",
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/diagram.svg": "539ea11eb0bca9caf047a3cc600433fa3cf1d7e87451bec60f238f219fca38dd"
+  },
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "currentFiles": {
+    "reading.md": "8fd267e4ffaccd22099343c4bad99480661ca7536a2056f84968cfbd20401bcd",
+    "flow.svg": "c6d8a568cdafbb83c1a66d4d68621b5405b696be771d1dd9edadfd7c52ff7fdf",
+    "示例.json": "35e01a8364017e02d64915930f5a2754696e64a9f83fe0cfbafff16155612152",
+    "SOURCE-CHECK.md": "e298102b8e09a9e359ef4f31a09f847e1789e8512c65c460dd0ab52ea76a533a",
+    "CHANGES.md": "e9cb601260af758173fdc5e3c452561f661222dde723ebbc9109ad8ef55c9ea5",
+    "source-groups.json": "48421d533e95274404b53f90f5b23ae5823774002eb526b9716545bfd237ae1b",
+    "source-file-hashes.json": "d1a3cca47f170217b94ad4edb0da43b9e185e4e0411d82e6d441f13292b93858",
+    "upstream-check.json": "d831aec443d41fe9dca9835af390d80768c9f607c5d05d1a82d7d509ad71db08",
+    "validation.json": "09bb1e37bc0eac1a4f41df6a2918f2912201fe8425cf8a80fd9fe318e599ef1d"
+  },
+  "baselinePageBeforeAdoption": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/harness-run/",
+  "officialPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/",
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/_index.md": {
+      "before": "188231808a91949edc2335e31f4903dbb462bb8b5b44a5c452adaee380e7e777",
+      "after": "cec15bdc4d1d96b3509fc48772d7714ef7c7f7024efef09e11b89091580cc600",
+      "reason": "User approved new reading; chapter and compatible URL now share canonical body",
+      "followupChanges": [
+        {
+          "before": "8efb7d1b43c3bd4c170e5ab78d47090fca604a8ed683a75e7bd4b827a836c493",
+          "after": "cec15bdc4d1d96b3509fc48772d7714ef7c7f7024efef09e11b89091580cc600",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    },
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/harness-run/index.md": {
+      "before": "798d30635d9585e5b282937ba99498aea30ec41fcc96df399fc88cf79e59ee74",
+      "after": "b0474df8065be02e017149f787515538d8f534a70968ba5ce2e5ba8438916e32",
+      "reason": "User approved new reading; chapter and compatible URL now share canonical body",
+      "followupChanges": [
+        {
+          "before": "469e929a701b4b31888543fe6a8e68080a4e9e7bf934378fa23166eded339018",
+          "after": "b0474df8065be02e017149f787515538d8f534a70968ba5ce2e5ba8438916e32",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    }
+  }
+}

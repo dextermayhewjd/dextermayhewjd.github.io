@@ -1,0 +1,470 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pre-4：启动前准备</title><style>body{margin:0;background:#f8fafc;color:#172334;font:17px/1.8 "Noto Sans CJK SC","Microsoft YaHei",sans-serif}main{max-width:1120px;margin:auto;padding:32px;background:white}h1,h2,h3{line-height:1.4}h2{margin-top:36px}a{color:#4f46e5}img{max-width:100%;height:auto}pre{overflow:auto;background:#f1f5f9;padding:18px;line-height:1.5}code{font-family:ui-monospace,monospace;font-size:.9em}table{border-collapse:collapse;width:100%;display:block;overflow:auto}td,th{border:1px solid #cbd5e1;padding:10px;vertical-align:top}blockquote{border-left:3px solid #a5b4fc;margin-left:0;padding-left:18px}.note{color:#526173}.anchor{display:none}/* Pre-4 pilot: object ownership and member roles, separate from execution flow. */
+.reading-object-tree {
+  margin: 20px 0 28px;
+  padding: 20px;
+  border: 1px solid var(--border, #d8dee9);
+  border-radius: 10px;
+  background: var(--entry, #fff);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.reading-object-tree figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0 0 8px;
+  color: var(--primary, #172334);
+  font-weight: 600;
+}
+
+.reading-object-tree__kind {
+  color: var(--secondary, #526173);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.reading-object-tree p.reading-object-tree__hint {
+  margin: 0 0 12px;
+  color: var(--secondary, #526173);
+  font-size: 13px;
+}
+
+.reading-object-tree ul {
+  list-style: none;
+  margin: 0 0 0 7px;
+  padding: 0 0 0 18px;
+}
+
+.reading-object-tree li {
+  position: relative;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.reading-object-tree li::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--border, #d8dee9);
+}
+
+.reading-object-tree li::after {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 18px;
+  width: 12px;
+  border-top: 1px solid var(--border, #d8dee9);
+}
+
+.reading-object-tree li:last-child::before {
+  bottom: auto;
+  height: 18px;
+}
+
+.reading-object-tree__member,
+.reading-object-tree summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 1px 0;
+}
+
+.reading-object-tree code {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.reading-object-tree__role {
+  color: var(--secondary, #526173);
+  overflow-wrap: anywhere;
+}
+
+.reading-object-tree summary {
+  cursor: pointer;
+  list-style: none;
+  border-radius: 3px;
+}
+
+.reading-object-tree summary::-webkit-details-marker { display: none; }
+
+.reading-object-tree summary::before {
+  content: "▸";
+  color: var(--secondary, #526173);
+}
+
+.reading-object-tree details[open] > summary::before { content: "▾"; }
+
+.reading-object-tree summary:focus-visible {
+  outline: 2px solid var(--primary, #172334);
+  outline-offset: 3px;
+}
+
+.reading-object-tree details > ul { margin-top: 5px; }
+
+.reading-extra {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border, #d8dee9);
+  border-radius: 8px;
+}
+
+.reading-extra > summary { cursor: pointer; }
+.reading-extra > summary:focus-visible {
+  outline: 2px solid var(--primary, #172334);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .reading-object-tree { padding: 14px 12px; font-size: 14px; }
+  .reading-object-tree ul { padding-left: 14px; }
+  .reading-object-tree li::before,
+  .reading-object-tree li::after { left: -14px; }
+  .reading-object-tree li::after { width: 9px; }
+  .reading-object-tree__role { flex-basis: 100%; }
+}
+
+@media print {
+  .reading-object-tree { break-inside: avoid; }
+}
+</style></head><body><main><h1>Pre-4：启动前准备</h1><p class="note">本章离线存档。正文、组成树和总览图可在本目录直接查看；其他章节链接使用本地 Hugo 预览，源码链接保留文件与行号。</p><!-- Derived from slime_photo/code-reading/chapters/01-task-execution/pre-4-preparation.md. -->
+<p><strong>读完本章，你应能沿着 <code>generate()</code> 说明：进入 <code>Harness.run()</code> 前准备了什么，每个组件负责什么，以及这些准备怎样交给下一步使用。</strong></p>
+<p>本章读到调用 <code>HARNESS_CLS().run(...)</code> 为止。目录把 Pre-4 放在 3.5 与 4 之间；运行时则先准备，再启动 CLI，随后才发生模型请求。本章沿 Claude Code / Anthropic 和 scaleswe 分支阅读。</p>
+<div class="reading-navigation" data-reading-navigation="pre-4"><p>阅读伪代码：简略定位当前准备与下一次交接。</p><pre><code class="language-python">generate:
+    # 当前 Pre-4：把模型入口、任务与运行条件准备好
+    state = _AdapterService(...)
+    md = swe.get_metadata(...)
+    state.adapter.open_session(...)
+    boot_agent_sandbox:  # 使用 Action 5 的创建、文件和命令能力
+        await swe.prepare_workspace(...)
+        HARNESS_CLS().run:  # 接入 Action 4 的启动组织
+            ...  # Action 6：CLI 的执行与等待
+            ...  # 运行期间：7 回连；2/3/3.5 处理模型请求
+        ...  # 返回后收集 diff，再退出工作环境
+    ...  # 评估、结果导出与会话收尾</code></pre></div><h2 id="启动准备总览图">启动准备总览图<a hidden class="anchor" aria-hidden="true" href="#启动准备总览图">#</a></h2>
+<p><a href="overview.svg"><img alt="Pre-4 职责地图：五项准备与交给 Harness.run 的成果" loading="lazy" src="overview.svg"></a></p>
+<p>先顺着五步看清“做什么 → 调用谁 → 留下什么”，再进入下面的代码骨架。<code>state</code> 的三个同级组成并排展示；其他步骤只保留关键调用和产物，成员的具体含义在对应源码段中展开。点击图片可放大查看。</p>
+<details class="reading-extra" data-reading-layer="detail-map">
+<summary>需要逐项对照时，再展开完整代码归属图</summary>
+<p>这张详图保留对象类型、完整成员路径和每项用途，适合配合下方源码查阅。图中区分对象属性、字典值、局部变量和远端资源；它与上面的总览图描述同一条准备主线。</p>
+<p><a href="code-ownership.svg"><img alt="Pre-4 完整代码归属图：对象、字段和调用来源" loading="lazy" src="code-ownership.svg"></a></p>
+</details>
+<p><span id="主线中的五次交接"></span></p>
+<h2 id="主线代码骨架">主线代码骨架<a hidden class="anchor" aria-hidden="true" href="#主线代码骨架">#</a></h2>
+<p>把图与下面的调用逐项对上。这里省略详细参数、校验、预算和异常分支，用来定位阅读；后文保留真实源码及文件、行号。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>generate()
+</span></span><span style="display:flex;"><span>  state = _AdapterService(args)
+</span></span><span style="display:flex;"><span>  md = swe.get_metadata(base_sample, protocol)
+</span></span><span style="display:flex;"><span>  session_id = _session_id(base_sample, md[&#34;instance_id&#34;])
+</span></span><span style="display:flex;"><span>  state.adapter.open_session(session_id, ...)
+</span></span><span style="display:flex;"><span>  async with boot_agent_sandbox(md[&#34;image&#34;], md[&#34;instance_id&#34;]) as sb:
+</span></span><span style="display:flex;"><span>    await swe.prepare_workspace(sb, md[&#34;workdir&#34;], md)
+</span></span><span style="display:flex;"><span>    await HARNESS_CLS().run(sb, ...)
+</span></span></code></pre></div><p>按顺序进入 <a href="#1adapter-service%E8%AE%A9%E6%A8%A1%E5%9E%8B%E8%AF%B7%E6%B1%82%E5%85%A5%E5%8F%A3%E5%B0%B1%E4%BD%8D">① 模型入口</a> → <a href="#2%E4%BB%BB%E5%8A%A1%E4%BF%A1%E6%81%AF%E6%8A%8A%E6%A0%B7%E6%9C%AC%E6%95%B4%E7%90%86%E6%88%90%E4%BB%BB%E5%8A%A1%E5%90%88%E5%90%8C">② 任务信息</a> → <a href="#3%E4%BC%9A%E8%AF%9D%E5%92%8C%E9%BB%98%E8%AE%A4%E9%87%87%E6%A0%B7%E8%AE%A9%E8%AF%B7%E6%B1%82%E5%B1%9E%E4%BA%8E%E8%BF%99%E6%AC%A1%E4%BB%BB%E5%8A%A1">③ 会话</a> → <a href="#4%E6%89%A7%E8%A1%8C%E7%8E%AF%E5%A2%83%E4%B8%8E-cli%E4%BA%A4%E5%87%BA%E8%83%BD%E8%BF%90%E8%A1%8C-agent-%E7%9A%84-sb">④ 执行环境</a> → <a href="#5%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%B8%8E%E9%A2%98%E7%9B%AE%E6%8A%8A%E4%BB%BB%E5%8A%A1%E6%94%BE%E5%88%B0-cli-%E8%83%BD%E8%AF%BB%E5%8F%96%E7%9A%84%E4%BD%8D%E7%BD%AE">⑤ 工作区</a>，最后对上 <a href="#6%E6%8E%A5%E5%85%A5-run%E6%98%BE%E5%BC%8F%E5%8F%82%E6%95%B0%E5%92%8C%E9%9A%90%E5%90%AB%E6%9D%A1%E4%BB%B6%E9%80%90%E9%A1%B9%E5%AF%B9%E4%B8%8A">run 的参数</a>。</p>
+<p>下面每一步都按“从哪里进入、需要什么 → 组成与职责 → 源码怎样实现 → 交给下一步什么”阅读。贯穿示例使用任务 <code>demo</code>、镜像 <code>demo-image</code> 和工作目录 <code>/workspace/demo</code>；这些是示意值，不是运行记录。</p>
+<h2 id="1adapter-service让模型请求入口就位">1．Adapter Service：让模型请求入口就位<a hidden class="anchor" aria-hidden="true" href="#1adapter-service让模型请求入口就位">#</a></h2>
+<p>为后续 CLI 建立可以回连的模型请求入口；输入来自 args 与本例 CONFIG。</p>
+<p><strong>从主线进入：</strong> <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L182">generate</a>（<code>examples/coding_agent_rl/generate.py:182</code>） 的第 184 行调用 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L138"><code>_AdapterService.__init__</code></a>（<code>examples/coding_agent_rl/generate.py:138</code>）。这段组装代码在 <code>examples/</code>，具体 Adapter 与轨迹组件在 <code>slime/agent/</code>。</p>
+<p>调用结束后，外层变量 <code>state</code> 引用这份服务对象。因此构造方法里的 <code>self.tokenizer</code>、<code>self.adapter</code>，对应外层访问的 <code>state.tokenizer</code>、<code>state.adapter</code>；这是同一个对象在不同位置的写法。</p>
+<p><span id="阅读点组件由哪些部分组成各部分负责什么"></span></p>
+<h3 id="组成与职责">组成与职责<a hidden class="anchor" aria-hidden="true" href="#组成与职责">#</a></h3>
+<!-- object-tree:adapter-service -->
+<figure class="reading-object-tree" id="pre4-adapter-service" data-object="adapter-service" aria-label="state : _AdapterService 的组成">
+<figcaption><span class="reading-object-tree__kind">Python 对象</span><code>state : _AdapterService</code></figcaption>
+<p class="reading-object-tree__hint">直接成员共 7 个；点击三角展开内部对象。树线表示成员包含关系，共享引用会单独说明。</p>
+<ul>
+<li><div class="reading-object-tree__member"><code>tokenizer</code><span class="reading-object-tree__role">负责消息编码与生成结果解码；与 Adapter 共享，在同一进程内复用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>max_context_len</code><span class="reading-object-tree__role">上下文预算来源；注册每次任务的 Session 时使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>tool_parser</code><span class="reading-object-tree__role">工具解析配置；创建 Adapter 时传入。</span></div></li>
+<li><div class="reading-object-tree__member"><code>reasoning_parser</code><span class="reading-object-tree__role">推理解析配置；创建 Adapter 时传入。</span></div></li>
+<li><details><summary><code>adapter : AnthropicAdapter</code><span class="reading-object-tree__role">模型协议入口、会话状态与轨迹管理；展开看成员。</span></summary><ul>
+<li><div class="reading-object-tree__member"><code>tokenizer</code><span class="reading-object-tree__role">共享 state.tokenizer；请求编码与输出解码使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>sglang_url</code><span class="reading-object-tree__role">模型服务地址；后续请求转发到这里。</span></div></li>
+<li><div class="reading-object-tree__member"><code>tool_parser</code><span class="reading-object-tree__role">工具输出解析配置；处理模型响应时使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>reasoning_parser</code><span class="reading-object-tree__role">推理文本解析配置；处理模型响应时使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>store : dict[sid, Session]</code><span class="reading-object-tree__role">按 sid 保存会话设置；第 3 部分注册后才有本次任务。</span></div></li>
+<li><div class="reading-object-tree__member"><code>inflight : dict[sid, set[Task]]</code><span class="reading-object-tree__role">记录正在处理的请求，供等待与取消使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>closed : set[sid]</code><span class="reading-object-tree__role">记录已关闭的会话，阻止继续接收请求。</span></div></li>
+<li><div class="reading-object-tree__member"><code>app : aiohttp.web.Application</code><span class="reading-object-tree__role">持有协议路由；由 app_handle 对应的 HTTP 服务运行。</span></div></li>
+<li><div class="reading-object-tree__member"><code>manager : TrajectoryManager</code><span class="reading-object-tree__role">按 sid 管理轨迹树，供后续导出训练样本。</span></div></li>
+<li><div class="reading-object-tree__member"><code>debug_callback</code><span class="reading-object-tree__role">请求调试回调；本入口未传入，默认为 None。</span></div></li>
+<li><div class="reading-object-tree__member"><code>max_turns_per_sid</code><span class="reading-object-tree__role">可选的请求轮数上限；本入口默认为 None。</span></div></li>
+<li><div class="reading-object-tree__member"><code>_sid_turn_count</code><span class="reading-object-tree__role">启用轮数上限时，按 sid 记录已接纳的请求轮数。</span></div></li>
+</ul></details></li>
+<li><details><summary><code>app_handle : AppHandle</code><span class="reading-object-tree__role">已经启动的 HTTP 服务句柄；展开看成员。</span></summary><ul>
+<li><div class="reading-object-tree__member"><code>host</code><span class="reading-object-tree__role">HTTP 服务绑定的监听地址。</span></div></li>
+<li><div class="reading-object-tree__member"><code>port</code><span class="reading-object-tree__role">实际监听端口；用于组成 adapter_url。</span></div></li>
+<li><div class="reading-object-tree__member"><code>thread</code><span class="reading-object-tree__role">运行 HTTP 服务的后台线程。</span></div></li>
+<li><div class="reading-object-tree__member"><code>loop</code><span class="reading-object-tree__role">后台线程中的 Asyncio 事件循环。</span></div></li>
+<li><div class="reading-object-tree__member"><code>runner</code><span class="reading-object-tree__role">aiohttp AppRunner；管理 HTTP 服务的运行与关闭。</span></div></li>
+</ul></details></li>
+<li><div class="reading-object-tree__member"><code>adapter_url</code><span class="reading-object-tree__role">供沙箱 CLI 回连的地址；随后传给 Harness.run。</span></div></li>
+</ul>
+<p class="reading-object-tree__hint">源码：<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L138"><code>examples/coding_agent_rl/generate.py:138</code></a> · <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L141"><code>slime/agent/adapters/common.py:141</code></a> · <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/aiohttp_threaded.py#L26"><code>slime/agent/aiohttp_threaded.py:26</code></a></p>
+</figure>
+<!-- /object-tree:adapter-service -->
+<h3 id="11-先选一对能接起来的-harness-和-adapter">1.1 先选一对能接起来的 Harness 和 Adapter<a hidden class="anchor" aria-hidden="true" href="#11-先选一对能接起来的-harness-和-adapter">#</a></h3>
+<p>模块加载时，<code>SWE_AGENT</code> 选择组件配对：Claude Code 对应 Anthropic Adapter，Codex 对应 OpenAI Adapter。前者的 CLI 发送 Anthropic 形状请求，后者发送本例配置的 OpenAI 形状请求。不能只替换启动 CLI 而忘记相应的协议入口。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>_AGENTS <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;claude_code&#34;</span>: (ClaudeCodeHarness, AnthropicAdapter),
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;codex&#34;</span>: (CodexHarness, OpenAIAdapter),
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>AGENT_NAME <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;SWE_AGENT&#34;</span>, <span style="color:#e6db74">&#34;claude_code&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> AGENT_NAME <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> _AGENTS:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;SWE_AGENT=</span><span style="color:#e6db74">{</span>AGENT_NAME<span style="color:#e6db74">!r}</span><span style="color:#e6db74"> not in </span><span style="color:#e6db74">{</span>sorted(_AGENTS)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>HARNESS_CLS, ADAPTER_CLS <span style="color:#f92672">=</span> _AGENTS[AGENT_NAME]
+</span></span></code></pre></div><p>本节先选 Claude Code / Anthropic，后续继续使用同一条具体实现。</p>
+<h3 id="12-读取-tokenizer上下文和解析配置">1.2 读取 tokenizer、上下文和解析配置<a hidden class="anchor" aria-hidden="true" href="#12-读取-tokenizer上下文和解析配置">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>tokenizer <span style="color:#f92672">=</span> load_tokenizer(args<span style="color:#f92672">.</span>hf_checkpoint, trust_remote_code<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>max_context_len <span style="color:#f92672">=</span> int(getattr(args, <span style="color:#e6db74">&#34;rollout_max_context_len&#34;</span>, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">or</span> <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>tool_parser <span style="color:#f92672">=</span> getattr(args, <span style="color:#e6db74">&#34;sglang_tool_call_parser&#34;</span>, <span style="color:#66d9ef">None</span>) <span style="color:#f92672">or</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>reasoning_parser <span style="color:#f92672">=</span> getattr(args, <span style="color:#e6db74">&#34;sglang_reasoning_parser&#34;</span>, <span style="color:#66d9ef">None</span>) <span style="color:#f92672">or</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>        sglang_url <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>args<span style="color:#f92672">.</span>sglang_router_ip<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>args<span style="color:#f92672">.</span>sglang_router_port<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><ul>
+<li><code>hf_checkpoint</code> 用于加载 tokenizer，后续消息通过聊天模板变成 token，生成 token 也靠它解码；这里加载 tokenizer，不负责启动模型权重服务。</li>
+<li><code>rollout_max_context_len</code> 保存为 <code>state.max_context_len</code>，随后注册每个 Session 时会传进去。</li>
+<li>tool/reasoning parser 配置决定后续怎样理解模型输出，Pre-4 只追配置怎样交给 Adapter，解析算法留到模型请求段。</li>
+</ul>
+<p><strong>当前成果：</strong> 请求处理需要的 tokenizer、上下文设置与解析配置已有来源。</p>
+<h3 id="13-区分两个网络地址">1.3 区分两个网络地址<a hidden class="anchor" aria-hidden="true" href="#13-区分两个网络地址">#</a></h3>
+<p><code>sglang_url</code> 来自 <code>args.sglang_router_ip/port</code>，指向上游已经提供的 SGLang 服务。<code>adapter_url</code> 是之后交给 CLI 的回连地址，它们服务于不同一段请求链。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>CLI -&gt; adapter_url -&gt; Adapter -&gt; sglang_url -&gt; SGLang
+</span></span></code></pre></div><p>用示意地址理解：CLI 请求 <code>http://192.0.2.10:18001/v1/messages</code>，Adapter 再向 <code>http://192.0.2.20:30000/generate</code> 请求生成。</p>
+<p>HTTP 服务的 <code>adapter_bind_host</code> 决定监听哪块本机接口；<code>adapter_public_host</code> 决定告诉沙箱 CLI 用哪个地址回连。配置端口可由服务实际监听结果确定，因而最终 <code>adapter_url</code> 使用 <code>app_handle.port</code>。源码会检查 public host 已配置；实际连通性仍需运行验证。</p>
+<h3 id="14-构造-adapter它内部接住什么">1.4 构造 Adapter，它内部接住什么<a hidden class="anchor" aria-hidden="true" href="#14-构造-adapter它内部接住什么">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>adapter <span style="color:#f92672">=</span> ADAPTER_CLS(
+</span></span><span style="display:flex;"><span>            tokenizer<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>tokenizer,
+</span></span><span style="display:flex;"><span>            sglang_url<span style="color:#f92672">=</span>sglang_url,
+</span></span><span style="display:flex;"><span>            tool_parser<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>tool_parser,
+</span></span><span style="display:flex;"><span>            reasoning_parser<span style="color:#f92672">=</span>self<span style="color:#f92672">.</span>reasoning_parser,
+</span></span><span style="display:flex;"><span>            fork_threshold_tokens<span style="color:#f92672">=</span>CONFIG<span style="color:#f92672">.</span>fork_merge_threshold,
+</span></span><span style="display:flex;"><span>        )
+</span></span></code></pre></div><p>进入 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L141"><code>BaseAdapter.__init__</code></a>（<code>slime/agent/adapters/common.py:141</code>），对照上面的 <code>adapter</code> 分支看成员如何建立：配置交给请求处理，<code>app</code> 注册路由，<code>store</code> 等容器保存会话与请求状态，<code>manager</code> 管理轨迹。</p>
+<p><code>fork_threshold_tokens</code> 把本例的轨迹组织阈值交给 TrajectoryManager；Pre-4 先看配置来源和接收者，具体分段行为留到轨迹部分。</p>
+<p>此时已经有接收请求和管理会话的组件，但具体任务的 Session 要到第 3 部分才注册。Session 保存默认设置；token/消息轨迹在 TrajectoryManager 中，两者职责分开。</p>
+<h3 id="15-把-adapter-app-运行起来">1.5 把 Adapter App 运行起来<a hidden class="anchor" aria-hidden="true" href="#15-把-adapter-app-运行起来">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>app_handle <span style="color:#f92672">=</span> run_app_in_thread(
+</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>adapter<span style="color:#f92672">.</span>app,
+</span></span><span style="display:flex;"><span>            host<span style="color:#f92672">=</span>CONFIG<span style="color:#f92672">.</span>adapter_bind_host,
+</span></span><span style="display:flex;"><span>            port<span style="color:#f92672">=</span>CONFIG<span style="color:#f92672">.</span>adapter_port,
+</span></span><span style="display:flex;"><span>            thread_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;anthropic-adapter&#34;</span>,
+</span></span><span style="display:flex;"><span>            runner_kwargs<span style="color:#f92672">=</span>{
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;handler_cancellation&#34;</span>: <span style="color:#66d9ef">True</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;access_log_class&#34;</span>: FilteredAccessLogger,
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>adapter_url <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://</span><span style="color:#e6db74">{</span>CONFIG<span style="color:#f92672">.</span>adapter_public_host<span style="color:#e6db74">}</span><span style="color:#e6db74">:</span><span style="color:#e6db74">{</span>self<span style="color:#f92672">.</span>app_handle<span style="color:#f92672">.</span>port<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>进入 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/aiohttp_threaded.py#L46">run_app_in_thread</a>（<code>slime/agent/aiohttp_threaded.py:46</code>），只走“创建后台线程 → 独立事件循环 → AppRunner/TCPSite 监听 → 返回 AppHandle”。这解释了后面外层等待 CLI 时，Adapter 仍可以处理它发来的模型请求。</p>
+<p><code>AppHandle</code> 保存线程、事件循环、runner、监听 host/port；<code>state.adapter_url</code> 根据可回连 host 和实际端口形成。</p>
+<details class="reading-extra">
+<summary>补读：请求取消与访问日志配置</summary>
+<p><code>handler_cancellation=True</code> 是请求取消处理的一项配置，具体 abort 行为留到模型请求或失败链路展开。<code>access_log_class</code> 指定 FilteredAccessLogger，控制 HTTP 访问日志：略过 HEAD 请求与不超过 120 秒的成功请求，错误或慢请求继续记录。</p>
+</details>
+<h3 id="16-回到-generate复用服务继续准备任务">1.6 回到 generate：复用服务，继续准备任务<a hidden class="anchor" aria-hidden="true" href="#16-回到-generate复用服务继续准备任务">#</a></h3>
+<p><a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/utils/misc.py#L62">SingletonMeta</a>（<code>slime/utils/misc.py:62</code>） 让同一进程后续使用 <code>_AdapterService(args)</code> 时复用已有实例。不同进程不能因此自动共享一个 Python 对象，也不能把新任务的 md、Session 或 Sandbox 当成这份公共入口的一部分。</p>
+<p><strong>返回主线：</strong> <code>generate:185</code>。现在模型请求入口就位，下一步读这次任务本身。</p>
+<h2 id="2任务信息把样本整理成任务合同">2．任务信息：把样本整理成任务合同<a hidden class="anchor" aria-hidden="true" href="#2任务信息把样本整理成任务合同">#</a></h2>
+<p>模型入口就位后，读取本次样本；输入是 base_sample 和本次选用的任务协议。</p>
+<p><strong>从主线进入：</strong> <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L77">get_metadata</a>（<code>examples/coding_agent_rl/swe.py:77</code>）。<code>evaluation</code> 先选择 <code>CONFIG.eval_protocol</code> 或 <code>train_protocol</code>；具体协议再选择对应的元数据解析。</p>
+<h3 id="组成与职责-1">组成与职责<a hidden class="anchor" aria-hidden="true" href="#组成与职责-1">#</a></h3>
+<!-- object-tree:metadata -->
+<figure class="reading-object-tree" data-object="metadata" aria-label="md : dict 的组成">
+<figcaption><span class="reading-object-tree__kind">Python 字典 · scaleswe 分支</span><code>md : dict</code></figcaption>
+<p class="reading-object-tree__hint">每次 generate 整理本次任务的数据；它是独立的局部变量。以下列出 scaleswe 返回的键。</p>
+<ul>
+<li><div class="reading-object-tree__member"><code>protocol</code><span class="reading-object-tree__role">选择本任务采用的准备、检查和评分协议。</span></div></li>
+<li><div class="reading-object-tree__member"><code>instance_id</code><span class="reading-object-tree__role">标识当前是哪一道任务；用于构造会话 ID、关联日志和结果。</span></div></li>
+<li><div class="reading-object-tree__member"><code>image</code><span class="reading-object-tree__role">环境镜像；创建 Sandbox 时使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>workdir</code><span class="reading-object-tree__role">远端工作目录路径；准备文件和启动 CLI 时使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>problem_statement</code><span class="reading-object-tree__role">具体题目文本；随后写入远端问题文件。</span></div></li>
+<li><div class="reading-object-tree__member"><code>looks_swebench</code><span class="reading-object-tree__role">识别数据与所选协议可能不匹配的形态；供任务检查使用。</span></div></li>
+<li><details><summary><code>grading : dict</code><span class="reading-object-tree__role">准备命令与后续独立评分需要的材料；展开看键。</span></summary><ul>
+<li><div class="reading-object-tree__member"><code>swepro</code><span class="reading-object-tree__role">SWE 评分相关元数据。</span></div></li>
+<li><div class="reading-object-tree__member"><code>eval_cmd</code><span class="reading-object-tree__role">评估命令，供后续评分执行。</span></div></li>
+<li><div class="reading-object-tree__member"><code>f2p_script</code><span class="reading-object-tree__role">fail-to-pass 测试脚本材料，供后续评分使用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>pre_commands</code><span class="reading-object-tree__role">可选准备命令，供工作区准备使用。</span></div></li>
+</ul></details></li>
+</ul>
+<p class="reading-object-tree__hint">源码：<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L83"><code>examples/coding_agent_rl/swe.py:83</code></a></p>
+</figure>
+<!-- /object-tree:metadata -->
+<h3 id="沿源码走一遍">沿源码走一遍<a hidden class="anchor" aria-hidden="true" href="#沿源码走一遍">#</a></h3>
+<p><code>md</code> 是 Python 字典，<code>&quot;instance_id&quot;</code> 是字典的一个键，实际取值写成 <code>md[&quot;instance_id&quot;]</code>。例如示意任务的值是 <code>&quot;demo&quot;</code>，表示当前处理哪一道任务；源码中的 <code>instance_id = md[&quot;instance_id&quot;]</code> 将它取到同名局部变量。<code>session_id</code> 则标识本次 Agent 会话，后面的第 3 步需要新建会话标识时，会用任务标识等信息构造它。这里应区分字典键、局部变量和对象属性：<code>base_sample.session_id</code> 才是对样本对象属性的访问。</p>
+<p>第一遍选 scaleswe 分支，进入 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L83">_metadata_scaleswe</a>（<code>examples/coding_agent_rl/swe.py:83</code>）。它从 <code>base_sample.metadata</code>、部分 <code>remote_env_info</code> 回退字段、label/prompt 中整理一份 md；字段的作用与下游用途见上面的组成树。</p>
+<p>示意任务的关键值是 <code>instance_id=demo</code>、<code>image=demo-image</code>、<code>workdir=/workspace/demo</code>，题目为“修复一个函数并通过测试”，评分材料可以含 <code>eval_cmd=python -m pytest -q</code>。这里是规范化任务信息示意，不要求读者在第一遍记住所有数据集字段与回退优先级。</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    protocol <span style="color:#f92672">=</span> CONFIG<span style="color:#f92672">.</span>eval_protocol <span style="color:#66d9ef">if</span> evaluation <span style="color:#66d9ef">else</span> CONFIG<span style="color:#f92672">.</span>train_protocol
+</span></span><span style="display:flex;"><span>    md <span style="color:#f92672">=</span> swe<span style="color:#f92672">.</span>get_metadata(base_sample, protocol)
+</span></span><span style="display:flex;"><span>    instance_id <span style="color:#f92672">=</span> md[<span style="color:#e6db74">&#34;instance_id&#34;</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> md[<span style="color:#e6db74">&#34;image&#34;</span>] <span style="color:#f92672">or</span> <span style="color:#f92672">not</span> md[<span style="color:#e6db74">&#34;workdir&#34;</span>]:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> _abort_result(base_sample, <span style="color:#e6db74">&#34;missing_image_or_workdir&#34;</span>, instance_id)
+</span></span><span style="display:flex;"><span>    reason <span style="color:#f92672">=</span> swe<span style="color:#f92672">.</span>evaluability_check(md)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> reason:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> _abort_result(base_sample, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;unevaluatable:</span><span style="color:#e6db74">{</span>reason<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>, instance_id)
+</span></span></code></pre></div><p>源码先检查镜像与目录，再由 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L151">evaluability_check</a>（<code>examples/coding_agent_rl/swe.py:151</code>） 做协议相关检查。条件不满足就返回 ABORTED 结果，尚未到 Session/沙箱准备。md 描述任务，但读取 md 不会创建环境，也不会执行题目。</p>
+<p><strong>返回主线：</strong> <code>generate:194</code>。任务身份、执行环境要求与题目材料已有来源，下一步给它注册模型会话。</p>
+<h2 id="3会话和默认采样让请求属于这次任务">3．会话和默认采样：让请求属于这次任务<a hidden class="anchor" aria-hidden="true" href="#3会话和默认采样让请求属于这次任务">#</a></h2>
+<p>任务检查通过后，为它关联模型请求；输入是任务身份、采样参数和上下文预算。</p>
+<p><strong>从主线进入：</strong> <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L308">_session_id</a>（<code>examples/coding_agent_rl/generate.py:308</code>） 与 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L210">BaseAdapter.open_session</a>（<code>slime/agent/adapters/common.py:210</code>）。</p>
+<h3 id="组成与职责-2">组成与职责<a hidden class="anchor" aria-hidden="true" href="#组成与职责-2">#</a></h3>
+<!-- object-tree:session -->
+<figure class="reading-object-tree" data-object="session" aria-label="state.adapter.store[sid] : Session 的组成">
+<figcaption><span class="reading-object-tree__kind">Python 对象 · open_session 之后</span><code>state.adapter.store[sid] : Session</code></figcaption>
+<p class="reading-object-tree__hint">sid 是 store 的字典键。Session 只有下面两个字段；消息与 token 轨迹由 adapter.manager 管理。</p>
+<ul>
+<li><div class="reading-object-tree__member"><code>sampling_defaults : dict</code><span class="reading-object-tree__role">默认采样参数的浅拷贝；后续结合请求参数生成采样设置。</span></div></li>
+<li><div class="reading-object-tree__member"><code>max_context_tokens : int</code><span class="reading-object-tree__role">本会话的上下文预算；来自 state.max_context_len。</span></div></li>
+</ul>
+<p class="reading-object-tree__hint">源码：<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L34"><code>slime/agent/adapters/common.py:34</code></a> · <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L210"><code>slime/agent/adapters/common.py:210</code></a></p>
+</figure>
+<!-- /object-tree:session -->
+<h3 id="沿源码走一遍-1">沿源码走一遍<a hidden class="anchor" aria-hidden="true" href="#沿源码走一遍-1">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    session_id <span style="color:#f92672">=</span> base_sample<span style="color:#f92672">.</span>session_id <span style="color:#f92672">=</span> _session_id(base_sample, instance_id)
+</span></span><span style="display:flex;"><span>    state<span style="color:#f92672">.</span>adapter<span style="color:#f92672">.</span>open_session(
+</span></span><span style="display:flex;"><span>        session_id,
+</span></span><span style="display:flex;"><span>        sampling_defaults<span style="color:#f92672">=</span>sampling_params,
+</span></span><span style="display:flex;"><span>        max_context_tokens<span style="color:#f92672">=</span>state<span style="color:#f92672">.</span>max_context_len,
+</span></span><span style="display:flex;"><span>    )
+</span></span></code></pre></div><p>sid 的来源依次是：复用 <code>base_sample.session_id</code>；样本有 index/group_index 时按任务身份构造；否则生成带随机后缀的 ID。示意样本 <code>index=0/group_index=0/instance_id=demo</code> 得到 <code>cagent-demo-0-0</code>，并写回样本。</p>
+<p>进入 open_session：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;Register a fresh per-sid Session; sids must be unique.&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> sid <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>store:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;session_id </span><span style="color:#e6db74">{</span>sid<span style="color:#e6db74">!r}</span><span style="color:#e6db74"> already exists; sids must be unique per agent run&#34;</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>store[sid] <span style="color:#f92672">=</span> Session(
+</span></span><span style="display:flex;"><span>            sampling_defaults<span style="color:#f92672">=</span>dict(sampling_defaults <span style="color:#f92672">or</span> {}),
+</span></span><span style="display:flex;"><span>            max_context_tokens<span style="color:#f92672">=</span>int(max_context_tokens <span style="color:#f92672">or</span> <span style="color:#ae81ff">0</span>),
+</span></span><span style="display:flex;"><span>        )
+</span></span></code></pre></div><p>它要求 sid 未占用，在 <code>adapter.store</code> 注册 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L34">Session</a>（<code>slime/agent/adapters/common.py:34</code>）；保存默认采样字典的浅拷贝和上下文预算。此时没有发模型请求，也没有训练轨迹。</p>
+<p>例如 <code>sampling_params</code> 含 <code>temperature=0.7/max_new_tokens=1024</code>，这些值保存在 Session。后面的 CLI 请求携带 sid，Adapter 才能从 Session 取出基础设置。<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L416">_sampling_params</a>（<code>slime/agent/adapters/common.py:416</code>） 随后还会结合请求 body：温度等可由 body 覆盖，生成长度则受到默认长度与请求长度的共同限制。本节记住“先存默认设置，后续处理请求时消费”即可。</p>
+<p>sid 最后会由 Harness 写进 CLI 请求凭据；采样字典并未直接作为 Harness.run 的参数。Session 是任务级设置，Adapter HTTP 服务是进程内可复用入口，两者生命周期不同。</p>
+<p><strong>返回主线：</strong> <code>generate:202</code>。会话已注册，接下来进入任务预算与环境上下文。</p>
+<h2 id="4执行环境与-cli交出能运行-agent-的-sb">4．执行环境与 CLI：交出能运行 Agent 的 sb<a hidden class="anchor" aria-hidden="true" href="#4执行环境与-cli交出能运行-agent-的-sb">#</a></h2>
+<p>会话已注册，现在需要承载 CLI 的远端环境；输入是任务镜像与环境配置。</p>
+<p><strong>从主线进入：</strong> <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L96">boot_agent_sandbox</a>（<code>examples/coding_agent_rl/generate.py:96</code>）。</p>
+<h3 id="组成与职责-3">组成与职责<a hidden class="anchor" aria-hidden="true" href="#组成与职责-3">#</a></h3>
+<!-- object-tree:sandbox -->
+<figure class="reading-object-tree" data-object="sandbox" aria-label="sb : E2BSandbox 的组成">
+<figcaption><span class="reading-object-tree__kind">Python 对象 · 进入环境上下文之后</span><code>sb : E2BSandbox</code></figcaption>
+<p class="reading-object-tree__hint">构造时 _sb 为 None、sandbox_id 为空；__aenter__ 创建远端环境后填入。CLI 安装在远端环境中。</p>
+<ul>
+<li><div class="reading-object-tree__member"><code>image</code><span class="reading-object-tree__role">任务要求的环境镜像；创建远端环境时传递。</span></div></li>
+<li><div class="reading-object-tree__member"><code>timeout</code><span class="reading-object-tree__role">远端环境的生命周期时长；创建时传给 SDK，默认 3600 秒。</span></div></li>
+<li><div class="reading-object-tree__member"><code>image_metadata_key</code><span class="reading-object-tree__role">向环境网关传递镜像信息时使用的 metadata 键。</span></div></li>
+<li><div class="reading-object-tree__member"><code>rpc_retries</code><span class="reading-object-tree__role">底层 RPC 操作的最大尝试次数，包含首次调用。</span></div></li>
+<li><div class="reading-object-tree__member"><code>size</code><span class="reading-object-tree__role">环境规格配置；创建时传递，默认字符串为 &quot;md&quot;。</span></div></li>
+<li><div class="reading-object-tree__member"><code>_sb : AsyncSandbox</code><span class="reading-object-tree__role">E2B SDK 句柄；通过它执行命令、读写远端文件。</span></div></li>
+<li><div class="reading-object-tree__member"><code>sandbox_id</code><span class="reading-object-tree__role">远端环境 ID；供环境识别与日志关联使用。</span></div></li>
+</ul>
+<p class="reading-object-tree__hint">源码：<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L174"><code>slime/agent/sandbox.py:174</code></a> · <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L281"><code>slime/agent/sandbox.py:281</code></a></p>
+</figure>
+<!-- /object-tree:sandbox -->
+<h3 id="沿源码走一遍-2">沿源码走一遍<a hidden class="anchor" aria-hidden="true" href="#沿源码走一遍-2">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>task image
+</span></span><span style="display:flex;"><span>  -&gt; E2BSandbox wrapper
+</span></span><span style="display:flex;"><span>  -&gt; __aenter__: create remote environment
+</span></span><span style="display:flex;"><span>  -&gt; selected Harness.install_cli
+</span></span><span style="display:flex;"><span>  -&gt; yield sb
+</span></span><span style="display:flex;"><span>  -&gt; caller uses sb
+</span></span><span style="display:flex;"><span>  -&gt; __aexit__: cleanup attempt
+</span></span></code></pre></div><p>构造 <code>E2BSandbox(image)</code> 先得到包装对象，进入 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L281">E2BSandbox.<strong>aenter</strong></a>（<code>slime/agent/sandbox.py:281</code>） 才通过 E2B SDK 创建远端环境。镜像通过网关使用的 metadata key 传递；这一步的具体集群/网关实现是外部边界。</p>
+<p>然后执行 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L36">ClaudeCodeHarness.install_cli</a>（<code>slime/agent/harness/claude_code.py:36</code>） → <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L125">install_npm_cli</a>（<code>slime/agent/harness/common.py:125</code>）：从宿主配置的安装包准备 Node 运行时、把 CLI 包写到环境中、安装并执行 CLI 自检。第一遍走通每层的输入和成果，安装重试与底层 SDK 细节按故障再深入。</p>
+<p>创建/安装由 <code>_BOOT_SEM</code> 限制启动并发；失败时有重试，安装出错会尝试退出候选环境。成功后 <code>yield sb</code> 交给 generate；调用方离开上下文时执行 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L302">E2BSandbox.<strong>aexit</strong></a>（<code>slime/agent/sandbox.py:302</code>） 的回收尝试。</p>
+<p><strong>当前成果：</strong> 有可操作的执行环境，所选 CLI 已安装；还没有启动这次 Agent 任务。<strong>返回主线：</strong> <code>generate:204</code>，准备仓库目录与题目。这里使用 E2B，Kubernetes 后端的操作语义与真实运行还需另行适配和验证。</p>
+<h2 id="5工作区与题目把任务放到-cli-能读取的位置">5．工作区与题目：把任务放到 CLI 能读取的位置<a hidden class="anchor" aria-hidden="true" href="#5工作区与题目把任务放到-cli-能读取的位置">#</a></h2>
+<p>环境与 CLI 已就位，现在落实用户权限和具体题目；输入是 sb、工作目录与 md。</p>
+<p><strong>从主线进入：</strong> <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L177">prepare_workspace</a>（<code>examples/coding_agent_rl/swe.py:177</code>），输入是 <code>sb/workdir/md</code>。</p>
+<h3 id="组成与职责-4">组成与职责<a hidden class="anchor" aria-hidden="true" href="#组成与职责-4">#</a></h3>
+<!-- object-tree:workspace -->
+<figure class="reading-object-tree" data-object="workspace" aria-label="workdir → /workspace/demo/ 的组成">
+<figcaption><span class="reading-object-tree__kind">远端文件目录 · 示意路径</span><code>workdir → /workspace/demo/</code></figcaption>
+<p class="reading-object-tree__hint">这里展示文件位置。md["workdir"] 保存路径字符串，sb 提供访问远端目录的操作。</p>
+<ul>
+<li><div class="reading-object-tree__member"><code>PROBLEM_STATEMENT.md</code><span class="reading-object-tree__role">prepare_workspace 写入具体题目；CLI 运行后按 prompt 读取。</span></div></li>
+<li><div class="reading-object-tree__member"><code>仓库原有文件</code><span class="reading-object-tree__role">由任务镜像和工作目录提供；本节不预设具体文件名。</span></div></li>
+</ul>
+<p class="reading-object-tree__hint">源码：<a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L177"><code>examples/coding_agent_rl/swe.py:177</code></a></p>
+</figure>
+<!-- /object-tree:workspace -->
+<h3 id="沿源码走一遍-3">沿源码走一遍<a hidden class="anchor" aria-hidden="true" href="#沿源码走一遍-3">#</a></h3>
+<p>它先调用 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L390">ensure_agent_user</a>（<code>slime/agent/sandbox.py:390</code>），准备 agent 用户和工作目录权限；scaleswe 分支再依次处理 <code>grading.swepro.before_repo_set_cmd</code> 与 <code>grading.pre_commands</code> 中的可选准备命令，最后写题目文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> sb<span style="color:#f92672">.</span>write_file(
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>workdir<span style="color:#e6db74">}</span><span style="color:#e6db74">/PROBLEM_STATEMENT.md&#34;</span>,
+</span></span><span style="display:flex;"><span>        md<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;problem_statement&#34;</span>) <span style="color:#f92672">or</span> <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>        user<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;agent&#34;</span>,
+</span></span><span style="display:flex;"><span>    )
+</span></span></code></pre></div><p>用前面的示意值，此时 <code>/workspace/demo/PROBLEM_STATEMENT.md</code> 内已有具体题目。Claude Code 的通用任务 prompt 会指示它读取问题文件并完成任务；具体题目不是通过额外的 run 参数传递。</p>
+<p>工作区来自镜像与任务目录，这个函数不意味着对每个任务重新 clone 一份仓库。它负责落实本例需要的用户、准备命令和问题文件。<code>BaseHarness.run()</code> 随后也会确保用户，操作设计为可以重复调用，不能把两次调用解释成创建了两份工作区。</p>
+<p><strong>返回主线：</strong> <code>generate:205</code>。模型入口、任务、会话、环境与题目五项条件已经连到一起，现在可以进入 Harness。</p>
+<h2 id="6接入-run显式参数和隐含条件逐项对上">6．接入 run：显式参数和隐含条件逐项对上<a hidden class="anchor" aria-hidden="true" href="#6接入-run显式参数和隐含条件逐项对上">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>                agent_exit_code <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> HARNESS_CLS()<span style="color:#f92672">.</span>run(
+</span></span><span style="display:flex;"><span>                    sb,
+</span></span><span style="display:flex;"><span>                    workdir<span style="color:#f92672">=</span>md[<span style="color:#e6db74">&#34;workdir&#34;</span>],
+</span></span><span style="display:flex;"><span>                    session_id<span style="color:#f92672">=</span>session_id,
+</span></span><span style="display:flex;"><span>                    adapter_url<span style="color:#f92672">=</span>state<span style="color:#f92672">.</span>adapter_url,
+</span></span><span style="display:flex;"><span>                    time_budget_sec<span style="color:#f92672">=</span>CONFIG<span style="color:#f92672">.</span>agent_time_budget_sec,
+</span></span><span style="display:flex;"><span>                    prompt<span style="color:#f92672">=</span>swe<span style="color:#f92672">.</span>SWE_PROMPT,
+</span></span><span style="display:flex;"><span>                )
+</span></span></code></pre></div><table>
+	<thead>
+			<tr>
+					<th>run 接收到的参数</th>
+					<th>Pre-4 的来源</th>
+					<th>run 内怎样接着使用</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>sb</code></td>
+					<td>boot_agent_sandbox 创建并安装 CLI 后交出</td>
+					<td>通过环境接口落实用户、配置与命令操作</td>
+			</tr>
+			<tr>
+					<td><code>workdir</code></td>
+					<td>md 中的目录，prepare_workspace 已处理</td>
+					<td>填入 HarnessContext，作为 CLI 工作目录</td>
+			</tr>
+			<tr>
+					<td><code>session_id</code></td>
+					<td>_session_id + open_session</td>
+					<td>填入 HarnessContext，供 CLI 请求关联本次会话</td>
+			</tr>
+			<tr>
+					<td><code>adapter_url</code></td>
+					<td>state 中已运行的 HTTP 入口地址</td>
+					<td>填入 HarnessContext，再形成 CLI 模型请求地址</td>
+			</tr>
+			<tr>
+					<td><code>time_budget_sec</code></td>
+					<td>CONFIG.agent_time_budget_sec</td>
+					<td>交给启动/等待逻辑的 Agent 运行预算</td>
+			</tr>
+			<tr>
+					<td><code>prompt</code></td>
+					<td>swe.SWE_PROMPT</td>
+					<td>交给 CLI 的通用任务指令，具体题目从文件读取</td>
+			</tr>
+	</tbody>
+</table>
+<p>还有三项隐含条件：所选 CLI 已安装，工作区题目文件已存在，Adapter 中已有对应 sid 的默认采样与上下文设置。这些不需要变成额外的 run 参数。</p>
+<p>预算也要区分：外层 <code>rollout_guard_sec</code> 包住任务处理范围，<code>agent_time_budget_sec</code> 是 Harness 的运行等待预算，<code>eval_timeout_sec</code> 之后交给评分。Pre-4 中配置已就位，它们由不同阶段消费。</p>
+<h2 id="下一步launch-agent-继续准备什么">下一步：Launch Agent 继续准备什么<a hidden class="anchor" aria-hidden="true" href="#下一步launch-agent-继续准备什么">#</a></h2>
+<p>进入 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L81">BaseHarness.run</a>（<code>slime/agent/harness/common.py:81</code>） 后，继续确保用户，建立 <code>HarnessContext</code>，调用 <code>write_config()</code> 和 <code>launch_and_wait()</code>。其中 <code>HarnessContext</code> 只接住 workdir、sid、adapter_url 和模型标签；sb、prompt 与时间预算继续以独立参数参与调用。</p>
+<p>所以 Pre-4 将启动条件准备好，动作 4 再把这些条件变成 CLI 的具体配置、命令、环境变量和启动等待行为。模型消息转换、token 生成、响应与轨迹记录仍发生在 CLI 启动后的请求循环中。</p>
+<h2 id="回到总览图试着自己串起来">回到总览图：试着自己串起来<a hidden class="anchor" aria-hidden="true" href="#回到总览图试着自己串起来">#</a></h2>
+<p>回到 <a href="#%E5%90%AF%E5%8A%A8%E5%87%86%E5%A4%87%E6%80%BB%E8%A7%88%E5%9B%BE">开头的五步图</a>，暂不翻看源码和成员细节，试着回答：</p>
+<ol>
+<li>从模型入口到题目文件，五步各留下了什么？哪一步创建环境、哪一步安装 CLI、哪一步才开始运行任务？</li>
+<li><code>state</code> 与 Session 为什么分开？默认采样和轨迹各保存在什么地方？</li>
+<li><code>run</code> 的六个参数分别来自哪个对象、配置或常量？除了参数，还需要哪三个已经成立的条件？</li>
+</ol>
+<p>回答后再对照 <a href="#%E4%B8%BB%E7%BA%BF%E4%BB%A3%E7%A0%81%E9%AA%A8%E6%9E%B6">主线代码骨架</a> 和 <a href="#6%E6%8E%A5%E5%85%A5-run%E6%98%BE%E5%BC%8F%E5%8F%82%E6%95%B0%E5%92%8C%E9%9A%90%E5%90%AB%E6%9D%A1%E4%BB%B6%E9%80%90%E9%A1%B9%E5%AF%B9%E4%B8%8A">run 参数来源</a> 核对。说不清哪次交接，就只回到那一步补读；能连起来之后，再进入 Launch Agent。</p>
+<p>以上为静态源码讲解，示意参数不是运行证据。本轮没有执行真实 CLI、E2B、SGLang 或源码仓库测试；网络连通、环境回收和性能效果仍需实际验证。代码片段来自 <a href="https://github.com/THUDM/slime/tree/22a89f96835969a47055a659c588f46151f8b07a">THUDM/slime 源码</a>，许可见 <a href="https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/LICENSE">Apache 2.0</a>。</p>
+<p><strong>下一步：<a href="http://localhost:1313/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/">4. Launch Agent</a>。</strong></p>
+</main></body></html>

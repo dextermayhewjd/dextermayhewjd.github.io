@@ -1,0 +1,44 @@
+/* The local reading context stays visible; source locations open on demand. */
+.slime-action-context {
+  margin: 24px 0;
+  padding: 18px 20px;
+  border-left: 3px solid var(--secondary);
+  border-radius: 0 6px 6px 0;
+  background: var(--code-bg);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.post-content .slime-action-context__title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.slime-action-context > p { margin: 0 0 12px; }
+.slime-action-context dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 7px 14px;
+  margin: 0;
+}
+.slime-action-context dl > dt,
+.slime-action-context dl > dd {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+.slime-action-context dt { font-weight: 600; white-space: nowrap; }
+.slime-action-context dd { min-width: 0; overflow-wrap: anywhere; }
+.slime-action-context .reading-source { margin: 14px 0 0; }
+.slime-action-context__files { padding-left: 20px; }
+.slime-action-context__files > li { margin-top: 14px; }
+.slime-action-context__files p { margin: 0 0 4px; }
+.slime-action-context code { white-space: normal; overflow-wrap: anywhere; }
+.slime-action-context__symbols { font-size: 13px; }
+.slime-action-context-overview { overflow-x: auto; }
+.slime-action-context-overview table { min-width: 650px; }
+.slime-action-context-overview th[scope="row"] { min-width: 140px; }
+@media (max-width: 600px) {
+  .slime-action-context { padding: 15px 12px; }
+  .slime-action-context dl { grid-template-columns: 1fr; gap: 2px; }
+  .slime-action-context dd + dt { margin-top: 9px; }
+}

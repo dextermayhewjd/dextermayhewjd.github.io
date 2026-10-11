@@ -1,0 +1,137 @@
+/* Pre-4 pilot: object ownership and member roles, separate from execution flow. */
+.reading-object-tree {
+  margin: 20px 0 28px;
+  padding: 20px;
+  border: 1px solid var(--border, #d8dee9);
+  border-radius: 10px;
+  background: var(--entry, #fff);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.reading-object-tree figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0 0 8px;
+  color: var(--primary, #172334);
+  font-weight: 600;
+}
+
+.reading-object-tree__kind {
+  color: var(--secondary, #526173);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.reading-object-tree p.reading-object-tree__hint {
+  margin: 0 0 12px;
+  color: var(--secondary, #526173);
+  font-size: 13px;
+}
+
+.reading-object-tree ul {
+  list-style: none;
+  margin: 0 0 0 7px;
+  padding: 0 0 0 18px;
+}
+
+.reading-object-tree li {
+  position: relative;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.reading-object-tree li::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--border, #d8dee9);
+}
+
+.reading-object-tree li::after {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 18px;
+  width: 12px;
+  border-top: 1px solid var(--border, #d8dee9);
+}
+
+.reading-object-tree li:last-child::before {
+  bottom: auto;
+  height: 18px;
+}
+
+.reading-object-tree__member,
+.reading-object-tree summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 1px 0;
+}
+
+.reading-object-tree code {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.reading-object-tree__role {
+  color: var(--secondary, #526173);
+  overflow-wrap: anywhere;
+}
+
+.reading-object-tree summary {
+  cursor: pointer;
+  list-style: none;
+  border-radius: 3px;
+}
+
+.reading-object-tree summary::-webkit-details-marker { display: none; }
+
+.reading-object-tree summary::before {
+  content: "▸";
+  color: var(--secondary, #526173);
+}
+
+.reading-object-tree details[open] > summary::before { content: "▾"; }
+
+.reading-object-tree summary:focus-visible {
+  outline: 2px solid var(--primary, #172334);
+  outline-offset: 3px;
+}
+
+.reading-object-tree details > ul { margin-top: 5px; }
+
+.reading-extra {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border, #d8dee9);
+  border-radius: 8px;
+}
+
+.reading-extra > summary { cursor: pointer; }
+.reading-extra > summary:focus-visible {
+  outline: 2px solid var(--primary, #172334);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .reading-object-tree { padding: 14px 12px; font-size: 14px; }
+  .reading-object-tree ul { padding-left: 14px; }
+  .reading-object-tree li::before,
+  .reading-object-tree li::after { left: -14px; }
+  .reading-object-tree li::after { width: 9px; }
+  .reading-object-tree__role { flex-basis: 100%; }
+}
+
+@media print {
+  .reading-object-tree { break-inside: avoid; }
+}

@@ -1,0 +1,44 @@
+{
+  "adoptedPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "approvedSnapshot": "slime_photo/code-reading/previews/action-5/reading.md",
+  "approvedSnapshotSha256": "c1ce662820b2409b9eb6a71037e70f7952e9f0fa4ae7d48717bb10327f2819bc",
+  "preservedOriginalFiles": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/diagram.svg": "539ea11eb0bca9caf047a3cc600433fa3cf1d7e87451bec60f238f219fca38dd",
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/run-sandbox.svg": "bb255b7a12844792fe84265292c237f770557a02927a98eb03557f8715778f7b",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/1.命令和文件操作.md": "8db1903c1cf3b7d0ae80f7b3fe61ab1ab6396b322a2bad3248cf0ba80526857f",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/2.主路径和源码函数.md": "b734b9a2ca9fa85186cbd64243825b2553075a141e061da91ae50c3c73f63205",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/3.创建入口和生命周期.md": "8e68f64f44c2b5ee1f3ca055069c96ce851e472e38b2cf1add298f20d7076705",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/README.md": "2fb109779682c4a9883e75ed0f25cd6a7fbc4c707ed8cf5c2a58139572f895a9",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/run-sandbox.svg": "bb255b7a12844792fe84265292c237f770557a02927a98eb03557f8715778f7b",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/纵向数据流/README.md": "592915b09967a6f513830d8a9218987a251a960274a5bc36e444b21beb88e5a4",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/纵向数据流/flow.svg": "de482bcc0ad21e66404bbc8b07cc51b8076fec6a533f403e3dc11a3f303cc25d",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/纵向数据流/index.html": "a49c17e86c2b3a516f3f349d554c84b4fab4e1816376612934a25a6894e10f47",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/纵向数据流/示例.json": "0ce8c4d846f237cbcd1e52ba6a1be86b44b1f1f9a66a66f0ae8a4f965fdafa7a"
+  },
+  "baselinePage": "/previews/slime-action-5/baseline/",
+  "baselineBodySha256": "11dc103a2b7984ae2060f5dcfa5ca11c8dd9f26f4648e51655259e549c2a986c",
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/_index.md": {
+      "before": "7295d79cdb1223bdfe3d796ac588be18d28d299a6cfcc2456e2e9e071b82d3f2",
+      "after": "eb23888cdece2dd3bc023d2cf8bcb8be110373d782f7b15983aa54d7fd11465a",
+      "reason": "User approved the revised reading; the formal page and preview now share the canonical Action 5 body."
+    }
+  },
+  "editorialChanges": [
+    "Add a folded link to the original README archive",
+    "Label the copied source checklist as the adopted chapter"
+  ],
+  "currentFiles": {
+    "SOURCE-CHECK.md": "25e395ff49d521fd8f5b2d1a83b2aeab2b1a21a93a1bdb63ce54944f3d149616",
+    "SOURCE.md": "eb0e330fb273182fc3a6f39aac3998dbf7997514cceb284cd97e5224f9305f1a",
+    "flow.svg": "437a1f50221ef8d033c4553336459e3b420591b9a5f4c325e9237ff6bf706c07",
+    "reading.md": "67031174ee9584661fe804432305c3c3bd79c82cfb94f6a4329912d7dace98ec",
+    "source-file-hashes.json": "dda59b71bec0383545250a5e8882bce459b1e4baa84d41f50931b1895fd0e63d",
+    "source-groups.json": "acd4e5bdca57a0434e61e5e178028417063023656b392621501e54f07f63189e",
+    "upstream-check.json": "eeae88d5020fe3034328236abb9286efba3c5c6f5a77e157257be29bfa1fd5e2",
+    "validation.json": "676feec3dd712d18d7b94cde4e830a34df6d32b4eb26802b8ad0d41b2f20d50c",
+    "示例.json": "374a618ef6c003794c1910aa19ba5b6d284820dbff90bfdbfb1be0dc1c73a4cf"
+  },
+  "navigationEvidence": "slime_photo/code-reading/action-navigations.json"
+}

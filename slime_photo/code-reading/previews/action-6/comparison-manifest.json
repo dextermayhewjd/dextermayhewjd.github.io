@@ -1,0 +1,45 @@
+{
+  "status": "candidate-not-adopted",
+  "originalPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/6-exec-commands/",
+  "baselinePage": "/previews/slime-action-6/baseline/",
+  "candidatePage": "/previews/slime-action-6/",
+  "comparisonPage": "/previews/slime-action-6/compare/",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "preservedFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/6.Exec Commands/README.md": "60da2bffe4bb04e6c57a2b55d7d43060e0d4d8fd9314cac44c508adaf5e38df9",
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/_index.md": "eb23888cdece2dd3bc023d2cf8bcb8be110373d782f7b15983aa54d7fd11465a"
+  },
+  "baselineTemplateAdjustment": "chapterRoot keeps original sibling links resolving inside the preview.",
+  "currentFiles": {
+    "CHANGES.md": "1046370c0e3f79c5b326037872ee8fb58b1b8fbf113ee2347cf56a2007433d68",
+    "SOURCE-CHECK.md": "51481689494706b759d85393f9b0792470d007b54b371b962466f2baafe324eb",
+    "flow.svg": "ef99b583b8f0fc41082f72f5b371a7f7b99375db3886902a1982ac0c54164084",
+    "reading.md": "e63f16b5cd60c72e13a5bbcc7eec9e3a7146d02bf8d33a882d18ad51e46072a5",
+    "source-file-hashes.json": "f7a04fc2f74a8a0c430a4095cb0532d43ed211e9beb7029393ac122f7b9c8d02",
+    "source-groups.json": "e0a6f8629d2b13b296b623f65d465fdbbb5d13daacc4982f1b7f413c174f3e91",
+    "upstream-check.json": "d91b93a647d89152a51f7bbe860a387419e7085ef390c010c5f70726adc38a41",
+    "validation.json": "19572ff9f1b36f61286a504c520d8a690d7425a9ca92178837893d2995e13352",
+    "verify_example.py": "cc2421df2581fc7ac91300fac5f2d4a2b3f5d258c1de6c730710b8851b389531",
+    "示例.json": "26773a7ab8405a0eeac4638a7651fc9f57c41257148c6a3f38998fb29e616b80"
+  },
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/6-exec-commands/_index.md": {
+      "before": "bb3b13c7aa31bb49f922cc1d11520fde3ce68b0e2d9e226353ec71e257b61b60",
+      "after": "98b792c08b74a7040853f86914130c90f13cabdea8e1349050c85df4b23dd937",
+      "reason": "User requested short pseudocode navigation across current Action chapters."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/reading.md": {
+      "before": "a6912a5dbacd33eaa1f9d91290ed13f0d9b7e27bb8c0a8f10b156212fbf365ac",
+      "after": "67031174ee9584661fe804432305c3c3bd79c82cfb94f6a4329912d7dace98ec",
+      "reason": "User requested short pseudocode navigation across current Action chapters.",
+      "followupChanges": [
+        {
+          "before": "77e6318fa19b3762ec66d6122662b4927e1acf52b9d02a73f8ad1a6b6b89dd9e",
+          "after": "67031174ee9584661fe804432305c3c3bd79c82cfb94f6a4329912d7dace98ec",
+          "reason": "Add explicit surrounding Action scopes to chapter reading pseudocode."
+        }
+      ]
+    }
+  },
+  "navigationEvidence": "slime_photo/code-reading/action-navigations.json"
+}

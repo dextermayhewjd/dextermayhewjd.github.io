@@ -1,0 +1,71 @@
+{
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "sourceVerification": {
+    "sourceFilesSha256": {
+      "slime/agent/adapters/common.py": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "slime/agent/adapters/anthropic.py": "66ef380a3fc2ee8e582041ac8948857eea5e8a24ff5e9816a51320abedbd8980",
+      "slime/agent/trajectory.py": "6dbb7bec446d81fa0542a4c954d458b4a11edab6776b45a63bc33bca08dd0469"
+    },
+    "oldAndLocalSourcesMatch": true,
+    "jsonExamplesMatched": 7,
+    "sourceGroupsMatched": 9,
+    "samplingCases": [
+      {
+        "defaults": {},
+        "requestMaxTokens": 128,
+        "expectedMaxNewTokens": 128
+      },
+      {
+        "defaults": {
+          "max_new_tokens": 64
+        },
+        "requestMaxTokens": 128,
+        "expectedMaxNewTokens": 64
+      },
+      {
+        "defaults": {},
+        "requestMaxTokens": 8192,
+        "expectedMaxNewTokens": 4096
+      },
+      {
+        "defaults": {
+          "max_new_tokens": 8192
+        },
+        "requestMaxTokens": 9000,
+        "expectedMaxNewTokens": 8192
+      }
+    ],
+    "originalFilesPreserved": 6,
+    "executionBoundary": "Only AST-extracted pure Session and _sampling_params executed; no tokenizer, model, network or agent."
+  },
+  "approvedDraftVerification": {
+    "codeAndExampleBlocksUnchanged": 17,
+    "fixedSourceLinksUnchanged": 20,
+    "sourceFoldsUnchanged": 9,
+    "v2SnapshotUnchanged": true,
+    "sections4And5Unchanged": true,
+    "readingGoal": "Expose the difference in output for user review; learning effectiveness not measured.",
+    "browser": {
+      "comparisonStartsAtMatchingSection": true,
+      "entryRows": {
+        "v2": 5,
+        "v3": 4
+      },
+      "allThreeTableColumnsVisible": true,
+      "sourceDetailsClosedByDefault": 9,
+      "keyboardExpansionWorks": true,
+      "resourceHTTPStatus": 200,
+      "mobileBodyOverflow": false
+    }
+  },
+  "adopted": true,
+  "adoptionChecks": {
+    "officialSidebarUsesV3": true,
+    "officialAndPreviewShareCanonicalBody": true,
+    "sourceDetailsClosed": 9,
+    "keyboardExpansionWorks": true,
+    "resourcesReturn200": true,
+    "originalAndV2ArchivesReadable": true,
+    "mobileBodyOverflow": false
+  }
+}

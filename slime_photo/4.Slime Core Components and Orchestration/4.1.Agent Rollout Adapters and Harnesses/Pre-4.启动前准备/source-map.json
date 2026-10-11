@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "repository": "THUDM/slime",
+  "localRoot": "/home/fredkeira/projects/slime",
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "verifiedAt": "2026-10-10",
+  "verification": "static Git blob and AST symbol locations; tests listed as reading material, not executed",
+  "entries": [
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "generate",
+      "line": 182,
+      "endLine": 283,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L182"
+    },
+    {
+      "path": "slime/agent/harness/common.py",
+      "symbol": "BaseHarness.run",
+      "line": 81,
+      "endLine": 104,
+      "sha256": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L81"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "Sandbox",
+      "line": 28,
+      "endLine": 59,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L28"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "exec_and_wait",
+      "line": 82,
+      "endLine": 145,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L82"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "run_evaluation",
+      "line": 239,
+      "endLine": 247,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L239"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter._run_turn",
+      "line": 318,
+      "endLine": 393,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L318"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "call_sglang_generate",
+      "line": 442,
+      "endLine": 514,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L442"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter.finish_session",
+      "line": 245,
+      "endLine": 276,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L245"
+    },
+    {
+      "path": "slime/agent/harness/claude_code.py",
+      "symbol": null,
+      "line": 1,
+      "endLine": 71,
+      "sha256": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L1"
+    },
+    {
+      "path": "slime/agent/harness/common.py",
+      "symbol": "run_agent",
+      "line": 107,
+      "endLine": 122,
+      "sha256": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L107"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "git_diff",
+      "line": 230,
+      "endLine": 233,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L230"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "_grade_scaleswe",
+      "line": 253,
+      "endLine": 287,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L253"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter.drop_session",
+      "line": 278,
+      "endLine": 281,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L278"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter.shutdown_session",
+      "line": 225,
+      "endLine": 243,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L225"
+    },
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "_AdapterService",
+      "line": 137,
+      "endLine": 179,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L137"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "get_metadata",
+      "line": 77,
+      "endLine": 80,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L77"
+    },
+    {
+      "path": "slime/agent/aiohttp_threaded.py",
+      "symbol": "run_app_in_thread",
+      "line": 46,
+      "endLine": 98,
+      "sha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/aiohttp_threaded.py#L46"
+    },
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "_session_id",
+      "line": 308,
+      "endLine": 313,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L308"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter.open_session",
+      "line": 210,
+      "endLine": 223,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L210"
+    },
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "boot_agent_sandbox",
+      "line": 96,
+      "endLine": 134,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L96"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "prepare_workspace",
+      "line": 177,
+      "endLine": 198,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L177"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.__aenter__",
+      "line": 281,
+      "endLine": 300,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L281"
+    },
+    {
+      "path": "slime/agent/harness/claude_code.py",
+      "symbol": "ClaudeCodeHarness.write_config",
+      "line": 44,
+      "endLine": 55,
+      "sha256": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L44"
+    },
+    {
+      "path": "slime/agent/harness/claude_code.py",
+      "symbol": "ClaudeCodeHarness.launch_and_wait",
+      "line": 57,
+      "endLine": 71,
+      "sha256": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L57"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "_await_done_marker",
+      "line": 65,
+      "endLine": 79,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L65"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "_render_token_ids",
+      "line": 58,
+      "endLine": 73,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L58"
+    },
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "_eval_result",
+      "line": 336,
+      "endLine": 361,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L336"
+    },
+    {
+      "path": "examples/coding_agent_rl/generate.py",
+      "symbol": "_AdapterService.__init__",
+      "line": 138,
+      "endLine": 179,
+      "sha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L138"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "BaseAdapter.__init__",
+      "line": 141,
+      "endLine": 175,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L141"
+    },
+    {
+      "path": "slime/utils/misc.py",
+      "symbol": "SingletonMeta",
+      "line": 62,
+      "endLine": 76,
+      "sha256": "6678a7028bc57e9e9191c3657e0ff6b3f5975ab7f720990016d4194578133c6d",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/utils/misc.py#L62"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "_metadata_scaleswe",
+      "line": 83,
+      "endLine": 110,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L83"
+    },
+    {
+      "path": "examples/coding_agent_rl/swe.py",
+      "symbol": "evaluability_check",
+      "line": 151,
+      "endLine": 154,
+      "sha256": "ca8f69d23bb7f3b0fadd8e9bdccb6519ff87367203ae4f39e195696a752cfca7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L151"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "Session",
+      "line": 34,
+      "endLine": 42,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L34"
+    },
+    {
+      "path": "slime/agent/adapters/common.py",
+      "symbol": "_sampling_params",
+      "line": 416,
+      "endLine": 439,
+      "sha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L416"
+    },
+    {
+      "path": "slime/agent/harness/claude_code.py",
+      "symbol": "ClaudeCodeHarness.install_cli",
+      "line": 36,
+      "endLine": 42,
+      "sha256": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L36"
+    },
+    {
+      "path": "slime/agent/harness/common.py",
+      "symbol": "install_npm_cli",
+      "line": 125,
+      "endLine": 151,
+      "sha256": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L125"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.__aexit__",
+      "line": 302,
+      "endLine": 307,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L302"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "ensure_agent_user",
+      "line": 390,
+      "endLine": 399,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L390"
+    },
+    {
+      "path": "slime/agent/harness/common.py",
+      "symbol": "HarnessContext",
+      "line": 43,
+      "endLine": 54,
+      "sha256": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L43"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.exec",
+      "line": 309,
+      "endLine": 340,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L309"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.write_file",
+      "line": 342,
+      "endLine": 378,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L342"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.read_file",
+      "line": 380,
+      "endLine": 387,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L380"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox._rpc_retry",
+      "line": 237,
+      "endLine": 271,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L237"
+    },
+    {
+      "path": "slime/agent/aiohttp_threaded.py",
+      "symbol": "AppHandle",
+      "line": 26,
+      "endLine": 43,
+      "sha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/aiohttp_threaded.py#L26"
+    },
+    {
+      "path": "slime/agent/sandbox.py",
+      "symbol": "E2BSandbox.__init__",
+      "line": 174,
+      "endLine": 189,
+      "sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "url": "https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L174"
+    }
+  ]
+}

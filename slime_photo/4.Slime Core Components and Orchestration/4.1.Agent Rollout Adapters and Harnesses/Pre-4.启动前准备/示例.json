@@ -1,0 +1,43 @@
+{
+  "fixtureOnly": true,
+  "description": "用于贯穿Pre-4阅读的假设值，不是实际部署或执行记录",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "sampleIdentity": {
+    "index": 0,
+    "group_index": 0,
+    "instance_id": "demo",
+    "session_id": "cagent-demo-0-0"
+  },
+  "task": {
+    "image": "demo-image",
+    "workdir": "/workspace/demo",
+    "problem_statement": "Fix a function and pass tests.",
+    "grading": {
+      "eval_cmd": "python -m pytest -q"
+    }
+  },
+  "modelEntrypoints": {
+    "adapter_url": "http://192.0.2.10:18001",
+    "sglang_url": "http://192.0.2.20:30000"
+  },
+  "sessionSettings": {
+    "sampling_defaults": {
+      "temperature": 0.7,
+      "max_new_tokens": 1024
+    },
+    "max_context_tokens": 8192
+  },
+  "runInputs": {
+    "sb": "created E2BSandbox wrapper; CLI installed",
+    "workdir": "/workspace/demo",
+    "session_id": "cagent-demo-0-0",
+    "adapter_url": "http://192.0.2.10:18001",
+    "time_budget_sec": 1800,
+    "prompt": "swe.SWE_PROMPT"
+  },
+  "implicitPreparedState": [
+    "PROBLEM_STATEMENT.md exists",
+    "CLI installed",
+    "sid registered in adapter.store"
+  ]
+}

@@ -1,0 +1,18 @@
+{{- $resource := resources.Get "slime-photo/code-reading/action-contexts.json" -}}
+{{- if not $resource -}}
+  {{- errorf "Slime action context mapping is missing" -}}
+{{- else -}}
+  {{- $mapping := $resource.Content | transform.Unmarshal -}}
+  {{- $slugs := dict "pre-4" "pre-4" "action-2" "2-translate-forward" "action-3" "3-generate-tokens" "action-3-5" "3-5" "action-4" "4-launch-agent" "action-5" "5-manage-sandbox" "action-6" "6-exec-commands" "action-7" "7-make-api-calls" -}}
+  <div class="slime-action-context-overview">
+    <table>
+      <thead><tr><th scope="col">章节</th><th scope="col">当前主线</th><th scope="col">本章展开</th><th scope="col">读完返回</th></tr></thead>
+      <tbody>
+        {{- range $mapping.contexts -}}
+          {{- $url := printf "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/%s/" (index $slugs .id) -}}
+          <tr><th scope="row"><a href="{{ $url | relURL }}">{{ .title }}</a></th><td>{{ $.Page.RenderString .host }}</td><td>{{ $.Page.RenderString .focus }}</td><td>{{ $.Page.RenderString .returnTo }}</td></tr>
+        {{- end -}}
+      </tbody>
+    </table>
+  </div>
+{{- end -}}

@@ -1,0 +1,22 @@
+{
+  "checkedAtUTC": "2026-10-11T04:07:40.246601+00:00",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "chapters": 8,
+  "chapterTestsPassed": 18,
+  "liveHTTP": "All eight formal chapter URLs returned 200 and exactly one matching navigation block.",
+  "renderOrder": "Reading question, short navigation pseudocode, chapter diagram, existing source explanation.",
+  "sourcePreservation": "Snapshot checks exclude marked navigation; source snippets, original diagrams and historical candidates retain their roles.",
+  "skillSynced": true,
+  "screenshots": [
+    "/tmp/slime-nav-action2.png",
+    "/tmp/slime-nav-action7.png"
+  ],
+  "runtime": "No external CLI, model, sandbox or training was run.",
+  "scopeAnnotationUpdate": {
+    "checkedAtUTC": "2026-10-11T04:36:16.745063+00:00",
+    "chapters": 8,
+    "chapterTestsPassed": 18,
+    "liveCodeHashesMatch": true,
+    "change": "All chapter reading pseudocode now identifies surrounding Actions and their responsibility ranges."
+  }
+}

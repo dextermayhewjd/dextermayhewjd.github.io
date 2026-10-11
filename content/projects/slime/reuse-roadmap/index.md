@@ -1,7 +1,7 @@
 ---
 title: "Slime 全仓代码复用与项目路线"
 linkTitle: "全仓代码复用与项目路线"
-description: "面向 Agent 工程岗位，梳理 Slime 全仓可复用的执行、评测、Trace、数据队列、模型服务与训练能力，以及 API、Kubernetes 和自部署模型的接入边界。"
+description: "梳理 Slime 全仓可复用的执行、评测、Trace、数据队列、模型服务与训练能力，以及 API、Kubernetes 和自部署模型的接入边界。"
 weight: 5
 ShowToc: true
 ---
@@ -12,16 +12,16 @@ ShowToc: true
 
 源码基准为 [THUDM/slime 的 `2f2318653f6f794dddd321eff7c9d4b7b174643f`](https://github.com/THUDM/slime/tree/2f2318653f6f794dddd321eff7c9d4b7b174643f)，文件盘点范围为该版本的 657 个 Git 已跟踪文件。下文覆盖全仓结构及各模块关键入口，不表示逐行审计了全部文件。站内已有 Agent 动作讲解使用 `8c17b676cb57af1d17ee4402e91e9209af84b60b`，两者的版本边界应分别保留。
 
-## 项目能力与岗位要求
+## 项目能力与复用入口
 
-| 岗位关注点 | 项目中应展示的行为 | 优先借鉴 Slime 的部分 |
+| 技术方向 | 实现目标 | 优先借鉴 Slime 的部分 |
 | --- | --- | --- |
 | Python 异步与并发 | 并发执行任务、限制请求量、取消超时任务、处理背压 | `rollout/`、`utils/async_utils.py`、`data/transport.py` |
 | Agent 完整链路 | 模型请求、工具调用、上下文、执行结果和评分能够关联 | `agent/`、多轮示例、`rm_hub/`、`observability/` |
 | Kubernetes 工程 | 环境创建、就绪检查、资源限制、失败排查和资源回收 | 在现有沙箱接口外补集群适配，复用上层任务逻辑 |
-| 评测或训练经验 | 固定数据集、可比较的评分结果；后续连接 SFT 或 RL | `eval_config.py`、评分器、`train.py`、`backends/` |
+| 评测与训练 | 固定数据集、可比较的评分结果；后续连接 SFT 或 RL | `eval_config.py`、评分器、`train.py`、`backends/` |
 | 稳定性与可维护性 | 重试、任务恢复、持久化、清理、契约测试 | `data/`、`cleanup.py`、`tests/` |
-| 研发效能工具 | 按任务查看轨迹、错误、耗时和实验差异 | Trace、指标、离线时间线查看器 |
+| 轨迹与结果分析 | 按任务查看轨迹、错误、耗时和实验差异 | Trace、指标、离线时间线查看器 |
 
 第一期就应完成一条可演示的任务链：提交任务，领取任务，创建执行环境，调用模型与工具，收集产物，评分，查看轨迹，最后释放资源。任务失败和服务重启后的行为也属于这条链。
 

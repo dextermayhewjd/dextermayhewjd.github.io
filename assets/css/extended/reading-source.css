@@ -1,0 +1,20 @@
+/* Optional source provenance, shared by adopted reading pages and previews. */
+.reading-source {
+  margin: 8px 0 20px;
+  padding: 0;
+  color: var(--secondary);
+  font-size: 14px;
+}
+.reading-source > summary {
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reading-source > summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.reading-source[open] > summary { margin-bottom: 10px; }
+.reading-source table { margin-bottom: 8px; }
+.reading-source code { overflow-wrap: anywhere; }

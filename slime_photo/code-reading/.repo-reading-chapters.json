@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "route": "slime_photo/code-reading/repo-reading-route.md",
+  "route_sha256": "badc88869e489a8aa6dfe8d79939504fbe24b0ddf3cee60e198fc261f1f06647",
+  "files": {
+    "chapters/00-overview/README.md": "902e211920275e26ddb129884b087319941c7bc1e31c045fdf6122d8e8945000",
+    "chapters/01-task-execution/README.md": "9f18995f09ead225b3d7798eb896fefc7519be2db1f6bdf1e11d9025db0a6537",
+    "chapters/02-model-context/README.md": "4ab83a7e410f7c86ee202d79e213c5df8713717810dd19bd2bf3ef66cc2c5df2",
+    "chapters/03-strategy-evaluation/README.md": "787cf75b180414731ab6ece61db2415207eb1f1171de7d41fa6e6d5d504eea5d",
+    "chapters/04-trace-validation/README.md": "3a5ae17195a33e7bd90b63d24107d8aa5502afe0cd4e31f4774e3fc5be977436",
+    "chapters/05-concurrency-recovery/README.md": "7a542d6b902801685a8222d42cde8d3c4a4f4065fbe938593b9093fb3084f6e4",
+    "chapters/06-serving-resources/README.md": "bae03c35a128c880865844bd5d07657856aa8ce11ea526fe372138f4e187bf14",
+    "chapters/07-training-handoff/README.md": "8435f4fe85f1030c45273721576a37b81039cf5c688788a221fda5fa45b24630",
+    "README.md": "a51fe2c8cc29577ce29b7da23c31f8cddab058deb039fcada1c317639c6b4b22",
+    "COVERAGE.md": "7fdbc195356d78c78a5e1e7d5775103705d63bb4e883b7a201062bb11f1bd09d"
+  }
+}

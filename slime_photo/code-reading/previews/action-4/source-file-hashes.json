@@ -1,0 +1,7 @@
+{
+  "slime/agent/harness/common.py": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+  "slime/agent/harness/claude_code.py": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+  "slime/agent/harness/codex.py": "da9f815f777c6268c98203d80afd67d0a079976e7f5f968fba7cc79131f9f1b4",
+  "slime/agent/sandbox.py": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+  "examples/coding_agent_rl/generate.py": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+}

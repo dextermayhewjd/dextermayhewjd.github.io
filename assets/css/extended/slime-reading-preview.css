@@ -1,0 +1,97 @@
+/* Draft-only reading previews: all rules are scoped to their own templates. */
+.slime-action-preview__notice {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--code-bg);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.slime-action-preview__notice p { margin: 0 0 6px; }
+.slime-action-preview__notice nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.slime-action-preview__notice a,
+.slime-reading-comparison a { text-decoration: underline; text-underline-offset: 3px; }
+.slime-action-preview__notice a:focus-visible,
+.slime-reading-comparison a:focus-visible,
+.slime-reading-comparison iframe:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+
+.main:has(> .slime-reading-comparison) { max-width: 2000px; }
+.slime-reading-comparison { min-width: 0; }
+.slime-reading-comparison__header { margin-bottom: 20px; }
+.slime-reading-comparison__header h1 { margin: 0 0 8px; font-size: clamp(26px, 3vw, 36px); }
+.slime-reading-comparison__header p { margin: 8px 0; }
+.slime-reading-comparison__status { color: var(--secondary); font-size: 14px; }
+.slime-reading-comparison__hint { color: var(--secondary); font-size: 14px; }
+.slime-reading-comparison__intro { max-width: 1000px; font-size: 16px; }
+.slime-reading-comparison__intro table {
+  width: 100%;
+  margin: 16px 0 24px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+.slime-reading-comparison__intro th,
+.slime-reading-comparison__intro td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.slime-reading-comparison__intro th { background: var(--code-bg); }
+.slime-reading-comparison__panes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.slime-reading-comparison__pane {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--entry);
+}
+.slime-reading-comparison__pane-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.slime-reading-comparison__pane-header h2 { margin: 0; font-size: 18px; }
+.slime-reading-comparison__pane-header a { font-size: 14px; }
+.slime-reading-comparison iframe {
+  display: block;
+  width: 100%;
+  height: 76vh;
+  min-height: 480px;
+  border: 0;
+  background: var(--theme);
+}
+.slime-reading-comparison__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .slime-action-preview .slime-reading-guide table {
+    display: table;
+    table-layout: fixed;
+    word-break: normal;
+  }
+  .slime-action-preview .slime-reading-guide table code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .slime-reading-comparison__panes { grid-template-columns: minmax(0, 1fr); }
+  .slime-reading-comparison iframe { height: 70vh; min-height: 420px; }
+}

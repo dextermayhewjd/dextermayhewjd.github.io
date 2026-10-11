@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1650" viewBox="0 0 1000 1650" role="img" aria-labelledby="title desc">
+<title id="title">Action 6：CLI 后台运行与完成标记等待</title><desc id="desc">从run_agent进入exec_and_wait，写脚本和状态路径，清理后防重启动，远端CLI运行与Slime轮询同时推进，取得退出状态与输出后返回Harness。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker></defs>
+<style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334}.title{font-size:30px;font-weight:700}.heading{font-size:25px;font-weight:700}.subheading{font-size:21px;font-weight:700}.body{font-size:20px}.note{font-size:17px;fill:#526173}.code{font-family:"DejaVu Sans Mono",monospace;font-size:18px;fill:#453a80}.card{fill:#fff;stroke:#b9c7d9;stroke-width:1.5}.part{fill:#f2f0fa;stroke:#c3badf;stroke-width:1.2}.exit{fill:#edf7f0;stroke:#82ac91;stroke-width:2}.flow{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}</style>
+<rect width="1000" height="1650" fill="#fff"/>
+<text x="24" y="44" class="title">6. Exec Commands：后台启动，等到完成再返回</text>
+<text x="24" y="78" class="note">Action 5 的接口在这里组合成一次长命令执行；本章启动的是整个 CLI。</text>
+<rect x="44" y="105" width="912" height="135" rx="12" class="card"/>
+<text x="64" y="143" class="heading">① 接住启动要求</text>
+<text x="64" y="180" class="code">run_agent → await exec_and_wait(sb, cmd=start_cmd, ...)</text>
+<text x="64" y="216" class="body">工作区 /workspace/demo；用户 agent；env 带模型入口与会话凭据。</text>
+<path d="M500 241 V271" class="flow"/>
+<rect x="44" y="274" width="912" height="326" rx="12" class="card"/>
+<text x="64" y="313" class="heading">② 写启动脚本，分清四份运行状态</text>
+<text x="64" y="347" class="note">以下是函数的局部变量；tag=&quot;run&quot; 用于形成状态路径。</text>
+<rect x="64" y="370" width="422" height="94" rx="12" class="part"/>
+<text x="80" y="398" class="subheading">launcher：要执行的脚本</text>
+<text x="80" y="426" class="note">/tmp/.run.sh</text>
+<text x="80" y="451" class="note">执行 cmd 后写 echo $?</text>
+<rect x="514" y="370" width="422" height="94" rx="12" class="part"/>
+<text x="530" y="398" class="subheading">done_file：CLI 退出状态</text>
+<text x="530" y="426" class="note">/tmp/.run.done</text>
+<text x="530" y="451" class="note">由脚本写，等待端读</text>
+<rect x="64" y="477" width="422" height="94" rx="12" class="part"/>
+<text x="80" y="505" class="subheading">lock_dir：同次启动防重</text>
+<text x="80" y="533" class="note">/tmp/.run.spawned</text>
+<text x="80" y="558" class="note">传输重放时避免再次启动</text>
+<rect x="514" y="477" width="422" height="94" rx="12" class="part"/>
+<text x="530" y="505" class="subheading">out_file：CLI 输出</text>
+<text x="530" y="533" class="note">工作区/.harness/trajectory.jsonl</text>
+<text x="530" y="558" class="note">stdout 与 stderr 写入同一文件</text>
+<text x="64" y="588" class="code">await sb.write_file(launcher, launcher_body, user=user)</text>
+<path d="M500 601 V631" class="flow"/>
+<rect x="44" y="634" width="912" height="251" rx="12" class="card"/>
+<text x="64" y="673" class="heading">③ 先清理旧状态，再提交防重的后台启动</text>
+<text x="64" y="710" class="code">清理：rm lock_dir / out_file / done_file</text>
+<text x="64" y="746" class="code">启动：mkdir lock_dir ... || exit 0</text>
+<text x="64" y="779" class="code">      setsid bash launcher &lt; /dev/null &gt; out_file 2&gt;&amp;1 &amp;</text>
+<text x="64" y="819" class="body">env 在启动时传入；脚本进入 workdir，再执行 CLI 命令。</text>
+<text x="64" y="856" class="note">提交命令的返回 ≠ CLI 的最终退出码。</text>
+<path d="M500 886 V916" class="flow"/>
+<rect x="44" y="919" width="912" height="360" rx="12" class="card"/>
+<text x="64" y="958" class="heading">④ 运行与等待同时推进，完成标记连接两边</text>
+<rect x="64" y="982" width="420" height="230" rx="12" class="part"/>
+<text x="82" y="1017" class="subheading">远端环境：CLI 进程</text>
+<text x="82" y="1055" class="body">读取题目、调用模型、执行工具</text>
+<text x="82" y="1093" class="code">持续输出 → out_file</text>
+<text x="82" y="1131" class="body">命令结束：写退出码</text>
+<text x="82" y="1167" class="code">echo $? &gt; done_file</text>
+<text x="82" y="1194" class="note">模型请求发生在运行期间，接 Action 7。</text>
+<rect x="514" y="982" width="422" height="230" rx="12" class="part"/>
+<text x="532" y="1017" class="subheading">Slime 等待端：轮询</text>
+<text x="532" y="1055" class="code">await _await_done_marker(...)</text>
+<text x="532" y="1093" class="body">每轮先 sleep(5)，再检查文件</text>
+<text x="532" y="1131" class="code">test -f done_file &amp;&amp; cat ...</text>
+<text x="532" y="1167" class="code">标记出现：int(out.strip())</text>
+<text x="532" y="1194" class="note">没有可用标记则继续等待。</text>
+<path d="M484 1238 H514" class="flow"/>
+<text x="178" y="1255" class="note">脚本留下完成标记，等待端读取其中的退出码</text>
+<path d="M500 1280 V1310" class="flow"/>
+<rect x="44" y="1313" width="912" height="215" rx="12" class="exit"/>
+<text x="64" y="1352" class="heading">⑤ 返回状态与所需输出，交回 Harness</text>
+<text x="64" y="1390" class="code">exec_and_wait → (exit_code, output)</text>
+<text x="64" y="1426" class="body">本例成功且 want_output=False → (0, &quot;&quot;)；输出文件仍存在。</text>
+<text x="64" y="1462" class="code">run_agent: exit_code, _ = ... → return exit_code</text>
+<text x="64" y="1498" class="note">Harness 把整数状态交还 generate，外层接着收集 diff。</text>
+<text x="24" y="1570" class="note">等待预算耗尽返回 -1，本函数不杀掉 CLI；沙箱回收由外层上下文负责。</text>
+<text x="24" y="1600" class="note">同一个 tag 的执行不能重叠；清理为下一次调用准备，防重针对同次启动的重放。</text>
+<text x="24" y="1630" class="note">箭头表示调用、数据交接与返回；并排的运行端与等待端在同一运行期间推进。</text>
+</svg>

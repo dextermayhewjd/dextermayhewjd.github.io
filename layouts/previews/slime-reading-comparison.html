@@ -1,0 +1,30 @@
+{{- define "main" }}
+{{- $chapterLabel := .Params.chapterLabel | default "Action 2" -}}
+{{- $originalLabel := .Params.originalLabel | default "原版纵向数据流" -}}
+{{- $candidateLabel := .Params.candidateLabel | default "新版阅读组织" -}}
+<section class="slime-reading-comparison" aria-labelledby="slime-reading-comparison-title">
+  <header class="slime-reading-comparison__header">
+    <p class="slime-reading-comparison__status">{{ .Params.statusText | default "只预览，尚未替换正式页" }}</p>
+    <h1 id="slime-reading-comparison-title">{{ .Title }}</h1>
+    {{- with .Description }}<p>{{ . }}</p>{{ end }}
+    <p class="slime-reading-comparison__hint">两侧可独立滚动；需要完整阅读宽度时，点击“新标签打开”。</p>
+  </header>
+  {{- if .Content }}<div class="slime-reading-comparison__intro post-content">{{ .Content }}</div>{{ end }}
+  <div class="slime-reading-comparison__panes">
+    <section class="slime-reading-comparison__pane" aria-labelledby="slime-reading-original-title">
+      <header class="slime-reading-comparison__pane-header">
+        <h2 id="slime-reading-original-title">A · {{ $originalLabel }}</h2>
+        <a href="{{ .Params.originalPage | relURL }}" target="_blank" rel="noopener">新标签打开<span class="slime-reading-comparison__sr-only">{{ $originalLabel }}</span> ↗</a>
+      </header>
+      <iframe src="{{ .Params.originalPage | relURL }}" title="{{ $chapterLabel }} {{ $originalLabel }}完整页面" loading="eager"></iframe>
+    </section>
+    <section class="slime-reading-comparison__pane" aria-labelledby="slime-reading-candidate-title">
+      <header class="slime-reading-comparison__pane-header">
+        <h2 id="slime-reading-candidate-title">{{ .Params.rightTitle | default (printf "B · %s" $candidateLabel) }}</h2>
+        <a href="{{ .Params.candidatePage | relURL }}" target="_blank" rel="noopener">新标签打开<span class="slime-reading-comparison__sr-only">{{ $candidateLabel }}</span> ↗</a>
+      </header>
+      <iframe src="{{ .Params.candidatePage | relURL }}" title="{{ $chapterLabel }} {{ $candidateLabel }}完整页面" loading="eager"></iframe>
+    </section>
+  </div>
+</section>
+{{- end }}

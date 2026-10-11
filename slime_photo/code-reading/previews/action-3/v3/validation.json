@@ -1,0 +1,20 @@
+{
+  "codeAndExampleBlocksUnchanged": 17,
+  "fixedSourceLinksUnchanged": 20,
+  "sourceFoldsUnchanged": 9,
+  "v2SnapshotUnchanged": true,
+  "sections4And5Unchanged": true,
+  "readingGoal": "Expose the difference in output for user review; learning effectiveness not measured.",
+  "browser": {
+    "comparisonStartsAtMatchingSection": true,
+    "entryRows": {
+      "v2": 5,
+      "v3": 4
+    },
+    "allThreeTableColumnsVisible": true,
+    "sourceDetailsClosedByDefault": 9,
+    "keyboardExpansionWorks": true,
+    "resourceHTTPStatus": 200,
+    "mobileBodyOverflow": false
+  }
+}

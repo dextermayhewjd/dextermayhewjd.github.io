@@ -1,0 +1,46 @@
+{
+  "purpose": "Compare V2 with V3 generated using the revised minimum-understanding rule",
+  "changesAdopted": true,
+  "preservedV2": {
+    "slime_photo/code-reading/previews/action-3/reading.md": "bf71fa59c285efa712cbb219a6442b768b632eb1b58e5ccd2e04383274fcc5c1",
+    "slime_photo/code-reading/previews/action-3/SOURCE-CHECK.md": "70983ab8d2c4df79e88d6a45c5c9e43eaa7f76fd2f066aa5845c34acd392439d"
+  },
+  "skillSha256": "cef9ead95fdc8951c7287b97a764f8fb4d0083ee500b339eb735efde3fec25f9",
+  "v2Page": "/previews/slime-action-3/",
+  "v3Page": "/previews/slime-action-3/v3/",
+  "comparisonPage": "/previews/slime-action-3/compare-v3/",
+  "originalComparisonPage": "/previews/slime-action-3/compare-original-v3/",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "currentFiles": {
+    "reading.md": "00511db85a880bf330067889225d4c333f92b93d729dcc3c152f9dbdf07be8e4",
+    "CHANGES.md": "a1a0077c731a9e8a0f0202eaa3b55285dba19ffcbe1cd6cfe49e7b516a295aa6",
+    "SOURCE-CHECK.md": "2bf1d481d83df49ad390c59dc493e9310e743a1c3fd7f95c8489c2754b5e7190",
+    "validation.json": "7ce87482f900bff85c0db3befc1e359d89de006e1a2291c5c7764d885492c558"
+  },
+  "originalManifest": "../comparison-manifest.json",
+  "adoptedPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/",
+  "approvedPageChanges": {
+    "content/previews/slime-action-3/_index.md": {
+      "before": "74af0ed8d1ca23ac231663b8dd72e4f0f77a1fb7e64f68aed70bbd4cb01ece61",
+      "after": "d4e5ba887311b5a8f67d50b6ed36d95357b6be1afd89e46633f7e478e576b40c",
+      "reason": "Apply approved V3 and update archival navigation labels; preserve chapter snapshots."
+    },
+    "content/previews/slime-action-3/compare/index.md": {
+      "before": "0c5ce04680122a26b0d2a6bc177c58326dec5d001b1d201c4cb5c53d62edbfa5",
+      "after": "2d782301145340df0d29d1e939e221028810779b1634b0c314f40ebe1cf0f494",
+      "reason": "Apply approved V3 and update archival navigation labels; preserve chapter snapshots."
+    },
+    "slime_photo/code-reading/previews/action-3/comparison-manifest.json": {
+      "before": "621d580ca622fb676f68861cb3916c638dbb8cf914f385c3df1288990995a170",
+      "after": "199e00f61a47706507ef6d81ee7e2c1aecf6de355b64e84e73354529f5f3b1a6",
+      "reason": "Apply approved V3 and update archival navigation labels; preserve chapter snapshots.",
+      "followupChanges": [
+        {
+          "before": "9009a747c032ed3008c5eb9dd81b1592545864e6f3af1d77b74e5558a2681f7c",
+          "after": "199e00f61a47706507ef6d81ee7e2c1aecf6de355b64e84e73354529f5f3b1a6",
+          "reason": "Record the approved shared reading-context addition in the original comparison manifest."
+        }
+      ]
+    }
+  }
+}

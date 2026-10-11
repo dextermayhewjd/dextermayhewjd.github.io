@@ -1,0 +1,49 @@
+{
+  "parse_plain_matches": true,
+  "parse_tool_matches": true,
+  "both_reply_examples_match": true,
+  "dataclasses_replace_shallow_copy": true,
+  "record_turn_returns_none_and_tree_matches": true,
+  "nonstream": {
+    "stream": false,
+    "events_prepared": 0,
+    "writes": 0,
+    "turn_count": 1,
+    "inflight_empty": true,
+    "trajectory_retained": true
+  },
+  "stream": {
+    "stream": true,
+    "events_prepared": 1,
+    "writes": 6,
+    "turn_count": 1,
+    "inflight_empty": true,
+    "trajectory_retained": true
+  },
+  "python_blocks_parse": 8,
+  "boundary": {
+    "actual_source_ast_executed": true,
+    "model_run": false,
+    "real_tokenizer_decode": false,
+    "network_or_actual_aiohttp": false,
+    "sglang_specialized_parsers": false
+  },
+  "jsonBlocksPreserved": 15,
+  "sourceFilesSha256": {
+    "slime/agent/adapters/common.py": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+    "slime/agent/adapters/anthropic.py": "66ef380a3fc2ee8e582041ac8948857eea5e8a24ff5e9816a51320abedbd8980",
+    "slime/agent/parsing.py": "2c29ed7718fbdbdf88fecd160f528eec22c88e253fc3c3788e271433ffd13b33",
+    "slime/agent/trajectory.py": "6dbb7bec446d81fa0542a4c954d458b4a11edab6776b45a63bc33bca08dd0469"
+  },
+  "sourceGroups": 9,
+  "officialPageModified": false,
+  "browser": {
+    "sameOriginalDiagram": true,
+    "sourceGroupsClosedByDefault": 9,
+    "keyboardExpansion": true,
+    "resourcesHTTP200": true,
+    "mobileBodyOverflow": false,
+    "pre4LinkPresent": true
+  },
+  "chapterTestsPassed": 12
+}

@@ -1,0 +1,6 @@
+{
+  "slime/agent/adapters/common.py": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7",
+  "slime/agent/adapters/anthropic.py": "66ef380a3fc2ee8e582041ac8948857eea5e8a24ff5e9816a51320abedbd8980",
+  "slime/agent/parsing.py": "2c29ed7718fbdbdf88fecd160f528eec22c88e253fc3c3788e271433ffd13b33",
+  "slime/agent/trajectory.py": "6dbb7bec446d81fa0542a4c954d458b4a11edab6776b45a63bc33bca08dd0469"
+}

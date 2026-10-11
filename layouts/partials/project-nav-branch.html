@@ -1,9 +1,12 @@
 {{- $page := .page -}}
 {{- $current := .current -}}
 {{- $active := eq $current.RelPermalink $page.RelPermalink -}}
+{{- if and $current.Params.hideinprojectnav $current.Parent -}}
+  {{- $active = eq $current.Parent.RelPermalink $page.RelPermalink -}}
+{{- end -}}
 {{- $children := slice -}}
 {{- if $page.IsSection -}}
-  {{- $children = union $page.Sections $page.RegularPages -}}
+  {{- $children = where (union $page.Sections $page.RegularPages) "Params.hideinprojectnav" "ne" true -}}
 {{- end -}}
 <li>
   {{- if gt (len $children) 0 -}}

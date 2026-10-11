@@ -1,0 +1,40 @@
+{
+  "purpose": "Action 3 comparison draft; original chapter and materials stay unchanged",
+  "originalPage": "/previews/slime-action-3/baseline/",
+  "candidatePage": "/previews/slime-action-3/",
+  "comparisonPage": "/previews/slime-action-3/compare/",
+  "preservedFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/README.md": "a99991263d07d3cc4db561ead8ede0b7ef6cf1fd4543257900a7a7f93baa7465",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/flow.svg": "2ea3c8260282f8389389a1852b68f74be9b55dd589504f6e6afbf9735d85d65c",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/示例.json": "2ff92deeafe35a3dbdbddf0ec2e6636732331f023c4e632f057581ed82e5728b",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/模型输入.txt": "fa303a8ebbd9b7f7869e6b4ad0c9d54a98f35230b32d42c51526135a72df53f2",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/index.html": "f2c6ec50445a3deb84d40356dead1b30f49509d03709e592e42ee573a8f8905f"
+  },
+  "changesAdopted": false,
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "currentFiles": {
+    "reading.md": "bf71fa59c285efa712cbb219a6442b768b632eb1b58e5ccd2e04383274fcc5c1",
+    "SOURCE-CHECK.md": "70983ab8d2c4df79e88d6a45c5c9e43eaa7f76fd2f066aa5845c34acd392439d",
+    "REVIEW.md": "6b2986daae987a62b2be648051aebf7cc5a50da166aabc3a8a509769371aba7d",
+    "source-groups.json": "dde4d904b77895f3e3d6650e273ef08309e684368b4749bf92e7d884c69096c5",
+    "upstream-check.json": "9b2aeaa4475de9749286de6a8cd81945eb0caa03a919c57c9142505042006582",
+    "validation.json": "0e600902c61cfabd077b1d10c6d51d9b7e171ee8c6f8792bec4c47a71e935271"
+  },
+  "originalPageBeforeAdoption": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/",
+  "adoptedVersion": 3,
+  "currentFormalPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/",
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/_index.md": {
+      "before": "2823f69a01a3a63fede39f8f896776e173a2d6e1faff38c6a007bdc49fddf1f7",
+      "after": "8b19cca23b94e347e82a595b17aaaac4459ec5d176a3402c8372d8ad86720ca2",
+      "reason": "Apply approved V3 and update archival navigation labels; preserve chapter snapshots.",
+      "followupChanges": [
+        {
+          "before": "de200de5faecdc0d14e4006152dffc520075e002deed95c8df97b54798cfe140",
+          "after": "8b19cca23b94e347e82a595b17aaaac4459ec5d176a3402c8372d8ad86720ca2",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    }
+  }
+}

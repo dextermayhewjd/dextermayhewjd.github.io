@@ -1,0 +1,180 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "groups": [
+    [
+      "c01",
+      "共享 _run_turn 先转换、编码，再等待生成结果；turn 是返回值的接收变量。",
+      [
+        [
+          "共享流程与输入准备",
+          "slime/agent/adapters/common.py",
+          318,
+          344
+        ],
+        [
+          "下一步解码与解析",
+          "slime/agent/adapters/common.py",
+          346,
+          354
+        ]
+      ]
+    ],
+    [
+      "c02",
+      "tok 来自适配器；s 由 sid 取出或默认创建，Session 只保存默认采样和额外上下文上限。",
+      [
+        [
+          "当前 tokenizer 与 Session",
+          "slime/agent/adapters/common.py",
+          335,
+          338
+        ],
+        [
+          "Session 字段",
+          "slime/agent/adapters/common.py",
+          33,
+          42
+        ],
+        [
+          "Anthropic 的采样字段名",
+          "slime/agent/adapters/anthropic.py",
+          45,
+          46
+        ]
+      ]
+    ],
+    [
+      "c03",
+      "一次 apply_chat_template(tokenize=True) 同时应用模板并编码，最后统一返回整数列表。",
+      [
+        [
+          "模板编码函数",
+          "slime/agent/adapters/common.py",
+          58,
+          73
+        ]
+      ]
+    ],
+    [
+      "c04",
+      "会话默认值覆盖基础值；请求长度与已有长度取 min，其他采样字段和 stop 按顺序映射。",
+      [
+        [
+          "采样参数整理",
+          "slime/agent/adapters/common.py",
+          416,
+          439
+        ],
+        [
+          "调用位置",
+          "slime/agent/adapters/common.py",
+          455,
+          455
+        ],
+        [
+          "协议字段配置",
+          "slime/agent/adapters/anthropic.py",
+          45,
+          46
+        ]
+      ]
+    ],
+    [
+      "c05",
+      "上下文上限为正时启用预算；耗尽时直接返回空输出，否则再取较小的生成上限。",
+      [
+        [
+          "额外上下文预算",
+          "slime/agent/adapters/common.py",
+          457,
+          468
+        ]
+      ]
+    ],
+    [
+      "c06",
+      "生成请求通过 aiohttp POST 发出，rid 对应一次生成请求，会话标识按条件进入路由请求头。",
+      [
+        [
+          "请求组装与发送",
+          "slime/agent/adapters/common.py",
+          470,
+          496
+        ]
+      ]
+    ],
+    [
+      "c07",
+      "每项第 1 位进入 output_ids，第 0 位转 float 后进入 output_log_probs；结束原因读取 type。",
+      [
+        [
+          "响应读取与提取",
+          "slime/agent/adapters/common.py",
+          496,
+          501
+        ]
+      ]
+    ],
+    [
+      "c08",
+      "生成函数返回冻结 dataclass 实例；ill_formed 默认 False，后续解析通过 dataclasses.replace 产生替代记录。",
+      [
+        [
+          "TurnRecord 定义",
+          "slime/agent/trajectory.py",
+          28,
+          38
+        ],
+        [
+          "封装返回",
+          "slime/agent/adapters/common.py",
+          509,
+          514
+        ],
+        [
+          "接收记录与后续解析",
+          "slime/agent/adapters/common.py",
+          344,
+          354
+        ]
+      ]
+    ],
+    [
+      "c09",
+      "预算耗尽直接返回；HTTP错误抛出；取消/客户端错误/超时会尝试abort后再抛出；共享finally解除在途登记。",
+      [
+        [
+          "上下文用尽",
+          "slime/agent/adapters/common.py",
+          457,
+          468
+        ],
+        [
+          "HTTP 错误",
+          "slime/agent/adapters/common.py",
+          485,
+          495
+        ],
+        [
+          "取消与网络错误",
+          "slime/agent/adapters/common.py",
+          502,
+          507
+        ],
+        [
+          "中止请求函数",
+          "slime/agent/adapters/common.py",
+          517,
+          554
+        ],
+        [
+          "共享流程的 finally",
+          "slime/agent/adapters/common.py",
+          392,
+          393
+        ]
+      ]
+    ]
+  ],
+  "originalMaterialRevision": "8c17b676cb57af1d17ee4402e91e9209af84b60b"
+}

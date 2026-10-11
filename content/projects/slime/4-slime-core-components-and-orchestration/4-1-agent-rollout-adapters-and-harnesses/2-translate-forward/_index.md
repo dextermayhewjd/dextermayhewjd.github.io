@@ -1,19 +1,13 @@
 ---
 title: "2. Translate & Forward"
 summary: "从纵向数据流理解消息和工具定义的转换与交接。"
+description: "先看局部数据流，再沿同一份请求阅读消息转换、工具定义和结果交接。"
 weight: 20
 ShowToc: false
 ShowReadingTime: false
 ShowPostNavLinks: false
 hideMeta: true
+nextPage: "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens"
 ---
 
-## 在任务生命周期中的位置
-
-本章：一次模型请求内的消息与工具转换；接收入口见动作 7。
-
-{{< figure src="/images/slime-lifecycle/action-2.svg" link="/images/slime-lifecycle/action-2.svg" alt="当前位置：动作 2：Translate & Forward" >}}
-
-[返回项目生命周期总览](/projects/slime/#agent-lifecycle) · [放大当前位置图](/images/slime-lifecycle/action-2.svg)
-
-{{< figure src="diagram.svg" alt="Agent Rollout Adapters and Harnesses" class="slime-diagram" >}}
+{{< slime-photo-reading source="4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流" document="reading.md" guide="true" context="action-2" >}}

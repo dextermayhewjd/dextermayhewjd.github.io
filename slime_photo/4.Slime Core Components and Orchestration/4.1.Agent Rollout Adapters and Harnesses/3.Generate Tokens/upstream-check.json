@@ -1,0 +1,38 @@
+{
+  "checkedAtUTC": "2026-10-10T15:56:00.390986+00:00",
+  "localRoot": "/home/fredkeira/projects/slime",
+  "localRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "officialRepository": "https://github.com/THUDM/slime.git",
+  "officialRevision": "58b0878679de339ec7844b45d884a87955a134be",
+  "isOfficialLatest": false,
+  "localBehindBy": 2,
+  "localAheadBy": 0,
+  "comparisonURL": "https://github.com/THUDM/slime/compare/22a89f96835969a47055a659c588f46151f8b07a...58b0878679de339ec7844b45d884a87955a134be",
+  "commits": [
+    {
+      "revision": "d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+      "title": "test: register Megatron bindings regression in CPU CI (#2458)"
+    },
+    {
+      "revision": "58b0878679de339ec7844b45d884a87955a134be",
+      "title": "Add sunabako agent E2E and align top-p score centering (#2457)"
+    }
+  ],
+  "officialTouchesReadingSources": true,
+  "relevantChangedFiles": [
+    "examples/coding_agent_rl/generate.py",
+    "slime/agent/adapters/__init__.py",
+    "slime/agent/adapters/anthropic.py",
+    "slime/agent/adapters/common.py",
+    "slime/agent/adapters/openai.py",
+    "slime/agent/adapters/responses.py",
+    "slime/agent/harness/claude_code.py",
+    "slime/agent/harness/codex.py",
+    "slime/agent/trajectory.py"
+  ],
+  "actions": [
+    "read-only official refs query",
+    "reuse comparison response for identical immutable SHA pair",
+    "no local source update"
+  ]
+}

@@ -2,14 +2,21 @@
 
 ## 先看源码阅读路线
 
-源码目录：`/home/hongshi/projects/slime/`。下面列出完整文件路径；点击链接可查看固定版本 `8c17b676` 的函数入口。
+以下路径相对于 Slime 源码仓库根目录。下面列出完整文件路径；点击链接可查看固定版本 `8c17b676` 的函数入口。
+
+先把调用方准备与 Harness 本体连起来：`_AdapterService` 建立模型请求入口，外层准备任务、Session、环境和题目，然后 `run()` 内继续准备用户、配置与启动。图上是组件关系，本篇沿实际数据和控制权交接阅读。
 
 ```text
-generate.py：找到 HARNESS_CLS().run(...)
-  → common.py：读 BaseHarness.run()
-  → claude_code.py 或 codex.py：读配置与启动命令
-  → common.py：读 run_agent() 的执行委派
+generate()
+  -> _AdapterService.__init__()
+  -> metadata + Session + Sandbox + workspace
+  -> BaseHarness.run()
+       -> write_config()
+       -> launch_and_wait()
+            -> run_agent()
 ```
+
+先读 [generate.py:138](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L138) 的 `_AdapterService.__init__()`，再回 `generate()` 读到启动调用；相关核心源码与本篇旧固定版本一致。
 
 1. [examples/coding_agent_rl/generate.py:205](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/generate.py#L205)：找到 `HARNESS_CLS().run(...)`，向上看启动参数怎样准备。
 2. [slime/agent/harness/common.py:81](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81)：读 `BaseHarness.run()`，看用户准备、上下文、写配置和启动等待的顺序。

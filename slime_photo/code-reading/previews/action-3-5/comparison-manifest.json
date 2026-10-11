@@ -1,0 +1,39 @@
+{
+  "purpose": "3.5 reading candidate; preserve original materials and official page",
+  "originalMaterialPage": "/previews/slime-action-3-5/baseline/",
+  "officialPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-5/",
+  "candidatePage": "/previews/slime-action-3-5/",
+  "comparisonPage": "/previews/slime-action-3-5/compare/",
+  "adopted": true,
+  "preservedFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/README.md": "2f22f09a33e98ef6548023c394efb7044f280c480863367ec731d03d46485fd5",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/flow.svg": "b9b3f4ca2c357a141aea7d814feafb881b7d937b9b0cba6799aabb74a44b408d",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/示例.json": "1883e407193f2361df08948dfe7b117d4f75ec0d54fda87bd404787cb62136be",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/index.html": "b4f1acfb9a41cf96ff2025dd0f3c04323172d78184201acf12fde442ba9b5976",
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-5/diagram.svg": "b9b3f4ca2c357a141aea7d814feafb881b7d937b9b0cba6799aabb74a44b408d"
+  },
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "currentFiles": {
+    "reading.md": "ec0a0693ee94655c1b63b22760ddb2f24d2a908d8804fd6e0894c2b75ba30441",
+    "CHANGES.md": "6eefa51659fa53dc73f8694a981f671cc65cbee6c1600619b778934a91eeb772",
+    "SOURCE-CHECK.md": "075c7280902a64653bb8f1861a2dff9ace33b8e8cb8200dc8f901ae10c491357",
+    "source-groups.json": "db60270b2a2d3e185ac02cf14b186d58412c42c8b1e8718c44a181632d9be045",
+    "source-file-hashes.json": "dcc330bfc720db0fb30a59638b30d2dd0ded29ef68fe536b65822b2584e38c5d",
+    "upstream-check.json": "2542a7b1809788ee499d6894fead36e63aea0c0c6027cb40f18eff2c442d25d3",
+    "validation.json": "febdcb4fe0d96668ce1b4b958de731308c6454112010f824490e9bb514703402"
+  },
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-5/_index.md": {
+      "before": "383ede80d681fa6b9ee31389bbc84a98745aaf9e26b9c233aba40e13d46dedf2",
+      "after": "fa7c7b9da4ae37e83a2c80445e04069e56a47f83cb2180f07cd756db09b67131",
+      "reason": "User approved right-hand reading draft",
+      "followupChanges": [
+        {
+          "before": "d4d44033efbdf358af65521be0af73c0cf05ab2ac9ea718c198957a94dd6becd",
+          "after": "fa7c7b9da4ae37e83a2c80445e04069e56a47f83cb2180f07cd756db09b67131",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    }
+  }
+}

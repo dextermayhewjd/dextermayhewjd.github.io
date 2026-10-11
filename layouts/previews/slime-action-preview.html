@@ -1,0 +1,37 @@
+{{- define "main" }}
+{{- $original := site.GetPage .Params.originalPage -}}
+<div class="project-layout slime-action-preview">
+  {{- with $original }}{{ partial "project-nav.html" . }}{{ end }}
+  <div class="project-layout__content">
+    <aside class="slime-action-preview__notice" aria-label="对比预览说明">
+      {{- if .Params.adoptedPage }}
+      <p><strong>已采用的阅读版本</strong> · 正式阅读页已更新。</p>
+      {{- else }}
+      <p>{{ .Params.previewNotice | default "对比候选版 · 只预览，尚未替换正式页。" }}</p>
+      {{- end }}
+      <nav aria-label="版本切换">
+        <a href="{{ .Params.originalPage | relURL }}">{{ .Params.originalLinkLabel | default "查看原版" }}</a>
+        <a href="{{ .Params.comparisonPage | relURL }}">{{ .Params.comparisonLinkLabel | default "采用前后对比" }}</a>
+      </nav>
+    </aside>
+    <article class="post-single">
+      <header class="post-header">
+        {{- with $original }}{{ partial "breadcrumbs.html" . }}{{ end }}
+        <h1 class="post-title entry-hint-parent">{{ .Title }}</h1>
+        {{- with .Description }}<div class="post-description">{{ . }}</div>{{ end }}
+      </header>
+      {{- if (.Param "ShowToc") }}{{ partial "toc.html" . }}{{ end }}
+      {{- if .Content }}
+      <div class="post-content md-content">
+        {{- if not (.Param "disableAnchoredHeadings") }}
+          {{- partial "anchored_headings.html" .Content }}
+        {{- else }}
+          {{- .Content }}
+        {{- end }}
+      </div>
+      {{- end }}
+      {{- partial "extend_post_content.html" . }}
+    </article>
+  </div>
+</div>
+{{- end }}

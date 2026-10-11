@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="2869" viewBox="0 0 1000 2869" role="img" aria-labelledby="title desc">
+<title id="title">Pre-4：五项准备中的对象归属、代码调用与结果</title>
+<desc id="desc">generate 依次建立 Adapter Service、任务字典、Session、远端环境与 CLI、远端工作区和题目。每个框说明类型归属、实际调用、带完整访问路径的关键成员及用途和结果。Adapter Service 的模型输入配置、协议适配器、HTTP 服务句柄横向并列，表示同级组成；每列成员纵向列出。Sandbox 的创建、安装有先后关系，保持纵向排列。Session ID 是字典键而非 Session 字段，CLI 是远端程序而非包装对象的属性。最后六个参数逐行标明来源，交给 Harness.run。竖向箭头表示主线执行顺序，横向并列表示同级组成，不表示先后；嵌套框表示归属。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+<style>
+text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334}
+.title{font-size:34px;font-weight:700}.heading{font-size:26px;font-weight:700}.subheading{font-size:22px;font-weight:700}
+.body{font-size:18px}.note{font-size:16px;fill:#526173}.call{font-family:"DejaVu Sans Mono",monospace;font-size:18px;fill:#453a80}.column-code{font-family:"DejaVu Sans Mono",monospace;font-size:17px;fill:#453a80}.column-body{font-size:17px;fill:#36465b}.column-result{font-size:16px;font-weight:600;fill:#453a80}
+.result{font-size:18px;font-weight:600;fill:#453a80}
+.owner{fill:#f7faff;stroke:#93b8e8;stroke-width:2}.card{fill:#fff;stroke:#b9c7d9;stroke-width:1.5}
+.part{fill:#f3f1fa;stroke:#c3badf;stroke-width:1.3}.exit{fill:#eeebfa;stroke:#7663b3;stroke-width:2}
+.flow{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}
+</style></defs>
+<rect width="1000" height="2869" fill="#fff"/>
+<text x="24" y="44" class="title">Pre-4：每个对象属于谁，代码准备了什么？</text>
+<text x="24" y="80" class="note">归属与类型 → 实际调用 → 完整访问路径与用途 → 结果</text>
+<g data-owner="generate"><rect x="24" y="104" width="952" height="2345" rx="16" class="owner"/>
+<text x="44" y="143" class="heading">generate()：依次组织五项准备</text>
+<g data-step="1" data-component="adapter-service"><rect x="44" y="164" width="912" height="661" rx="12" class="card"/>
+<text x="64" y="199" class="heading">① state：_AdapterService 对象</text>
+<text x="64" y="233" class="call">state = _AdapterService(args)</text>
+<text x="64" y="263" class="note">内部调用省略非关键参数；self 与外部的 state 指向同一个实例。</text>
+<g data-component="model-input-config" data-peer="service-part">
+<rect x="64" y="285" width="280" height="430" rx="10" class="part"/>
+<text x="78" y="316" class="subheading">模型输入配置</text>
+<text x="78" y="345" class="column-code">state</text>
+<text x="78" y="369" class="column-body">_AdapterService 的直接属性</text>
+<text x="78" y="396" class="column-code">self.tokenizer =</text>
+<text x="78" y="419" class="column-code">  load_tokenizer(...)</text>
+<text x="78" y="446" class="column-code">state.tokenizer</text>
+<text x="78" y="469" class="column-body">对象；消息编码、结果解码</text>
+<text x="78" y="494" class="column-code">state.max_context_len</text>
+<text x="78" y="517" class="column-body">int；会话上下文预算</text>
+<text x="78" y="542" class="column-code">state.tool_parser</text>
+<text x="78" y="565" class="column-body">名称或 None；工具输出解析</text>
+<text x="78" y="590" class="column-code">state.reasoning_parser</text>
+<text x="78" y="613" class="column-body">名称或 None；推理内容解析</text>
+<text x="78" y="698" class="column-result">结果：模型输入配置就绪</text>
+</g>
+<g data-component="protocol-adapter" data-peer="service-part">
+<rect x="360" y="285" width="280" height="430" rx="10" class="part"/>
+<text x="374" y="316" class="subheading">协议适配器</text>
+<text x="374" y="345" class="column-code">state.adapter</text>
+<text x="374" y="369" class="column-body">AnthropicAdapter（本例）</text>
+<text x="374" y="396" class="column-code">self.adapter =</text>
+<text x="374" y="419" class="column-code">  ADAPTER_CLS(...)</text>
+<text x="374" y="446" class="column-code">state.adapter.app</text>
+<text x="374" y="469" class="column-body">aiohttp 应用；协议 HTTP 路由</text>
+<text x="374" y="494" class="column-code">state.adapter.store</text>
+<text x="374" y="517" class="column-body">dict；按会话 ID 保存 Session</text>
+<text x="374" y="542" class="column-code">state.adapter.manager</text>
+<text x="374" y="565" class="column-body">TrajectoryManager；管理轨迹</text>
+<text x="374" y="590" class="column-code">state.adapter.sglang_url</text>
+<text x="374" y="613" class="column-body">str；已有 SGLang 服务地址</text>
+<text x="374" y="698" class="column-result">结果：协议与会话容器就绪</text>
+</g>
+<g data-component="http-service" data-peer="service-part">
+<rect x="656" y="285" width="280" height="430" rx="10" class="part"/>
+<text x="670" y="316" class="subheading">HTTP 服务句柄</text>
+<text x="670" y="345" class="column-code">state.app_handle</text>
+<text x="670" y="369" class="column-body">AppHandle 句柄对象</text>
+<text x="670" y="396" class="column-code">run_app_in_thread(</text>
+<text x="670" y="419" class="column-code">  self.adapter.app, ...)</text>
+<text x="670" y="446" class="column-code">state.app_handle.host</text>
+<text x="670" y="469" class="column-body">str；服务监听地址</text>
+<text x="670" y="494" class="column-code">state.app_handle.port</text>
+<text x="670" y="517" class="column-body">int；实际监听端口</text>
+<text x="670" y="542" class="column-code">state.app_handle.thread</text>
+<text x="670" y="565" class="column-body">Thread；后台 HTTP 服务线程</text>
+<text x="670" y="590" class="column-code">state.app_handle.loop</text>
+<text x="670" y="613" class="column-body">asyncio 事件循环</text>
+<text x="670" y="638" class="column-code">state.app_handle.runner</text>
+<text x="670" y="661" class="column-body">AppRunner；应用与服务清理</text>
+<text x="670" y="698" class="column-result">结果：HTTP 服务已监听</text>
+</g>
+<text x="64" y="746" class="body">state.adapter_url → str，供 Harness 与 CLI 访问的模型入口地址。</text>
+<text x="64" y="775" class="note">上面的 URL 直接属于 state；三个并列框是同级组成，不表示执行先后。</text>
+<text x="64" y="806" class="result">结果：模型请求入口就绪；本次 Session 在第 3 步注册。</text>
+</g>
+<path d="M500 826 V848" class="flow"/>
+<g data-step="2" data-component="task-metadata">
+<rect x="44" y="851" width="912" height="320" rx="12" class="card"/>
+<text x="64" y="885" class="heading">② md：dict，保存本次任务资料</text>
+<text x="64" y="918" class="call">md = swe.get_metadata(base_sample, protocol)</text>
+<text x="64" y="948" class="body">md[&quot;instance_id&quot;] → 任务标识，表示当前处理哪一道任务</text>
+<text x="64" y="978" class="body">md[&quot;image&quot;] → 创建远端执行环境所用的镜像</text>
+<text x="64" y="1008" class="body">md[&quot;workdir&quot;] → 远端工作目录路径，供文件准备与 CLI 运行使用</text>
+<text x="64" y="1038" class="body">md[&quot;problem_statement&quot;] → 具体题目文本，之后写入问题文件</text>
+<text x="64" y="1068" class="body">md[&quot;grading&quot;] → 包含准备命令和评分材料的字典</text>
+<text x="64" y="1098" class="call">instance_id = md[&quot;instance_id&quot;]</text>
+<text x="64" y="1128" class="body">instance_id 是局部变量，取出任务标识供后续调用使用。</text>
+<text x="64" y="1158" class="result">结果：通过检查的任务资料供会话、环境和工作区准备使用。</text>
+</g>
+<path d="M500 1172 V1194" class="flow"/>
+<g data-step="3" data-component="session">
+<rect x="44" y="1197" width="912" height="350" rx="12" class="card"/>
+<text x="64" y="1231" class="heading">③ 会话 ID 与 Session：关联任务，保存会话设置</text>
+<text x="64" y="1264" class="call">session_id = base_sample.session_id = _session_id(</text>
+<text x="64" y="1294" class="call">    base_sample, instance_id)</text>
+<text x="64" y="1324" class="call">state.adapter.open_session(session_id, ...)</text>
+<text x="64" y="1354" class="body">session_id → 局部变量，标识本次 Agent 会话</text>
+<text x="64" y="1384" class="body">base_sample.session_id → Sample 对象上保存的同一 ID</text>
+<text x="64" y="1414" class="body">state.adapter.store[session_id] → Session 对象</text>
+<text x="64" y="1444" class="body">state.adapter.store[session_id].sampling_defaults → 默认采样参数</text>
+<text x="64" y="1474" class="body">state.adapter.store[session_id].max_context_tokens → 上下文预算</text>
+<text x="64" y="1504" class="note">session_id 的值用作 store 的键；Session 只有以上两个字段。</text>
+<text x="64" y="1534" class="result">结果：Session 已登记，后续模型请求可按这个 ID 找到会话设置。</text>
+</g>
+<path d="M500 1548 V1570" class="flow"/>
+<g data-step="4" data-component="sandbox-cli"><rect x="44" y="1573" width="912" height="566" rx="12" class="card"/>
+<text x="64" y="1608" class="heading">④ sb：E2BSandbox 包装对象，代表可操作的远端环境</text>
+<text x="64" y="1645" class="call">async with boot_agent_sandbox(md[&quot;image&quot;], instance_id) as sb:</text>
+<g data-component="sandbox-create">
+<rect x="64" y="1669" width="872" height="230" rx="12" class="part"/>
+<text x="84" y="1703" class="subheading">创建环境：包装对象持有 SDK 句柄与环境 ID</text>
+<text x="84" y="1736" class="call">cand = E2BSandbox(image)</text>
+<text x="84" y="1766" class="call">await cand.__aenter__()</text>
+<text x="84" y="1796" class="body">cand → boot_agent_sandbox 内部的局部包装对象</text>
+<text x="84" y="1826" class="body">sb._sb → AsyncSandbox SDK 句柄，执行远端命令与文件操作</text>
+<text x="84" y="1856" class="body">sb.sandbox_id → str，已创建的远端环境 ID</text>
+<text x="84" y="1886" class="result">结果：环境创建完成；成功后 yield 同一个包装对象给外层 sb。</text>
+</g>
+<g data-component="cli-install">
+<rect x="64" y="1915" width="872" height="170" rx="12" class="part"/>
+<text x="84" y="1949" class="subheading">安装 CLI：远端环境中的程序，不是 Python 对象属性</text>
+<text x="84" y="1982" class="call">await HARNESS_CLS().install_cli(cand)</text>
+<text x="84" y="2012" class="body">所选 Harness 通过 cand 执行安装命令，CLI 程序留在远端环境中。</text>
+<text x="84" y="2042" class="note">CLI 不是 sb 的属性；此时安装完成，还没有开始 Agent 任务。</text>
+<text x="84" y="2072" class="result">结果：远端环境里已有所选 CLI，可供下一节启动。</text>
+</g>
+<text x="64" y="2119" class="result">结果：sb 交给工作区准备和 Harness，提供命令、文件与生命周期接口。</text>
+</g>
+<path d="M500 2140 V2162" class="flow"/>
+<g data-step="5" data-component="workspace">
+<rect x="44" y="2165" width="912" height="260" rx="12" class="card"/>
+<text x="64" y="2199" class="heading">⑤ 工作区与题目：远端目录及文件资源</text>
+<text x="64" y="2232" class="call">await swe.prepare_workspace(sb, md[&quot;workdir&quot;], md)</text>
+<text x="64" y="2262" class="body">md[&quot;workdir&quot;] → 路径值，指向镜像中已有的远端工作目录</text>
+<text x="64" y="2292" class="call">await agent_sandbox.ensure_agent_user(sb, workdir)</text>
+<text x="64" y="2322" class="body">函数内 workdir 形参接收 md[&quot;workdir&quot;]，用于准备用户与目录权限。</text>
+<text x="64" y="2352" class="call">await sb.write_file(f&quot;{workdir}/PROBLEM_STATEMENT.md&quot;, ...)</text>
+<text x="64" y="2382" class="body">md[&quot;problem_statement&quot;] → 写入 PROBLEM_STATEMENT.md 的题目内容</text>
+<text x="64" y="2412" class="result">结果：已有工作区可访问，远端题目文件就绪。</text>
+</g>
+</g>
+<path d="M500 2426 V2476" class="flow"/>
+<g data-component="harness-run">
+<rect x="44" y="2479" width="912" height="290" rx="12" class="exit"/>
+<text x="64" y="2513" class="heading">下一节：HARNESS_CLS().run(...) 接收六个参数</text>
+<text x="64" y="2546" class="call">agent_exit_code = await HARNESS_CLS().run(...)</text>
+<text x="64" y="2576" class="body">sb ← 局部变量 sb：E2BSandbox 执行环境</text>
+<text x="64" y="2606" class="body">workdir ← md[&quot;workdir&quot;]：已有远端工作目录</text>
+<text x="64" y="2636" class="body">session_id ← 局部变量 session_id：关联本次会话</text>
+<text x="64" y="2666" class="body">adapter_url ← state.adapter_url：CLI 的模型请求入口</text>
+<text x="64" y="2696" class="body">time_budget_sec ← CONFIG.agent_time_budget_sec：本次运行时间预算</text>
+<text x="64" y="2726" class="body">prompt ← swe.SWE_PROMPT：通用任务指令，具体题目从文件读取</text>
+<text x="64" y="2756" class="result">结果：run 配置、启动并等待 CLI，返回 agent_exit_code。</text>
+</g>
+<text x="24" y="2805" class="note">主线：examples/coding_agent_rl/generate.py:96–212</text>
+<text x="24" y="2835" class="note">工作区：examples/coding_agent_rl/swe.py:177–198 · 竖向箭头＝主线顺序；横向并列＝同级组成</text>
+</svg>

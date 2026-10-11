@@ -1,0 +1,13 @@
+{
+  "checkedAtUTC": "2026-10-10T16:24:17.888849+00:00",
+  "localRoot": "/home/fredkeira/projects/slime",
+  "localRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "officialRepository": "https://github.com/THUDM/slime.git",
+  "officialRevision": "58b0878679de339ec7844b45d884a87955a134be",
+  "isOfficialLatest": false,
+  "localBehindBy": 2,
+  "localAheadBy": 0,
+  "comparisonURL": "https://github.com/THUDM/slime/compare/22a89f96835969a47055a659c588f46151f8b07a...58b0878679de339ec7844b45d884a87955a134be",
+  "comparisonEvidence": "fresh ls-remote; comparison response reused for identical immutable SHA pair",
+  "noSourceUpdate": true
+}

@@ -1,0 +1,44 @@
+{
+  "adoptedPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "approvedDraft": "slime_photo/code-reading/previews/action-3/v3/reading.md",
+  "approvedDraftSha256": "00511db85a880bf330067889225d4c333f92b93d729dcc3c152f9dbdf07be8e4",
+  "editorialChanges": [
+    "Remove draft wording from the document title",
+    "Replace the self-link in the folded materials section with the original reading record"
+  ],
+  "preservedOriginalFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/README.md": "a99991263d07d3cc4db561ead8ede0b7ef6cf1fd4543257900a7a7f93baa7465",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/flow.svg": "2ea3c8260282f8389389a1852b68f74be9b55dd589504f6e6afbf9735d85d65c",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/示例.json": "2ff92deeafe35a3dbdbddf0ec2e6636732331f023c4e632f057581ed82e5728b",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/模型输入.txt": "fa303a8ebbd9b7f7869e6b4ad0c9d54a98f35230b32d42c51526135a72df53f2",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/index.html": "f2c6ec50445a3deb84d40356dead1b30f49509d03709e592e42ee573a8f8905f"
+  },
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-generate-tokens/_index.md": {
+      "before": "2823f69a01a3a63fede39f8f896776e173a2d6e1faff38c6a007bdc49fddf1f7",
+      "after": "8b19cca23b94e347e82a595b17aaaac4459ec5d176a3402c8372d8ad86720ca2",
+      "reason": "Apply approved V3 and update archival navigation labels; preserve chapter snapshots.",
+      "followupChanges": [
+        {
+          "before": "de200de5faecdc0d14e4006152dffc520075e002deed95c8df97b54798cfe140",
+          "after": "8b19cca23b94e347e82a595b17aaaac4459ec5d176a3402c8372d8ad86720ca2",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    }
+  },
+  "currentFiles": {
+    "reading.md": "2a77d540f2e48a9e42298d511d667a347087a630fb3ce11188c53516336466a7",
+    "SOURCE-CHECK.md": "a79eaf5aff55002a716b65c41f44fe4616603791edac6dc151811f9c052ff852",
+    "SOURCE.md": "fb13087bb975716641e25cc7d0f6e271e412bd73c129c981663a3830fb44f2d0",
+    "upstream-check.json": "9b2aeaa4475de9749286de6a8cd81945eb0caa03a919c57c9142505042006582",
+    "validation.json": "45fae9f345e501ee98539c8a856089bc764650b4f034baa6fcf936e9ac0d62f7"
+  },
+  "retainedVersions": {
+    "v1": "/previews/slime-action-3/baseline/",
+    "v2": "/previews/slime-action-3/",
+    "v3": "/previews/slime-action-3/v3/"
+  },
+  "navigationEvidence": "slime_photo/code-reading/action-navigations.json"
+}

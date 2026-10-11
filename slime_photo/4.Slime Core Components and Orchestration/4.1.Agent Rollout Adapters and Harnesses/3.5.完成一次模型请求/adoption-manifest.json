@@ -1,0 +1,38 @@
+{
+  "adoptedPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-5/",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "approvedSnapshot": "slime_photo/code-reading/previews/action-3-5/reading.md",
+  "approvedSnapshotSha256": "ec0a0693ee94655c1b63b22760ddb2f24d2a908d8804fd6e0894c2b75ba30441",
+  "preservedOriginalFiles": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/README.md": "2f22f09a33e98ef6548023c394efb7044f280c480863367ec731d03d46485fd5",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/index.html": "b4f1acfb9a41cf96ff2025dd0f3c04323172d78184201acf12fde442ba9b5976",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/flow.svg": "b9b3f4ca2c357a141aea7d814feafb881b7d937b9b0cba6799aabb74a44b408d",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/示例.json": "1883e407193f2361df08948dfe7b117d4f75ec0d54fda87bd404787cb62136be"
+  },
+  "editorialChanges": [
+    "Remove candidate wording from document title",
+    "Add original reading record link in the folded materials section"
+  ],
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/3-5/_index.md": {
+      "before": "383ede80d681fa6b9ee31389bbc84a98745aaf9e26b9c233aba40e13d46dedf2",
+      "after": "fa7c7b9da4ae37e83a2c80445e04069e56a47f83cb2180f07cd756db09b67131",
+      "reason": "User approved right-hand reading draft",
+      "followupChanges": [
+        {
+          "before": "d4d44033efbdf358af65521be0af73c0cf05ab2ac9ea718c198957a94dd6becd",
+          "after": "fa7c7b9da4ae37e83a2c80445e04069e56a47f83cb2180f07cd756db09b67131",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    }
+  },
+  "currentFiles": {
+    "reading.md": "b96ca8163c941f7574616e6be55882dcae361f9c0e468624bf2559bd4f606a92",
+    "SOURCE-CHECK.md": "5147781214a7b53b505cfac291479a796a0f7113d9e4daca74cb9d1153caf63a",
+    "SOURCE.md": "9a75d73210efd8579dc82fd0d57543d38193d8b1a6da9ef8ab39bc6eed494347",
+    "validation.json": "717ba6c40eed8753651b0e37465256c4560b2c712d774ab22fe0a77fa1ab0ef8",
+    "upstream-check.json": "2542a7b1809788ee499d6894fead36e63aea0c0c6027cb40f18eff2c442d25d3"
+  },
+  "navigationEvidence": "slime_photo/code-reading/action-navigations.json"
+}

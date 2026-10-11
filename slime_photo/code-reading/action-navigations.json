@@ -1,0 +1,150 @@
+{
+  "sourceRepository": "/home/fredkeira/projects/slime",
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "note": "Reading pseudocode only. Context source map supplies the caller and symbol evidence; no runtime loop is invented in generate.",
+  "entries": [
+    {
+      "id": "action-2",
+      "codeSha256": "923b959c703bb522432d90f1331622adb4a2eb33d49f26b60a6a0d2604eabcbd",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-3",
+      "codeSha256": "8c04ae8ec4c52cd9833fd52a7fd8ac63dda458fa9dbe504e60a640d7c740ff8a",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-3-5",
+      "codeSha256": "c77cfa0d8000e3c684ddea34a82219d203725f70897fca26102d93c99b9c0e9f",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "pre-4",
+      "codeSha256": "8ada0f2dc8038642302427897b3181a26c8f91a25797567334f01a4eb273249b",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Pre-4.启动前准备/README.md",
+        "slime_photo/code-reading/chapters/01-task-execution/pre-4-preparation.md",
+        "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/pre-4/index.md",
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Pre-4.启动前准备/index.html"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-4",
+      "codeSha256": "11c5ef61c40cd233012d1a8a370f943e545200ad6d500b5c5c4d2bfb631aade8",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-5",
+      "codeSha256": "f71f99f14f2b7663e1ce67821d85158c6715bb1992d5e1b60e07d59627161219",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-6",
+      "codeSha256": "5706520bd15d465d9e9102e8dba18af84a2dca85a80e2336f3e0cb3d6d2f46b9",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/6.Exec Commands/reading.md",
+        "slime_photo/code-reading/previews/action-6/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    },
+    {
+      "id": "action-7",
+      "codeSha256": "cae0f80d66164687db86956380cd30d1ee5e78062344b7b61a7cf44c30e271f5",
+      "notExecutableSource": true,
+      "files": [
+        "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/7.Make API Calls/reading.md"
+      ],
+      "scopeComments": "Prior and surrounding Actions are annotated by responsibilities, not by reading order."
+    }
+  ],
+  "approvedFileChanges": {
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/reading.md": {
+      "before": "b7b689a958d4e23b83dc4cdc6346611f7ad450973fe59207cf0450151fdb8305",
+      "after": "e1842e512558a3bf754cf3b6fb2988e69bbc21316532256ffd162ae50c53b0d8",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.Generate Tokens/reading.md": {
+      "before": "de9a89d990a28fe291ff712d94c2de175ea310c04797d3433c2691b33aaad9fd",
+      "after": "2a77d540f2e48a9e42298d511d667a347087a630fb3ce11188c53516336466a7",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/3.5.完成一次模型请求/reading.md": {
+      "before": "f11a5f1c371e5c8a8da2d188bb49f83191beaf0e536ea390f8c409fbe8f4bccf",
+      "after": "b96ca8163c941f7574616e6be55882dcae361f9c0e468624bf2559bd4f606a92",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/code-reading/chapters/01-task-execution/pre-4-preparation.md": {
+      "before": "121f0b9d55984328e1295e43cdd6a39b1f665362e462bfa408e82809af8cec19",
+      "after": "cf5c962d6a281fcafb4c34486cc86958f6d82d0a1a435b6d9b1393f26d1c688c",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Pre-4.启动前准备/README.md": {
+      "before": "8ce05b7c0635ece62ee2cdb5c083b6ff8f5d711dcb9fdb8c17b06241a10aad62",
+      "after": "66cde25ee95776abd3b01ef8fdb370164036a889932150fb321d42f9f8cb59c8",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/pre-4/index.md": {
+      "before": "43ff24dbf48cf76a52d3f34659c28a5532f08208f5c4fe3286df6505916562be",
+      "after": "52d6186c8187de1bdaaacebe60fcb04b2ad39352bddbdc0a6bb8b56799713c47",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Pre-4.启动前准备/index.html": {
+      "before": "c0ae71a04214c6556c59be9f238ef8711e1b833d409a38502f9df8e801bf2681",
+      "after": "a17941c2deef52bab9495bd5a67084c3a10c4bd6dddb9590ed66215a3164fb22",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/reading.md": {
+      "before": "52b7a31d2ac69c4374f6796782e04a54c3eb45500beb21381771f898970e68fd",
+      "after": "c01621073ffecb1447309b1e6c303e1a4c908bfbb4365033160f77c5b0093d2d",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/5.Manage Sandbox/reading.md": {
+      "before": "a6912a5dbacd33eaa1f9d91290ed13f0d9b7e27bb8c0a8f10b156212fbf365ac",
+      "after": "67031174ee9584661fe804432305c3c3bd79c82cfb94f6a4329912d7dace98ec",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/code-reading/previews/action-6/reading.md": {
+      "before": "a891897f55cb869b2e7ecdb3b5dbe4d0c270ca13d524a0e0ff4e54c724179cb6",
+      "after": "e63f16b5cd60c72e13a5bbcc7eec9e3a7146d02bf8d33a882d18ad51e46072a5",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "slime_photo/code-reading/previews/action-6/source-groups.json": {
+      "before": "1d1c9c447527652ba83bf240578ac0842ffc440145f9fa3bf443b89b570dee58",
+      "after": "e0a6f8629d2b13b296b623f65d465fdbbb5d13daacc4982f1b7f413c174f3e91",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/6-exec-commands/_index.md": {
+      "before": "bb3b13c7aa31bb49f922cc1d11520fde3ce68b0e2d9e226353ec71e257b61b60",
+      "after": "98b792c08b74a7040853f86914130c90f13cabdea8e1349050c85df4b23dd937",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    },
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/7-make-api-calls/_index.md": {
+      "before": "06b269e696a5aa52ca38bb8265008bd9943bad6bc59c0f5d4e2fefca8fdddfd0",
+      "after": "0fa211c5a3442ae9d1502df5b709ee93322eafd72c82f85ff6a4af7fceacbc54",
+      "reason": "User requested consistent chapter pseudocode with explicit surrounding Action scopes."
+    }
+  }
+}

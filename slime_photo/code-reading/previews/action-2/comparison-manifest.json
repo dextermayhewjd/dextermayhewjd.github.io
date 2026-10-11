@@ -1,0 +1,56 @@
+{
+  "purpose": "Comparison only; replace the official page or expand to other chapters only after user approval.",
+  "sourceRevision": "8c17b676cb57af1d17ee4402e91e9209af84b60b",
+  "originalPage": "/previews/slime-action-2/baseline/",
+  "candidatePage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/",
+  "comparisonPage": "/previews/slime-action-2/compare/",
+  "sharedResources": {
+    "positionDiagram": "/images/slime-lifecycle/action-2.svg",
+    "detailDiagram": "/slime-photo/4.Slime%20Core%20Components%20and%20Orchestration/4.1.Agent%20Rollout%20Adapters%20and%20Harnesses/2.Translate%20&%20Forward/%E7%BA%B5%E5%90%91%E6%95%B0%E6%8D%AE%E6%B5%81/flow.svg",
+    "example": "/slime-photo/4.Slime%20Core%20Components%20and%20Orchestration/4.1.Agent%20Rollout%20Adapters%20and%20Harnesses/2.Translate%20&%20Forward/%E7%BA%B5%E5%90%91%E6%95%B0%E6%8D%AE%E6%B5%81/%E7%A4%BA%E4%BE%8B.json"
+  },
+  "protectedFiles": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/diagram.svg": "539ea11eb0bca9caf047a3cc600433fa3cf1d7e87451bec60f238f219fca38dd",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/1.消息和工具转换.md": "b9c1e954a6b0c39e47619d4afb300e62725b9aceda4df8471ea95a4ab61a78f0",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/2.主路径和源码函数.md": "7d99f5d07af65ed7d1e4faa9df9b908bd0505e78ee0ffd64e3e7c214efe1d7cc",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/3.请求入口和特殊分支.md": "b58cfc67236ed2bbb26fab3971cfd64071b5e958f738d338c71744a3d527c3e5",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/README.md": "e6b561b6685069eef21c55eb89ebcb18ccad557927f07932f761f6c3b5c42c11",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/README.md": "a199a3752055d15313efd61e4580fc85e0ab6a54770199e5189e6aaca8e01c75",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/flow.svg": "a52e329ba8f89fa63f8666a641b801213a755339f3fee941ca73f7d74d2e3b7c",
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/示例.json": "66229a872b8f376c0fa5e48be44751b027149ea6d1a49a886f602b65e4989987",
+    "static/images/slime-lifecycle/action-2.svg": "0ec4eb2dc702a8e4aaa42bbe5fe3065e785317823a1b7a9c83c1f2585677c726"
+  },
+  "originalEntryPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/",
+  "sourceCheckFile": "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/SOURCE-CHECK.md",
+  "sourceCheckSha256": "c2a266f114592e57ec0e28e0d13d4fdbb576adf905ff4324648369c775f794d2",
+  "status": "applied_to_hugo",
+  "adoptedPage": "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/",
+  "approvedPageChanges": {
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/_index.md": {
+      "before": "b7f57662dbab14c6f43dd5b32b8e6777f0cd7d6936220a669d4f0e4311ac0b7d",
+      "after": "d797c8bf9fc912d698de208428d0ba98f09427271a6b7563563e5bb128ab53e3",
+      "followupChanges": [
+        {
+          "before": "c4ce5c21eb7b4c9b9fe3866e14ad26e1c9543a62cb7e7729fadc55dfae68cdaf",
+          "after": "d797c8bf9fc912d698de208428d0ba98f09427271a6b7563563e5bb128ab53e3",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    },
+    "content/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/2-translate-forward/data-flow/index.md": {
+      "before": "0a225af4408064c3b5a5b1fde5bf62cd86b2fb95f506c50b75d75cabf56b7ce1",
+      "after": "81236ca11197516cb9a4032138cd93e66a895ae79670c6ce5a3c9c401fad2d12",
+      "followupChanges": [
+        {
+          "before": "3227a4692b6afd88d14edb89a09b4295c0b7ff6c472a85cd45024368911e4c6b",
+          "after": "81236ca11197516cb9a4032138cd93e66a895ae79670c6ce5a3c9c401fad2d12",
+          "reason": "User requested per-Action reading context and folded main source-file entries; original diagrams and reading bodies preserved."
+        }
+      ]
+    },
+    "slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/2.Translate & Forward/纵向数据流/index.html": {
+      "before": "3384b89bc5a084d6bddd0d0cfce42eed67fc5021d028dc73d6a8208298f2e769",
+      "after": "5acbb395d813df48ba930f54db446f4eac27d5ea18dd80a2adfb5107fd0f6d0d"
+    }
+  }
+}

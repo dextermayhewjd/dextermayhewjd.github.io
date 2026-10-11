@@ -1,0 +1,304 @@
+{
+  "method": "Unmodified full AST nodes executed with recording dependencies",
+  "source_repository": "/home/fredkeira/projects/slime",
+  "source_head": "22a89f96835969a47055a659c588f46151f8b07a",
+  "source_worktree_porcelain": "?? .ua/\n?? docs/repo-reading-route.md\n?? docs/repo-reading/",
+  "source_files": {
+    "slime/agent/harness/common.py": {
+      "file_sha256": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+      "symbols": {
+        "HarnessContext": {
+          "line": 43,
+          "end_line": 54
+        },
+        "BaseHarness": {
+          "line": 57,
+          "end_line": 104
+        },
+        "run_agent": {
+          "line": 107,
+          "end_line": 122
+        }
+      }
+    },
+    "slime/agent/harness/claude_code.py": {
+      "file_sha256": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+      "symbols": {
+        "ClaudeCodeHarness": {
+          "line": 15,
+          "end_line": 71
+        }
+      }
+    },
+    "slime/agent/sandbox.py": {
+      "file_sha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+      "symbols": {
+        "ensure_agent_user": {
+          "line": 390,
+          "end_line": 399
+        }
+      }
+    }
+  },
+  "example": "/home/fredkeira/projects/dextermayhewjd.github.io/slime_photo/4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/4.Launch Agent/纵向数据流/示例.json",
+  "example_revision": "8c17b676cb57af1d17ee4402e91e9209af84b60b",
+  "example_sha256": "35e01a8364017e02d64915930f5a2754696e64a9f83fe0cfbafff16155612152",
+  "cases": {
+    "success_exit_0": {
+      "passed": true,
+      "simulated_transport_exit": 0,
+      "actual_harness_return": 0,
+      "exact_sandbox_calls_match": true,
+      "exact_exec_and_wait_arguments_match": true,
+      "event_order": [
+        "ensure-user",
+        "write-config",
+        "mkdir-harness",
+        "exec_and_wait"
+      ],
+      "actual_events": [
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /workspace/demo/.harness && chown agent:agent /workspace/demo/.harness",
+            "user": "root",
+            "check": true,
+            "timeout": 30
+          }
+        },
+        {
+          "kind": "exec_and_wait",
+          "call": {
+            "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+            "user": "agent",
+            "env": {
+              "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+              "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+              "ANTHROPIC_MODEL": "slime-actor",
+              "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+              "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+              "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+            },
+            "workdir": "/workspace/demo",
+            "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+            "time_budget_sec": 1800,
+            "tag": "run",
+            "want_output": false
+          }
+        }
+      ]
+    },
+    "nonzero_exit_7": {
+      "passed": true,
+      "simulated_transport_exit": 7,
+      "actual_harness_return": 7,
+      "exact_sandbox_calls_match": true,
+      "exact_exec_and_wait_arguments_match": true,
+      "event_order": [
+        "ensure-user",
+        "write-config",
+        "mkdir-harness",
+        "exec_and_wait"
+      ],
+      "actual_events": [
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /workspace/demo/.harness && chown agent:agent /workspace/demo/.harness",
+            "user": "root",
+            "check": true,
+            "timeout": 30
+          }
+        },
+        {
+          "kind": "exec_and_wait",
+          "call": {
+            "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+            "user": "agent",
+            "env": {
+              "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+              "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+              "ANTHROPIC_MODEL": "slime-actor",
+              "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+              "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+              "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+            },
+            "workdir": "/workspace/demo",
+            "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+            "time_budget_sec": 1800,
+            "tag": "run",
+            "want_output": false
+          }
+        }
+      ]
+    },
+    "sentinel_exit_minus_1": {
+      "passed": true,
+      "simulated_transport_exit": -1,
+      "actual_harness_return": -1,
+      "exact_sandbox_calls_match": true,
+      "exact_exec_and_wait_arguments_match": true,
+      "event_order": [
+        "ensure-user",
+        "write-config",
+        "mkdir-harness",
+        "exec_and_wait"
+      ],
+      "actual_events": [
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /workspace/demo/.harness && chown agent:agent /workspace/demo/.harness",
+            "user": "root",
+            "check": true,
+            "timeout": 30
+          }
+        },
+        {
+          "kind": "exec_and_wait",
+          "call": {
+            "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+            "user": "agent",
+            "env": {
+              "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+              "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+              "ANTHROPIC_MODEL": "slime-actor",
+              "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+              "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+              "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+            },
+            "workdir": "/workspace/demo",
+            "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+            "time_budget_sec": 1800,
+            "tag": "run",
+            "want_output": false
+          }
+        }
+      ]
+    },
+    "write_config_failure": {
+      "passed": true,
+      "event_order": [
+        "ensure-user",
+        "write-config (raises)"
+      ],
+      "launch_not_called": true,
+      "mkdir_harness_not_called": true,
+      "exception_propagated": true,
+      "actual_events": [
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        },
+        {
+          "kind": "sandbox",
+          "call": {
+            "method": "exec",
+            "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+            "user": "root",
+            "check": true,
+            "timeout": 60
+          }
+        }
+      ]
+    }
+  },
+  "boundaries": [
+    "SingletonABCMeta is replaced with plain ABCMeta; singleton caching is not tested.",
+    "os.environ is a fresh empty dict; environment override behavior is not tested.",
+    "All selected classes/functions include their complete unmodified AST bodies.",
+    "Sandbox.exec records shell strings; it never runs commands or creates files/users.",
+    "exec_and_wait only records kwargs and returns supplied tuples; no actual process, polling, timeout, cancellation or transport behavior is tested.",
+    "Exit -1 checks integer propagation only; it does not demonstrate a real timeout.",
+    "No CLI installation, CLI authentication/request emission, adapter, HTTP, model, tool, patch or evaluation runs are performed."
+  ],
+  "all_passed": true,
+  "sourceFileHashes": {
+    "slime/agent/harness/common.py": "57919ecd4240f6631678f4ea395e2e0a784403ed4bb893c5e42992eabbe4b1fa",
+    "slime/agent/harness/claude_code.py": "94765e59b431da1399cf09fada8693c20971a27e666d8fdb1308b3267b2d2af4",
+    "slime/agent/harness/codex.py": "da9f815f777c6268c98203d80afd67d0a079976e7f5f968fba7cc79131f9f1b4",
+    "slime/agent/sandbox.py": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91",
+    "examples/coding_agent_rl/generate.py": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+  },
+  "sourceGroups": 9,
+  "candidatePythonBlocksParse": 9,
+  "browserChecks": {
+    "baseline": "current Harness.run guide",
+    "localDiagramLoaded": true,
+    "inputTableRows": 6,
+    "sourceGroupsInitiallyClosed": 9,
+    "keyboardExpandWorks": true,
+    "resourcesHTTP200": true,
+    "mobileBodyOverflow": false
+  },
+  "chapterTestsPassed": 13
+}

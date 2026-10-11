@@ -1,0 +1,84 @@
+{
+  "checkedAtUTC": "2026-10-10T17:05:55.692442+00:00",
+  "scope": "candidate-not-adopted",
+  "sourceReview": "Static source review of call sites, implementation and failure boundaries; seven verbatim excerpts verified against fixed Git snapshot.",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "runtime": {
+    "remoteSandbox": false,
+    "e2bSDK": false,
+    "agentCLI": false,
+    "modelService": false
+  },
+  "hugoBuild": {
+    "passed": true,
+    "draftsIncluded": true
+  },
+  "chapterTests": {
+    "command": "python3 -m unittest discover -s tests -p 'test_slime_chapters.py'",
+    "passed": 16
+  },
+  "browser": {
+    "frames": [
+      {
+        "src": "/previews/slime-action-5/baseline/",
+        "title": "Action 5 Manage Sandbox 现行完整讲解完整页面"
+      },
+      {
+        "src": "/previews/slime-action-5/",
+        "title": "Action 5 Manage Sandbox 新版阅读候选稿完整页面"
+      }
+    ],
+    "inputTable": [
+      [
+        "此时的数据",
+        "下一步交给谁",
+        "最小理解"
+      ],
+      [
+        "sb",
+        "ensure_agent_user()，随后调用其 exec()",
+        "指向已经创建的同一个执行环境；后续配置和 CLI 也使用它"
+      ],
+      [
+        "workdir = \"/workspace/demo\"",
+        "ensure_agent_user()",
+        "远端任务目录；本次要把这个目录的所有权交给 agent 用户"
+      ]
+    ],
+    "sourceDetails": "9 step-source groups collapsed, keyboard opens",
+    "resources": "example and source-check 200",
+    "mobile": "no body overflow at 390x844",
+    "newDiagram": "loaded",
+    "screenshots": [
+      "/tmp/action5-comparison.png",
+      "/tmp/action5-candidate-top.png",
+      "/tmp/action5-candidate-inputs.png",
+      "/tmp/action5-candidate-mobile.png"
+    ],
+    "livePreview": "http://localhost:1313/previews/slime-action-5/compare/"
+  },
+  "learningReview": {
+    "decision": "prefer-revised-candidate",
+    "change": "Normal return precedes failure handling; detailed error/retry code is folded.",
+    "codeExcerptsPreserved": true,
+    "chapterTestsPassed": 16,
+    "checkedAtUTC": "2026-10-10T17:11:15.561505+00:00",
+    "browser": {
+      "url": "http://127.0.0.1:1313/previews/slime-action-5/",
+      "headingOrder": [
+        "3．结果回来了，调用者留下什么",
+        "4．失败时，先分清两个问题"
+      ],
+      "failureDetails": "default closed; click opens/closes",
+      "nestedSourceC05": "reachable after opening parent; click opens; GitHub source links visible",
+      "ordinarySourceC02": "click opens/closes",
+      "mobile": "390x844 no page overflow with failure details closed or open",
+      "screenshots": [
+        "/tmp/action5-review-normal-and-failure-closed.png",
+        "/tmp/action5-review-failure-source-open.png",
+        "/tmp/action5-review-mobile-failure-closed.png",
+        "/tmp/action5-review-mobile-failure-open.png"
+      ]
+    }
+  }
+}

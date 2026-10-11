@@ -1,0 +1,217 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "groups": [
+    [
+      "c01",
+      "generate 的 run await 经 Harness 与 launch_and_wait 下钻到 run_agent；缩进骨架仅作阅读导航，run_agent委派执行并向上返回整数状态。",
+      [
+        [
+          "外层任务调用",
+          "examples/coding_agent_rl/generate.py",
+          205,
+          213
+        ],
+        [
+          "Harness中间交接",
+          "slime/agent/harness/common.py",
+          97,
+          104
+        ],
+        [
+          "启动调用",
+          "slime/agent/harness/claude_code.py",
+          57,
+          71
+        ],
+        [
+          "本章调用者",
+          "slime/agent/harness/common.py",
+          107,
+          122
+        ]
+      ]
+    ],
+    [
+      "c02",
+      "函数生成局部路径及脚本内容，调用write_file后CLI尚未启动。输出路径允许由调用方提供。",
+      [
+        [
+          "参数合同",
+          "slime/agent/sandbox.py",
+          82,
+          105
+        ],
+        [
+          "路径及脚本",
+          "slime/agent/sandbox.py",
+          107,
+          113
+        ],
+        [
+          "调用方固定参数",
+          "slime/agent/harness/common.py",
+          111,
+          121
+        ]
+      ]
+    ],
+    [
+      "c03",
+      "清理和防重启动是两次环境请求；env仅在启动传入，后台命令的返回不同于CLI最终退出状态。",
+      [
+        [
+          "清理与防重约束",
+          "slime/agent/sandbox.py",
+          115,
+          128
+        ],
+        [
+          "后台启动",
+          "slime/agent/sandbox.py",
+          129,
+          138
+        ]
+      ]
+    ],
+    [
+      "c04",
+      "等待函数先睡5秒再检查文件；ec是检查命令状态，文件文本转换的整数才是CLI状态。预算从进入等待时计时。",
+      [
+        [
+          "等待标记",
+          "slime/agent/sandbox.py",
+          62,
+          79
+        ],
+        [
+          "等待调用",
+          "slime/agent/sandbox.py",
+          139,
+          139
+        ]
+      ]
+    ],
+    [
+      "c05",
+      "成功且不需要输出返回空文本，需要输出时读文件，否则取最多512字节尾部；run_agent忽略output。",
+      [
+        [
+          "输出返回分支",
+          "slime/agent/sandbox.py",
+          139,
+          145
+        ],
+        [
+          "上层只保留状态",
+          "slime/agent/harness/common.py",
+          111,
+          122
+        ]
+      ]
+    ],
+    [
+      "c06",
+      "防重目录只防同次传输重放；相同tag不允许重叠；预算耗尽不杀CLI，异常和取消向外传播，回收由外层处理。",
+      [
+        [
+          "防重源码注释",
+          "slime/agent/sandbox.py",
+          115,
+          121
+        ],
+        [
+          "等待预算",
+          "slime/agent/sandbox.py",
+          62,
+          79
+        ],
+        [
+          "工作环境finally",
+          "examples/coding_agent_rl/generate.py",
+          131,
+          134
+        ],
+        [
+          "销毁尝试",
+          "slime/agent/sandbox.py",
+          302,
+          307
+        ],
+        [
+          "源码契约测试",
+          "tests/test_agent/test_sandbox_exec_and_wait.py",
+          147,
+          184
+        ]
+      ]
+    ],
+    [
+      "c07",
+      "正常返回后外层收集diff并退出工作环境再评估；CLI模型请求发生在执行期间，调用配置指向Adapter。",
+      [
+        [
+          "任务接回状态和diff",
+          "examples/coding_agent_rl/generate.py",
+          203,
+          219
+        ],
+        [
+          "模型入口及调用",
+          "slime/agent/harness/claude_code.py",
+          57,
+          71
+        ]
+      ]
+    ]
+  ],
+  "excerpts": [
+    {
+      "key": "CALLER",
+      "path": "slime/agent/harness/common.py",
+      "first": 107,
+      "last": 122,
+      "codeSha256": "c85f3606974d3ab918c69befebdd7aeae791d1d1875b24337f773d3f355a056a"
+    },
+    {
+      "key": "PATHS",
+      "path": "slime/agent/sandbox.py",
+      "first": 107,
+      "last": 113,
+      "codeSha256": "348066584a9fd2939b9f6feae13a716c18f947c39d78016854b6aa3c48f97e4a"
+    },
+    {
+      "key": "CLEANUP",
+      "path": "slime/agent/sandbox.py",
+      "first": 122,
+      "last": 128,
+      "codeSha256": "61f29b6a770a76f691386264929851e5f4589d2196093970cb39b5f655007adf"
+    },
+    {
+      "key": "SPAWN",
+      "path": "slime/agent/sandbox.py",
+      "first": 129,
+      "last": 138,
+      "codeSha256": "723c6044bc61694c820005433be72d0bed3c69916c70d4d8513496a496f1788f"
+    },
+    {
+      "key": "POLL",
+      "path": "slime/agent/sandbox.py",
+      "first": 73,
+      "last": 79,
+      "codeSha256": "f7165e90d04f2c52c6b227ae26af9efc9c2430a1778fb537e0b8b4c374f01ee1"
+    },
+    {
+      "key": "RESULT",
+      "path": "slime/agent/sandbox.py",
+      "first": 139,
+      "last": 145,
+      "codeSha256": "321956669946d555603f9b71582a8cfe0951077f1e552129c5b4c3819fb11db3"
+    }
+  ],
+  "readingSkeleton": {
+    "kind": "python-style-reading-pseudocode",
+    "codeSha256": "5706520bd15d465d9e9102e8dba18af84a2dca85a80e2336f3e0cb3d6d2f46b9",
+    "notExecutableSource": true,
+    "scope": "Short invocation navigation before local data-flow diagram; prior steps and current implementation are omitted."
+  }
+}

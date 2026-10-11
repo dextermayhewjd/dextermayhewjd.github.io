@@ -1,0 +1,40 @@
+{{- $key := .key -}}
+{{- $page := .Page -}}
+{{- $resource := resources.Get "slime-photo/code-reading/action-contexts.json" -}}
+{{- if not $resource -}}
+  {{- errorf "Slime action context mapping is missing" -}}
+{{- else -}}
+  {{- $mapping := $resource.Content | transform.Unmarshal -}}
+  {{- $matches := where $mapping.contexts "id" $key -}}
+  {{- if ne (len $matches) 1 -}}
+    {{- errorf "Expected one Slime action context for %s" $key -}}
+  {{- else -}}
+    {{- $entry := index $matches 0 -}}
+    <section class="slime-action-context" data-action-context="{{ $key }}" aria-label="本章阅读语境">
+      <p class="slime-action-context__title">本章阅读语境</p>
+      <p>{{ $page.RenderString $entry.context }}</p>
+      <dl>
+        <dt>当前主线</dt><dd>{{ $page.RenderString $entry.host }}</dd>
+        <dt>本章展开</dt><dd>{{ $page.RenderString $entry.focus }}</dd>
+        <dt>读完返回</dt><dd>{{ $page.RenderString $entry.returnTo }}</dd>
+      </dl>
+      <details class="reading-source">
+        <summary>本章主要源码文件与入口</summary>
+        <ul class="slime-action-context__files">
+          {{- range $entry.files -}}
+            {{- $fileURL := printf "https://github.com/THUDM/slime/blob/%s/%s" $mapping.revision .path -}}
+            <li>
+              <p><a href="{{ $fileURL }}"><code>{{ .path }}</code></a><br>{{ $page.RenderString .role }}</p>
+              <p class="slime-action-context__symbols">
+                {{- range $i, $symbol := .symbols -}}
+                  {{- if $i }}<span aria-hidden="true"> · </span>{{ end -}}
+                  <a href="{{ printf "%s#L%v" $fileURL $symbol.line }}"><code>{{ $symbol.name }}</code>：{{ $symbol.line }} 行</a>
+                {{- end -}}
+              </p>
+            </li>
+          {{- end -}}
+        </ul>
+      </details>
+    </section>
+  {{- end -}}
+{{- end -}}

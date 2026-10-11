@@ -1,0 +1,74 @@
+{
+  "checkedAtUTC": "2026-10-11T00:28:03.924201+00:00",
+  "scope": "candidate-not-adopted",
+  "sourceRepository": "/home/fredkeira/projects/slime",
+  "sourceRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "chapterTestsPassed": 17,
+  "controlledFunctionCasesPassed": 4,
+  "executedSourceFunctions": [
+    "exec_and_wait",
+    "_await_done_marker"
+  ],
+  "simulated": [
+    "Sandbox responses",
+    "sleep",
+    "wall clock",
+    "CLI output and exit values"
+  ],
+  "notExecuted": [
+    "E2B SDK",
+    "remote commands",
+    "CLI",
+    "model requests"
+  ],
+  "browser": {
+    "comparisonFrames": [
+      "/previews/slime-action-6/baseline/",
+      "/previews/slime-action-6/"
+    ],
+    "localDiagram": "loaded",
+    "sourceDetails": "7 groups closed; Enter opens first source group",
+    "boundaryFold": "closed initially; click opens",
+    "downloads": {
+      "示例.json": 200,
+      "SOURCE-CHECK.md": 200
+    },
+    "mobileOverflow": false
+  },
+  "hugoDraftBuild": true,
+  "screenshots": [
+    "/tmp/action6-comparison.png",
+    "/tmp/action6-candidate.png",
+    "/tmp/action6-diagram.png",
+    "/tmp/action6-mobile.png"
+  ],
+  "readingSkeleton": {
+    "checkedAtUTC": "2026-10-11T01:18:21.222501+00:00",
+    "removedPrototype": "call-position.svg and the added code-position panel",
+    "format": "single Python-style indented reading pseudocode, followed by actual source snippets",
+    "chapterTestsPassed": 17,
+    "browser": {
+      "firstCodeIsSkeleton": true,
+      "pseudocodeLabel": true,
+      "positionImageAbsent": true,
+      "sourceGroups": 7
+    }
+  },
+  "navigationPlacement": {
+    "checkedAtUTC": "2026-10-11T01:54:44.432927+00:00",
+    "order": [
+      "reading question",
+      "short navigation pseudocode",
+      "local data-flow diagram",
+      "actual source walkthrough"
+    ],
+    "chapterTestsPassed": 17,
+    "browser": {
+      "navigationBeforeDiagram": true,
+      "firstCodeIsSkeleton": true,
+      "pseudocodeLabel": true,
+      "positionImageAbsent": true,
+      "sourceGroups": 7
+    }
+  }
+}

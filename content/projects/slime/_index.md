@@ -47,6 +47,8 @@ CodeWiki 原图用于组件导航，箭头编号不是任务执行顺序。**本
 
 ## 面向项目实践的阅读路线
 
+[Slime 源码阅读顺序](/projects/slime/code-reading/) 先按模块职责快速浏览任务、模型与上下文、策略与评测、Trace、并发恢复、资源部署和训练交接，再选择关键链路深入源码。
+
 [Slime 全仓代码复用与项目路线](/projects/slime/reuse-roadmap/) 从整个仓库梳理 Agent 执行、批量评测、Trace、数据队列、Kubernetes 适配、自部署模型和训练能力，区分可以直接复用的代码与需要适配的边界。
 
 ## 原始章节目录

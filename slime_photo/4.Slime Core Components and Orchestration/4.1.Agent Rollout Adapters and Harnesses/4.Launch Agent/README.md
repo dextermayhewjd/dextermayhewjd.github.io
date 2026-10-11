@@ -1,5 +1,9 @@
 # 动作 4 Launch Agent 渐进阅读
 
+本节开始前，先读 [Pre-4：启动前准备](../../../code-reading/chapters/01-task-execution/pre-4-preparation.md)，把调用方准备与 Harness 本体分开；本节再从准备好的条件进入 `run()`。
+
+**本轮先读：[Harness.run 调用与职责](4.Harness.run调用与职责.md)。** 先读公共骨架，遇到用户准备进入动作 5，返回后继续 ctx、配置与启动。
+
 ## 在任务生命周期中的位置
 
 本章：启动参数来源 → CLI 配置、命令与环境 → 委派运行。
@@ -8,29 +12,48 @@
 
 [返回生命周期总览](../README.md#任务生命周期与原图的用途) · [放大当前位置图](../../../../static/images/slime-lifecycle/action-4.svg)
 
+## 先分清任务组装与 Launch Agent
+
+CodeWiki 图展示组件之间的关系，阅读顺序沿实际任务执行。`_AdapterService` 位于 `examples/coding_agent_rl/generate.py`，是这个示例的组装代码：加载 tokenizer，选择并构造 Adapter，连接已有 SGLang 地址，启动 Adapter HTTP 服务，得到供 CLI 回连的 `adapter_url`。通过 `SingletonMeta` 可复用进程内的这份服务，模型请求处理时不再重新启动它。图中有这些组件，但没有单独画出它们的创建与启动过程；源码所在目录也不决定它是否需要在本次任务中阅读。
+
+因此先从 `generate()` 的骨架进入，遇到 `state = _AdapterService(args)` 时下钻其初始化，再返回外层继续。第一遍读到“谁被创建、服务在哪里运行、返回什么地址”即可；上游训练、资源调度和 SGLang 服务部署作为既有前提。
+
+| 层次 | 本次要走一遍的内容 | 职责边界 |
+| --- | --- | --- |
+| 调用方准备 | Adapter 服务、任务元数据、Session、执行环境、CLI 安装与工作区/题目准备 | 在 `generate()` 与示例辅助函数中，准备交给 Harness 的条件 |
+| Launch Agent 本体 | `BaseHarness.run()` → 用户准备、HarnessContext、write_config、launch_and_wait | Harness 接住已准备的参数，将它们变成 CLI 配置、命令与启动行为 |
+| 环境与执行实现 | Sandbox 命令/文件操作、后台 CLI 启动、退出标记与等待 | 分别沿动作 5、6 展开，读完返回 Harness/外层任务 |
+
+**动作 4 的阅读入口应覆盖“准备好启动条件 → 进入 run → 配置并委派启动”。** 但 `run()` 前的准备仍属于调用方；`run()` 内也有配置与启动准备，所以不能把 Launch Agent 理解成仅仅 `generate()` 到 `run()` 调用之前。
+
 ## 应该看哪些 Python 文件
 
 ```text
-generate.py：找到 HARNESS_CLS().run(...)
-  → common.py：读 BaseHarness.run()
-  → claude_code.py 或 codex.py：读配置与启动命令
-  → common.py：读 run_agent() 的执行委派
+generate()
+  -> _AdapterService.__init__()
+  -> task metadata + open_session()
+  -> Sandbox + install_cli + prepare_workspace()
+  -> BaseHarness.run()
+       -> write_config()
+       -> launch_and_wait()
+            -> run_agent()
 ```
 
-下面的路径相对于本地 Slime 源码仓库 `/home/hongshi/projects/slime/`，链接指向本文固定版本 `8c17b676`。按表中顺序阅读；Claude Code 和 Codex 两个分支先选一个即可。
+下面的路径相对于 Slime 源码仓库根目录，既有链接指向固定版本 `8c17b676`；本轮本地 `22a89f9` 中相关源码与行号已核对一致。按表中顺序阅读；本轮先选 Claude Code，Codex 留作后续实现对照。
 
 | 顺序 | Python 文件与入口 | 本章重点 |
 | --- | --- | --- |
 | 1 | [examples/coding_agent_rl/generate.py:182](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/generate.py#L182) — `generate()` | 找到 `:205` 的 `HARNESS_CLS().run(...)`；向上追踪六项启动输入，确认调用前已经准备了什么 |
-| 2 | [slime/agent/harness/common.py:81](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81) — `BaseHarness.run()` | 先读用户准备 → `HarnessContext` → 写配置 → 启动等待；再读 `:43` 的上下文字段和 `:107` 的 `run_agent()` |
-| 3A | [slime/agent/harness/claude_code.py:44](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/claude_code.py#L44) — `write_config()`、`:57` 的 `launch_and_wait()` | Claude Code 分支：上下文怎样形成配置文件、启动命令和环境变量 |
+| 1A | [examples/coding_agent_rl/generate.py:138](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L138) — `_AdapterService.__init__()` | 从 `generate:184` 进入：tokenizer、Adapter、SGLang 地址、HTTP 服务与 adapter_url；看完回到外层任务与会话准备 |
+| 2 | [slime/agent/harness/common.py:81](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/common.py#L81) — `BaseHarness.run()` | 先读用户准备 → `HarnessContext` → 写配置 → 启动等待的骨架；再下钻 Claude 子类，之后返回 `:107` 的 run_agent |
+| 3A | [slime/agent/harness/claude_code.py:44](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/claude_code.py#L44) — `write_config()`、`:57` 的 `launch_and_wait()` | Claude Code 分支：静态启动配置怎样写入；上下文怎样形成启动命令与环境变量 |
 | 3B | [slime/agent/harness/codex.py:56](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/harness/codex.py#L56) — `write_config()`、`:69` 的 `launch_and_wait()` | Codex 分支：同样的输入怎样形成另一套 CLI 启动方式 |
 | 按需 | [examples/coding_agent_rl/swe.py:77](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/examples/coding_agent_rl/swe.py#L77) — `get_metadata()`、`:177` 的 `prepare_workspace()` | 不清楚题目、镜像、工作目录和 `PROBLEM_STATEMENT.md` 的来源时，补读这两个函数 |
 | 接下章 | [slime/agent/sandbox.py:390](https://github.com/dextermayhewjd/slime/blob/8c17b676cb57af1d17ee4402e91e9209af84b60b/slime/agent/sandbox.py#L390) — `ensure_agent_user()`、`:82` 的 `exec_and_wait()` | 找到 Harness 委派环境操作和执行的接缝；沙箱实现沿 Manage Sandbox 深入，进程启动与等待沿 Exec Commands 深入 |
 
-最短阅读路线：`generate.py` 的调用处 → `common.py` 的 `run()` → 所选 CLI 的 Harness 文件 → `common.py` 的 `run_agent()`。先走通这条链，再补参数来源和沙箱实现。
+当前阅读路线：`generate()` 骨架 → `_AdapterService` 与任务/会话准备 → 已有沙箱与工作区 → `BaseHarness.run()` → 所选 CLI 的 Harness → `run_agent()`。环境操作与 CLI 等待再沿动作 5、6 展开。
 
-**前面的动作 2、3、3.5 展开一次模型请求；本章回到外层，看是谁准备并启动了发起这些请求的 Agent。** 章节编号是阅读顺序：实际运行时，先启动 Agent CLI，它再请求 Adapter，多次进入 `_run_turn()`。
+**前面的动作 2、3、3.5 展开一次模型请求；本章回到外层，看是谁准备并启动了发起这些请求的 Agent。** 动作编号用于定位职责；实际运行时，先启动 Agent CLI，它再请求 Adapter，多次进入 `_run_turn()`。
 
 完整任务顺序由[项目生命周期总览](../README.md#任务生命周期与原图的用途)统一定位。本章聚焦其中的启动交接：
 

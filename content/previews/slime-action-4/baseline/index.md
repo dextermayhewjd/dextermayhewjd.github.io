@@ -1,0 +1,105 @@
+---
+title: "4. Launch Agent · 原有 Harness.run 讲解存档"
+description: "完整保留采用新稿之前的 Harness.run 主线讲解，供逐段对照。"
+layout: "slime-action-preview"
+draft: true
+ShowToc: true
+hideMeta: true
+originalPage: "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/"
+originalLinkLabel: "打开正式阅读页"
+previewNotice: "原有 Harness.run 讲解存档 · 正文保持原样，新的阅读稿已采用到正式页。"
+comparisonPage: "/previews/slime-action-4/compare/"
+comparisonLinkLabel: "并排比较原讲解与已采用稿"
+---
+
+<!-- Derived from 4.Launch Agent/4.Harness.run调用与职责.md. -->
+
+本轮先用 Claude Code 一条具体实现，源码固定在 `22a89f96835969a47055a659c588f46151f8b07a`。旧 `8c17b676` 相关核心源码经本轮核对没有变化；下方链接绑定本轮固定版本。
+
+## 先把 run 的完整骨架读一遍
+
+调用处是 [generate](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L182)（`examples/coding_agent_rl/generate.py:182`） 的 `:205`。此时环境已创建、CLI 已安装、题目文件与 Adapter Session 已准备；`run()` 接住六个输入并返回一个 CLI 退出码。
+
+```python
+    async def run(
+        self,
+        sb: Sandbox,
+        *,
+        workdir: str,
+        session_id: str,
+        adapter_url: str,
+        time_budget_sec: int,
+        prompt: str,
+    ) -> int:
+        """Run the harness in the sandbox and return its exit code.
+
+        Steps: ensure the agent user -> write config -> launch and wait.
+        Workspace prep (writing the problem statement etc.) is the caller's job
+        and must run before this.
+        """
+        await _sandbox.ensure_agent_user(sb, workdir)
+        ctx = HarnessContext(
+            workdir=workdir,
+            session_id=session_id,
+            adapter_url=adapter_url,
+        )
+        await self.write_config(sb, ctx)
+        return await self.launch_and_wait(sb, ctx, prompt, time_budget_sec)
+```
+
+
+`HARNESS_CLS` 本轮选 ClaudeCodeHarness，它继承公共 `BaseHarness.run()`。`self.write_config` 与 `self.launch_and_wait` 因而进入 Claude 子类的具体实现。`install_cli()` 是另外一个扩展点，已在 Pre-4 的 boot 阶段调用，不在这个 run 的四步里。
+
+## 每次下钻，记住回到哪里
+
+| run 中的书签 | 进入哪个职责 | 输入与成果 | 返回哪里继续 |
+| --- | --- | --- | --- |
+| `common.py:97` | [ensure_agent_user](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L390)（`slime/agent/sandbox.py:390`） → sb.exec → E2B 命令接口 | sb、workdir → 用户/权限与 Git 目录设置；helper 返回 None | `:98` 构造上下文 |
+| `common.py:98` | [HarnessContext](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L43)（`slime/agent/harness/common.py:43`） | 包装 workdir、sid、adapter_url，带默认 model_label；没有 Sandbox 操作 | `:103` 写配置 |
+| `common.py:103` | [ClaudeCodeHarness.write_config](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L44)（`slime/agent/harness/claude_code.py:44`） → sb.exec | 写两个静态 headless 设置与权限；本实现没有读取 ctx | `:104` 启动等待 |
+| `common.py:104` | [ClaudeCodeHarness.launch_and_wait](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/claude_code.py#L57)（`slime/agent/harness/claude_code.py:57`） | prompt → cmd；ctx 的地址/会话/标签 → env | 委派 run_agent |
+| `claude_code.py:71` | [run_agent](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/harness/common.py#L107)（`slime/agent/harness/common.py:107`） → [exec_and_wait](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/sandbox.py#L82)（`slime/agent/sandbox.py:82`） | 创建输出目录，提交 CLI 运行并等待退出；返回整数退出码 | 沿 Harness 返回 generate:213 |
+
+固定示意参数：workdir 为 `/workspace/demo`，sid 为 `cagent-demo-0-0`，Adapter 地址为 `http://192.0.2.10:18001`，预算为 1800 秒；它们是阅读用假设值，不是运行记录。
+
+## 上下文、配置与环境变量分别在哪
+
+`HarnessContext` 放入 workdir、sid、adapter_url，默认 model_label 为 `slime-actor`；sb、prompt、time_budget_sec 继续作为独立参数使用。
+
+Claude 的 `write_config()` 不读取 ctx，只把 `hasCompletedOnboarding` 与 `bypassPermissionsModeAccepted` 两个设置写进环境，准备无交互启动。模型入口与会话身份随后在 `launch_and_wait()` 进入 env：
+
+```python
+        env = {
+            "ANTHROPIC_BASE_URL": ctx.adapter_url,
+            "ANTHROPIC_AUTH_TOKEN": ctx.session_id,
+            "ANTHROPIC_MODEL": ctx.model_label,
+            **self.static_env,
+        }
+        extra_envs = os.environ.get(self.extra_envs_env, "").strip()
+        if extra_envs:
+            env.update(json.loads(extra_envs))
+        return await run_agent(sb, workdir=ctx.workdir, start_cmd=cmd, env=env, time_budget_sec=time_budget_sec)
+```
+
+
+这个区分有助于后面的实现对照：同一个 write_config 接口，Codex 可以把 ctx 消费进 TOML；本轮 Claude 使用启动 env 传模型相关字段。
+
+## 怎样与动作 5、6、7 接起来
+
+- **动作 4** 组织配置、命令、环境变量与启动等待。
+- **动作 5** 解释上面的 sb.exec/write_file/read_file 怎样落实到执行环境。现在从 `run:97` 的用户准备下钻，再回来继续。
+- **动作 6** 展开 exec_and_wait 的脚本、后台进程、输出与退出标记。准备好启动要求后进入这一段。
+- **动作 7** 展开运行中的 CLI 怎样回连 Adapter。外层等待 CLI 时，它可以多次请求模型；Harness 不主动驱动这个模型/工具循环。
+
+## CLI 结束后怎样返回
+
+```text
+exec_and_wait -> (exit_code, output)
+run_agent    -> exit_code
+Harness.run  -> exit_code
+generate     -> git_diff -> leave work sandbox -> independent evaluation
+```
+
+等待预算耗尽会返回 `-1`，等待函数本身不杀掉 CLI；外层随后收集 diff，并在退出环境上下文时尝试回收。退出码描述进程状态，reward 由独立评分决定。Sandbox 创建、CLI 安装、任务评分和训练样本导出分别保留在它们的调用方。
+
+本轮为静态源码讲解。配套先读 `tests/test_agent/test_harness.py` 的调用顺序断言；真实 CLI、E2B、模型与训练未在本轮执行。

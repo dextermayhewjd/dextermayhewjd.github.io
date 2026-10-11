@@ -1,0 +1,203 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "groups": [
+    [
+      "c01",
+      "generate 在工作区准备后调用 Harness；公共 run 先确认用户，再创建上下文、写配置、启动等待。",
+      [
+        [
+          "调用方准备完成并进入 run",
+          "examples/coding_agent_rl/generate.py",
+          203,
+          213
+        ],
+        [
+          "公共 run",
+          "slime/agent/harness/common.py",
+          81,
+          104
+        ],
+        [
+          "选择 Harness 与 Adapter",
+          "examples/coding_agent_rl/generate.py",
+          45,
+          52
+        ]
+      ]
+    ],
+    [
+      "c02",
+      "用户准备通过 sb.exec 执行，以 root 请求创建或确认 agent 用户、目录所属与 Git safe.directory；不创建新沙箱。",
+      [
+        [
+          "run 内调用",
+          "slime/agent/harness/common.py",
+          97,
+          97
+        ],
+        [
+          "用户准备 helper",
+          "slime/agent/sandbox.py",
+          390,
+          399
+        ]
+      ]
+    ],
+    [
+      "c03",
+      "HarnessContext 是冻结 dataclass，保存三个传入字段与默认模型标签；不含 sb、prompt 或预算。",
+      [
+        [
+          "上下文定义",
+          "slime/agent/harness/common.py",
+          42,
+          54
+        ],
+        [
+          "构造上下文",
+          "slime/agent/harness/common.py",
+          98,
+          102
+        ]
+      ]
+    ],
+    [
+      "c04",
+      "Claude write_config 接口接收 ctx，但本实现不读取它；只写两项静态启动设置并设置文件所属。",
+      [
+        [
+          "公共配置调用",
+          "slime/agent/harness/common.py",
+          103,
+          103
+        ],
+        [
+          "Claude 配置实现",
+          "slime/agent/harness/claude_code.py",
+          44,
+          55
+        ]
+      ]
+    ],
+    [
+      "c05",
+      "Claude 使用 shlex.quote 引用 prompt，添加固定启动 flags；ctx 进入 env，额外环境最后可覆盖已有键。",
+      [
+        [
+          "公共启动调用",
+          "slime/agent/harness/common.py",
+          104,
+          104
+        ],
+        [
+          "Claude 命令和环境",
+          "slime/agent/harness/claude_code.py",
+          57,
+          71
+        ],
+        [
+          "固定 flags 和环境",
+          "slime/agent/harness/claude_code.py",
+          18,
+          34
+        ]
+      ]
+    ],
+    [
+      "c06",
+      "run_agent 创建日志目录后调用 exec_and_wait；只取 exit_code，把下层返回的 output 丢弃。",
+      [
+        [
+          "运行 helper",
+          "slime/agent/harness/common.py",
+          107,
+          122
+        ],
+        [
+          "执行接口签名与返回约定",
+          "slime/agent/sandbox.py",
+          82,
+          105
+        ],
+        [
+          "返回结果处理",
+          "slime/agent/sandbox.py",
+          139,
+          145
+        ]
+      ]
+    ],
+    [
+      "c07",
+      "外层取得进程状态后收集diff，离开工作沙箱上下文，再在独立评估中计算reward。",
+      [
+        [
+          "接收状态并收集/评估",
+          "examples/coding_agent_rl/generate.py",
+          203,
+          219
+        ],
+        [
+          "等待预算耗尽",
+          "slime/agent/sandbox.py",
+          62,
+          79
+        ],
+        [
+          "工作沙箱退出与回收",
+          "examples/coding_agent_rl/generate.py",
+          131,
+          134
+        ]
+      ]
+    ],
+    [
+      "c08",
+      "预算/异常/输出边界分别由底层等待、Sandbox操作和外层上下文承担。",
+      [
+        [
+          "等待预算返回",
+          "slime/agent/sandbox.py",
+          62,
+          79
+        ],
+        [
+          "运行输出处理",
+          "slime/agent/sandbox.py",
+          139,
+          145
+        ],
+        [
+          "外层工作沙箱生命周期",
+          "examples/coding_agent_rl/generate.py",
+          95,
+          134
+        ],
+        [
+          "外层时间保护",
+          "examples/coding_agent_rl/generate.py",
+          200,
+          203
+        ]
+      ]
+    ],
+    [
+      "c09",
+      "BaseHarness保留统一扩展接口；Codex在自己的实现中消费ctx并构造不同CLI启动参数。",
+      [
+        [
+          "Harness扩展接口",
+          "slime/agent/harness/common.py",
+          57,
+          79
+        ],
+        [
+          "Codex配置与启动",
+          "slime/agent/harness/codex.py",
+          56,
+          86
+        ]
+      ]
+    ]
+  ]
+}

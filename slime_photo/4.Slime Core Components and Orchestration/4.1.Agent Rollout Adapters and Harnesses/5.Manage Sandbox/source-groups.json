@@ -1,0 +1,278 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "groups": [
+    [
+      "c01",
+      "从已有环境的 run 用户准备调用进入，正常返回后继续创建 HarnessContext。",
+      [
+        [
+          "公共调用骨架",
+          "slime/agent/harness/common.py",
+          81,
+          104
+        ]
+      ]
+    ],
+    [
+      "c02",
+      "Sandbox 是 Protocol；E2BSandbox 保存 SDK 句柄和环境标识，实际后端无需继承协议类。",
+      [
+        [
+          "公共能力约定",
+          "slime/agent/sandbox.py",
+          23,
+          59
+        ],
+        [
+          "包装对象与字段",
+          "slime/agent/sandbox.py",
+          160,
+          189
+        ],
+        [
+          "句柄与环境标识赋值",
+          "slime/agent/sandbox.py",
+          294,
+          300
+        ]
+      ]
+    ],
+    [
+      "c03",
+      "用户准备生成 root 命令；调用没有保存三元组，成功返回 None，留下环境副作用。",
+      [
+        [
+          "调用处",
+          "slime/agent/harness/common.py",
+          97,
+          97
+        ],
+        [
+          "完整用户准备函数",
+          "slime/agent/sandbox.py",
+          390,
+          399
+        ],
+        [
+          "exec 参数默认值",
+          "slime/agent/sandbox.py",
+          309,
+          319
+        ]
+      ]
+    ],
+    [
+      "c04",
+      "exec 经重试包装调用 SDK commands.run；env 改名 envs，成功结果归一化为三元组。示例响应为构造值。",
+      [
+        [
+          "发送与正常返回",
+          "slime/agent/sandbox.py",
+          320,
+          334
+        ],
+        [
+          "SDK 句柄来源",
+          "slime/agent/sandbox.py",
+          298,
+          300
+        ]
+      ]
+    ],
+    [
+      "c05",
+      "check 仅控制 CommandExitException 的表达；重放另由瞬时异常识别和 idempotent 提示控制，默认6次总尝试。",
+      [
+        [
+          "命令异常",
+          "slime/agent/sandbox.py",
+          335,
+          340
+        ],
+        [
+          "默认重试次数",
+          "slime/agent/sandbox.py",
+          168,
+          172
+        ],
+        [
+          "瞬时异常识别",
+          "slime/agent/sandbox.py",
+          211,
+          235
+        ],
+        [
+          "重试与退避",
+          "slime/agent/sandbox.py",
+          237,
+          279
+        ],
+        [
+          "本例重复Git追加",
+          "slime/agent/sandbox.py",
+          394,
+          396
+        ]
+      ]
+    ],
+    [
+      "c06",
+      "ensure_agent_user 未保存 exec 结果，返回 None；run 继续建立上下文并在同一环境写配置。",
+      [
+        [
+          "用户准备完整函数",
+          "slime/agent/sandbox.py",
+          390,
+          399
+        ],
+        [
+          "返回后继续",
+          "slime/agent/harness/common.py",
+          97,
+          104
+        ],
+        [
+          "后续配置仍使用 sb",
+          "slime/agent/harness/claude_code.py",
+          44,
+          55
+        ]
+      ]
+    ],
+    [
+      "c07",
+      "准备题目通过 write_file；写入支持文本/字节/宿主Path，重试重新打开流；read_file 普通异常最终返回空字符串。",
+      [
+        [
+          "题目写入调用",
+          "examples/coding_agent_rl/swe.py",
+          177,
+          198
+        ],
+        [
+          "写入实现",
+          "slime/agent/sandbox.py",
+          342,
+          378
+        ],
+        [
+          "读取实现",
+          "slime/agent/sandbox.py",
+          380,
+          387
+        ]
+      ]
+    ],
+    [
+      "c08",
+      "构造对象仅保存配置；进入时创建SDK环境，外层安装后yield；finally执行退出，kill普通失败只记warning。",
+      [
+        [
+          "构造配置",
+          "slime/agent/sandbox.py",
+          174,
+          189
+        ],
+        [
+          "创建与回收",
+          "slime/agent/sandbox.py",
+          281,
+          307
+        ],
+        [
+          "外层上下文与安装",
+          "examples/coding_agent_rl/generate.py",
+          95,
+          134
+        ],
+        [
+          "使用和结果收集",
+          "examples/coding_agent_rl/generate.py",
+          200,
+          219
+        ]
+      ]
+    ],
+    [
+      "c09",
+      "run_agent 使用环境接口并委派 exec_and_wait；两者返回合同不同，等待预算耗尽本身不杀进程。",
+      [
+        [
+          "run_agent 调用与整数返回",
+          "slime/agent/harness/common.py",
+          107,
+          122
+        ],
+        [
+          "长命令入口和返回",
+          "slime/agent/sandbox.py",
+          82,
+          145
+        ],
+        [
+          "预算状态",
+          "slime/agent/sandbox.py",
+          62,
+          79
+        ],
+        [
+          "退出环境前收集结果",
+          "examples/coding_agent_rl/generate.py",
+          203,
+          219
+        ]
+      ]
+    ]
+  ],
+  "excerpts": [
+    {
+      "key": "CALLER",
+      "path": "slime/agent/harness/common.py",
+      "first": 97,
+      "last": 104,
+      "codeSha256": "dcab58f43fdeb7072dd0b9afe73be4f7cef6ca1a0a52e64ab0142a0fbb247dc0"
+    },
+    {
+      "key": "ENSURE",
+      "path": "slime/agent/sandbox.py",
+      "first": 390,
+      "last": 399,
+      "codeSha256": "4b883820536090695fcdb1e852cf3ad608d0e2d40e2016bc00d1c99c031b7d18"
+    },
+    {
+      "key": "EXEC_SUCCESS",
+      "path": "slime/agent/sandbox.py",
+      "first": 322,
+      "last": 334,
+      "codeSha256": "eab11f8a88cf59614a744d3a7cd1b8a50de454380b6a5af8e7552d2642abb22c"
+    },
+    {
+      "key": "EXEC_ERROR",
+      "path": "slime/agent/sandbox.py",
+      "first": 335,
+      "last": 340,
+      "codeSha256": "24c4eb4a22b56a8935281ff2685f855dad52e8bc197e50cffeb4d9d271848dc5"
+    },
+    {
+      "key": "RETRY_GATE",
+      "path": "slime/agent/sandbox.py",
+      "first": 247,
+      "last": 254,
+      "codeSha256": "d0f999a134f71106a400a70461a14148cea9b37d8188228bc3d3c329cf9a59cd"
+    },
+    {
+      "key": "WRITE_CALL",
+      "path": "examples/coding_agent_rl/swe.py",
+      "first": 194,
+      "last": 198,
+      "codeSha256": "fd84bb28f3075ce7a6c1310b2c6be3111e5578073c7267a95718eda11ab7ca8f"
+    },
+    {
+      "key": "READ_FILE",
+      "path": "slime/agent/sandbox.py",
+      "first": 380,
+      "last": 387,
+      "codeSha256": "f85ffd21223dbdf7c83ed82e8abcc2a9d1daf67d7a1688626f0d8026bb599497"
+    }
+  ]
+}

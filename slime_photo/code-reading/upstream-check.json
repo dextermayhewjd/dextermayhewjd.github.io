@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "checkedAtUTC": "2026-10-10 10:13:58 UTC",
+  "localRoot": "/home/fredkeira/projects/slime",
+  "localBranch": "main",
+  "localRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "localOrigin": "git@github.com:dextermayhewjd/slime.git",
+  "officialRepository": "https://github.com/THUDM/slime.git",
+  "officialBranch": "main",
+  "officialRevision": "d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+  "isOfficialLatest": false,
+  "localAheadBy": 0,
+  "localBehindBy": 1,
+  "comparisonURL": "https://github.com/THUDM/slime/compare/22a89f96835969a47055a659c588f46151f8b07a...d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+  "comparisonAPI": "https://api.github.com/repos/THUDM/slime/compare/22a89f96835969a47055a659c588f46151f8b07a...d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+  "commits": [
+    {
+      "revision": "d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+      "committedAtUTC": "2026-10-10T09:26:41Z",
+      "title": "test: register Megatron bindings regression in CPU CI (#2458)"
+    }
+  ],
+  "changedFiles": [
+    {
+      "path": ".github/workflows/pr-test.yml",
+      "status": "modified"
+    },
+    {
+      "path": ".github/workflows/pr-test.yml.j2",
+      "status": "modified"
+    },
+    {
+      "path": "tests/test_reloadable_process_group_megatron_bindings.py",
+      "status": "modified"
+    }
+  ],
+  "trackedWorkingTreeClean": true,
+  "untrackedPaths": [
+    ".ua/",
+    "docs/repo-reading-route.md",
+    "docs/repo-reading/"
+  ],
+  "actions": [
+    "read-only official refs query",
+    "read-only official comparison API",
+    "no local source update"
+  ],
+  "readingRevision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "lastRecheckedOfficialAtUTC": "2026-10-10 11:57:49 UTC",
+  "lastRecheckedOfficialRevision": "d06df4d77a1fbcf7bdc48e13071cf649e670133a",
+  "currentReadingFocus": "4.1 Agent Rollout Adapters and Harnesses",
+  "coreSourcesUnchangedFrom": "8c17b676cb57af1d17ee4402e91e9209af84b60b"
+}

@@ -1,5 +1,17 @@
 # Agent Rollout Adapters and Harnesses 阅读入口
 
+## 当前先沿 generate 完成一次任务
+
+先读[连续任务导览](../../code-reading/chapters/01-task-execution/walkthrough.md)：准备模型入口和 Session → 创建执行环境和工作区 → Harness 启动并等待 CLI → CLI 模型请求循环 → 返回 generate 收集 diff、独立评分、导出与清理。每步都标出调用处、实现处、输入输出和返回主线的位置。
+
+本次具体实现选 Claude Code / Anthropic，与现有动作图文保持一致。导览固定在本地 `22a89f9`；本轮核对这些核心源码与旧 `8c17b676` 无差异。完整链读通后，再以 Codex / OpenAI 对照可替换的职责。
+
+## 本轮阅读与章节存档
+
+- [Pre-4 启动前准备完整存档](Pre-4.启动前准备/README.md)：正文、总览图、源码索引与来源说明。
+- [Harness.run 主线](4.Launch%20Agent/4.Harness.run调用与职责.md)：先读公共组织骨架。
+- [动作5 Manage Sandbox](5.Manage%20Sandbox/README.md)：从 run 的环境操作下钻，再返回继续。
+
 ## 任务生命周期与原图的用途
 
 先从[项目开头的任务生命周期总览](https://dextermayhewjd.github.io/projects/slime/#agent-lifecycle)建立任务顺序，再选择下面的动作。每个动作使用同一定位图，高亮本章负责的部分，随后展开具体数据流。

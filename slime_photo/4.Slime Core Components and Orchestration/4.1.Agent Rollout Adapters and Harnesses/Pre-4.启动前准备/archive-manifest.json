@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "authoredDocument": "slime_photo/code-reading/chapters/01-task-execution/pre-4-preparation.md",
+  "authoredDiagram": "static/images/slime-lifecycle/pre-4-preparation.svg",
+  "files": {
+    "README.md": "66cde25ee95776abd3b01ef8fdb370164036a889932150fb321d42f9f8cb59c8",
+    "SOURCE-LICENSE.txt": "bf917707c1e0ffdfe653d63aebc188a48f738f3faad9acc188c346d3618694af",
+    "SOURCE.md": "9c0138916c69681afca048e1008a4e36909a66427cb43c3dd869d62ea66e2a8d",
+    "TEMPLATE.md": "316d13a32c29f1f13eb856b9b9c4dec374d7c5a2fb5e46b267360a9a575563cd",
+    "code-ownership.svg": "35599ecc9a1e3f827ffbee2e3c832db00e5b9a09f6d77ef17713c49ef54535fe",
+    "index.html": "a17941c2deef52bab9495bd5a67084c3a10c4bd6dddb9590ed66215a3164fb22",
+    "overview.svg": "7008d9cae39b6ed97331e6115557587a4167fc024ccd08299ad1bf6ada3a58a2",
+    "source-map.json": "ee15d90d0b58b68344b09374f1c1935e81e1d2fe45229b38728f37582efa820c",
+    "示例.json": "cbb3b26a86b07894e3094fe0d6428bcb77ff7494874a2009638e69beefc4f971"
+  }
+}
