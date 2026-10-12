@@ -1,0 +1,10 @@
+flowchart TD
+    start["初始化 confirmed = []"] -->|遍历 findings| more{"for：还有下一条？"}
+    more -->|已取完| result["得到最终 confirmed"]
+    more -->|取到 finding| review["复核当前 finding"]
+    review -->|得到 verdict| decision{"if：isReal？"}
+    decision -->|True| keep["将 finding 加入 confirmed"]
+    decision -->|False| skip["跳过当前 finding"]
+    keep --> advance["继续遍历"]
+    skip --> advance
+    advance -->|下一条| more

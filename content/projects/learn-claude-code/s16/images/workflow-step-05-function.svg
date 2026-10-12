@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="s16-step05-schema" width="842.21875" class="flowchart" height="456" viewBox="0 18 842.21875 456" role="img" aria-labelledby="s16-step05-title s16-step05-desc">
+  <title id="s16-step05-title">完整工作流的输入、函数边界与返回结果</title>
+  <desc id="s16-step05-desc">args 提供 changes，ctx 提供模型调用能力。sample_workflow 函数内先检查，再逐条复核与筛选，形成 confirmed，最后返回包含 confirmed 列表的对象。虚线表示 ctx 提供调用能力，实线表示输入与结果传递。</desc>
+  <style>#s16-step05-schema{font-family:system-ui,-apple-system,sans-serif;font-size:16px;fill:var(--diagram-text, #24334b);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#s16-step05-schema .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#s16-step05-schema .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#s16-step05-schema .error-icon{fill:hsl(36, 26.3157894737%, 100%);}#s16-step05-schema .error-text{fill:#000000;stroke:#000000;}#s16-step05-schema .edge-thickness-normal{stroke-width:1px;}#s16-step05-schema .edge-thickness-thick{stroke-width:3.5px;}#s16-step05-schema .edge-pattern-solid{stroke-dasharray:0;}#s16-step05-schema .edge-thickness-invisible{stroke-width:0;fill:none;}#s16-step05-schema .edge-pattern-dashed{stroke-dasharray:3;}#s16-step05-schema .edge-pattern-dotted{stroke-dasharray:2;}#s16-step05-schema .marker{fill:var(--diagram-base-stroke, #537cc0);stroke:var(--diagram-base-stroke, #537cc0);}#s16-step05-schema .marker.cross{stroke:var(--diagram-base-stroke, #537cc0);}#s16-step05-schema svg{font-family:system-ui,-apple-system,sans-serif;font-size:16px;}#s16-step05-schema p{margin:0;}#s16-step05-schema .label{font-family:system-ui,-apple-system,sans-serif;color:var(--diagram-text, #24334b);}#s16-step05-schema .cluster-label text{fill:var(--diagram-text, #24334b);}#s16-step05-schema .cluster-label span{color:var(--diagram-text, #24334b);}#s16-step05-schema .cluster-label span p{background-color:transparent;}#s16-step05-schema .label text,#s16-step05-schema span{fill:var(--diagram-text, #24334b);color:var(--diagram-text, #24334b);}#s16-step05-schema .node rect,#s16-step05-schema .node circle,#s16-step05-schema .node ellipse,#s16-step05-schema .node polygon,#s16-step05-schema .node path{fill:var(--diagram-storage-fill, #f3f5f8);stroke:var(--diagram-storage-stroke, #8a96a6);stroke-width:1px;}#s16-step05-schema .rough-node .label text,#s16-step05-schema .node .label text,#s16-step05-schema .image-shape .label,#s16-step05-schema .icon-shape .label{text-anchor:middle;}#s16-step05-schema .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#s16-step05-schema .rough-node .label,#s16-step05-schema .node .label,#s16-step05-schema .image-shape .label,#s16-step05-schema .icon-shape .label{text-align:center;}#s16-step05-schema .node.clickable{cursor:pointer;}#s16-step05-schema .root .anchor path{fill:var(--diagram-base-stroke, #537cc0)!important;stroke-width:0;stroke:var(--diagram-base-stroke, #537cc0);}#s16-step05-schema .arrowheadPath{fill:#0b0b0b;}#s16-step05-schema .edgePath .path{stroke:var(--diagram-base-stroke, #537cc0);stroke-width:2.0px;}#s16-step05-schema .flowchart-link{stroke:var(--diagram-base-stroke, #537cc0);fill:none;}#s16-step05-schema .edgeLabel{background-color:var(--theme, #ffffff);text-align:center;}#s16-step05-schema .edgeLabel p{background-color:var(--theme, #ffffff);}#s16-step05-schema .edgeLabel rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step05-schema .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#s16-step05-schema .cluster rect{fill:var(--diagram-memory-fill, #f3edfc);stroke:var(--diagram-memory-stroke, #8855b5);stroke-width:1px;}#s16-step05-schema .cluster text{fill:var(--diagram-text, #24334b);}#s16-step05-schema .cluster span{color:var(--diagram-text, #24334b);}#s16-step05-schema div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;background:hsl(36, 26.3157894737%, 100%);border:1px solid hsl(36, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#s16-step05-schema .flowchartTitleText{text-anchor:middle;font-size:18px;fill:var(--diagram-text, #24334b);}#s16-step05-schema rect.text{fill:none;stroke-width:0;}#s16-step05-schema .icon-shape,#s16-step05-schema .image-shape{background-color:var(--theme, #ffffff);text-align:center;}#s16-step05-schema .icon-shape p,#s16-step05-schema .image-shape p{background-color:var(--theme, #ffffff);padding:2px;}#s16-step05-schema .icon-shape rect,#s16-step05-schema .image-shape rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step05-schema .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#s16-step05-schema .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#s16-step05-schema :root{--mermaid-font-family:system-ui,-apple-system,sans-serif;}</style>
+  <g>
+    <marker id="s16-step05-schema_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step05-schema_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step05-schema_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step05-schema_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step05-schema_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step05-schema_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <g class="root">
+      <g class="clusters" />
+      <g class="edgePaths">
+        <path d="M212.992,208L236.922,208L248.043,210.805" id="L_args_workflow_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_args_workflow_0" data-points="W3sieCI6MjEyLjk5MjE4NzUsInkiOjIwOH0seyJ4IjoyMzYuOTIxODc1LCJ5IjoyMDh9LHsieCI6MjUxLjkyMTg3NSwieSI6MjExLjc4MzI1MTIzMTUyNzF9XQ==" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+        <path d="M221.922,284L236.922,284L248.043,281.195" id="L_ctx_workflow_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_ctx_workflow_0" data-points="W3sieCI6MjIxLjkyMTg3NSwieSI6Mjg0fSx7IngiOjIzNi45MjE4NzUsInkiOjI4NH0seyJ4IjoyNTEuOTIxODc1LCJ5IjoyODAuMjE2NzQ4NzY4NDcyOX1d" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+        <path d="M523.25,246L563.992,246L600.734,246" id="L_workflow_result_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_workflow_result_0" data-points="W3sieCI6NTIzLjI1LCJ5IjoyNDZ9LHsieCI6NTYzLjk5MjE4NzUsInkiOjI0Nn0seyJ4Ijo2MDQuNzM0Mzc1LCJ5IjoyNDZ9XQ==" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+      </g>
+      <g class="edgeLabels">
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="L_args_workflow_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="L_ctx_workflow_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(563.9921875, 246)">
+          <g class="label" data-id="L_workflow_result_0" transform="translate(-25.7421875, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="51.484375" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">return</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="nodes">
+        <g class="root" transform="translate(243.921875, 36)">
+          <g class="clusters">
+            <g class="cluster" id="workflow" data-look="classic">
+              <rect style="" x="8" y="-10" width="271.328125" height="440" />
+              <g class="cluster-label" transform="translate(43.85985565185547, -2)">
+                <g>
+                  <rect class="background" style="stroke: none" />
+                  <text y="-10.1" style="">
+                    <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">sample_workflow(ctx,args)</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g class="edgePaths">
+            <path d="M143.664,99.5L143.664,127L143.664,150.5" id="L_audit_findings_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_audit_findings_0" data-points="W3sieCI6MTQzLjY2NDA2MjUsInkiOjk5LjV9LHsieCI6MTQzLjY2NDA2MjUsInkiOjEyN30seyJ4IjoxNDMuNjY0MDYyNSwieSI6MTU0LjV9XQ==" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+            <path d="M143.664,200.5L143.664,228L143.664,251.5" id="L_findings_review_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_findings_review_0" data-points="W3sieCI6MTQzLjY2NDA2MjUsInkiOjIwMC41fSx7IngiOjE0My42NjQwNjI1LCJ5IjoyMjh9LHsieCI6MTQzLjY2NDA2MjUsInkiOjI1NS41fV0=" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+            <path d="M143.664,301.5L143.664,329L143.664,352.5" id="L_review_confirmed_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_review_confirmed_0" data-points="W3sieCI6MTQzLjY2NDA2MjUsInkiOjMwMS41fSx7IngiOjE0My42NjQwNjI1LCJ5IjozMjl9LHsieCI6MTQzLjY2NDA2MjUsInkiOjM1Ni41fV0=" marker-end="url(#s16-step05-schema_flowchart-v2-pointEnd)" />
+          </g>
+          <g class="edgeLabels">
+            <g>
+              <rect class="background" style="stroke: none" />
+            </g>
+            <g>
+              <rect class="background" style="stroke: none" />
+            </g>
+            <g>
+              <rect class="background" style="stroke: none" />
+            </g>
+            <g class="edgeLabel">
+              <g class="label" data-id="L_audit_findings_0" transform="translate(0, 0)">
+                <text y="-10.1">
+                  <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+                </text>
+              </g>
+            </g>
+            <g class="edgeLabel">
+              <g class="label" data-id="L_findings_review_0" transform="translate(0, 0)">
+                <text y="-10.1">
+                  <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+                </text>
+              </g>
+            </g>
+            <g class="edgeLabel">
+              <g class="label" data-id="L_review_confirmed_0" transform="translate(0, 0)">
+                <text y="-10.1">
+                  <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+                </text>
+              </g>
+            </g>
+          </g>
+          <g class="nodes">
+            <g class="node default" id="flowchart-audit-2" transform="translate(143.6640625, 76.5)">
+              <rect class="basic label-container" style="" x="-72.0078125" y="-23" width="144.015625" height="46" />
+              <g class="label" style="" transform="translate(0, -11)">
+                <rect />
+                <g>
+                  <rect class="background" style="stroke: none" />
+                  <text y="-10.1" style="">
+                    <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">检查代码改动</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </g>
+            <g class="node default" id="flowchart-findings-3" transform="translate(143.6640625, 177.5)">
+              <rect class="basic label-container" style="" x="-54.4453125" y="-23" width="108.890625" height="46" />
+              <g class="label" style="" transform="translate(0, -11)">
+                <rect />
+                <g>
+                  <rect class="background" style="stroke: none" />
+                  <text y="-10.1" style="">
+                    <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">findings</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </g>
+            <g class="node default" id="flowchart-review-5" transform="translate(143.6640625, 278.5)">
+              <rect class="basic label-container" style="" x="-110.6640625" y="-23" width="221.328125" height="46" />
+              <g class="label" style="" transform="translate(0, -11)">
+                <rect />
+                <g>
+                  <rect class="background" style="stroke: none" />
+                  <text y="-10.1" style="">
+                    <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">逐条复核与筛选（图</tspan>
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> 4）</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </g>
+            <g class="node default" id="flowchart-confirmed-7" transform="translate(143.6640625, 379.5)">
+              <rect class="basic label-container" style="" x="-62.65625" y="-23" width="125.3125" height="46" />
+              <g class="label" style="" transform="translate(0, -11)">
+                <rect />
+                <g>
+                  <rect class="background" style="stroke: none" />
+                  <text y="-10.1" style="">
+                    <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                      <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">confirmed</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="flowchart-args-0" transform="translate(114.9609375, 208)">
+          <rect class="basic label-container" style="" x="-98.03125" y="-23" width="196.0625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">args：包含</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> changes</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="flowchart-ctx-1" transform="translate(114.9609375, 284)">
+          <rect class="basic label-container" style="" x="-106.9609375" y="-23" width="213.921875" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">ctx：提供模型调用接口</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="flowchart-result-13" transform="translate(719.4765625, 246)">
+          <rect class="basic label-container" style="" x="-114.7421875" y="-23" width="229.484375" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">{'confirmed':</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> confirmed}</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

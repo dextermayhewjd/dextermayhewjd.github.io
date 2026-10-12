@@ -35,7 +35,7 @@ README 把这道门称为会话级 Stop hook。具体代码是在 _run_query 的
 
 #### 图 1：回顾 S16 的默认整体图
 
-{{< architecture from="/projects/learn-claude-code/s16" width="1200" src="images/workflow-agent-integration.svg" mode="baseline" modified="input,decision" folded="wf-script,wf-journal,wf-finish" label="图 1：复用 S16 原节点与连线，标记输入命令和无工具退出分支将改造，Workflow 内部将合并展示" caption="图 1：布局、节点和连线直接来自 S16。橙色旧输入与退出判断将在下一张增加 Goal；灰色 Workflow 内部收进原入口接口，具体脚本、journal 与回传仍看 S16。" >}}
+{{< architecture from="/projects/learn-claude-code/s16" width="1200" src="images/workflow-agent-integration.svg" mode="baseline" modified="input,decision" folded="wf-script,wf-journal,wf-finish" label="图 1：复用 S16 保留的累计接入图节点与连线，标记输入命令和无工具退出分支将改造，Workflow 内部将合并展示" caption="图 1：布局、节点和连线来自 S16 保留的累计接入图。橙色旧输入与退出判断将在下一张增加 Goal；灰色 Workflow 内部收进原入口接口，具体脚本、journal 与回传仍看 S16。" >}}
 
 #### 图 2：累积骨架中的 Goal 接入位置
 

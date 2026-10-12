@@ -70,7 +70,7 @@
 
 ### S17 的接续
 
-- 图 1 直接引用 S16 默认整体图：旧用户输入、无工具退出判断标橙，Workflow 脚本／journal／回传提示展示合并；几何与路径不变。
+- 图 1 引用 S16 保留的累计接入图：旧用户输入、无工具退出判断标橙，Workflow 脚本／journal／回传提示展示合并；几何与路径不变。
 - 图 2 只将 Workflow 内部收进原 S16 同步入口，保留调用、完整回传与章节链接；Goal 在无工具退出分支展开条件状态、Gate、无工具评估与原因回写。已有工具轮仍先回历史，不能绕过 Gate 直接结束无工具轮。
 - 明示源码范围：S17 是 S04 五工具 Kernel 上的独立实现，没有导入 S15/S16。图 2 是累积学习接入示意，图 3 与源码描述真实 S17；旧 Memory 等收尾不是独立脚本已集成能力。
 - 区分 /goal 宿主输入、AgentSession 工作循环、GoalController 控制逻辑、PromptGoalEvaluator 独立无工具请求与状态记录。README 的 Stop hook 指职责，实际 evaluate_after_turn 在 _run_query 直接调用，未注册进普通 Stop 回调列表。
@@ -194,13 +194,14 @@
 
 ### S16 的工具背后运行时
 
-- 图 1 直接复用 S15 总图，只将 tools、pool 和 handler 标为将扩展；安装 Workflow 不修改 S15 主循环、SYSTEM 拼接或原权限函数。不能因为调用新 runtime 就把所有旧入口标成修改。
-- 图 2 保留 S15 的旧节点位置，向下增加 Workflow 入口、可信脚本／runner、journal 与运行产物、事件／最终回传；仅延长外围工具结果回线到新增模块下方。宽度仍 1200，高度按实际新增接口增加，保持字体大小；新增框紫色，存储辅助灰色，工具池扩展橙色。
+- 正文采用已确认的 23 节递进稿：开篇说明固定流程需要并行、稳定结构与结果复用；从一次 `ctx.agent()` 调用开始，依次引入 schema、复核、for/if、基础函数、parallel、pipeline、汇总、进度、journal、resume、注册表、子流程、运行准备与收尾、运行约束、runner，最后接回 Agent。每次只增加当前问题所需的组件，保留必要代码上下文。
+- 第 1–4 节保留局部 SVG，后续局部关系优先用简短文本图；每张图的注释紧邻图。开篇采用“我想弄清楚的问题 → 整体过程”的结构，将完整交互总图前置为阅读地图，并给出一句分段阅读顺序；后续 23 节保持递进讲解，第 23 节链接回开篇总图，回顾正常完成、单步修正、失败恢复与整体职责。
+- 页面正文整体采用新稿，作者备注、未通过方案与旧正文不进入正式页面。旧锚点兼容到对应新章节；S17 引用的 `workflow-agent-integration.svg` 继续作为累计接入图保留，区别于新正文的机制总图。
+- 总图继续复用 Hugo 阅读器。点击源码时展示固定版本完整方法，来自隐藏的源码资源库；正文中的教学裁剪不会替代源码详情。旧内部核心图仅用于详情窗口，不额外占据正文阅读顺序。
 - 父工具同步等待完整运行，脚本内部可以并发；async_launched 是本地生命周期事件，不能画成已先回 tool_result 或接入 S15 的异步唤醒桥。最终经原 PostToolUse 一次回传 launched／result／task；中间结果保存在脚本变量，progress 随最终状态返回。
-- 图 3 分开启动／持锁状态、脚本原语、单步、journal、runner／结构校验、资源约束与收尾；内部方法按 owner 标注并可点击查看，不挂具体 run_workflow／run_workflow_sync 工具包装。_call_locked 同时负责准备和收尾，重复出现方法名不表示执行两遍。
-- 区分 parallel 的组内等齐和 pipeline 的逐 item 顺序、跨 item 并发；phase 只是进度标签。真实 AnthropicAgentRunner 只读传入 prompt，未配置 tools，没有 S06 工具循环；注册脚本是宿主信任的 Python，不把小 ctx 接口说成沙箱。
-- resume 重新执行脚本，原 args 必须一致或省略使用快照，单步 key 命中才复用；不能说恢复 Python 现场或自动维护依赖失效图。key 排除模型／代码版本等信息，不宣称无碰撞或副作用恰好执行一次。快照／输出、journal、run 锁的职责分别解释。
-- 资源检查依照源码位置：计数和预算先于缓存，初次 runner 在 semaphore 内，JSON 修正调用在其外，token 消耗后记账。SimpleJsonSchema 是简化校验，不写成 API 严格结构化输出或完整 JSON Schema。结构校验与失败 task 状态是本章机制，本次仍不展开 S15 通用 API 恢复。
+- 区分 parallel 的组内等齐和 pipeline 的逐 item 顺序、跨 item 并发；phase 只是进度标签。真实 AnthropicAgentRunner 只读传入 prompt，未配置 tools；注册脚本是宿主信任的 Python，不把小 ctx 接口说成沙箱。
+- resume 重新执行脚本，原 args 必须一致或省略使用快照，单步 key 命中才复用；不能说恢复 Python 现场或自动维护依赖失效图。key 排除模型／代码版本等信息，不宣称副作用恰好执行一次。schema 不符自动修正一次，整次失败后要显式恢复；两种重试分开解释。
+- 资源检查依照源码位置：计数和预算先于缓存，初次 runner 在 semaphore 内，JSON 修正调用在其外，token 消耗后记账。SimpleJsonSchema 是简化校验，不写成 API 严格结构化输出或完整 JSON Schema。
 
 ### 一般演化对照图的颜色
 

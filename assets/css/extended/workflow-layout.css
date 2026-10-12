@@ -1,0 +1,22 @@
+/* Reserve 1400px for the S16 overview, plus navigation and page padding. */
+.main:has(#s16-overview-explorer) { max-width: 1704px; }
+
+/* The scroll canvas has a 1px border on each side of the SVG. */
+#s16-overview-explorer,
+#s16-overview-explorer > .architecture-diagram {
+  max-width: calc(var(--architecture-width) + 2px);
+}
+
+/* Give the diagram the full reading area when a sidebar would crowd it. */
+@media (max-width: 1740px) {
+  .main:has(#s16-overview-explorer) { max-width: 1450px; }
+  .main:has(#s16-overview-explorer) .project-layout { display: block; }
+  .main:has(#s16-overview-explorer) .project-nav {
+    position: static;
+    margin-bottom: 22px;
+    max-height: none;
+    overflow: visible;
+  }
+  .main:has(#s16-overview-explorer) .project-nav__desktop { display: none; }
+  .main:has(#s16-overview-explorer) .project-nav__mobile { display: block; }
+}

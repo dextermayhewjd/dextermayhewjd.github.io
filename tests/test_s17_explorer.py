@@ -9,7 +9,7 @@ PROBE=r"""<script>window.addEventListener('load',async()=>{
  try{
   const root=document.getElementById('s17-goal-explorer');check(root?.dataset.ready==='true','Goal reader not initialized');
   const baseline=document.querySelector('figure.architecture-diagram'),original=baseline.outerHTML;
-  const previous=new DOMParser().parseFromString(await(await fetch('/projects/learn-claude-code/s16/')).text(),'text/html').querySelector('[data-diagram-explorer] svg');
+  const previous=new DOMParser().parseFromString(await(await fetch('/projects/learn-claude-code/s16/images/workflow-agent-integration.svg')).text(),'image/svg+xml').documentElement;
   const geometry=s=>JSON.stringify([...s.querySelectorAll('rect[data-stage],path[stroke]')].map(n=>['data-stage','x','y','width','height','d'].map(a=>n.getAttribute(a))));
   check(geometry(baseline.querySelector('svg'))===geometry(previous),'Goal baseline changed S16 geometry');
   check(baseline.querySelectorAll('rect[data-view="modified"]').length===2,'Incorrect baseline modified interfaces');
