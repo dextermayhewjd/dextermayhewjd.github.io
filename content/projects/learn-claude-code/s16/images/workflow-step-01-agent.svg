@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 240" role="img" aria-labelledby="s16-step01-title s16-step01-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s16-step01-title">一次 ctx.agent() 调用：输入、调用与输出</title>
+  <desc id="s16-step01-desc">代码改动 changes 和检查要求组成 prompt。工作流脚本通过 ctx.agent(prompt) 调用模型检查，返回的审查文字保存在 out 中。箭头表示数据传递。</desc>
+  <defs>
+    <marker id="s16-step01-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="30" font-size="18" font-weight="650" fill="var(--diagram-text, #24334b)">一次 ctx.agent() 调用</text>
+
+  <path data-route="step01-changes-prompt" data-from="changes" data-to="prompt" data-kind="data" data-label="把代码改动放入提示词" d="M194 95H228V126H262" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.8" marker-end="url(#s16-step01-arrow)"/>
+  <path data-route="step01-instructions-prompt" data-from="instructions" data-to="prompt" data-kind="data" data-label="把检查要求放入提示词" d="M194 185H228V154H262" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.8" marker-end="url(#s16-step01-arrow)"/>
+  <path data-route="step01-prompt-agent" data-from="prompt" data-to="agent" data-kind="data" data-label="将组合后的 prompt 传给 ctx.agent" d="M396 140H455" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.8" marker-end="url(#s16-step01-arrow)"/>
+  <path data-route="step01-agent-result" data-from="agent" data-to="result" data-kind="data" data-label="返回审查文字，赋值给 out" d="M703 140H770" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.8" marker-end="url(#s16-step01-arrow)"/>
+  <text x="425" y="126" text-anchor="middle" font-size="14" fill="var(--diagram-muted, #58677b)">传入</text>
+  <text x="736" y="126" text-anchor="middle" font-size="14" fill="var(--diagram-muted, #58677b)">返回</text>
+
+  <rect data-stage="changes" x="20" y="65" width="174" height="60" rx="8" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.4"/>
+  <text x="107" y="90" text-anchor="middle" font-size="17" font-weight="600" fill="var(--diagram-text, #24334b)">代码改动</text>
+  <text x="107" y="112" text-anchor="middle" font-size="15" font-family="monospace" fill="var(--diagram-muted, #58677b)">changes</text>
+
+  <rect data-stage="instructions" x="20" y="155" width="174" height="60" rx="8" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.4"/>
+  <text x="107" y="180" text-anchor="middle" font-size="17" font-weight="600" fill="var(--diagram-text, #24334b)">检查要求</text>
+  <text x="107" y="202" text-anchor="middle" font-size="15" fill="var(--diagram-muted, #58677b)">检查安全问题</text>
+
+  <rect data-stage="prompt" x="262" y="108" width="134" height="64" rx="8" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.4"/>
+  <text x="329" y="135" text-anchor="middle" font-size="18" font-family="monospace" fill="var(--diagram-text, #24334b)">prompt</text>
+  <text x="329" y="157" text-anchor="middle" font-size="15" fill="var(--diagram-muted, #58677b)">组合后的提示词</text>
+
+  <rect data-stage="agent" x="455" y="98" width="248" height="84" rx="8" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6"/>
+  <text x="579" y="133" text-anchor="middle" font-size="19" font-family="monospace" fill="var(--diagram-text, #24334b)">ctx.agent(prompt)</text>
+  <text x="579" y="160" text-anchor="middle" font-size="16" fill="var(--diagram-muted, #58677b)">调用模型检查</text>
+
+  <rect data-stage="result" x="770" y="108" width="170" height="64" rx="8" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.4"/>
+  <text x="855" y="135" text-anchor="middle" font-size="17" font-weight="600" fill="var(--diagram-text, #24334b)">审查文字</text>
+  <text x="855" y="157" text-anchor="middle" font-size="15" font-family="monospace" fill="var(--diagram-muted, #58677b)">out</text>
+</svg>

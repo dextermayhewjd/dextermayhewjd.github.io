@@ -1,0 +1,11 @@
+{{- $resource := .Page.Resources.Get (.Get "src") -}}
+{{- if not $resource -}}{{- errorf "Function source library %q missing in %s" (.Get "src") .Page.File.Path -}}{{- end -}}
+{{- $source := $resource.Content | transform.Unmarshal -}}
+{{- /* Full methods precede teaching excerpts for the existing function reader. */ -}}
+<div hidden aria-hidden="true" data-function-source-library data-source-revision="{{ $source.revision }}">
+  {{- range $source.functions }}
+  <section data-function-source="{{ .name }}" data-source-symbol="{{ .symbol }}" data-source-line="{{ .line }}" data-source-end-line="{{ .endLine }}">
+    {{ highlight .code "python" "" }}
+  </section>
+  {{- end }}
+</div>

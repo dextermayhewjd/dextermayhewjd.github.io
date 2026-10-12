@@ -51,6 +51,17 @@
     (dict "key" "flow" "label" "箭头：按标签区分调用、数据与生命周期；静态图非运行轨迹" "token" "marker-end")
   -}}
 {{- end -}}
+{{- if eq $scheme "workflow" -}}
+  {{- $items = slice
+    (dict "key" "base" "label" "蓝色：原有 Agent 工具循环" "token" "--diagram-base-fill")
+    (dict "key" "memory" "label" "紫色：工作流与单步执行" "token" "--diagram-memory-fill")
+    (dict "key" "storage" "label" "灰色：记录与收尾" "token" "--diagram-storage-fill")
+    (dict "key" "modified" "label" "橙色：修正、失败与显式恢复" "token" "--diagram-modified-fill")
+    (dict "key" "optional" "label" "紫色虚线框：划分执行职责范围" "token" "stroke-dasharray")
+    (dict "key" "exception" "label" "橙色虚线：异常向外传播" "token" "stroke-dasharray")
+    (dict "key" "flow" "label" "实线箭头：调用、结果返回或步骤先后关系" "token" "marker-end")
+  -}}
+{{- end -}}
 {{- range $items -}}
   {{- $used := strings.Contains $svg .token -}}
   {{- if eq .key "storage" -}}
@@ -58,7 +69,7 @@
   {{- else if eq .key "relation" -}}
     {{- $used = gt (len (findRE `<path\b[^>]*stroke="var\(--diagram-(muted|line)[^>]*stroke-dasharray=` $svg)) 0 -}}
   {{- end -}}
-  {{- if eq $scheme "reading" -}}{{- $used = true -}}{{- end -}}
+  {{- if in (slice "reading" "workflow") $scheme -}}{{- $used = true -}}{{- end -}}
   {{- $resolved = $resolved | append (merge . (dict "used" $used)) -}}
 {{- end -}}
 {{- $compact := .collapsible | default false -}}
@@ -67,6 +78,9 @@
 {{- if eq $scheme "architecture" -}}{{- $short = merge $short (dict "memory" "紫：本节机制") -}}{{- end -}}
 {{- if eq $scheme "status" -}}{{- $short = merge $short (dict "base" "蓝：进行中" "storage" "灰：待处理") -}}{{- end -}}
 {{- if eq $scheme "reading" -}}{{- $short = merge $short (dict "base" "蓝：本章范围完成" "modified" "橙：部分" "storage" "灰：未记录／未纳入" "memory" "紫边：本轮焦点") -}}{{- end -}}
+{{- if eq $scheme "workflow" -}}
+  {{- $short = merge $short (dict "base" "蓝：外层循环" "memory" "紫：工作流执行" "storage" "灰：记录与收尾" "modified" "橙：修正与恢复") -}}
+{{- end -}}
 <div class="architecture-diagram__legend" role="group" aria-label="本图颜色与线型含义" data-scheme="{{ $scheme }}">
   {{- if $compact -}}
   <details class="architecture-diagram__legend-details">

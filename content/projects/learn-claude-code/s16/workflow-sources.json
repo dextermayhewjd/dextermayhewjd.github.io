@@ -1,0 +1,203 @@
+{
+  "repository": "https://github.com/shareAI-lab/learn-claude-code",
+  "revision": "ce8f9f186058939da54c9d6fead78dfb5d0fd6c3",
+  "path": "s16_workflow_runtime/code.py",
+  "functions": [
+    {
+      "name": "call",
+      "symbol": "WorkflowTool.call",
+      "line": 550,
+      "endLine": 561,
+      "code": "async def call(self, meta, script_fn, args=None, resume_from_run_id=None):\n    validate_meta(meta)\n    check_permission(meta)\n    resuming = resume_from_run_id is not None\n    if resuming:\n        run_id = validate_run_id(resume_from_run_id)\n    else:\n        run_id = reserve_run_id(meta)\n    with workflow_run_lock(run_id):\n        return await self._call_locked(\n            meta, script_fn, args, run_id, resuming\n        )"
+    },
+    {
+      "name": "validate_meta",
+      "symbol": "validate_meta",
+      "line": 128,
+      "endLine": 145,
+      "code": "def validate_meta(meta):\n    \"\"\"Validate name, description, and optional phases before launch.\"\"\"\n    if not isinstance(meta, dict):\n        raise WorkflowInputError(\"meta must be an object literal\")\n    if not meta.get(\"name\") or not meta.get(\"description\"):\n        raise WorkflowInputError(\"meta requires `name` and `description`\")\n    if not isinstance(meta[\"name\"], str) or not WORKFLOW_NAME_RE.fullmatch(meta[\"name\"]):\n        raise WorkflowInputError(\n            \"meta.name must be a 1-64 character slug using letters, numbers, '.', '_', or '-'\"\n        )\n    if not isinstance(meta[\"description\"], str):\n        raise WorkflowInputError(\"meta.description must be a string\")\n    if \"phases\" in meta:\n        if not isinstance(meta[\"phases\"], list) or not all(\n            isinstance(phase, str) and phase for phase in meta[\"phases\"]\n        ):\n            raise WorkflowInputError(\"meta.phases must be a list of non-empty strings\")\n    return meta"
+    },
+    {
+      "name": "check_permission",
+      "symbol": "check_permission",
+      "line": 148,
+      "endLine": 153,
+      "code": "def check_permission(meta, settings=None):\n    \"\"\"Apply the s03 allow/deny gate before launching a workflow.\"\"\"\n    settings = settings or {}\n    if meta[\"name\"] in settings.get(\"deny\", []):\n        raise WorkflowInputError(f\"workflow '{meta['name']}' denied by settings\")\n    return \"allow\""
+    },
+    {
+      "name": "reserve_run_id",
+      "symbol": "reserve_run_id",
+      "line": 62,
+      "endLine": 74,
+      "code": "def reserve_run_id(meta) -> str:\n    \"\"\"Reserve a fresh run identity before any journal can be truncated.\"\"\"\n    STORE.mkdir(parents=True, exist_ok=True)\n    for _ in range(32):\n        run_id = validate_run_id(create_run_id(meta))\n        snapshot_path = STORE / f\"{run_id}.json\"\n        try:\n            fd = os.open(snapshot_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n        except FileExistsError:\n            continue\n        os.close(fd)\n        return run_id\n    raise WorkflowInputError(\"could not allocate a unique workflow runId\")"
+    },
+    {
+      "name": "_call_locked",
+      "symbol": "WorkflowTool._call_locked",
+      "line": 563,
+      "endLine": 618,
+      "code": "async def _call_locked(self, meta, script_fn, args, run_id, resuming):\n    if resuming:\n        snapshot = _read_snapshot(run_id)\n        if snapshot.get(\"workflowName\") != meta[\"name\"]:\n            raise WorkflowInputError(\"resume runId does not match workflow meta\")\n        saved_args = snapshot.get(\"args\", {})\n        if args is None:\n            args = saved_args\n        elif args != saved_args:\n            raise WorkflowInputError(\"resume args do not match the original run\")\n        journal = WorkflowJournal(run_id, resume=True)\n    else:\n        args = args or {}\n        journal = WorkflowJournal(run_id, resume=False)\n    task_id = create_task_id(run_id)\n\n    task = LocalWorkflowTask(task_id, run_id, meta)\n    # Record the launch envelope before workflow execution starts.\n    launched = {\"status\": \"async_launched\", \"taskId\": task_id,\n                \"taskType\": \"local_workflow\", \"runId\": run_id,\n                \"workflowName\": meta[\"name\"]}\n    task.event(\"async_launched\", runId=run_id, taskId=task_id)\n    task.event(\"task_started\", workflow=meta[\"name\"],\n               phases=\",\".join(meta.get(\"phases\", [])) or \"-\",\n               resume=resuming)\n    _write_json(STORE / f\"{run_id}.json\", {\n        \"runId\": run_id,\n        \"workflowName\": meta[\"name\"],\n        \"args\": args,\n        \"task\": serialize_task(task),\n    })\n\n    try:\n        ctx = ExecutionState(\n            task, journal, RUNNER_FACTORY(), Budget(args.get(\"budget\")), args\n        )\n        result = await script_fn(ctx, args)\n        task.status = \"completed\"\n    except Exception as e:                          # failed / stopped close the loop too\n        task.status = \"failed\"\n        result = {\"error\": str(e)}\n    finally:\n        journal.close()\n\n    _write_json(STORE / f\"{run_id}.output.json\", result)\n    _write_json(STORE / f\"{run_id}.json\", {\n        \"runId\": run_id,\n        \"workflowName\": meta[\"name\"],\n        \"args\": args,\n        \"task\": serialize_task(task),\n    })\n    _save_last_run(run_id)\n    task.event(\"task_notification\", status=task.status,\n               agents=task.usage[\"agents\"], tokens=task.usage[\"tokens\"],\n               outputFile=f\".runtime/{run_id}.output.json\")\n    return {\"launched\": launched, \"result\": result, \"task\": task}"
+    },
+    {
+      "name": "workflow_run_lock",
+      "symbol": "workflow_run_lock",
+      "line": 97,
+      "endLine": 124,
+      "code": "def workflow_run_lock(run_id: str):\n    \"\"\"Hold one run across threads and host processes for its full lifecycle.\"\"\"\n    with _run_locks_guard:\n        local_lock = _run_locks.setdefault(run_id, threading.Lock())\n    if not local_lock.acquire(blocking=False):\n        raise WorkflowInputError(f\"workflow run {run_id} is already active\")\n\n    handle = None\n    try:\n        STORE.mkdir(parents=True, exist_ok=True)\n        handle = (STORE / f\"{run_id}.lock\").open(\"a+\", encoding=\"utf-8\")\n        try:\n            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n        except BlockingIOError as exc:\n            raise WorkflowInputError(\n                f\"workflow run {run_id} is already active\"\n            ) from exc\n        yield\n    finally:\n        if handle is not None:\n            try:\n                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)\n            finally:\n                handle.close()\n        local_lock.release()\n        with _run_locks_guard:\n            if not local_lock.locked() and _run_locks.get(run_id) is local_lock:\n                _run_locks.pop(run_id, None)"
+    },
+    {
+      "name": "__init__",
+      "symbol": "WorkflowJournal.__init__",
+      "line": 333,
+      "endLine": 358,
+      "code": "def __init__(self, run_id, resume, store=None):\n    store = STORE if store is None else store\n    store.mkdir(parents=True, exist_ok=True)\n    self.path = store / f\"{run_id}.journal.jsonl\"\n    self.resume = resume\n    self.cache = {}\n    if resume:\n        if not self.path.exists():\n            raise WorkflowInputError(f\"resume journal not found for {run_id}\")\n        for line_number, line in enumerate(self.path.read_text(encoding=\"utf-8\").splitlines(), start=1):\n            try:\n                rec = json.loads(line)\n                if (\n                    not isinstance(rec, dict)\n                    or not isinstance(rec.get(\"key\"), str)\n                    or \"value\" not in rec\n                ):\n                    raise ValueError(\"expected key/value record\")\n            except (json.JSONDecodeError, ValueError) as exc:\n                raise WorkflowInputError(\n                    f\"invalid resume journal record at line {line_number}\"\n                ) from exc\n            self.cache[rec[\"key\"]] = rec[\"value\"]\n        self._f = self.path.open(\"a\", encoding=\"utf-8\")\n    else:\n        self._f = self.path.open(\"w\", encoding=\"utf-8\")             # fresh run truncates"
+    },
+    {
+      "name": "sample_workflow",
+      "symbol": "sample_workflow",
+      "line": 681,
+      "endLine": 718,
+      "code": "async def sample_workflow(ctx, args):\n    \"\"\"pipeline over review dimensions (audit -> verify-each), then keep only the\n    findings a verifier confirms. The plan is code, not a chat turn.\"\"\"\n    ctx.phase(\"Review\")\n    changes = args.get(\"changes\", \"\")\n    if not isinstance(changes, str):\n        raise WorkflowInputError(\"args.changes must be a string\")\n    review_input = changes.strip() or \"No change context was supplied.\"\n\n    async def audit(_value, dimension, _idx):\n        out = await ctx.agent(\n            f\"Review this change context for {dimension} issues. \"\n            \"Report only issues supported by the supplied text.\\n\\n\"\n            f\"{review_input}\",\n            schema=FINDINGS_SCHEMA, label=f\"audit:{dimension}\", phase=\"Review\")\n        return {\"dimension\": dimension, \"findings\": out[\"findings\"]}\n\n    async def verify(audited, dimension, _idx):\n        ctx.phase(\"Verify\")\n        # Each finding is verified by its own adversarial subagent, concurrently.\n        verdicts = await ctx.parallel([\n            (lambda f=f: ctx.agent(\n                f\"Adversarially verify this {dimension} finding against the \"\n                \"supplied change context.\\n\\n\"\n                f\"Change context:\\n{review_input}\\n\\n\"\n                f\"Finding:\\n{json.dumps(f, ensure_ascii=True)}\",\n                schema=VERDICT_SCHEMA, label=f\"verify:{dimension}:{f['title']}\", phase=\"Verify\"))\n            for f in audited[\"findings\"]])\n        confirmed = [f for f, v in zip(audited[\"findings\"], verdicts)\n                     if v and v.get(\"isReal\")]\n        return {\"dimension\": dimension, \"confirmed\": confirmed}\n\n    results = await ctx.pipeline(DIMENSIONS, audit, verify)\n    confirmed = [{\"dimension\": r[\"dimension\"], **f}\n                 for r in results if r for f in r[\"confirmed\"]]\n    confirmed.sort(key=lambda f: {\"high\": 0, \"medium\": 1, \"low\": 2}.get(f[\"severity\"], 3))\n    ctx.log(f\"confirmed {len(confirmed)} real finding(s)\")\n    return {\"confirmed\": confirmed}"
+    },
+    {
+      "name": "pipeline",
+      "symbol": "ExecutionState.pipeline",
+      "line": 518,
+      "endLine": 527,
+      "code": "async def pipeline(self, items, *stages):\n    \"\"\"Per-item staged flow, NO barrier between stages: item A can be in\n    stage 3 while item B is still in stage 1. Each stage gets\n    (prev_result, original_item, index). A throwing stage fails the workflow.\"\"\"\n    async def run_item(item, idx):\n        value = item\n        for stage in stages:\n            value = await stage(value, item, idx)\n        return value\n    return await asyncio.gather(*[run_item(it, i) for i, it in enumerate(items)])"
+    },
+    {
+      "name": "parallel",
+      "symbol": "ExecutionState.parallel",
+      "line": 514,
+      "endLine": 516,
+      "code": "async def parallel(self, thunks):\n    \"\"\"BARRIER: run all thunks concurrently and fail if any thunk fails.\"\"\"\n    return await asyncio.gather(*[thunk() for thunk in thunks])"
+    },
+    {
+      "name": "phase",
+      "symbol": "ExecutionState.phase",
+      "line": 451,
+      "endLine": 457,
+      "code": "def phase(self, title):\n    \"\"\"Start a phase; subsequent agent()s group under it. Upsert: emitting the\n    same phase again (e.g. from each pipeline item) does not re-announce it.\"\"\"\n    self._phase = title\n    if title not in self._phases_seen:\n        self._phases_seen.add(title)\n        self.task.progress_event(\"workflow_phase\", title=title)"
+    },
+    {
+      "name": "log",
+      "symbol": "ExecutionState.log",
+      "line": 459,
+      "endLine": 461,
+      "code": "def log(self, message):\n    \"\"\"Emit a workflow_log progress line.\"\"\"\n    self.task.progress_event(\"workflow_log\", message=message)"
+    },
+    {
+      "name": "workflow",
+      "symbol": "ExecutionState.workflow",
+      "line": 529,
+      "endLine": 540,
+      "code": "async def workflow(self, name, args=None):\n    \"\"\"Run a saved workflow inline as a child (one level), sharing this run's\n    journal + budget + agent counter.\"\"\"\n    if self._depth >= 1:\n        raise WorkflowInputError(\"workflow() nesting is one level only\")\n    if name not in WORKFLOWS:\n        raise WorkflowInputError(f\"unknown workflow '{name}'\")\n    meta, fn = WORKFLOWS[name]\n    child = ExecutionState(self.task, self.journal, self.runner, self.budget,\n                           args or {}, depth=self._depth + 1,\n                           limits=self._limits)\n    return await fn(child, args or {})"
+    },
+    {
+      "name": "agent",
+      "symbol": "ExecutionState.agent",
+      "line": 463,
+      "endLine": 512,
+      "code": "async def agent(self, prompt, schema=None, label=None, phase=None):\n    \"\"\"Spawn one subagent. With a schema, force StructuredOutput + validate\n    (retry once). On resume, a cached key short-circuits the run.\"\"\"\n    label = label or (prompt[:24] + \"...\")\n    self._limits.claim_agent()\n    if self.budget.remaining() <= 0:\n        raise WorkflowInputError(\"token budget exceeded\")\n\n    key = self.journal.key(\"agent\", label, prompt, schema)\n    cached = self.journal.cached(key)\n    if cached is not MISS:\n        if schema is not None:\n            ok, err = SimpleJsonSchema(schema).validate(cached)\n            if not ok:\n                raise WorkflowInputError(\n                    f\"cached agent output failed schema validation: {err}\"\n                )\n        self.task.progress_event(\"workflow_agent\", label=label,\n                                 phase=phase or self._phase, status=\"cached\")\n        return cached\n\n    async with self._limits.semaphore:\n        run = await asyncio.to_thread(\n            self.runner.run, prompt, schema, label\n        )\n        result = run.value\n        tokens = run.tokens\n\n    if schema is not None:\n        ok, err = SimpleJsonSchema(schema).validate(result)\n        if not ok:\n            retry = await asyncio.to_thread(\n                self.runner.run,\n                prompt + \"\\n\\nReturn valid JSON.\",\n                schema,\n                label,\n            )\n            result = retry.value\n            tokens += retry.tokens\n            ok, err = SimpleJsonSchema(schema).validate(result)\n            if not ok:\n                raise WorkflowInputError(f\"agent({{schema}}) invalid output: {err}\")\n\n    self.budget.add(tokens)\n    self.task.usage[\"agents\"] += 1\n    self.task.usage[\"tokens\"] += tokens\n    self.journal.record(key, result)\n    self.task.progress_event(\"workflow_agent\", label=label,\n                             phase=phase or self._phase, status=\"done\")\n    return result"
+    },
+    {
+      "name": "key",
+      "symbol": "WorkflowJournal.key",
+      "line": 360,
+      "endLine": 364,
+      "code": "def key(self, kind, label, prompt, schema):\n    # Deterministic semantic key, independent of concurrency order, so a\n    # parallel/pipeline call gets the same key on resume.\n    basis = f\"{kind}|{label}|{prompt}|{json.dumps(schema, sort_keys=True)}\"\n    return f\"{kind}-{_stable_hash(basis) % 10**10:010d}\""
+    },
+    {
+      "name": "cached",
+      "symbol": "WorkflowJournal.cached",
+      "line": 366,
+      "endLine": 367,
+      "code": "def cached(self, key):\n    return self.cache.get(key, MISS)"
+    },
+    {
+      "name": "record",
+      "symbol": "WorkflowJournal.record",
+      "line": 369,
+      "endLine": 372,
+      "code": "def record(self, key, value):\n    self._f.write(json.dumps({\"key\": key, \"value\": value}) + \"\\n\")\n    self._f.flush()\n    self.cache[key] = value"
+    },
+    {
+      "name": "_stable_hash",
+      "symbol": "_stable_hash",
+      "line": 52,
+      "endLine": 55,
+      "code": "def _stable_hash(s: str) -> int:\n    \"\"\"Process-stable hash (Python's hash() is salted per process, which would\n    break resume keys across `run` and `resume`).\"\"\"\n    return int(hashlib.sha256(s.encode()).hexdigest(), 16)"
+    },
+    {
+      "name": "run",
+      "symbol": "AnthropicAgentRunner.run",
+      "line": 292,
+      "endLine": 322,
+      "code": "def run(self, prompt, schema=None, label=None):\n    request = prompt\n    if schema is not None:\n        request += (\n            \"\\n\\nReturn only one JSON object matching this schema:\\n\"\n            + json.dumps(schema, ensure_ascii=True, sort_keys=True)\n        )\n    response = self.client.messages.create(\n        model=self.model,\n        system=(\n            \"You are a focused workflow agent. Complete only the supplied step. \"\n            + f\"{WORKFLOW_AGENT_ENVIRONMENT} \"\n            + \"Do not claim access to files or results not included in the prompt.\"\n        ),\n        messages=[{\"role\": \"user\", \"content\": request}],\n        max_tokens=2000,\n    )\n    text = _response_text(response)\n    if schema is None:\n        value = text\n    else:\n        try:\n            value = _parse_runner_json(text)\n        except WorkflowInputError:\n            # Let ExecutionState's schema check trigger its single retry.\n            value = text\n    usage = getattr(response, \"usage\", None)\n    tokens = int(getattr(usage, \"input_tokens\", 0) or 0) + int(\n        getattr(usage, \"output_tokens\", 0) or 0\n    )\n    return RunnerOutput(value, tokens)"
+    },
+    {
+      "name": "validate",
+      "symbol": "SimpleJsonSchema.validate",
+      "line": 164,
+      "endLine": 198,
+      "code": "def validate(self, value, schema=None):\n    schema = self.schema if schema is None else schema\n    if \"enum\" in schema and value not in schema[\"enum\"]:\n        return False, f\"expected one of {schema['enum']}\"\n    t = schema.get(\"type\")\n    if t == \"object\":\n        if not isinstance(value, dict):\n            return False, \"expected object\"\n        for key in schema.get(\"required\", []):\n            if key not in value:\n                return False, f\"missing required key '{key}'\"\n        for key, sub in schema.get(\"properties\", {}).items():\n            if key in value:\n                ok, err = self.validate(value[key], sub)\n                if not ok:\n                    return False, f\"{key}: {err}\"\n        return True, None\n    if t == \"array\":\n        if not isinstance(value, list):\n            return False, \"expected array\"\n        items = schema.get(\"items\")\n        if items:\n            for i, el in enumerate(value):\n                ok, err = self.validate(el, items)\n                if not ok:\n                    return False, f\"[{i}]: {err}\"\n        return True, None\n    if t == \"string\":\n        return (isinstance(value, str), None if isinstance(value, str) else \"expected string\")\n    if t == \"boolean\":\n        return (isinstance(value, bool), None if isinstance(value, bool) else \"expected boolean\")\n    if t in (\"number\", \"integer\"):\n        ok = isinstance(value, (int, float)) and not isinstance(value, bool)\n        return (ok, None if ok else \"expected number\")\n    return True, None"
+    },
+    {
+      "name": "claim_agent",
+      "symbol": "ExecutionLimits.claim_agent",
+      "line": 431,
+      "endLine": 434,
+      "code": "def claim_agent(self):\n    self.agents += 1\n    if self.agents > AGENT_CAP:\n        raise WorkflowInputError(f\"agent() cap reached ({AGENT_CAP})\")"
+    },
+    {
+      "name": "remaining",
+      "symbol": "Budget.remaining",
+      "line": 397,
+      "endLine": 398,
+      "code": "def remaining(self):\n    return float(\"inf\") if self.total is None else max(0, self.total - self._spent)"
+    },
+    {
+      "name": "add",
+      "symbol": "Budget.add",
+      "line": 387,
+      "endLine": 392,
+      "code": "def add(self, n):\n    if self.total is not None and self._spent + n > self.total:\n        raise WorkflowInputError(\n            f\"token budget exceeded ({self._spent + n} > {self.total})\"\n        )\n    self._spent += n"
+    },
+    {
+      "name": "serialize_task",
+      "symbol": "serialize_task",
+      "line": 740,
+      "endLine": 749,
+      "code": "def serialize_task(task):\n    return {\n        \"taskId\": task.task_id,\n        \"taskType\": \"local_workflow\",\n        \"runId\": task.run_id,\n        \"workflowName\": task.meta[\"name\"],\n        \"status\": task.status,\n        \"usage\": dict(task.usage),\n        \"progress\": list(task.progress),\n    }"
+    },
+    {
+      "name": "install_workflow_tool",
+      "symbol": "install_workflow_tool",
+      "line": 786,
+      "endLine": 802,
+      "code": "def install_workflow_tool(host):\n    \"\"\"Extend the s15 host tool pool without changing its dispatch loop.\"\"\"\n    global RUNNER_FACTORY\n    RUNNER_FACTORY = lambda: AnthropicAgentRunner(host.client, host.MODEL)\n    if getattr(host, \"_workflow_tool_installed\", False):\n        return\n    base_assemble = host.assemble_tool_pool\n\n    def assemble_with_workflow():\n        tools, handlers = base_assemble()\n        if not any(tool.get(\"name\") == \"Workflow\" for tool in tools):\n            tools.append(WORKFLOW_TOOL)\n        handlers[\"Workflow\"] = run_workflow_sync\n        return tools, handlers\n\n    host.assemble_tool_pool = assemble_with_workflow\n    host._workflow_tool_installed = True"
+    },
+    {
+      "name": "load_integrated_host",
+      "symbol": "load_integrated_host",
+      "line": 805,
+      "endLine": 814,
+      "code": "def load_integrated_host():\n    \"\"\"Load s15 lazily so deterministic workflow tests need no API key.\"\"\"\n    path = Path(__file__).resolve().parents[1] / \"s15_integrated_harness\" / \"code.py\"\n    spec = importlib.util.spec_from_file_location(\"integrated_host\", path)\n    if spec is None or spec.loader is None:\n        raise RuntimeError(f\"unable to load integrated host from {path}\")\n    host = importlib.util.module_from_spec(spec)\n    sys.modules[spec.name] = host\n    spec.loader.exec_module(host)\n    return host"
+    },
+    {
+      "name": "run_workflow",
+      "symbol": "run_workflow",
+      "line": 752,
+      "endLine": 771,
+      "code": "async def run_workflow(name, args=None, resume_from_run_id=None):\n    \"\"\"Model-facing adapter: resolve trusted code from the host registry.\"\"\"\n    if not isinstance(name, str):\n        raise WorkflowInputError(\"workflow name must be a string\")\n    if name not in WORKFLOWS:\n        raise WorkflowInputError(f\"unknown workflow '{name}'\")\n    if args is not None and not isinstance(args, dict):\n        raise WorkflowInputError(\"workflow args must be an object\")\n    meta, script_fn = WORKFLOWS[name]\n    out = await WorkflowTool().call(\n        meta,\n        script_fn,\n        args=args,\n        resume_from_run_id=resume_from_run_id,\n    )\n    return {\n        \"launched\": out[\"launched\"],\n        \"result\": out[\"result\"],\n        \"task\": serialize_task(out[\"task\"]),\n    }"
+    },
+    {
+      "name": "run_workflow_sync",
+      "symbol": "run_workflow_sync",
+      "line": 778,
+      "endLine": 783,
+      "code": "def run_workflow_sync(**tool_input):\n    \"\"\"Bridge the synchronous host dispatcher to the async workflow runtime.\"\"\"\n    try:\n        return json.dumps(asyncio.run(run_workflow(**tool_input)), default=str)\n    except WorkflowInputError as exc:\n        return f\"Error: {exc}\""
+    }
+  ]
+}

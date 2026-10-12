@@ -160,6 +160,7 @@
 .architecture-diagram__swatch--muted { border: 0; background: none; color: var(--diagram-muted); }
 .architecture-diagram__swatch--muted::after { content: "Aa"; font-size: 12px; }
 .architecture-diagram__swatch--relation { height: 0; margin-top: 11px; border: 0; border-top: 1.5px dashed var(--diagram-muted); border-radius: 0; background: none; }
+.architecture-diagram__swatch--exception { height: 0; margin-top: 11px; border: 0; border-top: 1.5px dashed var(--diagram-modified-stroke); border-radius: 0; background: none; }
 .architecture-diagram__swatch--flow { border: 0; background: none; color: var(--diagram-line); }
 .architecture-diagram__swatch--flow::after { content: "→"; font-size: 18px; line-height: 13px; }
 .architecture-diagram__swatch--group { background: none; border-color: var(--diagram-group-stroke); }

@@ -4,78 +4,27 @@ from pathlib import Path
 import test_s08_explorer as shared
 
 PROBE=r"""<script>window.addEventListener('load',async()=>{
- const result={passed:false};const check=(v,m)=>{if(!v)throw new Error(m)};
- const pause=()=>new Promise(r=>setTimeout(r,40));
+ const result={passed:false},check=(v,m)=>{if(!v)throw new Error(m)};
  try{
-  const root=document.getElementById('s16-workflow-explorer');check(root?.dataset.ready==='true','Workflow explorer missing');
-  const baseline=document.querySelector('figure.architecture-diagram'),original=baseline.outerHTML;
-  const svg=root.querySelector('svg'),panel=root.querySelector('[data-explorer-panel]'),core=document.getElementById('s16-workflow-core');
-  check(svg.viewBox.baseVal.width===1200 && svg.viewBox.baseVal.height===1420,'Workflow did not expand only needed canvas height');
+  const root=document.getElementById('s16-overview-explorer');check(root?.dataset.ready==='true','Workflow explorer missing');
   const outline=document.getElementById('s16-workflow-outline');
-  check(outline.querySelectorAll('#TableOfContents>ul>li').length===4,'Workflow outline hierarchy missing');
+  const headings=[...document.querySelectorAll('.post-content > h2[id]')];
+  const sections=headings.filter(heading=>/^\d+\./.test(heading.textContent));
+  const links=[...outline.querySelectorAll('#TableOfContents>ul>li>a')];
+  check(sections.length===23&&headings.length===25&&links.length===25,'Expected the opening map and all 23 progressive sections');
+  check(links.every((link,index)=>link.hash==='#'+headings[index].id),'Outline order differs from the lesson');
   for(const link of outline.querySelectorAll('a'))check(document.getElementById(link.hash.slice(1)),'Broken outline '+link.hash);
-  const previous=new DOMParser().parseFromString(await(await fetch('/projects/learn-claude-code/s15/')).text(),'text/html').querySelector('[data-diagram-explorer] svg');
-  const geometry=s=>JSON.stringify([...s.querySelectorAll('rect[data-stage],path[stroke]')].map(n=>['data-stage','x','y','width','height','d'].map(a=>n.getAttribute(a))));
-  check(geometry(baseline.querySelector('svg'))===geometry(previous),'Workflow baseline differs from S15');
-  check(baseline.querySelectorAll('rect[data-view="modified"]').length===3,'Only actual tool-pool interfaces should change');
-  check(!baseline.querySelector('[data-stage="wf-entry"]'),'Workflow was added prematurely to baseline');
-  const q=svg.querySelector('[data-overview-stage="wf-journal"] rect').getBoundingClientRect();
-  svg.dispatchEvent(new PointerEvent('pointermove',{pointerType:'mouse',clientX:q.left+10,clientY:q.top+10,bubbles:true}));await pause();
-  for(const [from,to] of [['wf-entry','wf-journal'],['wf-script','wf-journal'],['wf-journal','wf-script'],['wf-finish','wf-journal']])
-   check(svg.querySelector('[data-from="'+from+'"][data-to="'+to+'"]').classList.contains('is-related'),'Missing journal relation '+from+' -> '+to);
-  check(panel.hidden,'Journal hover opened details');svg.dispatchEvent(new PointerEvent('pointerleave',{pointerType:'mouse'}));
-  check(!svg.querySelector('[data-from^="wf-"][data-to="event-bridge"]'),'Workflow events wrongly wake parent asynchronously');
-  core.scrollIntoView({block:'start',behavior:'instant'});await pause();const before=scrollY;
-  const coreSvg=core.querySelector('svg');
-  const coreShape=()=>JSON.stringify([...coreSvg.querySelectorAll('rect[data-stage],path[data-route]')].map(n=>['x','y','width','height','d','fill','stroke'].map(a=>n.getAttribute(a))));
-  const originalCore=coreShape();
-  const corePaths=[...coreSvg.querySelectorAll('path[data-route]')];
-  const markers=corePaths.map(p=>p.getAttribute('marker-end'));
-  const hoverCore=(stage,pointerType='mouse')=>{const b=coreSvg.querySelector('rect[data-stage="'+stage+'"]').getBoundingClientRect();coreSvg.dispatchEvent(new PointerEvent('pointermove',{pointerType,clientX:b.left+10,clientY:b.top+10,bubbles:true}));};
-  const incoming=coreSvg.querySelector('[data-from="runner"][data-to="journal"]');const normalStroke=parseFloat(getComputedStyle(incoming).strokeWidth);
-  hoverCore('journal');await pause();
-  for(const [from,to] of [['agent','journal'],['runner','journal'],['journal','script']])
-   check(coreSvg.querySelector('[data-from="'+from+'"][data-to="'+to+'"]').classList.contains('is-related'),'Core hover missed '+from+' -> '+to);
-  const unrelated=coreSvg.querySelector('[data-from="launch"][data-to="runstate"]');
-  check(parseFloat(getComputedStyle(incoming).strokeWidth)>normalStroke,'Core hover did not visibly thicken arrows');
-  check(parseFloat(getComputedStyle(unrelated).opacity)<1,'Core hover did not fade unrelated arrows');
-  const headId=incoming.getAttribute('marker-end').match(/url\(#([^)]+)\)/)[1];const head=coreSvg.querySelector('[id="'+headId+'"]');
-  check(head.getAttribute('markerUnits')==='userSpaceOnUse' && Number(head.getAttribute('markerWidth'))<=12,'Core hover arrow heads grow too large');
-  check(panel.hidden && root.dataset.selected==='' && scrollY===before && coreShape()===originalCore,'Core hover changed selection, article position or geometry/colors');
-  hoverCore('agent','touch');await pause();check(incoming.classList.contains('is-related'),'Touch scrolling altered the mouse preview');
-  coreSvg.dispatchEvent(new PointerEvent('pointerleave',{pointerType:'mouse'}));await pause();
-  check(!coreSvg.querySelector('.is-related,.is-unrelated'),'Core leave kept transient highlights');
-  check(corePaths.every((p,i)=>p.getAttribute('marker-end')===markers[i]),'Core leave did not restore normal arrow heads');
-  const codeLink=core.querySelector('a[data-function="key"]');codeLink.focus({preventScroll:true});await pause();
-  check(incoming.classList.contains('is-related'),'Keyboard focus does not reveal core relationships');codeLink.blur();await pause();
-  check(!coreSvg.querySelector('.is-related,.is-unrelated'),'Core blur kept focus preview');
-  hoverCore('journal');await pause();
-  core.querySelector('a[data-function="key"]').dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));await pause();
-  const journal=root.querySelector('[data-module-card="journal"][open]');
-  check(journal && !panel.hidden && journal.querySelector('[data-function-code="key"]').classList.contains('is-function-selected'),'Cannot view exact Journal.key source');
-  check(scrollY===before,'Journal source reading moved article');
-  check(journal.querySelector('[data-function-code="key"]').textContent.includes('WorkflowJournal'),'Journal role missing');
-  check(!journal.querySelector('[data-local-diagram] .is-related,[data-local-diagram] .is-unrelated'),'Core hover leaked into cloned reading diagram');
-  const copiedSvg=journal.querySelector('[data-local-diagram] svg');
-  const copiedBox=copiedSvg.querySelector('rect[data-stage="journal"]').getBoundingClientRect();
-  copiedSvg.dispatchEvent(new PointerEvent('pointermove',{pointerType:'mouse',clientX:copiedBox.left+10,clientY:copiedBox.top+10,bubbles:true}));await pause();
-  check(copiedSvg.querySelector('[data-from="runner"][data-to="journal"]').classList.contains('is-related'),'Copied core diagram cannot trace its own arrows');
-  copiedSvg.dispatchEvent(new PointerEvent('pointerleave',{pointerType:'mouse'}));await pause();
-  check(!copiedSvg.querySelector('.is-related,.is-unrelated'),'Copied diagram kept transient preview');
-  root.querySelector('[data-explorer-reset]').click();await pause();
-  core.querySelector('a[data-function="call"]').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));await pause();
-  check(root.querySelector('[data-module-card="entry"][open] [data-function-code="call"].is-function-selected'),'Async method keyboard viewing failed');
-  root.querySelector('[data-explorer-reset]').click();await pause();
-  for(const key of ['entry','script','journal','finish']){
-   root.querySelector('[data-module-button="'+key+'"]').click();await pause();
-   const card=root.querySelector('[data-module-card="'+key+'"][open]');check(card,'Missing module '+key);
-   const steps=[...card.querySelectorAll('[data-step-stage]')];check(steps.length===8,'Workflow core missing stages');
-   for(const step of steps){const b=step.querySelector('rect').getBBox();
-    for(const name of step.dataset.codeFunctions.split(' '))check(card.querySelector('[data-function-code="'+name+'"]'),'Missing '+name);
-    for(const text of step.querySelectorAll('text[data-function]')){const p=text.getBBox();check(p.x>=b.x+3 && p.x+p.width<=b.x+b.width-3 && p.y>=b.y && p.y+p.height<=b.y+b.height,'Workflow function label overflows');}}
-  }
-  root.querySelector('[data-explorer-reset]').click();await pause();check(baseline.outerHTML===original,'Workflow interactions changed S15 review');
-  const ids=[...document.querySelectorAll('[id]')].map(n=>n.id);check(ids.length===new Set(ids).size,'Duplicate Workflow IDs');
+  for(const id of ['workflow-first-call','workflow-agent','workflow-journal','workflow-adapter','workflow-resume','workflow-overview'])check(document.getElementById(id),'Missing stable anchor '+id);
+  const library=document.querySelector('[data-function-source-library]');
+  check(library?.hidden&&library.dataset.sourceRevision==='ce8f9f186058939da54c9d6fead78dfb5d0fd6c3','Missing pinned source library');
+  const figures=[...document.querySelectorAll('figure.architecture-diagram')].filter(f=>!f.closest('[data-workflow-detail-template]'));
+  check(figures.length===5,'Expected four local SVGs and the closing overview');
+  for(const figure of figures)check(figure.querySelector('figcaption').textContent.trim(),'Missing adjacent figure explanation');
+  check(sections[0].textContent.includes('ctx.agent()'),'First section no longer starts with a single model call');
+  check(sections[5].textContent.includes('ctx.parallel()')&&sections[6].textContent.includes('ctx.pipeline()'),'Concurrency progression changed');
+  check(sections[11].textContent.includes('journal')&&sections[13].textContent.includes('resume'),'Recovery progression changed');
+  check(sections[22].id==='workflow-overview','Overall diagram moved out of the closing section');
+  check(!document.querySelector('#s16-workflow-explorer'),'Old article content is still present');
   check(document.documentElement.scrollWidth<=innerWidth,'Workflow page overflows');result.passed=true;
  }catch(e){result.error=e.message}
  const p=document.createElement('pre');p.id='s08-test-result';p.textContent=JSON.stringify(result);document.body.append(p);
@@ -99,10 +48,10 @@ class WorkflowSource(unittest.TestCase):
   for n in ast.walk(tree):
    if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):expected.setdefault(n.name,[]).append(normalized(n))
   base=shared.REPO/'content/projects/learn-claude-code/s16';found=set()
-  for block in re.findall(r'```python\n(.*?)\n```',(base/'_index.md').read_text(),re.S):
-   for n in ast.walk(ast.parse(block)):
-    if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):
-     self.assertIn(normalized(n),expected.get(n.name,[]),f'{n.name} differs from source');found.add(n.name)
+  pack=json.loads((base/'workflow-sources.json').read_text())
+  for record in pack['functions']:
+   n=ast.parse(record['code']).body[0]
+   self.assertIn(normalized(n),expected.get(n.name,[]),f'{record["symbol"]} differs from source');found.add(n.name)
   roles=json.loads((base/'function-roles.json').read_text())
   self.assertTrue(set(roles)<=found,f'Missing source functions: {set(roles)-found}')
   original=path.parent/'images/workflow-runtime-overview.svg'

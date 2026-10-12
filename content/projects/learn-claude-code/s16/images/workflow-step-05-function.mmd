@@ -1,0 +1,12 @@
+flowchart LR
+    args["args：包含 changes"]
+    ctx["ctx：提供模型调用接口"]
+    subgraph workflow["sample_workflow(ctx,args)"]
+        direction TB
+        audit["检查代码改动"] --> findings["findings"]
+        findings --> review["逐条复核与筛选（图 4）"]
+        review --> confirmed["confirmed"]
+    end
+    args --> workflow
+    ctx -.-> workflow
+    workflow -->|return| result["{'confirmed': confirmed}"]
