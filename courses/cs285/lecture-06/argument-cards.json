@@ -1,0 +1,308 @@
+[
+  {
+    "key": "starting-loop",
+    "label": "先看完整 REINFORCE 循环",
+    "subtitle": "1–3 步 · 找到随机乘子",
+    "target": "#starting-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta(\\tau),\\quad i=1,\\ldots,N\\\\\n&2.\\ \\text{实际回报：}\\quad\\hat Q_t^{(i)}=\\sum_{t'=t}^H r(s_{t'}^{(i)},a_{t'}^{(i)})\\\\\n&3.\\ \\text{估计与更新：}\\quad\\theta\\leftarrow\\theta+\\frac{\\alpha}{N}\\sum_{i,t}\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\hat Q_t^{(i)}\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "本讲先改造回报/优势估计，再接回完整算法。",
+    "color": "memory"
+  },
+  {
+    "key": "return-noise",
+    "label": "一次 rollout 的回报有噪声",
+    "subtitle": "公式 1 · 单样本 reward-to-go",
+    "target": "#formula-1",
+    "mapFormula": "$$\\hat Q_t^{(i)}=\\sum_{t'=t}^H r(s_{t'}^{(i)},a_{t'}^{(i)})$$",
+    "formulaQualifier": "开头沿用 Lecture 5 无折扣版本。",
+    "color": "modified"
+  },
+  {
+    "key": "q",
+    "label": "把后续随机性条件平均成 Q",
+    "subtitle": "公式 2 · 固定状态与动作",
+    "target": "#formula-2",
+    "mapFormula": "$$Q^\\pi(s_t,a_t)=\\mathbb E[\\hat Q_t\\mid s_t,a_t]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "v",
+    "label": "再对当前动作平均成 V",
+    "subtitle": "公式 3 · 动作还未选定",
+    "target": "#formula-3",
+    "mapFormula": "$$V^\\pi(s_t)=\\mathbb E_{a_t\\sim\\pi_\\theta(\\cdot\\mid s_t)}[Q^\\pi(s_t,a_t)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "a",
+    "label": "优势是相对状态平均的差",
+    "subtitle": "公式 3–4 · 将参照放回梯度",
+    "target": "#formula-4",
+    "mapFormula": "$$A^\\pi(s_t,a_t)=Q^\\pi(s_t,a_t)-V^\\pi(s_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "baseline-proof",
+    "label": "固定状态 baseline 贡献为零",
+    "subtitle": "公式 13 · 正则与采样条件",
+    "target": "#formula-13",
+    "mapFormula": "$$\\mathbb E_{a_t\\sim\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)V^\\pi(s_t)]=0$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "bellman",
+    "label": "Q 的未来尾部就是下一 V",
+    "subtitle": "公式 5 · Bellman 条件平均",
+    "target": "#formula-5",
+    "mapFormula": "$$Q^\\pi(s_t,a_t)=r(s_t,a_t)+\\mathbb E_{s_{t+1}\\mid s_t,a_t}[V^\\pi(s_{t+1})]$$",
+    "formulaQualifier": "当前 γ = 1；后面扩展折扣。",
+    "color": "base"
+  },
+  {
+    "key": "mc-label",
+    "label": "状态与实际剩余奖励配标签",
+    "subtitle": "公式 6–7 · MC 估 V",
+    "target": "#formula-7",
+    "mapFormula": "$$y_t^{(i)}=\\sum_{t'=t}^H r(s_{t'}^{(i)},a_{t'}^{(i)}),\\qquad\\mathbb E[y_t\\mid s_t]=V^\\pi(s_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "regression",
+    "label": "用平方误差拟合 critic",
+    "subtitle": "公式 7 · 噪声标签可学条件均值",
+    "target": "#formula-7",
+    "mapFormula": "$$\\min_\\phi\\frac1{2N}\\sum_{i,t}\\big(\\hat V_\\phi^\\pi(s_t^{(i)})-y_t^{(i)}\\big)^2$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "bootstrap",
+    "label": "用预测尾部替代长 rollout",
+    "subtitle": "公式 8 · 标签固定再回归",
+    "target": "#formula-8",
+    "mapFormula": "$$y_t=r(s_t,a_t)+\\hat V_{\\mathrm{old}}^\\pi(s_{t+1})$$",
+    "formulaQualifier": "单次采样不自动有偏；预测尾部误差另分析。",
+    "color": "modified"
+  },
+  {
+    "key": "discount",
+    "label": "引入折扣并统一目标",
+    "subtitle": "公式 9 · 起点权重是 γ 的 t−1 次方",
+    "target": "#formula-9",
+    "mapFormula": "$$J(\\theta)=\\mathbb E_{p_\\theta}\\left[\\sum_{t=1}^H\\gamma^{t-1}r_t\\right],\\qquad y_t=r_t+\\gamma\\hat V_{\\mathrm{old}}^\\pi(s_{t+1})$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "batch-loop",
+    "label": "完整 batch actor-critic",
+    "subtitle": "公式 11 · 1–6 步集中展示",
+    "target": "#formula-11",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta,\\quad i=1,\\ldots,N\\\\\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_{\\mathrm{old}}^\\pi(s_{t+1}^{(i)})\\\\\n&3.\\ \\text{critic 更新：}\\quad\\phi\\leftarrow\\phi-\\alpha\\nabla_\\phi\\frac1{2N}\\sum_{i,t}(\\hat V_\\phi^\\pi(s_t^{(i)})-y_t^{(i)})^2\\\\\n&4.\\ \\text{优势：}\\quad\\hat A_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_\\phi^\\pi(s_{t+1}^{(i)})-\\hat V_\\phi^\\pi(s_t^{(i)})\\\\\n&5.\\ \\text{actor 梯度：}\\quad\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i,t}\\gamma^{t-1}\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}\\\\\n&6.\\ \\text{actor 更新：}\\quad\\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta J(\\theta)\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "critic 下调回归误差，actor 上调优势加权目标；不是六个分散的框。",
+    "color": "memory"
+  },
+  {
+    "key": "online-loop",
+    "label": "完整在线更新原型",
+    "subtitle": "公式 12 · 一次转移的 1–6 步",
+    "target": "#formula-12",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{走一步：}\\mathbf{a}\\sim\\pi_\\theta(\\mathbf{a}\\mid\\mathbf{s})\\text{，拿到一个转移 }(\\mathbf{s}_i,\\mathbf{a}_i,\\mathbf{s}_i')\\\\\n&2.\\ y_i=r(\\mathbf{s}_i,\\mathbf{a}_i)+\\gamma\\hat V_\\phi^\\pi(\\mathbf{s}_i')\\\\\n&3.\\ \\text{用 }\\nabla_\\phi\\mathcal{L}_i(\\phi)\\text{ 更新 critic }\\phi\\\\\n&4.\\ \\hat A^\\pi(\\mathbf{s}_i,\\mathbf{a}_i)=r(\\mathbf{s}_i,\\mathbf{a}_i)+\\gamma\\hat V_\\phi^\\pi(\\mathbf{s}_i')-\\hat V_\\phi^\\pi(\\mathbf{s}_i)\\\\\n&5.\\ \\nabla_\\theta J(\\theta)\\approx\\nabla_\\theta\\log\\pi_\\theta(\\mathbf{a}_i\\mid\\mathbf{s}_i)\\hat A^\\pi(\\mathbf{s}_i,\\mathbf{a}_i)\\\\\n&6.\\ \\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta J(\\theta)\n\\end{aligned}$$",
+    "formulaQualifier": "A3C 还包含异步多 worker 等设计；这一组展示单步原型。",
+    "color": "base"
+  },
+  {
+    "key": "bias",
+    "label": "baseline 与 bootstrap 分开判",
+    "subtitle": "公式 13 · 下一状态受动作影响",
+    "target": "#formula-13",
+    "mapFormula": "$$\\gamma\\mathbb E\\left[\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)\\mathbb E[\\hat V_\\phi(s_{t+1})-V^\\pi(s_{t+1})\\mid s_t,a_t]\\right]$$",
+    "formulaQualifier": "额外项一般不为零，但 critic 不精确不等于它必然非零。",
+    "color": "modified"
+  },
+  {
+    "key": "n-step",
+    "label": "先看 n 步，再交给 critic",
+    "subtitle": "公式 14 · 只含 n 个奖励",
+    "target": "#formula-14",
+    "mapFormula": "$$\\hat A_n=\\sum_{k=0}^{n-1}\\gamma^k r_{t+k}+\\gamma^n\\hat V_\\phi(s_{t+n})-\\hat V_\\phi(s_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "weights",
+    "label": "把 n-step 权重先归一",
+    "subtitle": "公式 15 · λ 小于 1 的无限式",
+    "target": "#formula-15",
+    "mapFormula": "$$w_n=(1-\\lambda)\\lambda^{n-1},\\qquad\\sum_{n=1}^{\\infty}w_n=1$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "td-sum",
+    "label": "每个 n-step 都是 TD 的和",
+    "subtitle": "公式 15 · 中间价值相消",
+    "target": "#formula-15",
+    "mapFormula": "$$\\delta_t=r_t+\\gamma\\hat V_\\phi(s_{t+1})-\\hat V_\\phi(s_t),\\qquad\\hat A_n=\\sum_{k=0}^{n-1}\\gamma^k\\delta_{t+k}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "coefficient",
+    "label": "δ 在所有包含它的 n 中累权",
+    "subtitle": "公式 15 · 不是无权重复奖励",
+    "target": "#formula-15",
+    "mapFormula": "$$\\sum_{n=k+1}^{\\infty}(1-\\lambda)\\lambda^{n-1}=\\lambda^k$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "gae",
+    "label": "换序后得到 GAE 的一行式",
+    "subtitle": "公式 15 · 有限轨迹按末端处理",
+    "target": "#formula-15",
+    "mapFormula": "$$\\hat A_{\\mathrm{GAE}}(s_t,a_t)=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "gae-recursion",
+    "label": "也可从最后一步递推",
+    "subtitle": "GAE 精读 · 保留首端 baseline",
+    "target": "#gae-detail",
+    "mapFormula": "$$\\hat A_t=\\delta_t+\\gamma\\lambda\\hat A_{t+1}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "gae-loop",
+    "label": "完整 GAE 版 actor 更新",
+    "subtitle": "公式 16 · 1–6 步集中展示",
+    "target": "#formula-16",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta,\\quad i=1,\\ldots,N\\\\\n&2.\\ \\text{价值目标：}\\quad y_t^{(i)}=r_t^{(i)}+\\gamma\\hat V_{\\mathrm{old}}(s_{t+1}^{(i)})\\quad(\\text{也可用固定的 }\\lambda\\text{-return})\\\\\n&3.\\ \\text{critic 更新：}\\quad\\phi\\leftarrow\\phi-\\alpha\\nabla_\\phi\\frac1{2N}\\sum_{i,t}(\\hat V_\\phi(s_t^{(i)})-y_t^{(i)})^2\\\\\n&4.\\ \\text{GAE：}\\quad\\delta_t^{(i)}=r_t^{(i)}+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})-\\hat V_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\\n&5.\\ \\text{actor 梯度：}\\quad\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i,t}\\gamma^{t-1}\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}\\\\\n&6.\\ \\text{actor 更新：}\\quad\\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta J(\\theta)\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "将单步优势换成 GAE，其余估值与采样阶段仍放在同一组。",
+    "color": "memory"
+  },
+  {
+    "key": "centering",
+    "label": "可选中心化与尺度处理",
+    "subtitle": "公式 16 · 别把自项当独立 baseline",
+    "target": "#formula-16",
+    "mapFormula": "$$\\mu=\\frac1{NH}\\sum_{i,t}\\hat A_t^{(i)},\\qquad\\bar A_t^{(i)}=\\frac{\\hat A_t^{(i)}-\\mu}{\\sigma}$$",
+    "formulaQualifier": "σ 为有效优势的批标准差；随机归一化另有统计影响。",
+    "color": "base"
+  },
+  {
+    "key": "replay",
+    "label": "想复用旧转移，先查动作来源",
+    "subtitle": "公式 17 · 行为动作不是当前动作",
+    "target": "#formula-17",
+    "mapFormula": "$$a_i\\sim\\bar\\pi(\\cdot\\mid s_i)\\quad\\ne\\quad a_i^\\pi\\sim\\pi_\\theta(\\cdot\\mid s_i)$$",
+    "formulaQualifier": "这是一般分布错配，不是每一个实际动作取值必然不同。",
+    "color": "modified"
+  },
+  {
+    "key": "q-target",
+    "label": "Q 保留旧动作条件",
+    "subtitle": "公式 17 · 下一动作换当前策略",
+    "target": "#formula-17",
+    "mapFormula": "$$y_i=r_i+\\gamma\\mathbb E_{a'\\sim\\pi_\\theta(\\cdot\\mid s_i')}[\\hat Q_{\\mathrm{old}}(s_i',a')]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "q-fit",
+    "label": "对 Q 做固定目标回归",
+    "subtitle": "公式 17 · 输入多了动作",
+    "target": "#formula-17",
+    "mapFormula": "$$\\min_\\phi\\frac1{2B}\\sum_i(\\hat Q_\\phi(s_i,a_i)-y_i)^2$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "actor-proxy",
+    "label": "actor 优化固定 critic 的平均",
+    "subtitle": "公式 18–19 · 旧状态上取当前动作",
+    "target": "#formula-18",
+    "mapFormula": "$$\\nabla_\\theta\\mathbb E_{a\\sim\\pi_\\theta(\\cdot\\mid s_i)}[\\hat Q_\\phi(s_i,a)]$$",
+    "formulaQualifier": "两条梯度路线估同一个固定 critic 代理；仍不等于真实 J。",
+    "color": "base"
+  },
+  {
+    "key": "score-integral",
+    "label": "路线 A：先把期望写成积分",
+    "subtitle": "公式 19 · θ 在动作密度上",
+    "target": "#formula-19",
+    "mapFormula": "$$\\nabla_\\theta\\int\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)\\,da=\\int\\nabla_\\theta\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)\\,da$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "score-identity",
+    "label": "Log-trick 恢复可采样的密度",
+    "subtitle": "公式 19 · 完整写出梯度",
+    "target": "#formula-19",
+    "mapFormula": "$$\\int\\pi_\\theta(a\\mid s_i)\\nabla_\\theta\\log\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)\\,da=\\mathbb E_{\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "score-loop",
+    "label": "完整 score 版 replay 循环",
+    "subtitle": "公式 19 · 1–5 步集中展示",
+    "target": "#formula-19",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采环境并抽 replay：}\\quad(s,a,r,s')\\text{ 存入 }\\mathcal R,\\quad\\{(s_i,a_i,r_i,s_i')\\}_{i=1}^B\\sim\\mathcal R\\\\\n&2.\\ \\text{Q 目标：}\\quad y_i=r_i+\\gamma\\mathbb E_{a'\\sim\\pi_\\theta(\\cdot\\mid s_i')}[\\hat Q_{\\mathrm{old}}(s_i',a')]\\\\\n&3.\\ \\text{critic 更新：}\\quad\\phi\\leftarrow\\phi-\\alpha\\nabla_\\phi\\frac1{2B}\\sum_i(\\hat Q_\\phi(s_i,a_i)-y_i)^2\\\\\n&4.\\ \\text{当前动作梯度：}\\quad\\frac1B\\sum_i\\mathbb E_{a\\sim\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)]\\\\\n&5.\\ \\text{actor 更新：}\\quad\\theta\\leftarrow\\theta+\\frac{\\alpha}{B}\\sum_i\\mathbb E_{a\\sim\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a\\mid s_i)\\hat Q_\\phi(s_i,a)]\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "先抽批次再计算 Q 目标；状态来自 replay，动作期望来自当前策略。",
+    "color": "memory"
+  },
+  {
+    "key": "gaussian",
+    "label": "路线 B：用固定噪声加工动作",
+    "subtitle": "公式 20 · 标准差与方差分清",
+    "target": "#formula-20",
+    "mapFormula": "$$\\epsilon\\sim\\mathcal N(0,1),\\qquad a=\\mu_\\theta(s)+\\sigma_\\theta(s)\\epsilon\\sim\\mathcal N(\\mu_\\theta(s),\\sigma_\\theta(s)^2)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "noise-expectation",
+    "label": "分布表示改变，期望相等",
+    "subtitle": "公式 20 · θ 挪进被积函数",
+    "target": "#formula-20",
+    "mapFormula": "$$\\mathbb E_{a\\sim\\pi_\\theta}[\\hat Q_\\phi(s,a)]=\\mathbb E_\\epsilon[\\hat Q_\\phi(s,\\mu_\\theta(s)+\\sigma_\\theta(s)\\epsilon)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "path-gradient",
+    "label": "满足条件后，导数穿过期望",
+    "subtitle": "公式 20 · 这一步不能自动跳",
+    "target": "#formula-20",
+    "mapFormula": "$$\\nabla_\\theta\\mathbb E_\\epsilon[\\hat Q_\\phi(s,\\mu_\\theta+\\sigma_\\theta\\epsilon)]=\\mathbb E_\\epsilon[\\nabla_\\theta\\hat Q_\\phi(s,\\mu_\\theta+\\sigma_\\theta\\epsilon)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "chain-rule",
+    "label": "直接用 Q 对动作的导数",
+    "subtitle": "公式 20 · critic 参数仍固定",
+    "target": "#formula-20",
+    "mapFormula": "$$\\nabla_\\theta\\hat Q_\\phi(s,\\mu_\\theta+\\sigma_\\theta\\epsilon)=\\left.\\frac{\\partial\\hat Q_\\phi}{\\partial a}\\right|_{a=\\mu_\\theta+\\sigma_\\theta\\epsilon}(\\nabla_\\theta\\mu_\\theta+\\epsilon\\nabla_\\theta\\sigma_\\theta)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "path-loop",
+    "label": "完整 pathwise replay 循环",
+    "subtitle": "公式 21 · 1–5 步集中展示",
+    "target": "#formula-21",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采环境并抽 replay：}\\quad(s,a,r,s')\\text{ 存入 }\\mathcal R,\\quad\\{(s_i,a_i,r_i,s_i')\\}_{i=1}^B\\sim\\mathcal R\\\\\n&2.\\ \\text{Q 目标：}\\quad y_i=r_i+\\gamma\\mathbb E_{a'\\sim\\pi_\\theta(\\cdot\\mid s_i')}[\\hat Q_{\\mathrm{old}}(s_i',a')]\\\\\n&3.\\ \\text{critic 更新：}\\quad\\phi\\leftarrow\\phi-\\alpha\\nabla_\\phi\\frac1{2B}\\sum_i(\\hat Q_\\phi(s_i,a_i)-y_i)^2\\\\\n&4.\\ \\text{当前动作：}\\quad\\epsilon_i\\sim\\mathcal N(0,1),\\quad a_i^\\pi=\\mu_\\theta(s_i)+\\sigma_\\theta(s_i)\\epsilon_i\\\\\n&5.\\ \\text{actor 更新：}\\quad\\theta\\leftarrow\\theta+\\frac{\\alpha}{B}\\sum_i\\nabla_\\theta\\hat Q_\\phi(s_i,\\mu_\\theta(s_i)+\\sigma_\\theta(s_i)\\epsilon_i)\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "这是 SAC 的一部分骨架；完整 SAC 还包含最大熵等相应目标。",
+    "color": "memory"
+  }
+]

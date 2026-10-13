@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1940" role="group" aria-labelledby="lec2-flow-title lec2-flow-desc">
+<title id="lec2-flow-title">Lecture 2：统一分解无错与曾经出错，再比较分布与拆解错误</title>
+<desc id="lec2-flow-desc">按此前一次没错与至少错过一次写成统一分解式，推导状态分布距离上界，再将部署错误分成基础项与偏移项，逐项估计后累计时间。</desc>
+<defs><marker id="lec2-flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<g font-family="system-ui, sans-serif" fill="var(--diagram-text, #24334b)">
+<path data-flow-edge="true" data-from="supervised" data-to="bc" data-reason="加入时间" d="M144 70V140" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bc" data-to="shift" data-reason="自己执行" d="M144 182V252" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bc" data-to="actions" data-reason="动作表示" d="M248 172H270V221H728V161H752" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="actions" data-to="discrete" data-reason="离散动作" d="M856 182V234H724V287H752" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="actions" data-to="gaussian" data-reason="连续动作" d="M856 182V234H724V421H752" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="gaussian" data-to="regression" data-reason="固定协方差" d="M856 442V534" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="shift" data-to="cost" data-reason="如何定量" d="M144 294V366" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="cost" data-to="local" data-reason="对动作取期望" d="M144 408V500" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="local" data-to="trajectory" data-reason="平均状态、累计时间" d="M144 542V644" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="trajectory" data-to="analysis" data-reason="已知条件" d="M144 686V788" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="analysis" data-to="mixture" data-reason="按此前是否曾经出错分解" d="M144 830V916" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="mixture" data-to="distance" data-reason="比较执行与训练分布" d="M144 958V1068" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="distance" data-to="split" data-reason="把距离上界用于代价" d="M144 1110V1212" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="split" data-to="base-error" data-reason="基础项" d="M144 1254V1366" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="split" data-to="shift-error" data-reason="偏移项" d="M190 1254V1330H856V1366" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="base-error" data-to="per-step" data-reason="使用基础上界" d="M144 1410V1542" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="shift-error" data-to="per-step" data-reason="使用偏移上界" d="M856 1410V1490H190V1542" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="per-step" data-to="bound" data-reason="对时间求和" d="M144 1584V1690" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="bound" data-to="dagger" data-reason="怎样修复" d="M144 1732V1840" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<path data-flow-edge="true" data-from="supervised" data-to="supervised-formula" data-reason="对应公式" d="M248 49.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-1" data-flow-node="supervised" aria-label="监督学习">
+<rect x="40" y="28" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="46" text-anchor="middle" font-size="13" font-weight="650">监督学习</text>
+<text x="144.0" y="61" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 1</text>
+</a>
+<foreignObject x="300" y="4" width="404" height="90">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="supervised"><div class="lecture-flow__formula-body"><!-- formula-supervised --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="bc" data-to="bc-formula" data-reason="对应公式" d="M248 161.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-5" data-flow-node="bc" aria-label="Behavioral cloning">
+<rect x="40" y="140" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="158" text-anchor="middle" font-size="13" font-weight="650">Behavioral cloning</text>
+<text x="144.0" y="173" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 5 · 加入时间</text>
+</a>
+<foreignObject x="300" y="110" width="404" height="104">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="bc"><div class="lecture-flow__formula-body"><!-- formula-bc --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="shift" data-to="shift-formula" data-reason="对应公式" d="M248 273.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-10" data-flow-node="shift" aria-label="训练分布与执行分布">
+<rect x="40" y="252" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="270" text-anchor="middle" font-size="13" font-weight="650">训练分布 ≠ 执行分布</text>
+<text x="144.0" y="285" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 10</text>
+</a>
+<foreignObject x="300" y="228" width="404" height="90">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="shift"><div class="lecture-flow__formula-body"><!-- formula-shift --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="cost" data-to="cost-formula" data-reason="对应公式" d="M248 387.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-11" data-flow-node="cost" aria-label="先定义一次错误">
+<rect x="40" y="366" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="384" text-anchor="middle" font-size="13" font-weight="650">错误定义</text>
+<text x="144.0" y="399" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 11 · 0/1 代价</text>
+</a>
+<foreignObject x="300" y="335" width="404" height="108">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="cost"><div class="lecture-flow__formula-body"><!-- formula-cost --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="local" data-to="local-formula" data-reason="对应公式" d="M248 521.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-11" data-flow-node="local" aria-label="固定状态下，单步错的概率">
+<rect x="40" y="500" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="518" text-anchor="middle" font-size="13" font-weight="650">单个状态的犯错概率</text>
+<text x="144.0" y="533" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 11 · 对动作取期望</text>
+</a>
+<foreignObject x="300" y="457" width="404" height="128">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="local"><div class="lecture-flow__formula-body"><!-- formula-local --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="trajectory" data-to="trajectory-formula" data-reason="对应公式" d="M248 665.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-12" data-flow-node="trajectory" aria-label="整条轨迹的期望总错误">
+<rect x="40" y="644" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="662" text-anchor="middle" font-size="13" font-weight="650">轨迹的期望总错误</text>
+<text x="144.0" y="677" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 12 · 状态与时间</text>
+</a>
+<foreignObject x="300" y="599" width="404" height="150">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="trajectory"><div class="lecture-flow__formula-body"><!-- formula-trajectory --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="analysis" data-to="analysis-formula" data-reason="对应公式" d="M248 809.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-14" data-flow-node="analysis" aria-label="开始分析：已知条件在哪里成立">
+<rect x="40" y="788" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="806" text-anchor="middle" font-size="13" font-weight="650">开始分析</text>
+<text x="144.0" y="821" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 14 · 已知专家误差</text>
+</a>
+<foreignObject x="300" y="756" width="404" height="108">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="analysis"><div class="lecture-flow__formula-body"><!-- formula-analysis --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="actions" data-to="actions-formula" data-reason="对应公式" d="M960 161.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-6" data-flow-node="actions" aria-label="动作分布">
+<rect x="752" y="140" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="158" text-anchor="middle" font-size="13" font-weight="650">动作分布</text>
+<text x="856.0" y="173" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">输出形式</text>
+</a>
+<foreignObject x="1010" y="124" width="406" height="76">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="actions"><div class="lecture-flow__formula-body"><!-- formula-actions --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="discrete" data-to="discrete-formula" data-reason="对应公式" d="M960 287.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-6" data-flow-node="discrete" aria-label="离散动作 · Softmax">
+<rect x="752" y="266" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="284" text-anchor="middle" font-size="13" font-weight="650">离散动作 · Softmax</text>
+<text x="856.0" y="299" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 6</text>
+</a>
+<foreignObject x="1010" y="240" width="406" height="98">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="discrete"><div class="lecture-flow__formula-body"><!-- formula-discrete --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="gaussian" data-to="gaussian-formula" data-reason="对应公式" d="M960 421.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-7" data-flow-node="gaussian" aria-label="连续动作 · 高斯分布">
+<rect x="752" y="400" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="418" text-anchor="middle" font-size="13" font-weight="650">连续动作 · 高斯</text>
+<text x="856.0" y="433" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 7</text>
+</a>
+<foreignObject x="1010" y="374" width="406" height="96">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="gaussian"><div class="lecture-flow__formula-body"><!-- formula-gaussian --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="regression" data-to="regression-formula" data-reason="对应公式" d="M960 555.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-8" data-flow-node="regression" aria-label="固定协方差 · 平方误差">
+<rect x="752" y="534" width="208" height="42" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="552" text-anchor="middle" font-size="13" font-weight="650">固定协方差 · 回归</text>
+<text x="856.0" y="567" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 8 · 平方误差</text>
+</a>
+<foreignObject x="1010" y="504" width="406" height="116">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="regression"><div class="lecture-flow__formula-body"><!-- formula-regression --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="mixture" data-to="mixture-formula" data-reason="对应公式" d="M248 937.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-14" data-flow-node="mixture" aria-label="此前一次没错／至少错过一次：统一分解">
+<rect x="40" y="916" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="934" text-anchor="middle" font-size="13" font-weight="650">统一分解两种情况</text>
+<text x="144.0" y="949" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">一次没错 ／ 至少错一次</text>
+</a>
+<foreignObject x="300" y="886" width="1116" height="132">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="mixture"><div class="lecture-flow__formula-body"><!-- formula-mixture --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="distance" data-to="distance-formula" data-reason="对应公式" d="M248 1089.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-15" data-flow-node="distance" aria-label="先比较状态分布，得到距离上界">
+<rect x="40" y="1068" width="208" height="42" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1086" text-anchor="middle" font-size="13" font-weight="650">两个状态分布差多远</text>
+<text x="144.0" y="1101" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 15 · 得到不等式</text>
+</a>
+<foreignObject x="300" y="1034" width="1116" height="122">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="distance"><div class="lecture-flow__formula-body"><!-- formula-distance --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="split" data-to="split-formula" data-reason="对应公式" d="M248 1233.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-16" data-flow-node="split" aria-label="再把部署错误精确拆成两项">
+<rect x="40" y="1212" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1230" text-anchor="middle" font-size="13" font-weight="650">把部署错误拆成两项</text>
+<text x="144.0" y="1245" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 16 · 加减同一项</text>
+</a>
+<foreignObject x="300" y="1176" width="1116" height="144">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="split"><div class="lecture-flow__formula-body"><!-- formula-split --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="base-error" data-to="base-error-formula" data-reason="对应公式" d="M248 1388.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="base-error" aria-label="基础项有多大">
+<rect x="40" y="1366" width="208" height="44" rx="6" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1384" text-anchor="middle" font-size="13" font-weight="650">基础项</text>
+<text x="144.0" y="1399" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">专家分布上的错误</text>
+</a>
+<foreignObject x="300" y="1342" width="404" height="128">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="base-error"><div class="lecture-flow__formula-body"><!-- formula-base-error --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="shift-error" data-to="shift-error-formula" data-reason="对应公式" d="M960 1388.0H998" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="shift-error" aria-label="偏移额外带来多少错误">
+<rect x="752" y="1366" width="208" height="44" rx="6" fill="var(--diagram-modified-fill, #edf3fc)" stroke="var(--diagram-modified-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="856.0" y="1384" text-anchor="middle" font-size="13" font-weight="650">偏移项</text>
+<text x="856.0" y="1399" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">分布差带来的额外项</text>
+</a>
+<foreignObject x="1010" y="1342" width="406" height="128">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="shift-error"><div class="lecture-flow__formula-body"><!-- formula-shift-error --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="per-step" data-to="per-step-formula" data-reason="对应公式" d="M248 1563.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="per-step" aria-label="合起来：单步错误上界">
+<rect x="40" y="1542" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1560" text-anchor="middle" font-size="13" font-weight="650">合并：单步上界</text>
+<text x="144.0" y="1575" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 17</text>
+</a>
+<foreignObject x="300" y="1500" width="1116" height="128">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="per-step"><div class="lecture-flow__formula-body"><!-- formula-per-step --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="bound" data-to="bound-formula" data-reason="对应公式" d="M248 1711.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-17" data-flow-node="bound" aria-label="累计后：整条轨迹的错误上界">
+<rect x="40" y="1690" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1708" text-anchor="middle" font-size="13" font-weight="650">累计：轨迹总错误上界</text>
+<text x="144.0" y="1723" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 17–18</text>
+</a>
+<foreignObject x="300" y="1645" width="1116" height="142">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="bound"><div class="lecture-flow__formula-body"><!-- formula-bound --></div></div>
+</foreignObject>
+<path data-flow-edge="true" data-from="dagger" data-to="dagger-formula" data-reason="对应公式" d="M248 1861.0H288" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#lec2-flow-arrow)"/>
+<a href="#formula-20" data-flow-node="dagger" aria-label="DAgger：补上自己访问的状态">
+<rect x="40" y="1840" width="208" height="42" rx="6" fill="var(--diagram-memory-fill, #edf3fc)" stroke="var(--diagram-memory-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="144.0" y="1858" text-anchor="middle" font-size="13" font-weight="650">DAgger 补数据</text>
+<text x="144.0" y="1873" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">公式 20 · 专家标签</text>
+</a>
+<foreignObject x="300" y="1803" width="404" height="110">
+<div xmlns="http://www.w3.org/1999/xhtml" class="lecture-flow__inline-formula" data-inline-formula="dagger"><div class="lecture-flow__formula-body"><!-- formula-dagger --></div></div>
+</foreignObject>
+<text x="160" y="111" font-size="10.5" fill="var(--diagram-muted, #58677b)">加入时间</text>
+<text x="160" y="225" font-size="10.5" fill="var(--diagram-muted, #58677b)">自己执行</text>
+<text x="160" y="340" font-size="10.5" fill="var(--diagram-muted, #58677b)">如何定量？</text>
+<text x="160" y="458" font-size="10.5" fill="var(--diagram-muted, #58677b)">对动作取期望</text>
+<text x="160" y="602" font-size="10.5" fill="var(--diagram-muted, #58677b)">累计状态与时间</text>
+<text x="160" y="737" font-size="10.5" fill="var(--diagram-muted, #58677b)">已知条件是什么？</text>
+<text x="874" y="489" font-size="10.5" fill="var(--diagram-muted, #58677b)">固定协方差</text>
+<text x="160" y="872" font-size="10.5" fill="var(--diagram-muted, #58677b)">按是否出错分解</text>
+<text x="160" y="1020" font-size="10.5" fill="var(--diagram-muted, #58677b)">先比较分布</text>
+<text x="160" y="1163" font-size="10.5" fill="var(--diagram-muted, #58677b)">再拆解代价</text>
+<text x="160" y="1320" font-size="10.5" fill="var(--diagram-muted, #58677b)">分别估计两项</text>
+<text x="500" y="1482" font-size="10.5" fill="var(--diagram-muted, #58677b)">偏移项上界</text>
+<text x="160" y="1490" font-size="10.5" fill="var(--diagram-muted, #58677b)">基础项上界</text>
+<text x="160" y="1632" font-size="10.5" fill="var(--diagram-muted, #58677b)">对时间求和</text>
+<text x="160" y="1790" font-size="10.5" fill="var(--diagram-muted, #58677b)">如何修复？</text>
+</g>
+</svg>

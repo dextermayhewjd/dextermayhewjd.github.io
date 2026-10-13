@@ -1,0 +1,446 @@
+[
+  {
+    "key": "command",
+    "label": "用户命令与条件",
+    "focus": "goal-set",
+    "trigger": "宿主收到 /goal 条件。",
+    "input": "用户完成条件与当前主模型 token 基线。",
+    "output": "保存唯一活跃目标，并立即进入工作循环。",
+    "flow": "/goal 查看与 clear 直接返回；不是模型工具。",
+    "sourceLink": "#goal-submit",
+    "codeSections": [
+      "goal-submit"
+    ],
+    "codeFunctions": [
+      "submit",
+      "set_goal",
+      "__init__",
+      "status",
+      "clear",
+      "evaluate_after_turn",
+      "begin_query",
+      "_record",
+      "restore",
+      "_run_query",
+      "_run_tool",
+      "_safe_path",
+      "submit_background_result",
+      "evaluate",
+      "_evaluate_sync",
+      "transcript_text",
+      "_plain_content",
+      "_parse_json_object",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  },
+  {
+    "key": "gate",
+    "label": "Goal Gate 与决定",
+    "focus": "goal-gate",
+    "trigger": "主模型无工具调用，准备返回。",
+    "input": "目标状态、messages、宿主后台运行状态。",
+    "output": "block 续轮；其余 action 返回，终态是否清除目标分别处理。",
+    "flow": "评估器是 Gate 的依赖；没有另设 continuation queue。",
+    "sourceLink": "#goal-gate",
+    "codeSections": [
+      "goal-gate"
+    ],
+    "codeFunctions": [
+      "evaluate_after_turn",
+      "__init__",
+      "set_goal",
+      "status",
+      "clear",
+      "begin_query",
+      "_record",
+      "restore",
+      "submit",
+      "_run_query",
+      "_run_tool",
+      "_safe_path",
+      "submit_background_result",
+      "evaluate",
+      "_evaluate_sync",
+      "transcript_text",
+      "_plain_content",
+      "_parse_json_object",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  },
+  {
+    "key": "judge",
+    "label": "独立评估与证据",
+    "focus": "goal-evaluator",
+    "trigger": "有活跃目标且后台已结束。",
+    "input": "条件与最近消息的文本视图，默认 24000 字符。",
+    "output": "独立无工具请求输出 ok / reason / impossible，并做结构校验。",
+    "flow": "另一次请求有成本；没有执行测试或文件读取能力。",
+    "sourceLink": "#goal-evaluator",
+    "codeSections": [
+      "goal-evaluator"
+    ],
+    "codeFunctions": [
+      "_evaluate_sync",
+      "evaluate",
+      "transcript_text",
+      "_parse_json_object",
+      "__init__",
+      "set_goal",
+      "status",
+      "clear",
+      "evaluate_after_turn",
+      "begin_query",
+      "_record",
+      "restore",
+      "submit",
+      "_run_query",
+      "_run_tool",
+      "_safe_path",
+      "submit_background_result",
+      "_plain_content",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  },
+  {
+    "key": "loop",
+    "label": "缺失原因与续轮",
+    "focus": "goal-feedback",
+    "trigger": "Gate 返回 block。",
+    "input": "条件、评估器缺失理由与继续要求。",
+    "output": "新 user 消息追加，原 while 直接 continue。",
+    "flow": "工具轮先处理所有结果并 continue，暂不评估。",
+    "sourceLink": "#goal-query",
+    "codeSections": [
+      "goal-query"
+    ],
+    "codeFunctions": [
+      "_run_query",
+      "__init__",
+      "set_goal",
+      "status",
+      "clear",
+      "evaluate_after_turn",
+      "begin_query",
+      "_record",
+      "restore",
+      "submit",
+      "_run_tool",
+      "_safe_path",
+      "submit_background_result",
+      "evaluate",
+      "_evaluate_sync",
+      "transcript_text",
+      "_plain_content",
+      "_parse_json_object",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  },
+  {
+    "key": "state",
+    "label": "状态事件与恢复",
+    "focus": "goal-set",
+    "trigger": "设置、决定、清除或宿主加载事件。",
+    "input": "GoalState 与进程内 events 列表。",
+    "output": "更新 active / last_status；restore 仅恢复未结束条件。",
+    "flow": "CLI 不持久化，恢复不还原工具工作现场或背景任务。",
+    "sourceLink": "#goal-restore",
+    "codeSections": [
+      "goal-restore"
+    ],
+    "codeFunctions": [
+      "_record",
+      "restore",
+      "status",
+      "clear",
+      "__init__",
+      "set_goal",
+      "evaluate_after_turn",
+      "begin_query",
+      "submit",
+      "_run_query",
+      "_run_tool",
+      "_safe_path",
+      "submit_background_result",
+      "evaluate",
+      "_evaluate_sync",
+      "transcript_text",
+      "_plain_content",
+      "_parse_json_object",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  },
+  {
+    "key": "background",
+    "label": "后台接口与上限",
+    "focus": "goal-gate",
+    "trigger": "宿主报告后台运行，或稍后交付通知。",
+    "input": "回调默认 false；宿主提供真实通知。",
+    "output": "defer 先返回；有目标的交付再请求主模型。",
+    "flow": "与同步 S16 Workflow 不同；MAX_TURNS 是一次查询内请求数。",
+    "sourceLink": "#goal-background",
+    "codeSections": [
+      "goal-background"
+    ],
+    "codeFunctions": [
+      "submit_background_result",
+      "begin_query",
+      "__init__",
+      "set_goal",
+      "status",
+      "clear",
+      "evaluate_after_turn",
+      "_record",
+      "restore",
+      "submit",
+      "_run_query",
+      "_run_tool",
+      "_safe_path",
+      "evaluate",
+      "_evaluate_sync",
+      "transcript_text",
+      "_plain_content",
+      "_parse_json_object",
+      "make_live_session"
+    ],
+    "stageFunctions": {
+      "command": [
+        "submit",
+        "set_goal"
+      ],
+      "worker": [
+        "_run_query",
+        "_run_tool",
+        "_safe_path"
+      ],
+      "gate": [
+        "evaluate_after_turn",
+        "begin_query"
+      ],
+      "evaluator": [
+        "evaluate",
+        "_evaluate_sync",
+        "transcript_text",
+        "_plain_content",
+        "_parse_json_object"
+      ],
+      "state": [
+        "__init__",
+        "status",
+        "clear",
+        "_record",
+        "restore"
+      ],
+      "feedback": [
+        "_run_query"
+      ],
+      "background": [
+        "submit_background_result"
+      ],
+      "return": [
+        "evaluate_after_turn",
+        "_run_query"
+      ]
+    },
+    "figure": "s17-goal-core"
+  }
+]

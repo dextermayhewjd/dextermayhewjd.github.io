@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 750" role="img" aria-labelledby="s05-evolution-after-title s05-evolution-after-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s05-evolution-after-title">图 2 · S05：计划更新仍走原工具循环</title><desc id="s05-evolution-after-desc">蓝色保留 Hook；橙色扩展提示与工具接口；紫色新增 TODO 和提醒。</desc><defs><marker id="s05-evolution-after-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s05-evolution-after-modified-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/></marker>
+<marker id="s05-evolution-after-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-base-stroke, #537cc0)"/></marker><marker id="s05-todo-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 2 · S05：计划更新仍走原工具循环</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">蓝色保留 Hook；橙色扩展提示与工具接口；紫色新增 TODO 和提醒。</text>
+<rect data-stage="history" data-change="base" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">对话历史</text>
+<text x="80" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">问题与工具结果</text>
+<rect data-stage="model" data-change="base" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+<text x="228" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">SYSTEM + TOOLS</text>
+<rect data-stage="decision" data-change="base" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">判断响应</text>
+<text x="376" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">是否 tool_use</text>
+<rect data-stage="handler" data-change="modified" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">分发并执行</text>
+<text x="524" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">handlers[name]</text>
+<rect data-stage="result" data-change="base" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回传结果</text>
+<text x="672" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">按调用 ID 配对</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<rect data-stage="tools" data-change="modified" x="172" y="183" width="112" height="58" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="228" y="209" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">TOOLS</text>
+<text x="228" y="230" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">工具定义 + TODO</text>
+<path d="M228 183V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<rect data-stage="input" data-change="base" x="24" y="280" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="306" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">用户输入</text>
+<text x="80" y="327" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">沿用 S04 入口</text>
+<rect data-stage="end" data-change="base" x="320" y="280" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="306" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+<text x="376" y="327" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">原有结束动作</text>
+<rect data-stage="permission" data-change="base" x="468" y="380" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="406" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">权限回调</text>
+<text x="524" y="427" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">None / 拒绝说明</text>
+<rect data-stage="input-event" data-change="base" x="24" y="200" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="226" text-anchor="middle" font-size="10" font-weight="650" fill="var(--diagram-text, #24334b)">UserPromptSubmit</text>
+<text x="80" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留输入事件</text>
+<path data-route="input-to-event" d="M80 280V258" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<path data-route="input-event" d="M80 200V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<rect data-stage="pre-event" data-change="base" x="468" y="280" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="306" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">PreToolUse</text>
+<text x="524" y="327" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留执行前事件</text>
+<path data-route="pre-event" d="M432 128H444V309H468" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<path data-route="allowed" d="M468 289H456V174H500V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<path data-relation="registration" d="M524 338V380" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<rect data-stage="log-callback" data-change="base" x="616" y="380" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="406" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">日志回调</text>
+<text x="672" y="427" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留观察行为</text>
+<path data-relation="registration" d="M524 338V358H672V380" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="590" y="372" text-anchor="middle" font-size="10" font-weight="400" fill="var(--diagram-muted, #58677b)">注册回调</text>
+<path data-route="denied" d="M580 326H744V145H728" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<text x="650" y="318" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">拒绝：跳过执行与后置事件</text>
+<rect data-stage="post-event" data-change="base" x="616" y="200" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="226" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">PostToolUse</text>
+<text x="672" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留执行后事件</text>
+<path data-route="post-event" d="M580 128H596V229H616" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<path d="M672 200V160" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<rect data-stage="stop-event" data-change="base" x="320" y="200" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Stop</text>
+<text x="376" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留退出判断事件</text>
+<path d="M376 160V200" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<path data-route="stop-empty" d="M376 258V280" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<path data-route="feedback" d="M320 240H304V520H12" fill="none" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.6" marker-end="url(#s05-evolution-after-added-arrow)"/>
+<text x="316" y="492" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">反馈追加到历史</text>
+<path data-route="loop" d="M728 128H752V690H154V642" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<text x="380" y="683" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-text, #24334b)">回传前检查本轮是否使用 TODO</text>
+<text x="24" y="711" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)" data-evolution-legend="true">蓝色保留　橙色修改 / 迁移　紫色新增　红色仅表示真实移除（本节无）</text>
+<text x="24" y="735" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)" data-evolution-legend="true">来源标签不表示代码变化；灰色虚线表示回调注册或工具实现关联。</text>
+
+<rect data-stage="system" data-change="modified" x="172" y="280" width="112" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="228" y="306" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">SYSTEM</text>
+<text x="228" y="327" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)" data-baseline-label="已有规划提示">原有 · 增加规划</text>
+<path d="M172 312H154V175H207V160" fill="none" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<rect data-stage="reminder" data-change="added" x="24" y="570" width="260" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="154" y="596" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">计数与条件提醒</text>
+<text x="154" y="617" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">连续三轮未用 TODO → 附加 reminder</text>
+<path d="M24 606H12V128H24" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-evolution-after-base-arrow)"/>
+<rect data-stage="todo-handler" data-change="added" x="468" y="570" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="596" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">todo_write</text>
+<text x="524" y="617" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)" data-baseline-label="已有工具实现">新增工具实现</text>
+<rect data-stage="todo-manager" data-change="added" x="616" y="570" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="672" y="596" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">TodoManager</text>
+<text x="672" y="617" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">校验 · 内存状态</text>
+<path d="M580 602H616" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s05-todo-arrow)"/>
+<path d="M580 145H588V550H524V570" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="580" y="545" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)" data-baseline-label="分发表关联这一实现">分发表新增这一实现</text>
+<path d="M672 570V560H736V165H700V160" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="672" y="656" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">渲染进度 → 普通工具结果</text>
+
+<rect data-stage="added-file-tools" data-change="base" x="468" y="183" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="209" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">文件工具实现</text>
+<text x="524" y="230" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">read / write / edit / glob</text>
+<path data-relation="implementation" d="M524 183V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.3" stroke-dasharray="3 3"/>
+</svg>

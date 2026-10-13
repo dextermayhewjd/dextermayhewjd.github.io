@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 270" role="img" aria-labelledby="s10-skills-title s10-skills-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s10-skills-title">Skills 目录与正文分层进入上下文</title>
+<desc id="s10-skills-desc">这是扩展教学设计。可见 Skills 目录的名称和描述参与 system 组装。模型按任务选择技能，Harness 调用 load_skill，正文与调用 ID 配对后加入消息历史。下方循环将结果交回模型，继续决策。</desc>
+<defs><marker id="s10-skills-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">S15.1 · Skills 目录与正文分层进入上下文</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">扩展示意：system 先提供可见目录，正文调用后作为工具结果进入 messages。</text>
+<rect x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="15" fill="var(--diagram-text, #24334b)">Skills 目录</text>
+<text x="80" y="143" text-anchor="middle" font-size="12" fill="var(--diagram-muted, #58677b)">名称 + 描述</text>
+<rect x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="15" fill="var(--diagram-text, #24334b)">组装 system</text>
+<text x="228" y="143" text-anchor="middle" font-size="12" fill="var(--diagram-muted, #58677b)">提供可见入口</text>
+<rect x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="15" fill="var(--diagram-text, #24334b)">模型决策</text>
+<text x="376" y="143" text-anchor="middle" font-size="12" fill="var(--diagram-muted, #58677b)">按任务选用</text>
+<rect x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="15" fill="var(--diagram-text, #24334b)">load_skill</text>
+<text x="524" y="143" text-anchor="middle" font-size="12" fill="var(--diagram-muted, #58677b)">取回正文</text>
+<rect x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="15" fill="var(--diagram-text, #24334b)">正文进历史</text>
+<text x="672" y="143" text-anchor="middle" font-size="12" fill="var(--diagram-muted, #58677b)">配对 tool_result</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-skills-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-skills-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-skills-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-skills-arrow)"/>
+<path d="M672 160V214H376V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-skills-arrow)"/>
+<text x="524" y="206" text-anchor="middle" font-size="12" fill="var(--diagram-text, #24334b)">正文随消息返回 → 继续决策</text>
+<text x="24" y="252" font-size="12" fill="var(--diagram-muted, #58677b)">配套参考与脚本按需使用；调用控制与内容生命周期在 S07 展开。</text>
+</svg>

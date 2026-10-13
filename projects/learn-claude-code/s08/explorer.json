@@ -1,0 +1,292 @@
+[
+  {
+    "key": "prepare",
+    "label": "预处理总览",
+    "focus": "prepare",
+    "trigger": "每次正常模型请求之前。",
+    "input": "messages 与单独保留的 active_request。",
+    "output": "转存、归档或缩短后的消息；仍超限时进一步摘要。",
+    "flow": "前三类整理不调用模型；容量足够就继续正常请求，否则进入摘要。",
+    "codeSections": [
+      "compact-prepare"
+    ],
+    "figure": "s08-pipeline-view",
+    "sourceLink": "#compact-prepare",
+    "codeFunctions": [
+      "prepare",
+      "tool_result_budget",
+      "snip_compact",
+      "estimate_chars",
+      "micro_compact",
+      "fit_tool_results",
+      "compact_history",
+      "agent_loop"
+    ],
+    "stageFunctions": {
+      "history": [
+        "prepare"
+      ],
+      "budget": [
+        "tool_result_budget"
+      ],
+      "snip": [
+        "snip_compact"
+      ],
+      "size-first": [
+        "estimate_chars",
+        "prepare"
+      ],
+      "micro-fit": [
+        "micro_compact",
+        "fit_tool_results"
+      ],
+      "size-second": [
+        "estimate_chars",
+        "prepare"
+      ],
+      "summary": [
+        "compact_history"
+      ],
+      "task-model": [
+        "agent_loop"
+      ]
+    }
+  },
+  {
+    "key": "budget",
+    "label": "大结果转存",
+    "focus": "prepare",
+    "trigger": "最新一批结果超过 200,000 字符，优先处理大于 30,000 字符的单项。",
+    "input": "最新 user 消息里的 tool_result 正文。",
+    "output": "完整结果文件，以及消息中的恢复路径和最多 2,000 字符预览；调用 ID 保留。",
+    "flow": "不调用模型，整理后继续下一阶段；这一步不保证单独解决全部超限。",
+    "codeSections": [
+      "compact-budget"
+    ],
+    "figure": "s08-output-view",
+    "sourceLink": "#compact-budget",
+    "codeFunctions": [
+      "tool_result_budget",
+      "save_output",
+      "persisted_preview",
+      "micro_compact"
+    ],
+    "stageFunctions": {
+      "full-output": [
+        "tool_result_budget"
+      ],
+      "save": [
+        "save_output"
+      ],
+      "short-output": [
+        "persisted_preview"
+      ],
+      "files": [
+        "save_output"
+      ],
+      "preview": [
+        "persisted_preview"
+      ],
+      "reference": [
+        "micro_compact"
+      ]
+    }
+  },
+  {
+    "key": "snip",
+    "label": "历史归档",
+    "focus": "prepare",
+    "trigger": "消息数量超过示例的 50 条目标。",
+    "input": "当前 messages，包含工具调用与结果。",
+    "output": "头部 3 条、最近 46 条和归档标记；配对保护可能调整切点。",
+    "flow": "不调用模型；中间消息先留档再移出活跃列表，工具调用与结果不能被拆开。",
+    "codeSections": [
+      "compact-snip"
+    ],
+    "figure": "s08-snip-view",
+    "sourceLink": "#compact-snip",
+    "codeFunctions": [
+      "snip_compact",
+      "write_transcript"
+    ],
+    "stageFunctions": {
+      "before": [
+        "snip_compact"
+      ],
+      "snip": [
+        "snip_compact"
+      ],
+      "after": [
+        "snip_compact"
+      ],
+      "pair": [
+        "snip_compact"
+      ],
+      "transcript": [
+        "write_transcript"
+      ]
+    }
+  },
+  {
+    "key": "micro",
+    "label": "旧结果缩短",
+    "focus": "prepare",
+    "trigger": "前两步完成后仍超过 50,000 字符。",
+    "input": "旧的已消费工具结果；必要时 fit 也处理过大的新结果。",
+    "output": "最近三条已消费结果保留，其余长结果先保存再留下路径；fit 留预览。",
+    "flow": "不调用模型；目标约 40,000 字符，仍以 50,000 字符决定是否继续摘要。",
+    "codeSections": [
+      "compact-micro",
+      "compact-fit"
+    ],
+    "figure": "s08-output-view",
+    "sourceLink": "#compact-micro",
+    "codeFunctions": [
+      "micro_compact",
+      "fit_tool_results",
+      "save_output",
+      "persisted_preview"
+    ],
+    "stageFunctions": {
+      "full-output": [
+        "micro_compact",
+        "fit_tool_results"
+      ],
+      "save": [
+        "save_output"
+      ],
+      "short-output": [
+        "persisted_preview"
+      ],
+      "files": [
+        "save_output"
+      ],
+      "preview": [
+        "persisted_preview",
+        "fit_tool_results"
+      ],
+      "reference": [
+        "micro_compact"
+      ]
+    }
+  },
+  {
+    "key": "summary",
+    "label": "模型摘要",
+    "focus": "summary",
+    "trigger": "整理后仍超限，或收到主动压缩请求；异常补救也会总结较早历史。",
+    "input": "待总结的消息，以及从用户入口单独保留的当前任务要求。",
+    "output": "新的 user 消息：Current user request、Conversation summary、Full transcript。",
+    "flow": "增加一次辅助模型请求；更新活跃消息后继续原任务，摘要不代表任务完成。",
+    "codeSections": [
+      "compact-summary",
+      "compact-summarizer",
+      "compact-summary-message"
+    ],
+    "figure": "s08-summary-view",
+    "sourceLink": "#compact-summary",
+    "codeFunctions": [
+      "compact_history",
+      "write_transcript",
+      "summarize_history",
+      "summary_message"
+    ],
+    "stageFunctions": {
+      "archive": [
+        "write_transcript"
+      ],
+      "summary": [
+        "summarize_history"
+      ],
+      "replace": [
+        "summary_message",
+        "compact_history"
+      ],
+      "before": [
+        "compact_history"
+      ],
+      "after": [
+        "summary_message"
+      ]
+    }
+  },
+  {
+    "key": "compact",
+    "label": "主动 compact",
+    "focus": "compact",
+    "trigger": "模型在响应中发出 compact 工具调用。",
+    "input": "工具参数为空对象；同一响应也可能包含其他工具调用。",
+    "output": "登记 compact_requested，并为所有工具交齐配对结果。",
+    "flow": "本批结果追加完后直接调用 compact_history；不先删除未完成调用，也不等待下一轮阈值。",
+    "codeSections": [
+      "compact-manual",
+      "compact-manual-batch"
+    ],
+    "figure": "s08-summary-view",
+    "sourceLink": "#compact-manual",
+    "codeFunctions": [
+      "agent_loop",
+      "compact_history",
+      "write_transcript",
+      "summarize_history",
+      "summary_message"
+    ],
+    "stageFunctions": {
+      "archive": [
+        "write_transcript"
+      ],
+      "summary": [
+        "summarize_history"
+      ],
+      "replace": [
+        "summary_message",
+        "compact_history"
+      ],
+      "before": [
+        "compact_history"
+      ],
+      "after": [
+        "summary_message"
+      ]
+    },
+    "includeSnippets": true
+  },
+  {
+    "key": "reactive",
+    "label": "异常补救",
+    "focus": "reactive",
+    "trigger": "正常模型请求被 API 以 prompt_too_long 或 too many tokens 拒绝。",
+    "input": "当前历史与 active_request。",
+    "output": "较早历史的摘要，加上最近五条消息；切点保护可能多保留前置工具调用。",
+    "flow": "补救后回到 prepare 重试，最多一次；再次失败抛出异常，正常请求成功后计数归零。",
+    "codeSections": [
+      "compact-reactive",
+      "compact-retry"
+    ],
+    "figure": "",
+    "diagramResource": "images/compact-reactive.svg",
+    "sourceLink": "#compact-reactive",
+    "codeFunctions": [
+      "agent_loop",
+      "write_transcript",
+      "summarize_history",
+      "reactive_compact"
+    ],
+    "stageFunctions": {
+      "rejected-history": [
+        "agent_loop"
+      ],
+      "summarize-old": [
+        "write_transcript",
+        "summarize_history"
+      ],
+      "keep-tail": [
+        "reactive_compact"
+      ],
+      "retry-request": [
+        "agent_loop"
+      ]
+    },
+    "includeSnippets": true
+  }
+]

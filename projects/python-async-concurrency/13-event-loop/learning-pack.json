@@ -1,0 +1,123 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/async_utils.py",
+      "line": 24,
+      "endLine": 42,
+      "symbol": "AsyncPacer.wait / _release",
+      "text": "    async def wait(self):\n        loop = asyncio.get_running_loop()\n        future = loop.create_future()\n        self.pending.append(future)\n        if not self.scheduled:\n            self.scheduled = True\n            loop.call_soon(self._release)\n        await future\n\n    def _release(self):\n        for _ in range(min(64, len(self.pending))):\n            future = self.pending.popleft()\n            if not future.done():\n                future.set_result(None)\n        if self.pending:\n            # Let socket callbacks and timers run before waking more tasks.\n            asyncio.get_running_loop().call_later(0.001, self._release)\n        else:\n            self.scheduled = False",
+      "blobSha256": "09a9e7c89b78f66758a9dc23a9ce9523f06a73b1956ab6341522cafe1725f159"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/utils/async_utils.py",
+      "line": 46,
+      "endLine": 58,
+      "symbol": "AsyncLoopThread",
+      "text": "class AsyncLoopThread:\n    def __init__(self):\n        self.loop = asyncio.new_event_loop()\n        self._thread = threading.Thread(target=self._start_loop, daemon=True)\n        self._thread.start()\n\n    def _start_loop(self):\n        asyncio.set_event_loop(self.loop)\n        self.loop.run_forever()\n\n    def run(self, coro):\n        # Schedule a coroutine onto the loop and block until it's done\n        return asyncio.run_coroutine_threadsafe(coro, self.loop).result()",
+      "blobSha256": "09a9e7c89b78f66758a9dc23a9ce9523f06a73b1956ab6341522cafe1725f159"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 279,
+      "endLine": 281,
+      "symbol": "_GenerationActor.start",
+      "text": "    async def start(self, rollout_id):\n        future = asyncio.run_coroutine_threadsafe(self._start(rollout_id), get_async_loop().loop)\n        await asyncio.wrap_future(future)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime/agent/aiohttp_threaded.py",
+      "line": 33,
+      "endLine": 43,
+      "symbol": "AppHandle.stop",
+      "text": "    def stop(self) -> None:\n        async def _shutdown() -> None:\n            await self.runner.cleanup()\n\n        try:\n            fut = asyncio.run_coroutine_threadsafe(_shutdown(), self.loop)\n            fut.result(timeout=10)\n        except Exception:\n            pass\n        self.loop.call_soon_threadsafe(self.loop.stop)\n        self.thread.join(timeout=5)",
+      "blobSha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268"
+    },
+    "source-5": {
+      "available": true,
+      "path": "slime/agent/aiohttp_threaded.py",
+      "line": 65,
+      "endLine": 85,
+      "symbol": "run_app_in_thread._run",
+      "text": "    def _run() -> None:\n        loop = asyncio.new_event_loop()\n        asyncio.set_event_loop(loop)\n        try:\n            runner = web.AppRunner(app, **(runner_kwargs or {}))\n            loop.run_until_complete(runner.setup())\n            site = web.TCPSite(runner, host, port)\n            loop.run_until_complete(site.start())\n            actual_port = port\n            for sock in site._server.sockets:  # type: ignore[attr-defined]\n                actual_port = sock.getsockname()[1]\n                break\n            box[\"loop\"] = loop\n            box[\"runner\"] = runner\n            box[\"port\"] = actual_port\n            started.set()\n            loop.run_forever()\n        except BaseException as e:  # pragma: no cover\n            err_box.append(e)\n            started.set()\n            raise",
+      "blobSha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268"
+    },
+    "source-6": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 397,
+      "endLine": 422,
+      "symbol": "_rebuffer / _flush_rebuffers",
+      "text": "    async def _rebuffer(self, group):\n        if not hasattr(self, \"_pending_rebuffers\"):\n            self._pending_rebuffers = deque()\n            self._rebuffer_task = None\n        future = asyncio.get_running_loop().create_future()\n        self._pending_rebuffers.append((group, future))\n        if self._rebuffer_task is None:\n            self._rebuffer_task = asyncio.create_task(self._flush_rebuffers())\n        await asyncio.shield(future)\n\n    async def _flush_rebuffers(self):\n        try:\n            await asyncio.sleep(0.01)\n            while self._pending_rebuffers:\n                batch = [self._pending_rebuffers.popleft() for _ in range(min(64, len(self._pending_rebuffers)))]\n                try:\n                    await asyncio.to_thread(self.data_source.add_samples, [group for group, _ in batch])\n                except Exception as error:\n                    for _, future in [*batch, *self._pending_rebuffers]:\n                        future.set_exception(error)\n                    self._pending_rebuffers.clear()\n                    return\n                for _, future in batch:\n                    future.set_result(None)\n        finally:\n            self._rebuffer_task = None",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-7": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 434,
+      "endLine": 448,
+      "symbol": "_GenerationActor.close / _close",
+      "text": "    async def close(self):\n        future = asyncio.run_coroutine_threadsafe(self._close(), get_async_loop().loop)\n        await asyncio.wrap_future(future)\n\n    async def _close(self):\n        self.running = False\n        if self.producer is not None:\n            self.producer.cancel()\n            await asyncio.gather(self.producer, return_exceptions=True)\n        if getattr(self, \"_rebuffer_task\", None) is not None:\n            await self._rebuffer_task\n        # to_thread writes can outlive cancelled awaiters. Drain them before\n        # closing their files or killing this process.\n        await asyncio.get_running_loop().shutdown_default_executor()\n        self.data_source.close()",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-8": {
+      "available": true,
+      "path": "slime/agent/adapters/common.py",
+      "line": 225,
+      "endLine": 243,
+      "symbol": "BaseAdapter.shutdown_session",
+      "text": "    async def shutdown_session(self, sid: str, *, wait_timeout: float = 5.0) -> None:\n        \"\"\"Mark a sid closed and drain its in-flight turn tasks.\"\"\"\n        self.closed.add(sid)\n        tasks = [t for t in self.inflight.pop(sid, ()) if not t.done()]\n        if not tasks:\n            return\n\n        async def _drain() -> None:\n            _, pending = await asyncio.wait(tasks, timeout=wait_timeout)\n            for task in pending:\n                task.cancel()\n            if pending:\n                await asyncio.gather(*pending, return_exceptions=True)\n\n        loop = tasks[0].get_loop()\n        try:\n            await asyncio.wrap_future(asyncio.run_coroutine_threadsafe(_drain(), loop))\n        except Exception:\n            self.logger.exception(\"[%s] sid=%s shutdown drain failed\", self.log_prefix, sid)",
+      "blobSha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7"
+    },
+    "source-9": {
+      "available": true,
+      "path": "slime/agent/adapters/common.py",
+      "line": 335,
+      "endLine": 344,
+      "symbol": "BaseAdapter._run_turn",
+      "text": "        tok = self.tokenizer\n        s = self.store.setdefault(sid, Session())\n        task = asyncio.current_task()\n        self.inflight.setdefault(sid, set()).add(task)\n        t0 = time.monotonic()\n        try:\n            translated, tools_schema = self._translate(body)\n            prompt_ids = _render_token_ids(translated, tok, tools=tools_schema, add_generation_prompt=True)\n\n            turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=sid)",
+      "blobSha256": "723d7157bed506da695113d167c5b9854571ce61fda8965fd451afffe90335a7"
+    },
+    "source-10": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 286,
+      "endLine": 305,
+      "symbol": "_log_timeout_diagnostic",
+      "text": "def _log_timeout_diagnostic(t0: float, instance_id: str) -> None:\n    # Dump pending-task names when the wall-clock guard fires. Must not crash.\n    try:\n        elapsed = time.time() - t0\n        pending = [t for t in asyncio.all_tasks() if not t.done()]\n        stuck = []\n        for t in pending[:5]:  # cap to avoid log spam\n            coro = getattr(t, \"_coro\", None)\n            stuck.append(getattr(coro, \"__qualname__\", repr(coro)))\n        logger.warning(\n            \"[coding_agent_rl] %s: wall_clock_timeout after %.1fs \"\n            \"(guard=%ds); %d tasks pending; sample of stuck: %s\",\n            instance_id,\n            elapsed,\n            CONFIG.rollout_guard_sec,\n            len(pending),\n            stuck,\n        )\n    except Exception:  # pragma: no cover - diag must never crash\n        pass",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    },
+    "source-11": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 173,
+      "endLine": 192,
+      "symbol": "AsyncRolloutWorker._loop completion harvesting",
+      "text": "    async def _loop(self) -> None:\n        active_tasks: set[asyncio.Task] = set()\n        max_concurrent = self.concurrency\n        gid_counter = 0\n\n        while self.running:\n            try:\n                # Reap done tasks\n                if active_tasks:\n                    done = {t for t in active_tasks if t.done()}\n                    for t in done:\n                        try:\n                            t.result()  # results already handled in callback\n                        except Exception as e:  # noqa: BLE001\n                            logger.warning(\"fully-async task crashed: %r\", e)\n                    active_tasks -= done\n                    if done:\n                        # Done callbacks requeue ABORTED groups. Let them run\n                        # before asking the data source for replacement work.\n                        await asyncio.sleep(0)",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    },
+    "source-12": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 203,
+      "endLine": 218,
+      "symbol": "AsyncRolloutWorker._loop callback registration",
+      "text": "                    groups = self.data_buffer.get_samples(1)\n                    if not groups:\n                        break\n                    for group in groups:\n                        gid = gid_counter\n                        gid_counter += 1\n                        task = asyncio.create_task(\n                            generate_and_rm_group(\n                                self.args,\n                                group,\n                                sampling_params=self.state.sampling_params.copy(),\n                                evaluation=False,\n                            )\n                        )\n                        task.add_done_callback(self._make_done_cb(gid))\n                        active_tasks.add(task)",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    },
+    "source-13": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 241,
+      "endLine": 265,
+      "symbol": "AsyncRolloutWorker._make_done_cb",
+      "text": "    def _make_done_cb(self, gid: int):\n        def _cb(done_task: asyncio.Task) -> None:\n            try:\n                result = done_task.result()\n            except asyncio.CancelledError:\n                return\n            except Exception as error:\n                self.error = error\n                return\n            if not isinstance(result, list):\n                logger.warning(\n                    \"fully-async: generate_and_rm_group returned %r, expected list[Sample]; dropping\",\n                    type(result).__name__,\n                )\n                return\n            # Aborted group → requeue, don't ship to training.\n            if any(getattr(s, \"status\", None) == Sample.Status.ABORTED for s in result):\n                try:\n                    self.data_buffer.add_samples([result])\n                except Exception:  # noqa: BLE001\n                    logger.exception(\"fully-async: failed to requeue aborted group\")\n                return\n            self.output_queue.put((gid, result))\n\n        return _cb",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    }
+  }
+}

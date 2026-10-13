@@ -1,0 +1,272 @@
+[
+  {
+    "key": "starting-loop",
+    "label": "先看完整回答训练循环",
+    "subtitle": "1–6 步 · 三个插口待填",
+    "target": "#formula-14",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{冻结采样策略：}\\quad\\bar\\pi\\leftarrow\\pi_\\theta\\\\\n&2.\\ \\text{生成回答：}\\quad a_i\\sim\\bar\\pi(\\cdot\\mid s_i),\\quad i=1,\\ldots,N\\\\\n&3.\\ \\text{打分：}\\quad r(s_i,a_i)\\\\\n&4.\\ \\text{取同批小批数据，旧概率与样本固定}\\\\\n&5.\\ \\text{更新：}\\quad\\theta\\leftarrow\\theta+\\frac{\\alpha}{N}\\sum_i\\frac{\\pi_\\theta(a_i\\mid s_i)}{\\bar\\pi(a_i\\mid s_i)}\\nabla_\\theta\\log\\pi_\\theta(a_i\\mid s_i)r(s_i,a_i)\\quad(\\text{重复 }K\\text{ 次})\\\\\n&6.\\ \\text{刷新采样策略，回到 1 生成新一批}\n\\end{aligned}$$",
+    "formulaQualifier": "reward、baseline、regularizer：后面每一条路线都填其中一项。",
+    "color": "memory"
+  },
+  {
+    "key": "reward-question",
+    "label": "先问奖励从哪里来",
+    "subtitle": "示范、偏好或验证器",
+    "target": "#lecture-thread",
+    "mapFormula": "$$\\max_\\theta\\mathbb E_{a\\sim\\pi_\\theta(\\cdot\\mid s)}[r(s,a)]$$",
+    "formulaQualifier": "策略目标已有，评分标准仍需提供。",
+    "color": "base"
+  },
+  {
+    "key": "optimality",
+    "label": "专家行为的指数奖励模型",
+    "subtitle": "公式 1 · 固定轨迹基测度",
+    "target": "#formula-1",
+    "mapFormula": "$$p(\\tau\\mid\\mathcal O,\\psi)\\propto p(\\tau)e^{r_\\psi(\\tau)}$$",
+    "formulaQualifier": "指数因子不是任意奖励下已归一化的 Bernoulli 概率。",
+    "color": "base"
+  },
+  {
+    "key": "irl-likelihood",
+    "label": "奖励学习变成最大似然",
+    "subtitle": "公式 2 · 示范项减 log 配分",
+    "target": "#formula-2",
+    "mapFormula": "$$\\max_\\psi\\left[\\frac1N\\sum_i r_\\psi(\\tau_i)-\\log Z\\right],\\qquad Z=\\int p(\\tau)e^{r_\\psi(\\tau)}\\,d\\tau$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "partition-gradient",
+    "label": "先对 log Z 的积分求导",
+    "subtitle": "公式 3 · 两次链式法则",
+    "target": "#formula-3",
+    "mapFormula": "$$\\nabla_\\psi\\log Z=\\frac1Z\\int p(\\tau)e^{r_\\psi(\\tau)}\\nabla_\\psi r_\\psi(\\tau)\\,d\\tau$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "partition-density",
+    "label": "认出密度，再写回期望",
+    "subtitle": "公式 3 · 归一化因子不能跳",
+    "target": "#formula-3",
+    "mapFormula": "$$\\int\\underbrace{\\frac{p(\\tau)e^{r_\\psi(\\tau)}}Z}_{p(\\tau\\mid\\mathcal O,\\psi)}\\nabla_\\psi r_\\psi(\\tau)\\,d\\tau=\\mathbb E_{p(\\tau\\mid\\mathcal O,\\psi)}[\\nabla_\\psi r_\\psi(\\tau)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "two-expectations",
+    "label": "梯度是两个来源的平均差",
+    "subtitle": "公式 3 · 专家 vs 当前奖励模型",
+    "target": "#formula-3",
+    "mapFormula": "$$\\nabla_\\psi\\mathcal L=\\mathbb E_{\\pi^\\star}[\\nabla_\\psi r_\\psi(\\tau)]-\\mathbb E_{p(\\tau\\mid\\mathcal O,\\psi)}[\\nabla_\\psi r_\\psi(\\tau)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "proposal",
+    "label": "策略样本不一定来自目标",
+    "subtitle": "公式 4–5 · 自归一化 IS",
+    "target": "#formula-5",
+    "mapFormula": "$$w_j=\\frac{p(\\tau_j)e^{r_\\psi(\\tau_j)}}{p_\\theta(\\tau_j)},\\qquad\\mathbb E_{\\text{目标}}[\\nabla_\\psi r_\\psi]\\approx\\frac{\\sum_jw_j\\nabla_\\psi r_\\psi(\\tau_j)}{\\sum_jw_j}$$",
+    "formulaQualifier": "有限样本通常有比值偏差；内层策略优化也有可实现条件。",
+    "color": "modified"
+  },
+  {
+    "key": "cancel-dynamics",
+    "label": "同一测度下消去动力学",
+    "subtitle": "公式 6 · 只剩奖励与动作概率",
+    "target": "#formula-6",
+    "mapFormula": "$$w_j=\\frac{p(\\tau_j)e^{r_\\psi(\\tau_j)}}{p_\\theta(\\tau_j)}=\\frac{e^{r_\\psi(\\tau_j)}}{\\prod_t\\pi_\\theta(a_t^{(j)}\\mid s_t^{(j)})}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "irl-loop",
+    "label": "完整奖励—策略交替循环",
+    "subtitle": "公式 7 · 1–5 步集中展示",
+    "target": "#irl-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{专家数据：}\\quad\\tau_i\\sim\\pi^\\star(\\tau),\\quad i=1,\\ldots,N\\\\\n&2.\\ \\text{策略改善：}\\quad\\max_\\theta\\mathbb E_{p_\\theta}\\left[r_\\psi(\\tau)+\\sum_t\\mathcal H(\\pi_\\theta(\\cdot\\mid s_t))\\right]\\quad(\\psi\\text{ 固定，可不充分优化})\\\\\n&3.\\ \\text{采样与权重：}\\quad\\tau_j\\sim p_\\theta,\\quad w_j=\\frac{p(\\tau_j)e^{r_\\psi(\\tau_j)}}{p_\\theta(\\tau_j)}\\\\\n&4.\\ \\text{奖励更新：}\\quad\\psi\\leftarrow\\psi+\\alpha\\left[\\frac1N\\sum_i\\nabla_\\psi r_\\psi(\\tau_i)-\\frac{\\sum_jw_j\\nabla_\\psi r_\\psi(\\tau_j)}{\\sum_jw_j}\\right]\\\\\n&5.\\ \\text{刷新奖励后回到 2，继续改善策略与采样}\n\\end{aligned}$$",
+    "formulaQualifier": "奖励参数 ψ 与策略参数 θ 交替固定；不是每轮都要解到精确最优。",
+    "color": "memory"
+  },
+  {
+    "key": "adversarial",
+    "label": "联系对抗分类与奖励结构",
+    "subtitle": "公式 8–10 · 不混淆目标",
+    "target": "#formula-10",
+    "mapFormula": "$$D_\\psi(\\tau)=\\frac{p(\\tau)e^{r_\\psi(\\tau)}/Z}{p(\\tau)e^{r_\\psi(\\tau)}/Z+p_\\theta(\\tau)}$$",
+    "formulaQualifier": "GAIL 侧重占用分布模仿；可复用奖励仍需结构假设。",
+    "color": "base"
+  },
+  {
+    "key": "preference",
+    "label": "另一条奖励路线：偏好",
+    "subtitle": "公式 19 · 同 prompt 两个回答",
+    "target": "#formula-19",
+    "mapFormula": "$$p(\\tau_i\\succ\\tau_j)=\\frac{e^{r_\\psi(\\tau_i)}}{e^{r_\\psi(\\tau_i)}+e^{r_\\psi(\\tau_j)}}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "sigmoid",
+    "label": "同除指数，认出 sigmoid",
+    "subtitle": "公式 19 · 只取决于奖励差",
+    "target": "#formula-19",
+    "mapFormula": "$$p(\\tau_i\\succ\\tau_j)=\\frac1{1+e^{-(r_\\psi(\\tau_i)-r_\\psi(\\tau_j))}}=\\sigma(r_\\psi(\\tau_i)-r_\\psi(\\tau_j))$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "preference-fit",
+    "label": "用偏好对拟合奖励",
+    "subtitle": "公式 19 · 二元 logistic 似然",
+    "target": "#formula-19",
+    "mapFormula": "$$\\max_\\psi\\sum_{i\\succ j}\\log\\sigma(r_\\psi(\\tau_i)-r_\\psi(\\tau_j))$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "rlhf-loop",
+    "label": "完整 RLHF 外循环",
+    "subtitle": "公式 20 · 1–4 步集中展示",
+    "target": "#formula-20",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{同题多个回答：}\\quad a_{i,j}\\sim\\pi_\\theta(\\cdot\\mid s_i)\\\\\n&2.\\ \\text{获取偏好：}\\quad\\tau_i\\succ\\tau_j\\quad(\\text{比较相同 prompt 的回答})\\\\\n&3.\\ \\text{奖励拟合：}\\quad\\psi\\leftarrow\\arg\\max_\\psi\\sum_{i\\succ j}\\log\\sigma(r_\\psi(\\tau_i)-r_\\psi(\\tau_j))\\\\\n&4.\\ \\text{策略训练：}\\quad\\max_\\theta\\mathbb E_{\\pi_\\theta}[r_\\psi]-\\beta D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\mathrm{ref}})\\quad(\\text{用 PPO 等算法近似执行})\n\\end{aligned}$$",
+    "formulaQualifier": "奖励拟合与策略训练是不同阶段；策略内部还有完整 PPO 循环。",
+    "color": "memory"
+  },
+  {
+    "key": "verifier",
+    "label": "可验证任务直接给奖励",
+    "subtitle": "公式 20 · 不必先学偏好模型",
+    "target": "#formula-20",
+    "mapFormula": "$$r(s,a)=\\mathbf1\\{\\text{答案或程序验证通过}\\}$$",
+    "formulaQualifier": "只是二元验证器示例，过程奖励可另外定义。",
+    "color": "base"
+  },
+  {
+    "key": "llm-policy",
+    "label": "整段 completion 是一个动作",
+    "subtitle": "公式 11 · 条件概率就是策略",
+    "target": "#formula-11",
+    "mapFormula": "$$\\pi_\\theta(a\\mid s),\\qquad\\max_\\theta\\mathbb E_{a\\sim\\pi_\\theta}[r(s,a)]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "token-probability",
+    "label": "同一回答按 token 分解",
+    "subtitle": "公式 11–12 · 乘积与前缀",
+    "target": "#formula-12",
+    "mapFormula": "$$\\pi_\\theta(a\\mid s)=\\prod_{t=1}^H\\pi_\\theta(a_t\\mid s_t),\\qquad s_{t+1}=(s_t,a_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "token-gradient",
+    "label": "连乘取 log，梯度相加",
+    "subtitle": "公式 13 · 不新设梯度缩写",
+    "target": "#formula-13",
+    "mapFormula": "$$\\nabla_\\theta\\log\\pi_\\theta(a\\mid s)=\\sum_{t=1}^H\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "completion-is",
+    "label": "旧样本计算完整动作梯度",
+    "subtitle": "公式 13 · 整段 IS 比值",
+    "target": "#formula-13",
+    "mapFormula": "$$\\nabla_\\theta\\mathbb E_{\\pi_\\theta}[r]=\\mathbb E_{a\\sim\\bar\\pi}\\left[\\frac{\\pi_\\theta(a\\mid s)}{\\bar\\pi(a\\mid s)}\\nabla_\\theta\\log\\pi_\\theta(a\\mid s)r(s,a)\\right]$$",
+    "formulaQualifier": "完整比值是 token 比值连乘；单 token PPO 是局部代理。",
+    "color": "base"
+  },
+  {
+    "key": "td",
+    "label": "用价值头给前缀估值",
+    "subtitle": "公式 15 · 定义单步 TD 残差",
+    "target": "#formula-15",
+    "mapFormula": "$$\\delta_t=r(s_t,a_t)+\\gamma\\hat V_\\phi(s_{t+1})-\\hat V_\\phi(s_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "gae",
+    "label": "累加 TD 得到 GAE 优势",
+    "subtitle": "公式 15 · critic 路线",
+    "target": "#formula-15",
+    "mapFormula": "$$\\hat A_t=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "group",
+    "label": "另一条 baseline：同题多答",
+    "subtitle": "公式 16 · 组均值与标准差",
+    "target": "#formula-16",
+    "mapFormula": "$$\\hat A_{i,j}=\\frac{r(s_i,a_{i,j})-\\frac1K\\sum_k r(s_i,a_{i,k})}{\\operatorname{std}_k[r(s_i,a_{i,k})]}$$",
+    "formulaQualifier": "组内自项与随机归一化不能自动视为无偏。",
+    "color": "base"
+  },
+  {
+    "key": "reference",
+    "label": "固定参考模型提供长期正则",
+    "subtitle": "公式 17 · 不等于采样旧策略",
+    "target": "#formula-17",
+    "mapFormula": "$$D_{\\mathrm{KL}}(\\pi_\\theta(\\cdot\\mid s)\\Vert\\pi_{\\mathrm{ref}}(\\cdot\\mid s))=\\mathbb E_{a\\sim\\pi_\\theta}\\left[\\log\\frac{\\pi_\\theta(a\\mid s)}{\\pi_{\\mathrm{ref}}(a\\mid s)}\\right]$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "shaped-reward",
+    "label": "把采样 log 比放入奖励",
+    "subtitle": "公式 17–18 · 本批参照固定",
+    "target": "#formula-17",
+    "mapFormula": "$$\\bar r(s_t,a_t)=r(s_t,a_t)-\\beta\\log\\frac{\\bar\\pi(a_t\\mid s_t)}{\\pi_{\\mathrm{ref}}(a_t\\mid s_t)}$$",
+    "formulaQualifier": "采集本批数据后固定 shaped reward 与优势，再进行代理更新。",
+    "color": "base"
+  },
+  {
+    "key": "clip",
+    "label": "Token PPO 的完整裁剪目标",
+    "subtitle": "公式 18 · 单步比值与固定优势",
+    "target": "#formula-18",
+    "mapFormula": "$$\\mathcal L_{\\mathrm{CLIP}}(\\theta)=\\frac1N\\sum_{i,t}\\min\\left\\{\\frac{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}{\\bar\\pi(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)},\\operatorname{clip}\\left(\\frac{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}{\\bar\\pi(a_t^{(i)}\\mid s_t^{(i)})},1-\\epsilon,1+\\epsilon\\right)\\hat A_t^{(i)}\\right\\}$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "llm-ppo-loop",
+    "label": "完整 PPO-for-LLM 循环",
+    "subtitle": "公式 18 · 1–8 步集中展示",
+    "target": "#llm-ppo-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{固定本批采样策略：}\\quad\\bar\\pi\\leftarrow\\pi_\\theta,\\quad\\pi_{\\mathrm{ref}}\\text{ 长期冻结}\\\\\n&2.\\ \\text{生成：}\\quad a_t^{(i)}\\sim\\bar\\pi(\\cdot\\mid s_t^{(i)})\\\\\n&3.\\ \\text{打分并加参考惩罚：}\\quad\\bar r_t^{(i)}=r_t^{(i)}-\\beta\\log\\frac{\\bar\\pi(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_{\\mathrm{ref}}(a_t^{(i)}\\mid s_t^{(i)})}\\\\\n&4.\\ \\text{算 GAE：}\\quad\\delta_t^{(i)}=\\bar r_t^{(i)}+\\gamma\\hat V_{\\mathrm{old}}(s_{t+1}^{(i)})-\\hat V_{\\mathrm{old}}(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\\n&5.\\ \\text{拟合价值：}\\quad y_t^{(i)}=\\hat A_t^{(i)}+\\hat V_{\\mathrm{old}}(s_t^{(i)}),\\quad\\min_\\phi\\sum_{i,t}(\\hat V_\\phi(s_t^{(i)})-y_t^{(i)})^2\\\\\n&6.\\ \\text{取同批 minibatch，固定旧概率、奖励与优势}\\\\\n&7.\\ \\text{优化：}\\quad\\theta\\leftarrow\\theta+\\alpha\\nabla_\\theta\\mathcal L_{\\mathrm{CLIP}}(\\theta)\\quad(6\\text{–}7\\text{ 重复 }K\\text{ 次})\\\\\n&8.\\ \\text{刷新 }\\bar\\pi\\text{，回到 1 生成新一批}\n\\end{aligned}$$",
+    "formulaQualifier": "生成、奖励与参考惩罚、GAE、价值回归、K 次策略更新，然后刷新数据。",
+    "color": "memory"
+  },
+  {
+    "key": "partial-observation",
+    "label": "交互环境可能只给观测",
+    "subtitle": "公式 21–22 · 价值递归需要充分状态",
+    "target": "#formula-20",
+    "mapFormula": "$$o_t\\sim p(o_t\\mid s_t),\\qquad\\pi_\\theta(a_t\\mid o_{1:t},a_{1:t-1})$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "history",
+    "label": "完整历史要包含过去动作",
+    "subtitle": "公式 22 · 当前状态打包历史",
+    "target": "#formula-22",
+    "mapFormula": "$$s_t=(o_1,a_1,o_2,a_2,\\ldots,a_{t-1},o_t)$$",
+    "formulaQualifier": "",
+    "color": "base"
+  },
+  {
+    "key": "latent",
+    "label": "也可学习压缩的隐状态",
+    "subtitle": "公式 21 · 是建模假设与近似",
+    "target": "#formula-21",
+    "mapFormula": "$$q_\\phi(z_t\\mid o_{1:t},a_{1:t-1}),\\qquad p(z_{t+1}\\mid z_t,a_t)$$",
+    "formulaQualifier": "固定长度表示不自动保证保留全部决策信息。",
+    "color": "base"
+  }
+]

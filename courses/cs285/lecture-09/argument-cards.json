@@ -1,0 +1,219 @@
+[
+  {
+    "key": "old-policy",
+    "label": "原始 actor-critic 循环",
+    "target": "#formula-2",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta(\\tau),\\quad i=1,\\ldots,N\\\\[0.65em]\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})\\\\[0.65em]\n&3.\\ \\text{拟合：}\\quad\\min_\\phi\\frac1N\\sum_{i,t}\\left(\\hat V^\\pi_\\phi(s_t^{(i)})-y_t^{(i)}\\right)^2\\\\[0.65em]\n&4.\\ \\text{优势：}\\quad\\delta_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})-\\hat V^\\pi_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\[0.65em]\n&5.\\ \\text{梯度：}\\quad\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i,t}\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}\\\\[0.65em]\n&6.\\ \\text{更新：}\\quad\\theta'\\leftarrow\\theta+\\alpha\\nabla_\\theta J(\\theta),\\quad\\theta\\leftarrow\\theta'\\quad\\Longrightarrow\\quad\\text{回到 1 重新采样}\n\\end{aligned}$$",
+    "formulaQualifier": "瓶颈在 5–6：原算法做一次就回到 1。本讲希望保留旧批次，重复策略更新。无折扣主线取 γ = 1。"
+  },
+  {
+    "key": "mismatch",
+    "label": "为什么不能直接重复 5–6",
+    "target": "#formula-3",
+    "mapFormula": "$$p_\\theta(s_t,a_t)\\ne p_{\\theta'}(s_t,a_t)$$",
+    "formulaQualifier": "一般情形：旧样本不能直接当作新分布的样本。"
+  },
+  {
+    "key": "score-word",
+    "label": "单步 score 是哪个量",
+    "target": "#score-detail",
+    "mapFormula": "$$\\nabla_{\\theta'}\\log p_{\\theta'}(\\tau)=\\sum_{t=1}^H\\nabla_{\\theta'}\\log\\pi_{\\theta'}(a_t\\mid s_t)$$",
+    "formulaQualifier": "轨迹 log 梯度 = 各步 log 概率梯度之和。"
+  },
+  {
+    "key": "is-integral",
+    "label": "先把期望展开成积分",
+    "target": "#formula-4",
+    "mapFormula": "$$\\mathbb E_{x\\sim p}[f(x)]=\\int p(x)f(x)\\,dx$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "support",
+    "label": "采样分布要覆盖目标",
+    "target": "#formula-4",
+    "mapFormula": "$$p(x)\\gt0\\ \\Longrightarrow\\ q(x)\\gt0$$",
+    "formulaQualifier": "目标需要统计的区域，采样分布必须能够到达。"
+  },
+  {
+    "key": "insert-ratio",
+    "label": "乘 1，插入采样分布",
+    "target": "#formula-4",
+    "mapFormula": "$$\\int p(x)f(x)\\,dx=\\int q(x)\\frac{p(x)}{q(x)}f(x)\\,dx$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "match-q",
+    "label": "认出期望的两个部分",
+    "target": "#formula-4",
+    "mapFormula": "$$\\int\\underbrace{q(x)}_{\\text{采样密度}}\\underbrace{\\left[\\frac{p(x)}{q(x)}f(x)\\right]}_{\\text{被平均的量}}\\,dx$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "is-identity",
+    "label": "结构吻合，再写回期望",
+    "target": "#formula-4",
+    "mapFormula": "$$\\mathbb E_{x\\sim p}[f(x)]=\\mathbb E_{x\\sim q}\\left[\\frac{p(x)}{q(x)}f(x)\\right]$$",
+    "formulaQualifier": "总体期望严格相等，有限样本估计仍有误差。"
+  },
+  {
+    "key": "off-objective",
+    "label": "旧轨迹，估新策略目标",
+    "target": "#formula-5",
+    "mapFormula": "$$J(\\theta')=\\mathbb E_{\\tau\\sim p_{\\theta'}}[r(\\tau)]=\\mathbb E_{\\tau\\sim p_\\theta}\\left[\\frac{p_{\\theta'}(\\tau)}{p_\\theta(\\tau)}r(\\tau)\\right]$$",
+    "formulaQualifier": "p 对应新轨迹分布，q 对应旧轨迹分布。"
+  },
+  {
+    "key": "trajectory-ratio",
+    "label": "展开轨迹，约掉环境",
+    "target": "#formula-5",
+    "mapFormula": "$$\\frac{p_{\\theta'}(\\tau)}{p_\\theta(\\tau)}=\\frac{p(s_1)\\prod_{t=1}^H\\pi_{\\theta'}(a_t\\mid s_t)p(s_{t+1}\\mid s_t,a_t)}{p(s_1)\\prod_{t=1}^H\\pi_\\theta(a_t\\mid s_t)p(s_{t+1}\\mid s_t,a_t)}=\\prod_{t=1}^H\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}$$",
+    "formulaQualifier": "比较同一条轨迹；新旧策略共享初始分布与转移。"
+  },
+  {
+    "key": "differentiate",
+    "label": "只对分子的新参数求导",
+    "target": "#formula-7",
+    "mapFormula": "$$\\nabla_{\\theta'}J(\\theta')=\\mathbb E_{p_\\theta}\\left[\\frac{\\nabla_{\\theta'}p_{\\theta'}(\\tau)}{p_\\theta(\\tau)}r(\\tau)\\right]$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "log-identity",
+    "label": "代入 log-derivative trick",
+    "target": "#formula-6",
+    "mapFormula": "$$\\nabla_{\\theta'}p_{\\theta'}(\\tau)=p_{\\theta'}(\\tau)\\nabla_{\\theta'}\\log p_{\\theta'}(\\tau)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "corrected-gradient",
+    "label": "得到完整的加权梯度",
+    "target": "#formula-8",
+    "mapFormula": "$$\\nabla_{\\theta'}J(\\theta')=\\mathbb E_{p_\\theta}\\left[\\left(\\prod_{k=1}^H\\frac{\\pi_{\\theta'}(a_k\\mid s_k)}{\\pi_\\theta(a_k\\mid s_k)}\\right)\\left(\\sum_{t=1}^H\\nabla_{\\theta'}\\log\\pi_{\\theta'}(a_t\\mid s_t)\\right)r(\\tau)\\right]$$",
+    "formulaQualifier": "新旧参数相同时，所有比值为 1，回到 Lecture 5。"
+  },
+  {
+    "key": "causal-objective",
+    "label": "每条奖励只修正到自身",
+    "target": "#formula-8",
+    "mapFormula": "$$J(\\theta')=\\mathbb E_{p_\\theta}\\left[\\sum_{t'=1}^H\\left(\\prod_{k=1}^{t'}\\frac{\\pi_{\\theta'}(a_k\\mid s_k)}{\\pi_\\theta(a_k\\mid s_k)}\\right)r(s_{t'},a_{t'})\\right]$$",
+    "formulaQualifier": "再求导、交换求和；两段权重为 1…t 与 t+1…t′，详细展开见正文。"
+  },
+  {
+    "key": "product-risk",
+    "label": "前缀还是长连乘",
+    "target": "#formula-9",
+    "mapFormula": "$$1.1^{100}\\approx1.38\\times10^4,\\qquad0.9^{100}\\approx2.66\\times10^{-5}$$",
+    "formulaQualifier": "展示连乘放大/缩小的可能性，不表示每条轨迹必然如此。"
+  },
+  {
+    "key": "future-weights",
+    "label": "未来权重为什么能删",
+    "target": "#causality-detail",
+    "mapFormula": "$$\\mathbb E_{p_\\theta}\\left[\\left.\\prod_{j=k+1}^H\\frac{\\pi_{\\theta'}(a_j\\mid s_j)}{\\pi_\\theta(a_j\\mid s_j)}\\right|s_{1:k},a_{1:k}\\right]=1$$",
+    "formulaQualifier": "逐层条件期望消去未来；不假定时间步独立。"
+  },
+  {
+    "key": "joint-ratio",
+    "label": "改看状态—动作分布",
+    "target": "#formula-9",
+    "mapFormula": "$$\\frac{p_{\\theta'}(s_t,a_t)}{p_\\theta(s_t,a_t)}=\\frac{p_{\\theta'}(s_t)}{p_\\theta(s_t)}\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}$$",
+    "formulaQualifier": "状态比：来到这里的概率变化；动作比：到这里后选动作的概率变化。"
+  },
+  {
+    "key": "state-bridge",
+    "label": "路径怎样变成状态边缘",
+    "target": "#first-order-detail",
+    "mapFormula": "$$\\frac{p_{\\theta'}(s_t)}{p_\\theta(s_t)}=\\mathbb E_{p_\\theta}\\left[\\left.\\prod_{k=1}^{t-1}\\frac{\\pi_{\\theta'}(a_k\\mid s_k)}{\\pi_\\theta(a_k\\mid s_k)}\\right|s_t\\right]$$",
+    "formulaQualifier": "同一状态可能由多条路径到达；不是一条路径的连乘直接等于状态比。"
+  },
+  {
+    "key": "local-surrogate",
+    "label": "进入近似：固定旧分布",
+    "target": "#formula-9",
+    "mapFormula": "$$\\sum_{t=1}^H\\mathbb E_{s_t\\sim p_\\theta}\\left[\\sum_{a_t}\\pi_{\\theta'}(a_t\\mid s_t)A^{\\pi_\\theta}(s_t,a_t)\\right]=\\sum_{t=1}^H\\mathbb E_{(s_t,a_t)\\sim p_\\theta}\\left[\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}A^{\\pi_\\theta}(s_t,a_t)\\right]$$",
+    "formulaQualifier": "这一局部替代量在 θ′ = θ 处匹配真实梯度；左右之间是动作层面的 IS 等式。"
+  },
+  {
+    "key": "surrogate-gradient",
+    "label": "用旧优势估计，再求导",
+    "target": "#formula-9",
+    "mapFormula": "$$\\nabla_{\\theta'}\\left[\\frac1N\\sum_{i,t}\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}\\right]=\\frac1N\\sum_{i,t}\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\nabla_{\\theta'}\\log\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}$$",
+    "formulaQualifier": "同批可以更新 K 次；分母与优势固定。这是经验替代目标的梯度。"
+  },
+  {
+    "key": "off-policy-loop",
+    "label": "复用旧批次后的完整循环",
+    "target": "#formula-10b",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta(\\tau),\\quad\\text{保存旧动作概率}\\\\[0.65em]\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})\\\\[0.65em]\n&3.\\ \\text{拟合：}\\quad\\min_\\phi\\frac1N\\sum_{i,t}\\left(\\hat V^\\pi_\\phi(s_t^{(i)})-y_t^{(i)}\\right)^2\\\\[0.65em]\n&4.\\ \\text{优势：}\\quad\\delta_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})-\\hat V^\\pi_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\[0.65em]\n&5.\\ \\text{初始化：}\\quad\\theta'\\leftarrow\\theta\\\\[0.65em]\n&6.\\ \\text{梯度：}\\quad\\nabla_{\\theta'}\\left[\\frac1N\\sum_{i,t}\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}\\right]=\\frac1N\\sum_{i,t}\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\nabla_{\\theta'}\\log\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}\\\\[0.65em]\n&7.\\ \\text{更新：}\\quad\\theta'\\leftarrow\\theta'+\\alpha\\nabla_{\\theta'}\\left[\\frac1N\\sum_{i,t}\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}\\right]\\quad(6\\text{–}7\\text{ 重复 }K\\text{ 次})\\\\[0.65em]\n&8.\\ \\text{刷新：}\\quad\\theta\\leftarrow\\theta'\\quad\\Longrightarrow\\quad\\text{回到 1 重新采样}\n\\end{aligned}$$",
+    "formulaQualifier": "先把整个改造后的算法放在一起：1–4 准备一次，6–7 更新多次；内层旧概率与优势固定。"
+  },
+  {
+    "key": "weight-spread",
+    "label": "单步权重仍可能失衡",
+    "target": "#formula-10",
+    "mapFormula": "$$\\operatorname{Var}_{p_\\theta}(w(\\tau)r(\\tau))=\\mathbb E_{p_\\theta}[w(\\tau)^2r(\\tau)^2]-J(\\theta')^2$$",
+    "formulaQualifier": "先用轨迹权重说明方差来源；单步比值也可能被少数样本主导。"
+  },
+  {
+    "key": "ess",
+    "label": "五个样本可能只剩一个",
+    "target": "#clip-detail",
+    "mapFormula": "$$\\operatorname{ESS}=\\frac{(\\sum_iw_i)^2}{\\sum_iw_i^2}$$",
+    "formulaQualifier": "例：均匀组约 4.975；集中组约 1.050。"
+  },
+  {
+    "key": "clip",
+    "label": "Clip：先看系数怎么裁",
+    "target": "#formula-11",
+    "mapFormula": "$$w=\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)},\\qquad w_c=\\operatorname{clip}(w,1-\\epsilon,1+\\epsilon)=\\max\\{1-\\epsilon,\\min\\{1+\\epsilon,w\\}\\}$$",
+    "formulaQualifier": "沿用原笔记的 w、w_c，并在使用前定义：原始单步比值、裁剪后的系数。"
+  },
+  {
+    "key": "not-constraint",
+    "label": "裁剪区间不约束真实比值",
+    "target": "#formula-11",
+    "mapFormula": "$$w_c\\in[1-\\epsilon,1+\\epsilon]\\ \\not\\Rightarrow\\ w\\in[1-\\epsilon,1+\\epsilon]$$",
+    "formulaQualifier": "别的样本梯度和归一化仍会改变这个动作的概率。"
+  },
+  {
+    "key": "plain-clip",
+    "label": "只 clip：两端都变平",
+    "target": "#formula-12",
+    "mapFormula": "$$\\frac{\\partial(w_c\\hat A)}{\\partial w}=0\\qquad(w\\lt1-\\epsilon\\ \\text{或}\\ w\\gt1+\\epsilon)$$",
+    "formulaQualifier": "优势固定，避开边界；原本有利和不利的越界方向都会变平。"
+  },
+  {
+    "key": "min",
+    "label": "Min：逐项选较小的一支",
+    "target": "#formula-12",
+    "mapFormula": "$$\\min\\{w\\hat A,w_c\\hat A\\}\\le w\\hat A$$",
+    "formulaQualifier": "低于未裁剪的 surrogate 项，不是实际回报的通用下界。"
+  },
+  {
+    "key": "positive",
+    "label": "优势为正：上端变平",
+    "target": "#clip-cases",
+    "mapFormula": "$$\\hat A\\gt0:\\quad\\min\\{w\\hat A,w_c\\hat A\\}=\\hat A\\min\\{w,1+\\epsilon\\}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "negative",
+    "label": "优势为负：下端变平",
+    "target": "#clip-cases",
+    "mapFormula": "$$\\hat A\\lt0:\\quad\\min\\{w\\hat A,w_c\\hat A\\}=\\hat A\\max\\{w,1-\\epsilon\\}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "ppo",
+    "label": "完整 PPO-Clip 目标",
+    "target": "#formula-13",
+    "mapFormula": "$$\\mathcal L_{\\mathrm{CLIP}}(\\theta')=\\frac1N\\sum_{i,t}\\min\\left\\{\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)},\\operatorname{clip}\\left(\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})},1-\\epsilon,1+\\epsilon\\right)\\hat A_t^{(i)}\\right\\}$$",
+    "formulaQualifier": "完整动作比值写回；优势与旧概率在内层更新中固定。"
+  },
+  {
+    "key": "update",
+    "label": "完整 PPO 循环",
+    "target": "#implementation-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta(\\tau),\\quad\\text{保存旧动作概率}\\\\[0.65em]\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})\\\\[0.65em]\n&3.\\ \\text{拟合：}\\quad\\min_\\phi\\frac1N\\sum_{i,t}\\left(\\hat V^\\pi_\\phi(s_t^{(i)})-y_t^{(i)}\\right)^2\\\\[0.65em]\n&4.\\ \\text{优势：}\\quad\\delta_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V^\\pi_\\phi(s_{t+1}^{(i)})-\\hat V^\\pi_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^H(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\[0.65em]\n&5.\\ \\text{初始化：}\\quad\\theta'\\leftarrow\\theta\\\\[0.65em]\n&6.\\ \\text{目标：}\\quad\\mathcal L_{\\mathrm{CLIP}}(\\theta')=\\frac1N\\sum_{i,t}\\min\\left\\{\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)},\\operatorname{clip}\\left(\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})},1-\\epsilon,1+\\epsilon\\right)\\hat A_t^{(i)}\\right\\}\\\\[0.65em]\n&7.\\ \\text{更新：}\\quad\\theta'\\leftarrow\\theta'+\\alpha\\nabla_{\\theta'}\\mathcal L_{\\mathrm{CLIP}}(\\theta')\\quad(6\\text{–}7\\text{ 重复 }K\\text{ 次})\\\\[0.65em]\n&8.\\ \\text{刷新：}\\quad\\theta\\leftarrow\\theta'\\quad\\Longrightarrow\\quad\\text{回到 1 重新采样}\n\\end{aligned}$$",
+    "formulaQualifier": "完整循环集中展示；与上一版相比，第 6 步换成 PPO 裁剪目标，第 7 步对这个目标求梯度。"
+  }
+]

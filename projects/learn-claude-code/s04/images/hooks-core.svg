@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-labelledby="s04-evolution-core-title s04-evolution-core-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s04-evolution-core-title">图 3 · Hook 核心：新机制调度旧行为与新行为</title><desc id="s04-evolution-core-desc">触发与注册机制新增；权限逻辑是已有行为的改造，日志是新增行为。</desc><defs><marker id="s04-evolution-core-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s04-evolution-core-modified-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-modified-stroke, #b77920)"/></marker>
+<marker id="s04-evolution-core-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 3 · Hook 核心：新机制调度旧行为与新行为</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">触发与注册机制新增；权限逻辑是已有行为的改造，日志是新增行为。</text>
+<rect data-stage="event" data-change="base" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">流程到事件</text>
+<text x="80" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">保留的主流程</text>
+<rect data-stage="registry" data-change="added" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">查 HOOKS</text>
+<text x="228" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">新增事件注册表</text>
+<rect data-stage="invoke" data-change="added" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">顺序调用</text>
+<text x="376" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">新增回调调度</text>
+<rect data-stage="return" data-change="added" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">返回结果</text>
+<text x="524" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">首个非 None</text>
+<rect data-stage="caller" data-change="base" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">调用处处理</text>
+<text x="672" y="143" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">拦截 / 观察 / 续跑</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s04-evolution-core-base-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s04-evolution-core-base-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s04-evolution-core-base-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s04-evolution-core-base-arrow)"/>
+<rect data-stage="register" data-change="added" x="172" y="200" width="112" height="58" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">注册回调</text>
+<text x="228" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">新增 register_hook</text>
+<path d="M228 200V160" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s04-evolution-core-added-arrow)"/>
+<rect data-stage="permission-callback" data-change="modified" x="320" y="200" width="112" height="58" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="376" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">权限回调</text>
+<text x="376" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">原权限逻辑改造</text>
+<rect data-stage="new-callback" data-change="added" x="468" y="200" width="112" height="58" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">日志回调</text>
+<text x="524" y="247" text-anchor="middle" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">本轮新增</text>
+<path data-relation="registration" d="M376 160V200" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-relation="registration" d="M376 160V183H524V200" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="24" y="296" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">注册关系不等于另一条执行循环；同一调度器可以接已有改造行为和新行为。</text>
+<text x="24" y="322" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">回调返回值由触发位置解释，不把所有非 None 都当成阻断整个 Agent。</text>
+</svg>

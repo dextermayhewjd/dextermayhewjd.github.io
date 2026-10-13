@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-labelledby="s05-core-title s05-core-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s05-core-title">图 3 · TODO 核心：更新状态与条件提醒</title>
+<desc id="s05-core-desc">模型用普通工具调用提交整份清单，管理器校验后替换内存状态，结果回到历史。下方计数器决定是否附加提醒。</desc>
+<defs><marker id="s05-core-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 3 · TODO 核心：更新状态与条件提醒</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">先完整校验再覆盖；工具返回进度，下一次模型请求读到更新。</text>
+<rect data-stage="model" data-change="base" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">模型提交</text>
+<text x="80" y="143" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">整份 todos 列表</text>
+<rect data-stage="todo" data-change="added" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">todo_write</text>
+<text x="228" y="143" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">沿用工具分发</text>
+<rect data-stage="validate" data-change="added" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">校验清单</text>
+<text x="376" y="143" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">20 项 / 单项进行中</text>
+<rect data-stage="state" data-change="added" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">替换状态</text>
+<text x="524" y="143" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">TODO.items</text>
+<rect data-stage="return" data-change="base" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回传历史</text>
+<text x="672" y="143" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">普通 tool_result</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<rect data-stage="round" data-change="base" x="24" y="200" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">工具轮次</text>
+<text x="80" y="247" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">本轮 used_todo</text>
+<rect data-stage="counter" data-change="added" x="172" y="200" width="260" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="302" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">维护计数器</text>
+<text x="302" y="247" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">用过 TODO 清零；否则加一</text>
+<rect data-stage="cue" data-change="added" x="468" y="200" width="260" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="598" y="226" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">达到三轮则附加提醒</text>
+<text x="598" y="247" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">与工具结果一起回传；计数清零</text>
+<path d="M136 232H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<path d="M432 232H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s05-core-arrow)"/>
+<text x="24" y="302" font-size="12" fill="var(--diagram-muted, #58677b)">蓝色是原循环的调用与回传；紫色是新增的计划状态和提醒机制。</text>
+<text x="24" y="326" font-size="12" fill="var(--diagram-muted, #58677b)">校验失败保留旧清单；提醒不强制更新，进度标记不等于实际完成。</text>
+</svg>

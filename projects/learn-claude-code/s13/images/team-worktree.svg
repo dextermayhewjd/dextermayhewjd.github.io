@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 585" role="img" aria-labelledby="team-worktree-title team-worktree-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="team-worktree-title">Worktree：Task → assignment → 工具 cwd</title>
+<desc id="team-worktree-desc">先创建并绑定，再认领；目录租约在回合结束才释放。</desc>
+<defs><marker id="team-worktree-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">Worktree：Task → assignment → 工具 cwd</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">先创建并绑定，再认领；目录租约在回合结束才释放。</text>
+<path data-route="wt-bind" data-from="create" data-to="assignment" data-kind="flow" data-label="已绑定目录的任务被认领" d="M244 180H268" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-worktree-arrow)"/>
+<path data-route="wt-cwd" data-from="assignment" data-to="path" data-kind="flow" data-label="有效 assignment 才解析路径" d="M488 180H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-worktree-arrow)"/>
+<path data-route="wt-tool" data-from="path" data-to="execute" data-kind="flow" data-label="明确传入 cwd 参数" d="M732 180H756" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-worktree-arrow)"/>
+<path data-route="wt-end" data-from="execute" data-to="boundary" data-kind="flow" data-label="complete 后，回合结束释放租约" d="M866 260V306H378V360" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-worktree-arrow)"/>
+<path data-route="wt-remove" data-from="boundary" data-to="remove" data-kind="flow" data-label="目录清理由宿主操作，不是模型工具" d="M488 440H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-worktree-arrow)"/>
+<rect data-stage="create" data-change="added" x="24" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="134.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">pending 时创建并绑定</text>
+<text x="134.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">wt/&lt;name&gt; / Task.worktree</text>
+<a class="diagram-function-link" data-function="create_worktree" data-function-card="" href="#worktree-create" aria-label="查看 create_worktree 的实现"><text x="134.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="create_worktree">create_worktree()</text></a>
+<rect data-stage="assignment" data-change="modified" x="268" y="100" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="378.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">认领后绑定 owner / cwd</text>
+<text x="378.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">从持久任务核对目录</text>
+<a class="diagram-function-link" data-function="assignment_cwd" data-function-card="" href="#worktree-assignment" aria-label="查看 assignment_cwd 的实现"><text x="378.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="assignment_cwd">assignment_cwd()</text></a>
+<rect data-stage="path" data-change="modified" x="512" y="100" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="622.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">工具每次解析目录</text>
+<text x="622.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">路径限制在任务 cwd 下</text>
+<a class="diagram-function-link" data-function="current_cwd" data-function-card="" href="#worktree-tool" aria-label="查看 TeammateRuntime.current_cwd 的实现"><text x="622.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="current_cwd">TeammateRuntime.current_cwd()</text></a>
+<a class="diagram-function-link" data-function="safe_path" data-function-card="" href="#worktree-tool" aria-label="查看 safe_path 的实现"><text x="622.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="safe_path">safe_path()</text></a>
+<rect data-stage="execute" data-change="base" x="756" y="100" width="220" height="160" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="866.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">实际文件／Shell 实现</text>
+<text x="866.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">cwd 参数，不全局 chdir</text>
+<a class="diagram-function-link" data-function="write" data-function-card="" href="#worktree-tool" aria-label="查看 TeammateRuntime.write 的实现"><text x="866.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="write">TeammateRuntime.write()</text></a>
+<rect data-stage="boundary" data-change="base" x="268" y="360" width="220" height="160" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="378.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">任务完成并结束回合</text>
+<text x="378.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">completed ≠ 已释放租约</text>
+<rect data-stage="remove" data-change="added" x="512" y="360" width="464" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="744.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">宿主确认后移除 checkout</text>
+<text x="744.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">检查活动任务／租约／脏文件，始终保留分支</text>
+<a class="diagram-function-link" data-function="remove_worktree" data-function-card="" href="#worktree-remove" aria-label="查看 remove_worktree 的实现"><text x="744.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="remove_worktree">remove_worktree()</text></a>
+</svg>

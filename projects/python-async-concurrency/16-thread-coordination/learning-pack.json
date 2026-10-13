@@ -1,0 +1,96 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 162,
+      "endLine": 186,
+      "symbol": "RolloutScheduler.generate",
+      "text": "        groups = []\n        dropped_count = 0\n        drop_reasons = Counter()\n        with self.condition:\n            if self.error is not None:\n                raise self.error\n            if self.demand:\n                raise RuntimeError(\"A rollout batch is already being collected\")\n            # The previous batch is durable before the next collection starts.\n            self.collecting.clear()\n            self.rollout_id = rollout_id\n            self.demand = self.args.rollout_batch_size\n            self.prefetch = min(prefetch, self.capacity)\n            self.paused = False\n            if self.thread is None:\n                self.thread = threading.Thread(target=self._run, name=\"rollout-collect\", daemon=True)\n                self.thread.start()\n            self.condition.notify_all()\n            while self.demand:\n                if self.error is not None:\n                    raise self.error\n                if not self.ready:\n                    self.condition.wait()\n                    continue\n                group, verdict = self.ready.popleft()",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 206,
+      "endLine": 223,
+      "symbol": "RolloutScheduler.pause",
+      "text": "    def pause(self, *, drain=True):\n        \"\"\"Stop admission; optionally wait for in-flight results to become durable.\"\"\"\n        with self.condition:\n            was_paused = self.paused\n            self.paused = True\n            self.condition.notify_all()\n            while self.error is None:\n                unsettled = bool(self.controls) or any(\n                    self.configurations.get(worker) != (True, self.rollout_id) for worker in self.running_workers\n                )\n                if drain:\n                    unsettled |= bool(self.pending or self.running_workers)\n                if not unsettled:\n                    break\n                self.condition.wait()\n            if self.error is not None:\n                raise self.error\n            return was_paused",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 242,
+      "endLine": 250,
+      "symbol": "RolloutScheduler.close",
+      "text": "    def close(self):\n        with self.condition:\n            self.closed = True\n            # Unblock consumers and pause() callers waiting for in-flight work.\n            if self.error is None:\n                self.error = RuntimeError(\"Rollout scheduler is closed\")\n            self.condition.notify_all()\n        if self.thread is not None:\n            self.thread.join()",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 109,
+      "endLine": 117,
+      "symbol": "AsyncRolloutWorker.pause",
+      "text": "    def pause(self, *, drain=True):\n        with self.condition:\n            previous = self.paused\n            self.paused = True\n            while self.running and self.error is None and (not self.admission_paused or (drain and self.active)):\n                self.condition.wait()\n            if self.error is not None:\n                raise self.error\n            return previous",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    },
+    "source-5": {
+      "available": true,
+      "path": "slime_plugins/rollout_buffer/buffer.py",
+      "line": 232,
+      "endLine": 253,
+      "symbol": "RolloutBuffer.__init__ / write / read",
+      "text": "        self.lock = threading.RLock()\n        self.not_empty = threading.Condition(self.lock)\n        self.total_written = 0\n        self.total_read = 0\n        self.task_type = task_type\n\n    def write(self, data):\n        with self.lock:\n            self.buffer.append(data)\n            self.total_written += 1\n            self.not_empty.notify_all()\n        return data\n\n    def read(self):\n        with self.not_empty:\n            if len(self.buffer) == 0:\n                return {\"data\": [], \"meta_info\": {}}\n\n            # Don't clear temp_data for regular read operations\n            result = self.buffer.get()\n            self.total_read += len(result[\"data\"])\n            return result",
+      "blobSha256": "c98b814f731e923d0470e140cf3e6c2faf5c52e59807c176219a53d446a6f8e4"
+    },
+    "source-6": {
+      "available": true,
+      "path": "tests/pipeline_rl_test_helpers.py",
+      "line": 88,
+      "endLine": 93,
+      "symbol": "GenerationProbe.wait",
+      "text": "    def wait(self, predicate):\n        with self.condition:\n            ready = self.condition.wait_for(lambda: self.error or self.done or predicate(self.events), timeout=180)\n            if self.error:\n                raise self.error\n            assert ready and predicate(self.events), f\"Probe failed on {self.url}: {self.events[-3:]}\"",
+      "blobSha256": "67fd7b7a7180d0712e4522a894f95b514356b61ef2bdc0f39b81fb0548db9593"
+    },
+    "source-7": {
+      "available": true,
+      "path": "slime/utils/accelerator/__init__.py",
+      "line": 311,
+      "endLine": 319,
+      "symbol": "get_accelerator",
+      "text": "def get_accelerator() -> Accelerator:\n    global _ACCELERATOR\n    if _ACCELERATOR is not None:\n        return _ACCELERATOR\n    with _SELECTION_LOCK:\n        if _ACCELERATOR is not None:\n            return _ACCELERATOR\n        _register_builtin_backends()\n        requested = _requested_name()",
+      "blobSha256": "74adf0042d6405e7f22feefd803112692c55a593f99ca36348dcd6fcd8e0047d"
+    },
+    "source-8": {
+      "available": true,
+      "path": "slime/utils/accelerator/__init__.py",
+      "line": 246,
+      "endLine": 259,
+      "symbol": "_register_builtin_backends",
+      "text": "def _register_builtin_backends() -> None:\n    if \"cuda\" not in _REGISTRY:\n        register_accelerator(\"cuda\", CUDAAccelerator, _cuda_available, priority=100, communication_backends=(\"nccl\",))\n    if \"musa\" not in _REGISTRY:\n        register_accelerator(\n            \"musa\", MUSAAccelerator, is_musa_available, priority=200, communication_backends=(\"mccl\",)\n        )\n    if \"npu\" not in _REGISTRY:\n        register_accelerator(\"npu\", NPUAccelerator, is_npu_available, priority=250, communication_backends=(\"hccl\",))\n    if \"supa\" not in _REGISTRY:\n        register_accelerator(\n            \"supa\", SUPAAccelerator, is_supa_available, priority=150, communication_backends=(\"bccl\",)\n        )\n",
+      "blobSha256": "74adf0042d6405e7f22feefd803112692c55a593f99ca36348dcd6fcd8e0047d"
+    },
+    "source-9": {
+      "available": true,
+      "path": "slime/utils/accelerator/__init__.py",
+      "line": 53,
+      "endLine": 71,
+      "symbol": "register_accelerator",
+      "text": "def register_accelerator(\n    name: str,\n    factory: Callable[[], Accelerator],\n    is_available: Callable[[], bool] | None = None,\n    priority: int = 0,\n    communication_backends: tuple[str, ...] = (),\n) -> None:\n    \"\"\"Register a lazily constructed backend without changing Slime core.\"\"\"\n    normalized = name.strip().lower()\n    if not normalized or normalized in {\"auto\", \"none\"}:\n        raise ValueError(\"Accelerator name must be a non-empty backend name\")\n    with _SELECTION_LOCK:\n        _REGISTRY[normalized] = _BackendRegistration(\n            factory=factory,\n            is_available=is_available or (lambda: factory().is_available()),\n            priority=priority,\n            communication_backends=tuple(name.lower() for name in communication_backends),\n        )\n",
+      "blobSha256": "74adf0042d6405e7f22feefd803112692c55a593f99ca36348dcd6fcd8e0047d"
+    },
+    "source-10": {
+      "available": true,
+      "path": "tests/test_published_payload_retry.py",
+      "line": 29,
+      "endLine": 48,
+      "symbol": "test_result_and_shelve_payloads_recover_at_the_storage_layer: restore and timer",
+      "text": "    def restore():\n        with path.open(\"r+b\") as f:\n            f.seek(segment.offset)\n            f.write(header)\n            f.flush()\n            os.fsync(f.fileno())\n\n    timer = threading.Timer(0.05, restore)\n    timer.start()\n    try:\n        if loader == \"plain\":\n            result = transport.unpack_rollout_payload(ref)\n        elif loader == \"async\":\n            result = asyncio.run(transport.unpack_published_payload(ref))\n        else:\n            result = ref.load()\n        assert result == value\n    finally:\n        timer.join()\n    assert \"Straw extent visibility retry\" in capfd.readouterr().err",
+      "blobSha256": "39521c443d848372905af88612ca80aaef6dd373d7320a2c87a7fd6c3266dfac"
+    }
+  }
+}

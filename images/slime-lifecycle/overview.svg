@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1210" viewBox="0 0 1200 1210" role="img" aria-labelledby="title desc">
+<title id="title">一个 Agent 样本的任务生命周期</title>
+<desc id="desc">固定版本 coding_agent_rl 的 generate 组织整次任务：准备模型入口、会话、沙箱与题目；Harness.run 准备配置、启动并等待 CLI。CLI 在沙箱中运行并请求 Adapter，每轮由 _run_turn 转换输入、请求 SGLang、封装响应并记录轨迹。结束后收集 diff、评分、导出结果与清理。Sandbox 能力贯穿准备、运行、收尾。当前章节以紫色边框标出。此例的 HTTP 客户端是 CLI，没有独立 External Platforms 实现。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><style>text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334;font-size:21px}.title{font-size:30px;font-weight:700}.head{font-size:24px;font-weight:700}.small{font-size:21px}.muted{font-size:19px;fill:#526173}.arrow{fill:none;stroke:#64748b;stroke-width:2.5;marker-end:url(#arrow)}</style></defs>
+<rect width="1200" height="1210" fill="#fff"/>
+<text x="30" y="46" class="title">generate()：一个 Agent 样本的任务生命周期</text>
+<text x="30" y="82" class="muted">先建立任务顺序，再沿各动作下钻；章节编号来自原图，不是执行顺序。</text>
+<g data-stage="sandbox" data-focus="false"><rect x="30" y="114" width="120" height="980" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="46" y="162" class="head">动作 5</text><text x="42" y="222" class="muted">Sandbox</text><text x="42" y="311" class="muted">环境能力</text><text x="42" y="400" class="muted">创建</text><text x="42" y="489" class="muted">用户权限</text><text x="42" y="578" class="muted">文件读写</text><text x="42" y="667" class="muted">命令接口</text><text x="42" y="756" class="muted">资源回收</text></g>
+<g data-stage="prepare" data-focus="false"><rect x="180" y="114" width="990" height="136" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="205" y="153" class="head">准备：模型入口、任务、会话、沙箱与题目</text><text x="205" y="193" class="small">_AdapterService + get_metadata + open_session</text><text x="205" y="229" class="small">boot_agent_sandbox（含 CLI 安装）+ prepare_workspace</text></g>
+<path d="M680 250 V281" class="arrow"/>
+<g data-stage="launch" data-focus="false"><rect x="180" y="285" width="990" height="125" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="205" y="324" class="head">Harness.run()：动作 4 准备启动，动作 6 发起进程执行</text><text x="205" y="364" class="small">用户确认 → 上下文 → 配置 → cmd + env → run_agent()</text><text x="205" y="396" class="muted">通过 Sandbox 启动 CLI；run() 等待 CLI 结束。</text></g>
+<path d="M680 410 V441" class="arrow"/>
+<g data-stage="run" data-focus="false"><rect x="180" y="445" width="990" height="480" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="205" y="484" class="head">运行：CLI 在沙箱内维护任务循环</text></g>
+<g data-stage="call" data-focus="false"><rect x="205" y="508" width="448" height="65" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="225" y="547" class="small">7：CLI 向 Adapter 请求模型</text></g>
+<path d="M654 540 H682" class="arrow"/>
+<g data-stage="receive" data-focus="false"><rect x="686" y="508" width="459" height="65" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="706" y="547" class="small">1：HTTP 路由接收模型请求</text></g>
+<rect x="205" y="595" width="940" height="250" rx="12" fill="#fff" stroke="#b5c1d0" stroke-width="1.5"/>
+<text x="225" y="628" class="head">Adapter._run_turn()：一次模型请求</text>
+<g data-stage="translate" data-focus="false"><rect x="220" y="642" width="910" height="38" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="238" y="669" class="small">2：转换消息与工具定义 → translated + tools_schema</text></g>
+<g data-stage="generate" data-focus="false"><rect x="220" y="687" width="910" height="38" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="238" y="714" class="small">3：模板编码 → SGLang /generate → TurnRecord</text></g>
+<g data-stage="complete" data-focus="false"><rect x="220" y="732" width="910" height="104" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="238" y="759" class="small">3.5：解码、解析、构造 Reply，接着完成响应与轨迹记录</text><g data-stage="respond" data-focus="false"><rect x="235" y="776" width="880" height="38" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="252" y="803" class="small">8：准备或写出协议响应 → 共享流程记录本轮轨迹</text></g></g>
+<text x="205" y="876" class="small">响应返回 CLI → CLI 继续任务，需要时执行工具或再次请求模型</text>
+<text x="205" y="908" class="muted">动作 6 同时等待进程退出；CLI 内部工具循环属于外部 CLI 实现。</text>
+<path d="M680 925 V946" class="arrow"/>
+<g data-stage="finish" data-focus="false"><rect x="180" y="950" width="990" height="144" rx="12" fill="#f8fafc" stroke="#b5c1d0" stroke-width="1.5"/><text x="205" y="989" class="head">收尾：返回状态、收集 diff、评分、导出结果、清理资源</text><text x="205" y="1028" class="small">CLI 退出状态 → git_diff → 回收 Agent 沙箱 → run_evaluation</text><text x="205" y="1066" class="muted">训练路径 finish_session()；评估路径返回评估结果；finally 清理会话。</text></g>
+<text x="30" y="1135" class="muted">各动作页沿用此图，紫色边框标出当前位置；具体机制在对应章节展开。</text>
+<text x="30" y="1174" class="muted">此例直接客户端是 Claude / Codex CLI；Anthropic / OpenAI 表示适配协议。固定源码：8c17b676。</text>
+</svg>

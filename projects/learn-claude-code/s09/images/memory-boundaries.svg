@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280" role="img" aria-labelledby="s09-memory-boundaries-title s09-memory-boundaries-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s09-memory-boundaries-title">S09 · Memory 的读写闭环</title>
+<desc id="s09-memory-boundaries-desc">磁盘保存长期信息；本次请求只读取相关正文。</desc>
+<defs>
+<marker id="s09-memory-boundaries-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)" /></marker>
+<marker id="s09-memory-boundaries-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)" /></marker>
+</defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 3 · Memory 的读取、保存与维护</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">用户回合入口取回背景；退出边界保存可复用知识。</text>
+<rect x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5" data-stage="store" />
+<text x="80" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">文件与索引</text>
+<text x="80" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">.memory/</text>
+<rect x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" data-stage="recall" />
+<text x="228" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">选择与读取</text>
+<text x="228" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">相关正文进上下文</text>
+<rect x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" data-stage="loop" />
+<text x="376" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">模型运行</text>
+<text x="376" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">工具循环完成任务</text>
+<rect x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" data-stage="extract" />
+<text x="524" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">提取与校验</text>
+<text x="524" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">筛选长期信息</text>
+<rect x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" data-stage="save" />
+<text x="672" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">保存与索引</text>
+<text x="672" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">有效更新写入文件</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s09-memory-boundaries-arrow)" />
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s09-memory-boundaries-arrow)" />
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s09-memory-boundaries-arrow)" />
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s09-memory-boundaries-arrow)" />
+<rect x="172" y="181" width="408" height="38" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" stroke-dasharray="4 3" data-stage="consolidate" />
+<text x="376" y="205" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">有新增且达到 10 条：校验整理结果，必要时回退</text>
+<path d="M672 160V242H80V160" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s09-memory-boundaries-focus-arrow)" />
+<text x="400" y="236" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-text, #24334b)">有效更新 → 后续任务按需读取</text>
+</svg>

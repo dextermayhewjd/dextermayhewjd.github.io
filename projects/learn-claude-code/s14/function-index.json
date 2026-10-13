@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "connect",
+    "label": "模拟连接／发现",
+    "module": "connect",
+    "anchor": "mcp-connect"
+  },
+  {
+    "stage": "registry",
+    "label": "登记 Client 状态",
+    "module": "client",
+    "anchor": "mcp-client"
+  },
+  {
+    "stage": "pool",
+    "label": "双向工具适配",
+    "module": "pool",
+    "anchor": "mcp-assemble"
+  },
+  {
+    "stage": "model",
+    "label": "本轮模型请求",
+    "module": "pool",
+    "anchor": "mcp-loop"
+  },
+  {
+    "stage": "permission",
+    "label": "宿主权限",
+    "module": "permission",
+    "anchor": "mcp-permission"
+  },
+  {
+    "stage": "call",
+    "label": "原始名字调用",
+    "module": "call",
+    "anchor": "mcp-call"
+  },
+  {
+    "stage": "result",
+    "label": "配对与下轮组装",
+    "module": "call",
+    "anchor": "mcp-loop"
+  },
+  {
+    "stage": "error",
+    "label": "组装／请求失败退出",
+    "module": "call",
+    "anchor": "mcp-errors"
+  }
+]

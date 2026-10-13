@@ -1,0 +1,362 @@
+[
+  {
+    "key": "spawn",
+    "label": "创建队友",
+    "focus": "spawn",
+    "trigger": "Lead 调用 spawn_teammate。",
+    "input": "名字、角色、prompt，可选 task_id / require_plan。",
+    "output": "初始任务先认领，启动线程并返回启动确认。",
+    "flow": "模型提示要求先确认团队；Python 入口不等待队友完成。",
+    "sourceLink": "#team-spawn",
+    "codeSections": [
+      "team-spawn"
+    ],
+    "codeFunctions": [
+      "spawn_teammate_thread",
+      "__init__",
+      "work",
+      "_run_teammate_tool",
+      "handle_inbox",
+      "send",
+      "read_inbox",
+      "_read_unlocked",
+      "peek",
+      "wait_for_messages",
+      "wait_for_cli_event",
+      "consume_lead_inbox",
+      "format_team_events",
+      "agent_loop",
+      "wait_for_work",
+      "run",
+      "scan_unclaimed_tasks",
+      "claim_next_task",
+      "claim_task",
+      "release_teammate_assignment"
+    ],
+    "stageFunctions": {
+      "spawn": [
+        "spawn_teammate_thread",
+        "__init__"
+      ],
+      "work": [
+        "work",
+        "_run_teammate_tool",
+        "handle_inbox"
+      ],
+      "publish": [
+        "send",
+        "read_inbox",
+        "_read_unlocked",
+        "peek",
+        "wait_for_messages"
+      ],
+      "deliver": [
+        "wait_for_cli_event",
+        "consume_lead_inbox",
+        "format_team_events",
+        "agent_loop"
+      ],
+      "idle": [
+        "wait_for_work",
+        "run"
+      ],
+      "claim": [
+        "scan_unclaimed_tasks",
+        "claim_next_task",
+        "claim_task"
+      ],
+      "exit": [
+        "release_teammate_assignment"
+      ]
+    },
+    "figure": "s13-team-core"
+  },
+  {
+    "key": "work",
+    "label": "独立 WORK 循环",
+    "focus": "work",
+    "trigger": "队友线程开始或恢复工作。",
+    "input": "私有 system、messages、TEAMMATE_TOOLS。",
+    "output": "工具结果追加到自己历史，终轮报告 result。",
+    "flow": "有工具返回 continue；无工具返回 idle，待审批时不发 result。",
+    "sourceLink": "#team-work",
+    "codeSections": [
+      "team-work"
+    ],
+    "codeFunctions": [
+      "work",
+      "_run_teammate_tool",
+      "handle_inbox",
+      "spawn_teammate_thread",
+      "__init__",
+      "send",
+      "read_inbox",
+      "_read_unlocked",
+      "peek",
+      "wait_for_messages",
+      "wait_for_cli_event",
+      "consume_lead_inbox",
+      "format_team_events",
+      "agent_loop",
+      "wait_for_work",
+      "run",
+      "scan_unclaimed_tasks",
+      "claim_next_task",
+      "claim_task",
+      "release_teammate_assignment"
+    ],
+    "stageFunctions": {
+      "spawn": [
+        "spawn_teammate_thread",
+        "__init__"
+      ],
+      "work": [
+        "work",
+        "_run_teammate_tool",
+        "handle_inbox"
+      ],
+      "publish": [
+        "send",
+        "read_inbox",
+        "_read_unlocked",
+        "peek",
+        "wait_for_messages"
+      ],
+      "deliver": [
+        "wait_for_cli_event",
+        "consume_lead_inbox",
+        "format_team_events",
+        "agent_loop"
+      ],
+      "idle": [
+        "wait_for_work",
+        "run"
+      ],
+      "claim": [
+        "scan_unclaimed_tasks",
+        "claim_next_task",
+        "claim_task"
+      ],
+      "exit": [
+        "release_teammate_assignment"
+      ]
+    },
+    "figure": "s13-team-core"
+  },
+  {
+    "key": "mailbox",
+    "label": "文件邮箱与收信",
+    "focus": "publish",
+    "trigger": "Lead 或队友发送消息／事件。",
+    "input": "from、to、content、type、metadata。",
+    "output": "JSONL 追加，消费时读出并删除文件。",
+    "flow": "同进程 RLock / Condition 协调，读后没有持久 ACK。",
+    "sourceLink": "#team-mailbox",
+    "codeSections": [
+      "team-mailbox"
+    ],
+    "codeFunctions": [
+      "send",
+      "read_inbox",
+      "_read_unlocked",
+      "peek",
+      "wait_for_messages",
+      "spawn_teammate_thread",
+      "__init__",
+      "work",
+      "_run_teammate_tool",
+      "handle_inbox",
+      "wait_for_cli_event",
+      "consume_lead_inbox",
+      "format_team_events",
+      "agent_loop",
+      "wait_for_work",
+      "run",
+      "scan_unclaimed_tasks",
+      "claim_next_task",
+      "claim_task",
+      "release_teammate_assignment"
+    ],
+    "stageFunctions": {
+      "spawn": [
+        "spawn_teammate_thread",
+        "__init__"
+      ],
+      "work": [
+        "work",
+        "_run_teammate_tool",
+        "handle_inbox"
+      ],
+      "publish": [
+        "send",
+        "read_inbox",
+        "_read_unlocked",
+        "peek",
+        "wait_for_messages"
+      ],
+      "deliver": [
+        "wait_for_cli_event",
+        "consume_lead_inbox",
+        "format_team_events",
+        "agent_loop"
+      ],
+      "idle": [
+        "wait_for_work",
+        "run"
+      ],
+      "claim": [
+        "scan_unclaimed_tasks",
+        "claim_next_task",
+        "claim_task"
+      ],
+      "exit": [
+        "release_teammate_assignment"
+      ]
+    },
+    "figure": "s13-team-core"
+  },
+  {
+    "key": "idle",
+    "label": "空闲等待与认领",
+    "focus": "idle",
+    "trigger": "一轮无工具后进入 IDLE。",
+    "input": "邮箱、共享任务与现有 assignment。",
+    "output": "消息或成功认领的新任务进入自己历史。",
+    "flow": "优先等信；2 秒超时再扫描并在锁内重新验证认领。",
+    "sourceLink": "#team-idle",
+    "codeSections": [
+      "team-idle"
+    ],
+    "codeFunctions": [
+      "wait_for_work",
+      "run",
+      "spawn_teammate_thread",
+      "__init__",
+      "work",
+      "_run_teammate_tool",
+      "handle_inbox",
+      "send",
+      "read_inbox",
+      "_read_unlocked",
+      "peek",
+      "wait_for_messages",
+      "wait_for_cli_event",
+      "consume_lead_inbox",
+      "format_team_events",
+      "agent_loop",
+      "scan_unclaimed_tasks",
+      "claim_next_task",
+      "claim_task",
+      "release_teammate_assignment"
+    ],
+    "stageFunctions": {
+      "spawn": [
+        "spawn_teammate_thread",
+        "__init__"
+      ],
+      "work": [
+        "work",
+        "_run_teammate_tool",
+        "handle_inbox"
+      ],
+      "publish": [
+        "send",
+        "read_inbox",
+        "_read_unlocked",
+        "peek",
+        "wait_for_messages"
+      ],
+      "deliver": [
+        "wait_for_cli_event",
+        "consume_lead_inbox",
+        "format_team_events",
+        "agent_loop"
+      ],
+      "idle": [
+        "wait_for_work",
+        "run"
+      ],
+      "claim": [
+        "scan_unclaimed_tasks",
+        "claim_next_task",
+        "claim_task"
+      ],
+      "exit": [
+        "release_teammate_assignment"
+      ]
+    },
+    "figure": "s13-team-core"
+  },
+  {
+    "key": "wake",
+    "label": "Lead 外层唤醒",
+    "focus": "deliver",
+    "trigger": "CLI 等待期间 Lead 邮箱非空。",
+    "input": "团队事件与共享 Lead history。",
+    "output": "格式化为 user 消息，再进入原 agent_loop。",
+    "flow": "正在进行的 Lead 回合不被抢占；队友关机在其收信边界处理。",
+    "sourceLink": "#team-wake",
+    "codeSections": [
+      "team-wake"
+    ],
+    "codeFunctions": [
+      "wait_for_cli_event",
+      "consume_lead_inbox",
+      "format_team_events",
+      "agent_loop",
+      "spawn_teammate_thread",
+      "__init__",
+      "work",
+      "_run_teammate_tool",
+      "handle_inbox",
+      "send",
+      "read_inbox",
+      "_read_unlocked",
+      "peek",
+      "wait_for_messages",
+      "wait_for_work",
+      "run",
+      "scan_unclaimed_tasks",
+      "claim_next_task",
+      "claim_task",
+      "release_teammate_assignment"
+    ],
+    "stageFunctions": {
+      "spawn": [
+        "spawn_teammate_thread",
+        "__init__"
+      ],
+      "work": [
+        "work",
+        "_run_teammate_tool",
+        "handle_inbox"
+      ],
+      "publish": [
+        "send",
+        "read_inbox",
+        "_read_unlocked",
+        "peek",
+        "wait_for_messages"
+      ],
+      "deliver": [
+        "wait_for_cli_event",
+        "consume_lead_inbox",
+        "format_team_events",
+        "agent_loop"
+      ],
+      "idle": [
+        "wait_for_work",
+        "run"
+      ],
+      "claim": [
+        "scan_unclaimed_tasks",
+        "claim_next_task",
+        "claim_task"
+      ],
+      "exit": [
+        "release_teammate_assignment"
+      ]
+    },
+    "figure": "s13-team-core"
+  }
+]

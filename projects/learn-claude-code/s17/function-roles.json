@@ -1,0 +1,21 @@
+{
+  "__init__": "GoalController 内部逻辑",
+  "set_goal": "GoalController 内部逻辑",
+  "status": "GoalController 内部逻辑",
+  "clear": "GoalController 内部逻辑",
+  "evaluate_after_turn": "GoalController 内部逻辑",
+  "begin_query": "GoalController 内部逻辑",
+  "_record": "GoalController 内部逻辑",
+  "restore": "GoalController 内部逻辑",
+  "submit": "AgentSession 宿主入口／工作循环",
+  "_run_query": "AgentSession 宿主入口／工作循环",
+  "_run_tool": "AgentSession 宿主入口／工作循环",
+  "_safe_path": "AgentSession 宿主入口／工作循环",
+  "submit_background_result": "AgentSession 宿主入口／工作循环",
+  "evaluate": "PromptGoalEvaluator 内部逻辑",
+  "_evaluate_sync": "PromptGoalEvaluator 内部逻辑",
+  "transcript_text": "评估输入的最近消息视图",
+  "_plain_content": "评估输入的文本转换",
+  "_parse_json_object": "评估输出结构校验",
+  "make_live_session": "CLI 宿主会话组装"
+}

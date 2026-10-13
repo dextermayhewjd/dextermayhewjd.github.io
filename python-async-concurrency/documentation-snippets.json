@@ -1,0 +1,899 @@
+{
+  "schema_version": 1,
+  "source_repository": "/home/hongshi/projects/slime",
+  "source_origin": "git@github.com:dextermayhewjd/slime.git",
+  "source_repository_url": "https://github.com/THUDM/slime",
+  "source_commit": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "scope": "Tracked Markdown files at source_commit; explicit python, python3, or py fenced blocks containing native async syntax or named standard-library concurrency modules.",
+  "counting_basis": {
+    "unit": "one qualifying fenced code block at one source location",
+    "code_line_range": "start_line and end_line are inclusive, omit the opening and closing fences, and preserve all enclosed source text including blank lines.",
+    "separate_from_tracked_python_ast_totals": true,
+    "duplicates": "Retain all source locations. Exact text is deduplicated only in exact_text_unique_count. Paired English/Chinese examples are additionally grouped without changing snippet_count.",
+    "execution": "Nothing is executed or presented as a self-contained runnable program; syntax checks use textwrap.dedent only to remove Markdown list indentation. Stored snippets retain exact source text.",
+    "excluded": [
+      "Non-Python fences",
+      "Unfenced examples",
+      "Shell/YAML/patch snippets",
+      "Ray-only or GPU-only examples without native async syntax or a named standard-library concurrency module",
+      "Untracked files and existing generated inventories"
+    ]
+  },
+  "counts": {
+    "snippet_count": 29,
+    "source_file_count": 14,
+    "exact_text_unique_count": 21,
+    "bilingual_pair_count": 13,
+    "exact_text_bilingual_pair_count": 8,
+    "localized_bilingual_pair_count": 4,
+    "indentation_only_bilingual_pair_count": 1,
+    "unpaired_snippet_count": 3,
+    "bilingual_collapsed_example_count": 16,
+    "parseable_python_ast_count": 23,
+    "incomplete_signature_count": 6,
+    "requires_async_enclosing_scope_count": 5
+  },
+  "bilingual_groups": [
+    {
+      "id": "PAIR-01",
+      "document_suffix": "advanced/sglang-config.md",
+      "python_fence_index_in_file": 1,
+      "snippet_ids": [
+        "DOC-003",
+        "DOC-016"
+      ],
+      "relation": "localized_comments_or_docstrings"
+    },
+    {
+      "id": "PAIR-02",
+      "document_suffix": "advanced/sglang-config.md",
+      "python_fence_index_in_file": 2,
+      "snippet_ids": [
+        "DOC-004",
+        "DOC-017"
+      ],
+      "relation": "localized_comments_or_docstrings"
+    },
+    {
+      "id": "PAIR-03",
+      "document_suffix": "developer_guide/trace.md",
+      "python_fence_index_in_file": 1,
+      "snippet_ids": [
+        "DOC-005",
+        "DOC-018"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-04",
+      "document_suffix": "developer_guide/trace.md",
+      "python_fence_index_in_file": 2,
+      "snippet_ids": [
+        "DOC-006",
+        "DOC-019"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-05",
+      "document_suffix": "developer_guide/trace.md",
+      "python_fence_index_in_file": 3,
+      "snippet_ids": [
+        "DOC-007",
+        "DOC-020"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-06",
+      "document_suffix": "get_started/agent.md",
+      "python_fence_index_in_file": 1,
+      "snippet_ids": [
+        "DOC-008",
+        "DOC-021"
+      ],
+      "relation": "localized_comments_or_docstrings"
+    },
+    {
+      "id": "PAIR-07",
+      "document_suffix": "get_started/customization.md",
+      "python_fence_index_in_file": 2,
+      "snippet_ids": [
+        "DOC-009",
+        "DOC-022"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-08",
+      "document_suffix": "get_started/customization.md",
+      "python_fence_index_in_file": 3,
+      "snippet_ids": [
+        "DOC-010",
+        "DOC-023"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-09",
+      "document_suffix": "get_started/customization.md",
+      "python_fence_index_in_file": 4,
+      "snippet_ids": [
+        "DOC-011",
+        "DOC-024"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-10",
+      "document_suffix": "get_started/customization.md",
+      "python_fence_index_in_file": 5,
+      "snippet_ids": [
+        "DOC-012",
+        "DOC-025"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-11",
+      "document_suffix": "get_started/customization.md",
+      "python_fence_index_in_file": 6,
+      "snippet_ids": [
+        "DOC-013",
+        "DOC-026"
+      ],
+      "relation": "exact_text_duplicate"
+    },
+    {
+      "id": "PAIR-12",
+      "document_suffix": "get_started/quick_start.md",
+      "python_fence_index_in_file": 3,
+      "snippet_ids": [
+        "DOC-014",
+        "DOC-027"
+      ],
+      "relation": "localized_comments_or_docstrings"
+    },
+    {
+      "id": "PAIR-13",
+      "document_suffix": "get_started/usage.md",
+      "python_fence_index_in_file": 2,
+      "snippet_ids": [
+        "DOC-015",
+        "DOC-028"
+      ],
+      "relation": "indentation_only"
+    }
+  ],
+  "snippets": [
+    {
+      "id": "DOC-001",
+      "path": ".claude/skills/add-reward-function/SKILL.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 35,
+      "fence_end_line": 38,
+      "start_line": 36,
+      "end_line": 37,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/.claude/skills/add-reward-function/SKILL.md#L36-L37",
+      "source_sha256": "cbea3590956164833cc3533a689095b735996a44aae9acbf8f4f6800714fc487",
+      "snippet_sha256": "4a7f5ac023ba1faec125a19bf5a6d2186f195860b09ae9faaaa6656f2defaf16",
+      "snippet": "async def custom_rm(args, sample):\n    return float_reward_or_reward_dict\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "unspecified",
+      "bilingual_group_id": null
+    },
+    {
+      "id": "DOC-002",
+      "path": ".claude/skills/add-reward-function/SKILL.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 40,
+      "fence_end_line": 43,
+      "start_line": 41,
+      "end_line": 42,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/.claude/skills/add-reward-function/SKILL.md#L41-L42",
+      "source_sha256": "cbea3590956164833cc3533a689095b735996a44aae9acbf8f4f6800714fc487",
+      "snippet_sha256": "c062ac2ab89c2627a343e552f1e5561ae23b5893364c4928bd934da24e819dd5",
+      "snippet": "async def custom_rm(args, samples):\n    return list_of_rewards\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "unspecified",
+      "bilingual_group_id": null
+    },
+    {
+      "id": "DOC-003",
+      "path": "docs/en/advanced/sglang-config.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 172,
+      "fence_end_line": 190,
+      "start_line": 173,
+      "end_line": 189,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/advanced/sglang-config.md#L173-L189",
+      "source_sha256": "f30b036edbc2b4ca1bb1e8e2bebea7f203978d00a41c0814926af436ccd84b44",
+      "snippet_sha256": "e7ae49b9b28b05d430fb6e1cdb977eeb486abee33e6657b7418f54e4ae5cffdd",
+      "snippet": "from slime.rollout.sglang_rollout import get_model_url\nfrom slime.utils.http_utils import post\n\nasync def my_generate(args, sample, sampling_params):\n    # Route to the actor model (default)\n    actor_url = get_model_url(args, \"actor\", \"/generate\")\n    output = await post(actor_url, {\"text\": sample.prompt, \"sampling_params\": sampling_params})\n    \n    # Route to the reference model\n    ref_url = get_model_url(args, \"ref\", \"/generate\")\n    ref_output = await post(ref_url, {\"text\": sample.prompt, \"sampling_params\": sampling_params})\n    \n    # Route to the reward model (e.g., OpenAI-compatible API)\n    reward_url = get_model_url(args, \"reward\", \"/v1/chat/completions\")\n    reward_output = await post(reward_url, {...})\n    \n    ...\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "en",
+      "bilingual_group_id": "PAIR-01"
+    },
+    {
+      "id": "DOC-004",
+      "path": "docs/en/advanced/sglang-config.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 401,
+      "fence_end_line": 432,
+      "start_line": 402,
+      "end_line": 431,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/advanced/sglang-config.md#L402-L431",
+      "source_sha256": "f30b036edbc2b4ca1bb1e8e2bebea7f203978d00a41c0814926af436ccd84b44",
+      "snippet_sha256": "2f07ef82886290fb5be221c23df8b808979436c9e6e1e2ef4a717f6728f9f2ed",
+      "snippet": "from slime.rollout.sglang_rollout import get_model_url\nfrom slime.utils.http_utils import post\n\nasync def generate_with_models(args, sample, sampling_params):\n    \"\"\"Generate using actor, score with reward model, compare with reference.\"\"\"\n    \n    # Generate from actor\n    actor_url = get_model_url(args, \"actor\", \"/generate\")\n    actor_output = await post(actor_url, {\n        \"text\": sample.prompt,\n        \"sampling_params\": sampling_params,\n        \"return_logprob\": True,\n    })\n    \n    # Get reference logprobs for KL penalty\n    ref_url = get_model_url(args, \"ref\", \"/generate\")\n    ref_output = await post(ref_url, {\n        \"text\": sample.prompt + actor_output[\"text\"],\n        \"sampling_params\": {\"max_new_tokens\": 0, \"temperature\": 0},\n        \"return_logprob\": True,\n    })\n    \n    # Score with reward model\n    reward_url = get_model_url(args, \"reward\", \"/v1/chat/completions\")\n    reward_output = await post(reward_url, {\n        \"model\": \"reward\",\n        \"messages\": [{\"role\": \"user\", \"content\": sample.prompt + actor_output[\"text\"]}],\n    })\n    \n    # ... process outputs and return Sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "en",
+      "bilingual_group_id": "PAIR-02"
+    },
+    {
+      "id": "DOC-005",
+      "path": "docs/en/developer_guide/trace.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 59,
+      "fence_end_line": 75,
+      "start_line": 60,
+      "end_line": 74,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/developer_guide/trace.md#L60-L74",
+      "source_sha256": "1030bf2edc7fc996b4b7433bf3d18341e084c442b12e531e9a5720468e687198",
+      "snippet_sha256": "a9c3bbfecf73550232639d1a8f7248ae7defae613c668695669b13e4e3ea0084",
+      "snippet": "from slime.observability.trace_utils import trace_function\n\n\n@trace_function(\"generate_and_rm\", target=\"sample\")\nasync def generate_and_rm(args, sample, sampling_params, evaluation=False):\n    ...\n\n\n@trace_function(\n    \"generate_and_rm_group\",\n    target=\"group\",\n    attrs_getter=lambda args, group, sampling_params, evaluation=False: {\"group_size\": len(group)},\n)\nasync def generate_and_rm_group(args, group, sampling_params, evaluation=False):\n    ...\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-03"
+    },
+    {
+      "id": "DOC-006",
+      "path": "docs/en/developer_guide/trace.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 89,
+      "fence_end_line": 97,
+      "start_line": 90,
+      "end_line": 96,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/developer_guide/trace.md#L90-L96",
+      "source_sha256": "1030bf2edc7fc996b4b7433bf3d18341e084c442b12e531e9a5720468e687198",
+      "snippet_sha256": "84d34c1e56ab166c3b43d504eb2f6958d57edc4ea089d7d4bb1887b8edd2c18c",
+      "snippet": "@trace_function(\n    \"custom_rollout_batch\",\n    target=\"samples\",\n    attrs_getter=lambda samples, **_: {\"batch_size\": len(samples)},\n)\nasync def custom_rollout_batch(samples, **kwargs):\n    ...\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-04"
+    },
+    {
+      "id": "DOC-007",
+      "path": "docs/en/developer_guide/trace.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 106,
+      "fence_end_line": 112,
+      "start_line": 107,
+      "end_line": 111,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/developer_guide/trace.md#L107-L111",
+      "source_sha256": "1030bf2edc7fc996b4b7433bf3d18341e084c442b12e531e9a5720468e687198",
+      "snippet_sha256": "a18810b12bad024c1d762bb5b9a9bbdd84aaa0aa2eb68b30bc09a5a42698bf22",
+      "snippet": "from slime.observability.trace_utils import build_sglang_meta_trace_attrs, trace_span\n\nwith trace_span(sample, \"sglang_generate\") as span:\n    output = await post(url, payload)\n    span.update(build_sglang_meta_trace_attrs(output[\"meta_info\"]))\n",
+      "native_python_syntax": [
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": true,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-05"
+    },
+    {
+      "id": "DOC-008",
+      "path": "docs/en/get_started/agent.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 40,
+      "fence_end_line": 53,
+      "start_line": 41,
+      "end_line": 52,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/agent.md#L41-L52",
+      "source_sha256": "33f669e24bf7f013eb1dd15fdc1e47f37460eba9a129719f81e14d006f4979fc",
+      "snippet_sha256": "08e905d4c4b61d47f06c56b0b9f864225e0b67816acde580e3b35335ca117cb9",
+      "snippet": "from slime.agent.adapters import AnthropicAdapter\n\nadapter = AnthropicAdapter(\n    tokenizer=tokenizer,\n    sglang_url=sglang_url,\n    tool_parser=tool_parser,\n    reasoning_parser=reasoning_parser,\n)\n\nadapter.open_session(session_id, sampling_defaults=sampling_params)\n# Agent client sends requests to adapter.app.\nsegments = await adapter.finish_session(session_id)\n",
+      "native_python_syntax": [
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": true,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-06"
+    },
+    {
+      "id": "DOC-009",
+      "path": "docs/en/get_started/customization.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 76,
+      "fence_end_line": 89,
+      "start_line": 77,
+      "end_line": 88,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/customization.md#L77-L88",
+      "source_sha256": "4b405160570d84e6717352709c2e9f116d5d427f509929303473c72aff9782b1",
+      "snippet_sha256": "f5cad2b9ac26db4abc181ae3179ec8f66a11992dc41a0db4c8cd26758c1d0ccc",
+      "snippet": "from slime.data.transport import publish_rollout_async\nfrom slime.rollout.base_types import finalize_rollout_groups\n\n\nasync def generate_stored_batch(args, rollout_id, data_source, completed_groups):\n    refs = []\n    async for group in completed_groups:\n        ref = await publish_rollout_async(\n            group, args, rollout_id, group=True, controller=data_source.controller\n        )\n        refs.append(ref)\n    return finalize_rollout_groups(args, rollout_id, refs, controller=data_source.controller)\n",
+      "native_python_syntax": [
+        "async def",
+        "async for",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-07"
+    },
+    {
+      "id": "DOC-010",
+      "path": "docs/en/get_started/customization.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 114,
+      "fence_end_line": 116,
+      "start_line": 115,
+      "end_line": 115,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/customization.md#L115-L115",
+      "source_sha256": "4b405160570d84e6717352709c2e9f116d5d427f509929303473c72aff9782b1",
+      "snippet_sha256": "0c5d49e616f3a89992a45fc4c9d73bf11d72f8ee107de258843b30c7033547bf",
+      "snippet": "async def custom_generate(args, sample: Sample, sampling_params: dict) -> Sample | list[Sample]\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-08"
+    },
+    {
+      "id": "DOC-011",
+      "path": "docs/en/get_started/customization.md",
+      "python_fence_index_in_file": 4,
+      "fence_language": "python",
+      "fence_start_line": 129,
+      "fence_end_line": 151,
+      "start_line": 130,
+      "end_line": 150,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/customization.md#L130-L150",
+      "source_sha256": "4b405160570d84e6717352709c2e9f116d5d427f509929303473c72aff9782b1",
+      "snippet_sha256": "70fc328784714cd7730a709b0aeb6db2fccf63bbb142313edeb77c74a06a4af8",
+      "snippet": "import copy\n\nfrom slime.utils.types import Sample\n\n\nasync def custom_generate(args, sample: Sample, sampling_params: dict) -> list[Sample]:\n    segments = await run_agent_and_split_segments(args, sample, sampling_params)\n    rollout_id = sample.rollout_id if sample.rollout_id is not None else sample.index\n\n    samples: list[Sample] = []\n    for segment in segments:\n        s = copy.copy(sample)\n        s.tokens = segment.tokens\n        s.response = segment.response\n        s.response_length = segment.response_length\n        s.loss_mask = segment.loss_mask\n        s.reward = segment.reward\n        s.status = Sample.Status.COMPLETED\n        s.rollout_id = rollout_id\n        samples.append(s)\n    return samples\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-09"
+    },
+    {
+      "id": "DOC-012",
+      "path": "docs/en/get_started/customization.md",
+      "python_fence_index_in_file": 5,
+      "fence_language": "python",
+      "fence_start_line": 166,
+      "fence_end_line": 168,
+      "start_line": 167,
+      "end_line": 167,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/customization.md#L167-L167",
+      "source_sha256": "4b405160570d84e6717352709c2e9f116d5d427f509929303473c72aff9782b1",
+      "snippet_sha256": "687d6b2914bc6c5c19aff12438ff8cc43e805ae02ac38170aa38fc8348ecb6bc",
+      "snippet": "async def custom_rm(args, sample: Sample) -> float\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-10"
+    },
+    {
+      "id": "DOC-013",
+      "path": "docs/en/get_started/customization.md",
+      "python_fence_index_in_file": 6,
+      "fence_language": "python",
+      "fence_start_line": 171,
+      "fence_end_line": 173,
+      "start_line": 172,
+      "end_line": 172,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/customization.md#L172-L172",
+      "source_sha256": "4b405160570d84e6717352709c2e9f116d5d427f509929303473c72aff9782b1",
+      "snippet_sha256": "760116e0a26f0e2d717e5d65d298516f8543c577809a21078859026b65f292e8",
+      "snippet": "async def batched_custom_rm(args, samples: list[Sample]) -> list[float]\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-11"
+    },
+    {
+      "id": "DOC-014",
+      "path": "docs/en/get_started/quick_start.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 499,
+      "fence_end_line": 528,
+      "start_line": 500,
+      "end_line": 527,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/quick_start.md#L500-L527",
+      "source_sha256": "ac89c7ccf3dc9abed00dd2296da20c372e33b001716b82e077c0bc09b081c79e",
+      "snippet_sha256": "24326906f96f6374cb43e7327c228eeb6ecb0bfac896216083308a7452dcb36f",
+      "snippet": "async def generate(args, sample: Sample, sampling_params) -> Sample:\n    # ... initialization ...\n    prompt, full_response, loss_masks = sample.prompt, \"\", []\n\n    for _ in range(max_turns):\n        # 1. Model generates action\n        model_output = await call_sglang(prompt + full_response, ...)\n        # ... tokenization and appending ...\n        loss_masks += [1] * len(model_tokens) # loss_mask = 1\n        full_response += model_output\n\n        # 2. Parse and execute action\n        action, content = parse_action(model_output)\n        if action == \"search\":\n            # 3 & 4. Get and append observation results\n            tool_output = await google_search(content)\n            # ... tokenization and appending ...\n            loss_masks += [0] * len(tool_tokens) # loss_mask = 0\n            full_response += tool_output\n\n        elif action == \"answer\":\n            break # end loop\n\n    # 7. Fill and return Sample object\n    sample.response = full_response\n    sample.tokens = ...\n    sample.loss_mask = loss_masks\n    return sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "en",
+      "bilingual_group_id": "PAIR-12"
+    },
+    {
+      "id": "DOC-015",
+      "path": "docs/en/get_started/usage.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 355,
+      "fence_end_line": 386,
+      "start_line": 356,
+      "end_line": 385,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/en/get_started/usage.md#L356-L385",
+      "source_sha256": "6a27c71422fe31b129208bcff9e9b0151c6d32a09b736bd8f82eaf5d09f2f1c1",
+      "snippet_sha256": "c347279ec63d9843a891290e055f1e9d599c6f9f1b030f63dd53395d541faf9d",
+      "snippet": "    async def generate(args, sample: Sample, sampling_params) -> Sample:\n        global TOKENIZER\n        if TOKENIZER is None:\n            TOKENIZER = AutoTokenizer.from_pretrained(args.hf_checkpoint, trust_remote_code=True)\n\n        # send request to router\n        output = await post(\n            f\"http://{args.sglang_router_ip}:{args.sglang_router_port}/generate\",\n            {\n                \"text\": sample.prompt,\n                \"sampling_params\": sampling_params,\n            }\n        )\n\n        prompt_tokens_ids = TOKENIZER(sample.prompt, add_special_tokens=False)[\"input_ids\"]\n        response_token_ids = TOKENIZER(output[\"text\"], add_special_tokens=False)[\"input_ids\"]\n\n        # set sample\n        sample.tokens = prompt_tokens_ids + response_token_ids\n        sample.response_length = len(response_token_ids)\n        finish_reason = output[\"meta_info\"][\"finish_reason\"][\"type\"]\n        if finish_reason == \"length\":\n            sample.status = Sample.Status.TRUNCATED\n        elif finish_reason == \"abort\":\n            sample.status = Sample.Status.ABORTED\n        else:\n            sample.status = Sample.Status.COMPLETED\n        sample.response = output[\"text\"]\n\n        return sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "en",
+      "bilingual_group_id": "PAIR-13"
+    },
+    {
+      "id": "DOC-016",
+      "path": "docs/zh/advanced/sglang-config.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 172,
+      "fence_end_line": 190,
+      "start_line": 173,
+      "end_line": 189,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/advanced/sglang-config.md#L173-L189",
+      "source_sha256": "3e7c9f00c1eb9c39ab313d3bc654dd8d703e19a9d8494cbca002bb1dccc095fa",
+      "snippet_sha256": "7cca91f0fee9014fb1d36cd2c941854e4dc465ff31bf817bd2f7c8ef292a6d73",
+      "snippet": "from slime.rollout.sglang_rollout import get_model_url\nfrom slime.utils.http_utils import post\n\nasync def my_generate(args, sample, sampling_params):\n    # 路由到 actor 模型（默认）\n    actor_url = get_model_url(args, \"actor\", \"/generate\")\n    output = await post(actor_url, {\"text\": sample.prompt, \"sampling_params\": sampling_params})\n    \n    # 路由到 reference 模型\n    ref_url = get_model_url(args, \"ref\", \"/generate\")\n    ref_output = await post(ref_url, {\"text\": sample.prompt, \"sampling_params\": sampling_params})\n    \n    # 路由到 reward 模型（如 OpenAI 兼容 API）\n    reward_url = get_model_url(args, \"reward\", \"/v1/chat/completions\")\n    reward_output = await post(reward_url, {...})\n    \n    ...\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-01"
+    },
+    {
+      "id": "DOC-017",
+      "path": "docs/zh/advanced/sglang-config.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 400,
+      "fence_end_line": 431,
+      "start_line": 401,
+      "end_line": 430,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/advanced/sglang-config.md#L401-L430",
+      "source_sha256": "3e7c9f00c1eb9c39ab313d3bc654dd8d703e19a9d8494cbca002bb1dccc095fa",
+      "snippet_sha256": "145f4af4c4135bae606a659c636eb8e6a8954db8c352699a51ab2e1572970229",
+      "snippet": "from slime.rollout.sglang_rollout import get_model_url\nfrom slime.utils.http_utils import post\n\nasync def generate_with_models(args, sample, sampling_params):\n    \"\"\"使用 actor 生成，用 reward 模型打分，与 reference 比较。\"\"\"\n    \n    # 从 actor 生成\n    actor_url = get_model_url(args, \"actor\", \"/generate\")\n    actor_output = await post(actor_url, {\n        \"text\": sample.prompt,\n        \"sampling_params\": sampling_params,\n        \"return_logprob\": True,\n    })\n    \n    # 获取 reference logprobs 用于 KL penalty\n    ref_url = get_model_url(args, \"ref\", \"/generate\")\n    ref_output = await post(ref_url, {\n        \"text\": sample.prompt + actor_output[\"text\"],\n        \"sampling_params\": {\"max_new_tokens\": 0, \"temperature\": 0},\n        \"return_logprob\": True,\n    })\n    \n    # 用 reward 模型打分\n    reward_url = get_model_url(args, \"reward\", \"/v1/chat/completions\")\n    reward_output = await post(reward_url, {\n        \"model\": \"reward\",\n        \"messages\": [{\"role\": \"user\", \"content\": sample.prompt + actor_output[\"text\"]}],\n    })\n    \n    # ... 处理输出并返回 Sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-02"
+    },
+    {
+      "id": "DOC-018",
+      "path": "docs/zh/developer_guide/trace.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 59,
+      "fence_end_line": 75,
+      "start_line": 60,
+      "end_line": 74,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/developer_guide/trace.md#L60-L74",
+      "source_sha256": "c4ca042e818c6bf9fefb35254faa21caab43b32956862d2d9a48b3b2e5d9c7cc",
+      "snippet_sha256": "a9c3bbfecf73550232639d1a8f7248ae7defae613c668695669b13e4e3ea0084",
+      "snippet": "from slime.observability.trace_utils import trace_function\n\n\n@trace_function(\"generate_and_rm\", target=\"sample\")\nasync def generate_and_rm(args, sample, sampling_params, evaluation=False):\n    ...\n\n\n@trace_function(\n    \"generate_and_rm_group\",\n    target=\"group\",\n    attrs_getter=lambda args, group, sampling_params, evaluation=False: {\"group_size\": len(group)},\n)\nasync def generate_and_rm_group(args, group, sampling_params, evaluation=False):\n    ...\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-03"
+    },
+    {
+      "id": "DOC-019",
+      "path": "docs/zh/developer_guide/trace.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 89,
+      "fence_end_line": 97,
+      "start_line": 90,
+      "end_line": 96,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/developer_guide/trace.md#L90-L96",
+      "source_sha256": "c4ca042e818c6bf9fefb35254faa21caab43b32956862d2d9a48b3b2e5d9c7cc",
+      "snippet_sha256": "84d34c1e56ab166c3b43d504eb2f6958d57edc4ea089d7d4bb1887b8edd2c18c",
+      "snippet": "@trace_function(\n    \"custom_rollout_batch\",\n    target=\"samples\",\n    attrs_getter=lambda samples, **_: {\"batch_size\": len(samples)},\n)\nasync def custom_rollout_batch(samples, **kwargs):\n    ...\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-04"
+    },
+    {
+      "id": "DOC-020",
+      "path": "docs/zh/developer_guide/trace.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 106,
+      "fence_end_line": 112,
+      "start_line": 107,
+      "end_line": 111,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/developer_guide/trace.md#L107-L111",
+      "source_sha256": "c4ca042e818c6bf9fefb35254faa21caab43b32956862d2d9a48b3b2e5d9c7cc",
+      "snippet_sha256": "a18810b12bad024c1d762bb5b9a9bbdd84aaa0aa2eb68b30bc09a5a42698bf22",
+      "snippet": "from slime.observability.trace_utils import build_sglang_meta_trace_attrs, trace_span\n\nwith trace_span(sample, \"sglang_generate\") as span:\n    output = await post(url, payload)\n    span.update(build_sglang_meta_trace_attrs(output[\"meta_info\"]))\n",
+      "native_python_syntax": [
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": true,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-05"
+    },
+    {
+      "id": "DOC-021",
+      "path": "docs/zh/get_started/agent.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 40,
+      "fence_end_line": 53,
+      "start_line": 41,
+      "end_line": 52,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/agent.md#L41-L52",
+      "source_sha256": "81d2aecaa7930becbf0855ce1a970a81337949f8b760b73073b19a639c615722",
+      "snippet_sha256": "8f24e2e37b131392495f2f8a0a19013037662f350892a9d2632d52dc6929f2ab",
+      "snippet": "from slime.agent.adapters import AnthropicAdapter\n\nadapter = AnthropicAdapter(\n    tokenizer=tokenizer,\n    sglang_url=sglang_url,\n    tool_parser=tool_parser,\n    reasoning_parser=reasoning_parser,\n)\n\nadapter.open_session(session_id, sampling_defaults=sampling_params)\n# Agent client 向 adapter.app 发送请求。\nsegments = await adapter.finish_session(session_id)\n",
+      "native_python_syntax": [
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": true,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-06"
+    },
+    {
+      "id": "DOC-022",
+      "path": "docs/zh/get_started/customization.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 71,
+      "fence_end_line": 84,
+      "start_line": 72,
+      "end_line": 83,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/customization.md#L72-L83",
+      "source_sha256": "f2ea053de7265c61c2ed976f6753a10992f16bb8e783d542836e66994c17f57d",
+      "snippet_sha256": "f5cad2b9ac26db4abc181ae3179ec8f66a11992dc41a0db4c8cd26758c1d0ccc",
+      "snippet": "from slime.data.transport import publish_rollout_async\nfrom slime.rollout.base_types import finalize_rollout_groups\n\n\nasync def generate_stored_batch(args, rollout_id, data_source, completed_groups):\n    refs = []\n    async for group in completed_groups:\n        ref = await publish_rollout_async(\n            group, args, rollout_id, group=True, controller=data_source.controller\n        )\n        refs.append(ref)\n    return finalize_rollout_groups(args, rollout_id, refs, controller=data_source.controller)\n",
+      "native_python_syntax": [
+        "async def",
+        "async for",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-07"
+    },
+    {
+      "id": "DOC-023",
+      "path": "docs/zh/get_started/customization.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 99,
+      "fence_end_line": 101,
+      "start_line": 100,
+      "end_line": 100,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/customization.md#L100-L100",
+      "source_sha256": "f2ea053de7265c61c2ed976f6753a10992f16bb8e783d542836e66994c17f57d",
+      "snippet_sha256": "0c5d49e616f3a89992a45fc4c9d73bf11d72f8ee107de258843b30c7033547bf",
+      "snippet": "async def custom_generate(args, sample: Sample, sampling_params: dict) -> Sample | list[Sample]\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-08"
+    },
+    {
+      "id": "DOC-024",
+      "path": "docs/zh/get_started/customization.md",
+      "python_fence_index_in_file": 4,
+      "fence_language": "python",
+      "fence_start_line": 114,
+      "fence_end_line": 136,
+      "start_line": 115,
+      "end_line": 135,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/customization.md#L115-L135",
+      "source_sha256": "f2ea053de7265c61c2ed976f6753a10992f16bb8e783d542836e66994c17f57d",
+      "snippet_sha256": "70fc328784714cd7730a709b0aeb6db2fccf63bbb142313edeb77c74a06a4af8",
+      "snippet": "import copy\n\nfrom slime.utils.types import Sample\n\n\nasync def custom_generate(args, sample: Sample, sampling_params: dict) -> list[Sample]:\n    segments = await run_agent_and_split_segments(args, sample, sampling_params)\n    rollout_id = sample.rollout_id if sample.rollout_id is not None else sample.index\n\n    samples: list[Sample] = []\n    for segment in segments:\n        s = copy.copy(sample)\n        s.tokens = segment.tokens\n        s.response = segment.response\n        s.response_length = segment.response_length\n        s.loss_mask = segment.loss_mask\n        s.reward = segment.reward\n        s.status = Sample.Status.COMPLETED\n        s.rollout_id = rollout_id\n        samples.append(s)\n    return samples\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-09"
+    },
+    {
+      "id": "DOC-025",
+      "path": "docs/zh/get_started/customization.md",
+      "python_fence_index_in_file": 5,
+      "fence_language": "python",
+      "fence_start_line": 151,
+      "fence_end_line": 153,
+      "start_line": 152,
+      "end_line": 152,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/customization.md#L152-L152",
+      "source_sha256": "f2ea053de7265c61c2ed976f6753a10992f16bb8e783d542836e66994c17f57d",
+      "snippet_sha256": "687d6b2914bc6c5c19aff12438ff8cc43e805ae02ac38170aa38fc8348ecb6bc",
+      "snippet": "async def custom_rm(args, sample: Sample) -> float\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-10"
+    },
+    {
+      "id": "DOC-026",
+      "path": "docs/zh/get_started/customization.md",
+      "python_fence_index_in_file": 6,
+      "fence_language": "python",
+      "fence_start_line": 156,
+      "fence_end_line": 158,
+      "start_line": 157,
+      "end_line": 157,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/customization.md#L157-L157",
+      "source_sha256": "f2ea053de7265c61c2ed976f6753a10992f16bb8e783d542836e66994c17f57d",
+      "snippet_sha256": "760116e0a26f0e2d717e5d65d298516f8543c577809a21078859026b65f292e8",
+      "snippet": "async def batched_custom_rm(args, samples: list[Sample]) -> list[float]\n",
+      "native_python_syntax": [
+        "async def"
+      ],
+      "parse_status": "incomplete_signature",
+      "parse_error": {
+        "line_in_snippet": 1,
+        "message": "expected ':'"
+      },
+      "requires_async_enclosing_scope": null,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-11"
+    },
+    {
+      "id": "DOC-027",
+      "path": "docs/zh/get_started/quick_start.md",
+      "python_fence_index_in_file": 3,
+      "fence_language": "python",
+      "fence_start_line": 505,
+      "fence_end_line": 534,
+      "start_line": 506,
+      "end_line": 533,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/quick_start.md#L506-L533",
+      "source_sha256": "49a22ae3c3d1caaf9f8f9bac2785c626cec58222659cdd2c0f541ed69969c33d",
+      "snippet_sha256": "646c53c207bc8f5b138ec07d264c2ee73cb91449f0119141858dd224bc00a3a8",
+      "snippet": "async def generate(args, sample: Sample, sampling_params) -> Sample:\n    # ... 初始化 ...\n    prompt, full_response, loss_masks = sample.prompt, \"\", []\n\n    for _ in range(max_turns):\n        # 1. 模型生成动作\n        model_output = await call_sglang(prompt + full_response, ...)\n        # ... tokenization and appending ...\n        loss_masks += [1] * len(model_tokens) # loss_mask = 1\n        full_response += model_output\n\n        # 2. 解析并执行动作\n        action, content = parse_action(model_output)\n        if action == \"search\":\n            # 3 & 4. 获取并追加观察结果\n            tool_output = await google_search(content)\n            # ... tokenization and appending ...\n            loss_masks += [0] * len(tool_tokens) # loss_mask = 0\n            full_response += tool_output\n\n        elif action == \"answer\":\n            break # 结束循环\n\n    # 7. 填充并返回 Sample 对象\n    sample.response = full_response\n    sample.tokens = ...\n    sample.loss_mask = loss_masks\n    return sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-12"
+    },
+    {
+      "id": "DOC-028",
+      "path": "docs/zh/get_started/usage.md",
+      "python_fence_index_in_file": 2,
+      "fence_language": "python",
+      "fence_start_line": 357,
+      "fence_end_line": 388,
+      "start_line": 358,
+      "end_line": 387,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docs/zh/get_started/usage.md#L358-L387",
+      "source_sha256": "880307d8ad542d559775709c4e7fce43d9f699953f7847001abe5e912d63b2ae",
+      "snippet_sha256": "8bcd94ef7110b8cdbae708c1cbc34558adec04cbd9c2b5034c4b4b4dedad848b",
+      "snippet": "  async def generate(args, sample: Sample, sampling_params) -> Sample:\n      global TOKENIZER\n      if TOKENIZER is None:\n          TOKENIZER = AutoTokenizer.from_pretrained(args.hf_checkpoint, trust_remote_code=True)\n  \n      # send request to router\n      output = await post(\n          f\"http://{args.sglang_router_ip}:{args.sglang_router_port}/generate\",\n          {\n              \"text\": sample.prompt,\n              \"sampling_params\": sampling_params,\n          }\n      )\n  \n      prompt_tokens_ids = TOKENIZER(sample.prompt, add_special_tokens=False)[\"input_ids\"]\n      response_token_ids = TOKENIZER(output[\"text\"], add_special_tokens=False)[\"input_ids\"]\n  \n      # set sample\n      sample.tokens = prompt_tokens_ids + response_token_ids\n      sample.response_length = len(response_token_ids)\n      finish_reason = output[\"meta_info\"][\"finish_reason\"][\"type\"]\n      if finish_reason == \"length\":\n          sample.status = Sample.Status.TRUNCATED\n      elif finish_reason == \"abort\":\n          sample.status = Sample.Status.ABORTED\n      else:\n          sample.status = Sample.Status.COMPLETED\n      sample.response = output[\"text\"]\n  \n      return sample\n",
+      "native_python_syntax": [
+        "async def",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": false,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": true,
+      "language": "zh",
+      "bilingual_group_id": "PAIR-13"
+    },
+    {
+      "id": "DOC-029",
+      "path": "examples/coding_agent_rl/README.md",
+      "python_fence_index_in_file": 1,
+      "fence_language": "python",
+      "fence_start_line": 193,
+      "fence_end_line": 198,
+      "start_line": 194,
+      "end_line": 197,
+      "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/README.md#L194-L197",
+      "source_sha256": "646fd38afdcda441e853d378651171bb7657de0d1873deda2e152c0d93ef8e9f",
+      "snippet_sha256": "a71d0b4fd4355c7a042fd8dfce440e7f7b4d998d42ad1b934482bd7e69fd3fef",
+      "snippet": "await sb.exec(cmd, user=..., check=..., timeout=...)\nawait sb.write_file(sandbox_path, content_or_host_path, user=...)\nawait sb.read_file(sandbox_path, user=...)\nasync with E2BSandbox(...) as sb: ...\n",
+      "native_python_syntax": [
+        "async with",
+        "await"
+      ],
+      "parse_status": "parseable_python_ast",
+      "parse_error": null,
+      "requires_async_enclosing_scope": true,
+      "execution_status": "not_executed_documentation_example",
+      "dedented_for_syntax_check": false,
+      "language": "unspecified",
+      "bilingual_group_id": null
+    }
+  ]
+}

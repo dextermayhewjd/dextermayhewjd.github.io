@@ -1,0 +1,350 @@
+[
+  {
+    "key": "entry",
+    "label": "工具入口与同步等待",
+    "focus": "entry",
+    "trigger": "父模型选择 Workflow。",
+    "input": "名称、args、可选续跑 run ID；代码和 meta 来自宿主。",
+    "output": "同步适配器等待完整 run，最终返回一个 JSON tool_result。",
+    "flow": "async_launched 是事件；没有提前返回或推到 S15 事件桥。",
+    "sourceLink": "#workflow-adapter",
+    "codeSections": [
+      "workflow-adapter"
+    ],
+    "codeFunctions": [
+      "call",
+      "validate_meta",
+      "check_permission",
+      "reserve_run_id",
+      "_call_locked",
+      "workflow_run_lock",
+      "__init__",
+      "sample_workflow",
+      "pipeline",
+      "parallel",
+      "phase",
+      "log",
+      "workflow",
+      "agent",
+      "key",
+      "cached",
+      "record",
+      "_stable_hash",
+      "run",
+      "validate",
+      "claim_agent",
+      "remaining",
+      "add",
+      "serialize_task",
+      "install_workflow_tool",
+      "load_integrated_host",
+      "run_workflow",
+      "run_workflow_sync"
+    ],
+    "stageFunctions": {
+      "launch": [
+        "call",
+        "validate_meta",
+        "check_permission",
+        "reserve_run_id"
+      ],
+      "runstate": [
+        "_call_locked",
+        "workflow_run_lock",
+        "__init__"
+      ],
+      "script": [
+        "sample_workflow",
+        "pipeline",
+        "parallel",
+        "phase",
+        "log",
+        "workflow"
+      ],
+      "agent": [
+        "agent"
+      ],
+      "journal": [
+        "key",
+        "cached",
+        "record",
+        "_stable_hash"
+      ],
+      "runner": [
+        "run",
+        "validate"
+      ],
+      "limits": [
+        "claim_agent",
+        "remaining",
+        "add"
+      ],
+      "finish": [
+        "_call_locked",
+        "serialize_task"
+      ]
+    },
+    "figure": "s16-workflow-core"
+  },
+  {
+    "key": "script",
+    "label": "可信脚本与编排原语",
+    "focus": "script",
+    "trigger": "WorkflowTool 等待已注册 script_fn。",
+    "input": "ExecutionState 和原始参数。",
+    "output": "各 item 的结构化中间值留在脚本变量中。",
+    "flow": "parallel 等齐一组，pipeline 各 item 独立推进；runner 没有文件／Shell tools。",
+    "sourceLink": "#workflow-primitives",
+    "codeSections": [
+      "workflow-primitives"
+    ],
+    "codeFunctions": [
+      "sample_workflow",
+      "pipeline",
+      "parallel",
+      "phase",
+      "log",
+      "workflow",
+      "call",
+      "validate_meta",
+      "check_permission",
+      "reserve_run_id",
+      "_call_locked",
+      "workflow_run_lock",
+      "__init__",
+      "agent",
+      "key",
+      "cached",
+      "record",
+      "_stable_hash",
+      "run",
+      "validate",
+      "claim_agent",
+      "remaining",
+      "add",
+      "serialize_task",
+      "install_workflow_tool",
+      "load_integrated_host",
+      "run_workflow",
+      "run_workflow_sync"
+    ],
+    "stageFunctions": {
+      "launch": [
+        "call",
+        "validate_meta",
+        "check_permission",
+        "reserve_run_id"
+      ],
+      "runstate": [
+        "_call_locked",
+        "workflow_run_lock",
+        "__init__"
+      ],
+      "script": [
+        "sample_workflow",
+        "pipeline",
+        "parallel",
+        "phase",
+        "log",
+        "workflow"
+      ],
+      "agent": [
+        "agent"
+      ],
+      "journal": [
+        "key",
+        "cached",
+        "record",
+        "_stable_hash"
+      ],
+      "runner": [
+        "run",
+        "validate"
+      ],
+      "limits": [
+        "claim_agent",
+        "remaining",
+        "add"
+      ],
+      "finish": [
+        "_call_locked",
+        "serialize_task"
+      ]
+    },
+    "figure": "s16-workflow-core"
+  },
+  {
+    "key": "journal",
+    "label": "存储与单步缓存",
+    "focus": "journal",
+    "trigger": "新运行打开日志；同 ID 恢复读取快照与记录。",
+    "input": "run ID、原 args、稳定 key 和 schema。",
+    "output": "key 命中复用值，未命中执行后追加。",
+    "flow": "整个 run 持锁；不是恢复 Python 现场，也不是完整事务缓存。",
+    "sourceLink": "#workflow-journal",
+    "codeSections": [
+      "workflow-journal"
+    ],
+    "codeFunctions": [
+      "key",
+      "cached",
+      "record",
+      "_stable_hash",
+      "call",
+      "validate_meta",
+      "check_permission",
+      "reserve_run_id",
+      "_call_locked",
+      "workflow_run_lock",
+      "__init__",
+      "sample_workflow",
+      "pipeline",
+      "parallel",
+      "phase",
+      "log",
+      "workflow",
+      "agent",
+      "run",
+      "validate",
+      "claim_agent",
+      "remaining",
+      "add",
+      "serialize_task",
+      "install_workflow_tool",
+      "load_integrated_host",
+      "run_workflow",
+      "run_workflow_sync"
+    ],
+    "stageFunctions": {
+      "launch": [
+        "call",
+        "validate_meta",
+        "check_permission",
+        "reserve_run_id"
+      ],
+      "runstate": [
+        "_call_locked",
+        "workflow_run_lock",
+        "__init__"
+      ],
+      "script": [
+        "sample_workflow",
+        "pipeline",
+        "parallel",
+        "phase",
+        "log",
+        "workflow"
+      ],
+      "agent": [
+        "agent"
+      ],
+      "journal": [
+        "key",
+        "cached",
+        "record",
+        "_stable_hash"
+      ],
+      "runner": [
+        "run",
+        "validate"
+      ],
+      "limits": [
+        "claim_agent",
+        "remaining",
+        "add"
+      ],
+      "finish": [
+        "_call_locked",
+        "serialize_task"
+      ]
+    },
+    "figure": "s16-workflow-core"
+  },
+  {
+    "key": "finish",
+    "label": "事件与最终回传",
+    "focus": "finish",
+    "trigger": "脚本返回或失败。",
+    "input": "task 状态、usage、progress 与最终值。",
+    "output": "写输出／快照，打印 task_notification，返回 launched + result + task。",
+    "flow": "阶段进度不是父消息的即时 tool_result；父 PostToolUse 在同步工具返回后执行。",
+    "sourceLink": "#workflow-lifecycle",
+    "codeSections": [
+      "workflow-lifecycle"
+    ],
+    "codeFunctions": [
+      "_call_locked",
+      "serialize_task",
+      "call",
+      "validate_meta",
+      "check_permission",
+      "reserve_run_id",
+      "workflow_run_lock",
+      "__init__",
+      "sample_workflow",
+      "pipeline",
+      "parallel",
+      "phase",
+      "log",
+      "workflow",
+      "agent",
+      "key",
+      "cached",
+      "record",
+      "_stable_hash",
+      "run",
+      "validate",
+      "claim_agent",
+      "remaining",
+      "add",
+      "install_workflow_tool",
+      "load_integrated_host",
+      "run_workflow",
+      "run_workflow_sync"
+    ],
+    "stageFunctions": {
+      "launch": [
+        "call",
+        "validate_meta",
+        "check_permission",
+        "reserve_run_id"
+      ],
+      "runstate": [
+        "_call_locked",
+        "workflow_run_lock",
+        "__init__"
+      ],
+      "script": [
+        "sample_workflow",
+        "pipeline",
+        "parallel",
+        "phase",
+        "log",
+        "workflow"
+      ],
+      "agent": [
+        "agent"
+      ],
+      "journal": [
+        "key",
+        "cached",
+        "record",
+        "_stable_hash"
+      ],
+      "runner": [
+        "run",
+        "validate"
+      ],
+      "limits": [
+        "claim_agent",
+        "remaining",
+        "add"
+      ],
+      "finish": [
+        "_call_locked",
+        "serialize_task"
+      ]
+    },
+    "figure": "s16-workflow-core"
+  }
+]

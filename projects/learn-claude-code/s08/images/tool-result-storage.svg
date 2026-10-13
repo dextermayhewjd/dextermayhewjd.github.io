@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 390" role="img" aria-labelledby="s08-result-storage-title s08-result-storage-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s08-result-storage-title">局部 A · 工具正文移出活跃上下文</title><desc id="s08-result-storage-desc">调用 ID 保留；完整内容在文件里，消息按需要留下预览或路径。</desc>
+<defs><marker id="s08-result-storage-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s08-result-storage-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">局部 A · 工具正文移出活跃上下文</text>
+<text x="24" y="55" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">调用 ID 保留；完整内容在文件里，消息按需要留下预览或路径。</text>
+<path  d="M224 142H280" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-result-storage-added-arrow)"/>
+<path  d="M480 142H536" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-result-storage-added-arrow)"/>
+<path data-route="save-complete-output" d="M380 180V244" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-result-storage-added-arrow)"/>
+<path data-relation="recoverable-path" d="M480 280H518V142H536" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-relation="output-form" d="M636 180V214" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<path data-relation="output-form" d="M636 260V278" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<rect data-stage="full-output" data-change="modified" x="24" y="104" width="200" height="76" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="124" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">完整工具结果</text>
+<text x="124" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">tool_result.content</text>
+<rect data-stage="save" data-change="added" x="280" y="104" width="200" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="380" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">保存完整正文</text>
+<text x="380" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">save_output()</text>
+<rect data-stage="short-output" data-change="modified" x="536" y="104" width="200" height="76" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="636" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">消息中的短结果</text>
+<text x="636" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">tool_use_id 继续保留</text>
+<rect data-stage="files" x="280" y="244" width="200" height="72" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="380" y="270" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">工具结果文件</text>
+<text x="380" y="292" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">.task_outputs/tool-results/</text>
+<rect data-stage="preview" data-change="added" x="536" y="214" width="200" height="46" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="636" y="240" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">大结果：预览 + 路径</text>
+<rect data-stage="reference" data-change="added" x="536" y="278" width="200" height="46" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="636" y="304" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">旧结果：只留恢复路径</text>
+<text x="24" y="350" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">两种输出形式按情况选用，不是先后执行；需要正文时由文件工具再读。</text>
+<text x="24" y="372" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">转存与占位不调用 LLM，摘要才会重新组织和选择信息。</text>
+</svg>

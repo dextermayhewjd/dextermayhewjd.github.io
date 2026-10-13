@@ -1,0 +1,271 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="s16-step04-schema" width="578.5625" class="flowchart" height="755.3125" viewBox="0 0 578.5625 755.3125" role="img" aria-labelledby="s16-step04-title s16-step04-desc">
+  <title id="s16-step04-title">for 逐条复核，if 筛选确认的问题</title>
+  <desc id="s16-step04-desc">初始化 confirmed 后，for 从 findings 中逐条取出问题。每条复核得到 verdict，if 根据 isReal 决定是否将原 finding 加入 confirmed。两个分支都继续遍历，取完后得到 confirmed；空列表直接结束。</desc>
+  <style>#s16-step04-schema{font-family:system-ui,-apple-system,sans-serif;font-size:16px;fill:var(--diagram-text, #24334b);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#s16-step04-schema .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#s16-step04-schema .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#s16-step04-schema .error-icon{fill:hsl(36, 26.3157894737%, 100%);}#s16-step04-schema .error-text{fill:#000000;stroke:#000000;}#s16-step04-schema .edge-thickness-normal{stroke-width:1px;}#s16-step04-schema .edge-thickness-thick{stroke-width:3.5px;}#s16-step04-schema .edge-pattern-solid{stroke-dasharray:0;}#s16-step04-schema .edge-thickness-invisible{stroke-width:0;fill:none;}#s16-step04-schema .edge-pattern-dashed{stroke-dasharray:3;}#s16-step04-schema .edge-pattern-dotted{stroke-dasharray:2;}#s16-step04-schema .marker{fill:var(--diagram-base-stroke, #537cc0);stroke:var(--diagram-base-stroke, #537cc0);}#s16-step04-schema .marker.cross{stroke:var(--diagram-base-stroke, #537cc0);}#s16-step04-schema svg{font-family:system-ui,-apple-system,sans-serif;font-size:16px;}#s16-step04-schema p{margin:0;}#s16-step04-schema .label{font-family:system-ui,-apple-system,sans-serif;color:var(--diagram-text, #24334b);}#s16-step04-schema .cluster-label text{fill:#000000;}#s16-step04-schema .cluster-label span{color:#000000;}#s16-step04-schema .cluster-label span p{background-color:transparent;}#s16-step04-schema .label text,#s16-step04-schema span{fill:var(--diagram-text, #24334b);color:var(--diagram-text, #24334b);}#s16-step04-schema .node rect,#s16-step04-schema .node circle,#s16-step04-schema .node ellipse,#s16-step04-schema .node polygon,#s16-step04-schema .node path{fill:var(--diagram-storage-fill, #f3f5f8);stroke:var(--diagram-storage-stroke, #8a96a6);stroke-width:1px;}#s16-step04-schema .rough-node .label text,#s16-step04-schema .node .label text,#s16-step04-schema .image-shape .label,#s16-step04-schema .icon-shape .label{text-anchor:middle;}#s16-step04-schema .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#s16-step04-schema .rough-node .label,#s16-step04-schema .node .label,#s16-step04-schema .image-shape .label,#s16-step04-schema .icon-shape .label{text-align:center;}#s16-step04-schema .node.clickable{cursor:pointer;}#s16-step04-schema .root .anchor path{fill:var(--diagram-base-stroke, #537cc0)!important;stroke-width:0;stroke:var(--diagram-base-stroke, #537cc0);}#s16-step04-schema .arrowheadPath{fill:#0b0b0b;}#s16-step04-schema .edgePath .path{stroke:var(--diagram-base-stroke, #537cc0);stroke-width:2.0px;}#s16-step04-schema .flowchart-link{stroke:var(--diagram-base-stroke, #537cc0);fill:none;}#s16-step04-schema .edgeLabel{background-color:var(--theme, #ffffff);text-align:center;}#s16-step04-schema .edgeLabel p{background-color:var(--theme, #ffffff);}#s16-step04-schema .edgeLabel rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step04-schema .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#s16-step04-schema .cluster rect{fill:hsl(36, 26.3157894737%, 100%);stroke:hsl(36, 0%, 90%);stroke-width:1px;}#s16-step04-schema .cluster text{fill:#000000;}#s16-step04-schema .cluster span{color:#000000;}#s16-step04-schema div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;background:hsl(36, 26.3157894737%, 100%);border:1px solid hsl(36, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#s16-step04-schema .flowchartTitleText{text-anchor:middle;font-size:18px;fill:var(--diagram-text, #24334b);}#s16-step04-schema rect.text{fill:none;stroke-width:0;}#s16-step04-schema .icon-shape,#s16-step04-schema .image-shape{background-color:var(--theme, #ffffff);text-align:center;}#s16-step04-schema .icon-shape p,#s16-step04-schema .image-shape p{background-color:var(--theme, #ffffff);padding:2px;}#s16-step04-schema .icon-shape rect,#s16-step04-schema .image-shape rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step04-schema .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#s16-step04-schema .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#s16-step04-schema :root{--mermaid-font-family:system-ui,-apple-system,sans-serif;}</style>
+  <g>
+    <marker id="s16-step04-schema_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step04-schema_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step04-schema_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step04-schema_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step04-schema_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step04-schema_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <g class="root">
+      <g class="clusters" />
+      <g class="edgePaths">
+        <path d="M316.203,54L316.203,81L316.203,104" id="s16-step04-schema-L_start_more_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_start_more_0" data-points="W3sieCI6MzE2LjIwMzEyNSwieSI6NTR9LHsieCI6MzE2LjIwMzEyNSwieSI6ODF9LHsieCI6MzE2LjIwMzEyNSwieSI6MTA4fV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M258.31,229.904L104.75,314.797L104.75,337.797" id="s16-step04-schema-L_more_result_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_more_result_0" data-points="W3sieCI6MjU4LjMwOTk3NzE4ODM2OTk0LCJ5IjoyMjkuOTAzNzI3MTg4MzY5OTR9LHsieCI6MTA0Ljc1LCJ5IjozMTQuNzk2ODc1fSx7IngiOjEwNC43NSwieSI6MzQxLjc5Njg3NX1d" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M316.203,287.797L316.203,314.797L316.203,337.797" id="s16-step04-schema-L_more_review_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_more_review_0" data-points="W3sieCI6MzE2LjIwMzEyNSwieSI6Mjg3Ljc5Njg3NX0seyJ4IjozMTYuMjAzMTI1LCJ5IjozMTQuNzk2ODc1fSx7IngiOjMxNi4yMDMxMjUsInkiOjM0MS43OTY4NzV9XQ==" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M316.203,387.797L316.203,414.797L316.203,437.797" id="s16-step04-schema-L_review_decision_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_review_decision_0" data-points="W3sieCI6MzE2LjIwMzEyNSwieSI6Mzg3Ljc5Njg3NX0seyJ4IjozMTYuMjAzMTI1LCJ5Ijo0MTQuNzk2ODc1fSx7IngiOjMxNi4yMDMxMjUsInkiOjQ0MS43OTY4NzV9XQ==" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M279.508,536.617L199.086,600.313L199.086,623.313" id="s16-step04-schema-L_decision_keep_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_decision_keep_0" data-points="W3sieCI6Mjc5LjUwODA5MTk3NDg1NDg0LCJ5Ijo1MzYuNjE3NDY2OTc0ODU0OH0seyJ4IjoxOTkuMDg1OTM3NSwieSI6NjAwLjMxMjV9LHsieCI6MTk5LjA4NTkzNzUsInkiOjYyNy4zMTI1fV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M352.898,536.617L433.32,600.313L433.32,623.313" id="s16-step04-schema-L_decision_skip_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_decision_skip_0" data-points="W3sieCI6MzUyLjg5ODE1ODAyNTE0NTE2LCJ5Ijo1MzYuNjE3NDY2OTc0ODU0OH0seyJ4Ijo0MzMuMzIwMzEyNSwieSI6NjAwLjMxMjV9LHsieCI6NDMzLjMyMDMxMjUsInkiOjYyNy4zMTI1fV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M199.086,673.313L199.086,687.313L326.045,712.447" id="s16-step04-schema-L_keep_advance_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_keep_advance_0" data-points="W3sieCI6MTk5LjA4NTkzNzUsInkiOjY3My4zMTI1fSx7IngiOjE5OS4wODU5Mzc1LCJ5Ijo2ODcuMzEyNX0seyJ4IjozMjkuOTY4NzUsInkiOjcxMy4yMjQyNTQ4Njk5OTQyfV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M433.32,673.313L433.32,687.313L418.558,698.849" id="s16-step04-schema-L_skip_advance_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_skip_advance_0" data-points="W3sieCI6NDMzLjMyMDMxMjUsInkiOjY3My4zMTI1fSx7IngiOjQzMy4zMjAzMTI1LCJ5Ijo2ODcuMzEyNX0seyJ4Ijo0MTUuNDA2NDYxMTQ4NjQ4NjUsInkiOjcwMS4zMTI1fV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+        <path d="M441.984,711.407L546.555,687.313L546.555,650.313L546.555,600.313L546.555,507.555L546.555,414.797L546.555,364.797L546.555,314.797L379.405,229.972" id="s16-step04-schema-L_advance_more_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step04-schema-L_advance_more_0" data-points="W3sieCI6NDQxLjk4NDM3NSwieSI6NzExLjQwNzMyMzM5MjA0MDR9LHsieCI6NTQ2LjU1NDY4NzUsInkiOjY4Ny4zMTI1fSx7IngiOjU0Ni41NTQ2ODc1LCJ5Ijo2NTAuMzEyNX0seyJ4Ijo1NDYuNTU0Njg3NSwieSI6NjAwLjMxMjV9LHsieCI6NTQ2LjU1NDY4NzUsInkiOjUwNy41NTQ2ODc1fSx7IngiOjU0Ni41NTQ2ODc1LCJ5Ijo0MTQuNzk2ODc1fSx7IngiOjU0Ni41NTQ2ODc1LCJ5IjozNjQuNzk2ODc1fSx7IngiOjU0Ni41NTQ2ODc1LCJ5IjozMTQuNzk2ODc1fSx7IngiOjM3NS44MzgxMDEzNjk4NTkxNSwieSI6MjI4LjE2MTg5ODYzMDE0MDgzfV0=" marker-end="url(#s16-step04-schema_flowchart-v2-pointEnd)" />
+      </g>
+      <g class="edgeLabels">
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g class="edgeLabel" transform="translate(316.203125, 81)">
+          <g class="label" data-id="s16-step04-schema-L_start_more_0" transform="translate(-50.53125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="101.0625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">遍历</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> findings</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(104.75, 314.796875)">
+          <g class="label" data-id="s16-step04-schema-L_more_result_0" transform="translate(-26.0078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="52.015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">已取完</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(316.203125, 314.796875)">
+          <g class="label" data-id="s16-step04-schema-L_more_review_0" transform="translate(-46.703125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="93.40625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">取到</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> finding</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(316.203125, 414.796875)">
+          <g class="label" data-id="s16-step04-schema-L_review_decision_0" transform="translate(-45.631866455078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="91.26373291015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">得到</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> verdict</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(199.0859375, 600.3125)">
+          <g class="label" data-id="s16-step04-schema-L_decision_keep_0" transform="translate(-18.8125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="37.625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">True</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(433.3203125, 600.3125)">
+          <g class="label" data-id="s16-step04-schema-L_decision_skip_0" transform="translate(-21.0546875, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="42.109375" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">False</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step04-schema-L_keep_advance_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step04-schema-L_skip_advance_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(546.5546875, 507.5546875)">
+          <g class="label" data-id="s16-step04-schema-L_advance_more_0" transform="translate(-26.0078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="52.015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">下一条</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="nodes">
+        <g class="node default" id="s16-step04-schema-flowchart-start-0" transform="translate(316.203125, 31)">
+          <rect class="basic label-container" style="" x="-102.7578125" y="-23" width="205.515625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">初始化</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> confirmed</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> =</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> []</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-more-1" transform="translate(316.203125, 197.8984375)">
+          <polygon points="89.8984375,0 179.796875,-89.8984375 89.8984375,-179.796875 0,-89.8984375" class="label-container" transform="translate(-89.3984375, 89.8984375)" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">for：还有下一条？</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-result-3" transform="translate(104.75, 364.796875)">
+          <rect class="basic label-container" style="" x="-96.75" y="-23" width="193.5" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">得到最终</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> confirmed</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-review-5" transform="translate(316.203125, 364.796875)">
+          <rect class="basic label-container" style="" x="-84.703125" y="-23" width="169.40625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">复核当前</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> finding</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-decision-7" transform="translate(316.203125, 507.5546875)">
+          <polygon points="65.7578125,0 131.515625,-65.7578125 65.7578125,-131.515625 0,-65.7578125" class="label-container" transform="translate(-65.2578125, 65.7578125)" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">if：isReal？</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-keep-9" transform="translate(199.0859375, 650.3125)">
+          <rect class="basic label-container" style="" x="-119.53125" y="-23" width="239.0625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">将</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> finding</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> 加入</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> confirmed</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-skip-11" transform="translate(433.3203125, 650.3125)">
+          <rect class="basic label-container" style="" x="-84.703125" y="-23" width="169.40625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">跳过当前</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> finding</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step04-schema-flowchart-advance-13" transform="translate(385.9765625, 724.3125)">
+          <rect class="basic label-container" style="" x="-56.0078125" y="-23" width="112.015625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">继续遍历</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

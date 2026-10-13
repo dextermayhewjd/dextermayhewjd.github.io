@@ -1,0 +1,464 @@
+[
+  {
+    "key": "schedule",
+    "label": "规则创建与取消",
+    "focus": "schedule",
+    "trigger": "模型通过调度工具请求创建或取消。",
+    "input": "五字段 cron、prompt、recurring 与 durable。",
+    "output": "CronJob 或错误；ID 随机，durable 失败回滚登记。",
+    "flow": "取消会移除队列中的尚未交付项，不撤回已发送的 prompt。",
+    "sourceLink": "#cron-schedule",
+    "codeSections": [
+      "cron-schedule"
+    ],
+    "codeFunctions": [
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "poll_due_jobs",
+      "cron_matches",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "save_durable_jobs",
+      "queue_processor_loop",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "acknowledge_cron_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  },
+  {
+    "key": "match",
+    "label": "表达式校验与匹配",
+    "focus": "poll",
+    "trigger": "创建／加载时校验；每秒轮询时匹配。",
+    "input": "cron 表达式和本地 datetime。",
+    "output": "五字段合法性、当前分钟是否匹配。",
+    "flow": "日与星期同时受限时采用 OR；不是完整系统 cron 解析器。",
+    "sourceLink": "#cron-match",
+    "codeSections": [
+      "cron-match"
+    ],
+    "codeFunctions": [
+      "cron_matches",
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "poll_due_jobs",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "save_durable_jobs",
+      "queue_processor_loop",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "acknowledge_cron_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  },
+  {
+    "key": "poll",
+    "label": "到期入队与去重",
+    "focus": "poll",
+    "trigger": "cron_scheduler_loop 每秒调用 poll_due_jobs。",
+    "input": "规则表、当前分钟标记、pending 状态。",
+    "output": "持久保存 pending 和 last_fired 后才追加 cron_queue。",
+    "flow": "已经 pending 或同一分钟触发过就跳过；保存失败恢复旧状态。",
+    "sourceLink": "#cron-poll",
+    "codeSections": [
+      "cron-poll"
+    ],
+    "codeFunctions": [
+      "poll_due_jobs",
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "cron_matches",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "save_durable_jobs",
+      "queue_processor_loop",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "acknowledge_cron_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  },
+  {
+    "key": "dispatch",
+    "label": "空闲交付",
+    "focus": "dispatch",
+    "trigger": "队列非空且能立即取得 agent_lock。",
+    "input": "待交付任务和共享 session_history。",
+    "output": "Scheduled 用户消息进入一次 Agent Loop。",
+    "flow": "用户回合和调度回合共用会话锁；忙时不抢占。",
+    "sourceLink": "#cron-dispatch",
+    "codeSections": [
+      "cron-dispatch"
+    ],
+    "codeFunctions": [
+      "queue_processor_loop",
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "poll_due_jobs",
+      "cron_matches",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "save_durable_jobs",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "acknowledge_cron_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  },
+  {
+    "key": "ack",
+    "label": "接收确认与恢复",
+    "focus": "ack",
+    "trigger": "本轮第一个模型请求返回或失败。",
+    "input": "已经从队列取出的 fired 列表。",
+    "output": "成功清 pending 或删一次性任务；失败删附加消息并重投。",
+    "flow": "确认接收并不表示实际工作做完，持久化确认失败仍可能重复交付。",
+    "sourceLink": "#cron-ack",
+    "codeSections": [
+      "cron-ack"
+    ],
+    "codeFunctions": [
+      "acknowledge_cron_jobs",
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "poll_due_jobs",
+      "cron_matches",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "save_durable_jobs",
+      "queue_processor_loop",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  },
+  {
+    "key": "durable",
+    "label": "存档与运行边界",
+    "focus": "schedule",
+    "trigger": "规则／交付状态变化时保存，CLI 启动时加载。",
+    "input": "durable 规则的字段快照。",
+    "output": "临时文件加 os.replace 更新 .scheduled_tasks.json。",
+    "flow": "pending 状态可恢复；不会代替常驻服务或补跑停机时间。",
+    "sourceLink": "#cron-durable",
+    "codeSections": [
+      "cron-durable"
+    ],
+    "codeFunctions": [
+      "save_durable_jobs",
+      "schedule_job",
+      "new_cron_id",
+      "validate_cron",
+      "cancel_job",
+      "cron_scheduler_loop",
+      "poll_due_jobs",
+      "cron_matches",
+      "_cron_field_matches",
+      "_enqueue_due_job",
+      "queue_processor_loop",
+      "has_cron_queue",
+      "run_agent_turn_locked",
+      "agent_loop",
+      "consume_cron_queue",
+      "load_durable_jobs",
+      "acknowledge_cron_jobs",
+      "restore_cron_jobs",
+      "_validate_cron_field",
+      "execute_tool",
+      "request_permission",
+      "start_runtime_threads",
+      "stop_runtime_threads"
+    ],
+    "stageFunctions": {
+      "schedule": [
+        "schedule_job",
+        "new_cron_id",
+        "validate_cron",
+        "cancel_job"
+      ],
+      "poll": [
+        "cron_scheduler_loop",
+        "poll_due_jobs",
+        "cron_matches",
+        "_cron_field_matches"
+      ],
+      "queued": [
+        "_enqueue_due_job",
+        "save_durable_jobs"
+      ],
+      "gate": [
+        "queue_processor_loop",
+        "has_cron_queue",
+        "run_agent_turn_locked"
+      ],
+      "deliver": [
+        "agent_loop",
+        "consume_cron_queue"
+      ],
+      "storage": [
+        "save_durable_jobs",
+        "load_durable_jobs"
+      ],
+      "ack": [
+        "acknowledge_cron_jobs"
+      ],
+      "retry": [
+        "restore_cron_jobs",
+        "agent_loop"
+      ]
+    },
+    "figure": "s12-cron-core"
+  }
+]

@@ -1,0 +1,1011 @@
+{
+  "schema_version": 1,
+  "candidate_topic": "object-method-boundaries",
+  "topics": [
+    {
+      "id": "coroutine-definition",
+      "title": "定义协程函数与创建协程对象",
+      "lesson": "01-async-def",
+      "anchor": "coroutine-definition",
+      "apis": [],
+      "methods": [],
+      "syntax": [
+        "async_def"
+      ],
+      "imports": []
+    },
+    {
+      "id": "run-entry",
+      "title": "运行顶层协程与事件循环入口",
+      "lesson": "01-async-def",
+      "anchor": "run-entry",
+      "apis": [
+        "asyncio",
+        "asyncio.run"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "asyncio"
+      ]
+    },
+    {
+      "id": "await",
+      "title": "沿当前调用链等待与恢复",
+      "lesson": "02-await",
+      "anchor": "await-execution",
+      "apis": [
+        "asyncio.sleep"
+      ],
+      "methods": [],
+      "syntax": [
+        "await"
+      ],
+      "imports": [
+        "time.sleep"
+      ]
+    },
+    {
+      "id": "blocking-sleep",
+      "title": "阻塞线程与挂起任务的区别",
+      "lesson": "03-tasks",
+      "anchor": "sleep-key-point",
+      "apis": [
+        "time.sleep"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "time"
+      ]
+    },
+    {
+      "id": "task-creation",
+      "title": "创建任务与保留引用",
+      "lesson": "03-tasks",
+      "anchor": "task-creation",
+      "apis": [
+        "asyncio.create_task",
+        "asyncio.Task"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "gather",
+      "title": "收集整组结果与异常边界",
+      "lesson": "03-tasks",
+      "anchor": "gather-results",
+      "apis": [
+        "asyncio.gather"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "wait",
+      "title": "等待条件与完成集合",
+      "lesson": "04-results",
+      "anchor": "wait-results",
+      "apis": [
+        "asyncio.wait",
+        "asyncio.FIRST_COMPLETED"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "as-completed",
+      "title": "按完成顺序消费结果",
+      "lesson": "04-results",
+      "anchor": "as-completed-results",
+      "apis": [
+        "asyncio.as_completed"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "cancellation",
+      "title": "请求取消与等待清理",
+      "lesson": "05-cancellation",
+      "anchor": "task-cancellation",
+      "apis": [
+        "asyncio.CancelledError"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "timeouts",
+      "title": "超时与取消保护的边界",
+      "lesson": "05-cancellation",
+      "anchor": "timeouts-and-shield",
+      "apis": [
+        "asyncio.TimeoutError",
+        "asyncio.timeout",
+        "asyncio.wait_for",
+        "asyncio.shield"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "semaphore",
+      "title": "许可区域、限流与归还",
+      "lesson": "06-semaphore",
+      "anchor": "semaphore-permits",
+      "apis": [
+        "asyncio.Semaphore"
+      ],
+      "methods": [
+        "asyncio.Semaphore.acquire",
+        "asyncio.Semaphore.release"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "async-queue",
+      "title": "异步队列的生产消费与背压",
+      "lesson": "07-queues",
+      "anchor": "async-queue",
+      "apis": [
+        "asyncio.Queue"
+      ],
+      "methods": [
+        "asyncio.Queue.put",
+        "asyncio.Queue.get",
+        "asyncio.Queue.empty"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "thread-queue",
+      "title": "同步队列与立刻尝试取结果",
+      "lesson": "07-queues",
+      "anchor": "thread-queue",
+      "apis": [
+        "queue.Queue",
+        "queue.Empty"
+      ],
+      "methods": [
+        "queue.Queue.put",
+        "queue.Queue.get",
+        "queue.Queue.get_nowait",
+        "queue.Queue.qsize",
+        "queue.Queue.empty"
+      ],
+      "syntax": [],
+      "imports": [
+        "queue"
+      ]
+    },
+    {
+      "id": "thread-offload",
+      "title": "把同步函数交给工作线程",
+      "lesson": "08-executors",
+      "anchor": "thread-offload",
+      "apis": [
+        "asyncio.to_thread"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.run_in_executor"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "thread-basics",
+      "title": "线程启动、互斥、通知与退出",
+      "lesson": "09-thread-synchronization",
+      "anchor": "thread-basics",
+      "apis": [
+        "threading.Thread",
+        "threading.Lock",
+        "threading.Event",
+        "threading.get_ident"
+      ],
+      "methods": [
+        "threading.Thread.start",
+        "threading.Thread.join",
+        "threading.Thread.is_alive",
+        "threading.Lock.acquire",
+        "threading.Lock.release",
+        "threading.Event.wait",
+        "threading.Event.set",
+        "threading.Event.clear",
+        "threading.Event.is_set"
+      ],
+      "syntax": [],
+      "imports": [
+        "threading"
+      ]
+    },
+    {
+      "id": "async-context",
+      "title": "异步进入、退出与资源回收",
+      "lesson": "10-async-protocols",
+      "anchor": "async-context",
+      "apis": [
+        "contextlib.asynccontextmanager"
+      ],
+      "methods": [],
+      "syntax": [
+        "async_with"
+      ],
+      "imports": [
+        "contextlib"
+      ]
+    },
+    {
+      "id": "async-iteration",
+      "title": "异步迭代与异步生成器",
+      "lesson": "10-async-protocols",
+      "anchor": "async-iteration",
+      "apis": [],
+      "methods": [],
+      "syntax": [
+        "async_for",
+        "async_generator_def",
+        "async_yield"
+      ],
+      "imports": []
+    },
+    {
+      "id": "task-context",
+      "title": "任务上下文与 token 恢复",
+      "lesson": "11-contextvars",
+      "anchor": "task-context",
+      "apis": [
+        "contextvars.ContextVar"
+      ],
+      "methods": [
+        "contextvars.ContextVar.get",
+        "contextvars.ContextVar.set",
+        "contextvars.ContextVar.reset"
+      ],
+      "syntax": [],
+      "imports": [
+        "contextvars"
+      ]
+    },
+    {
+      "id": "process-intro",
+      "title": "进程池分配与收集工作",
+      "lesson": "12-processes",
+      "anchor": "process-intro",
+      "apis": [],
+      "methods": [
+        "multiprocessing.Pool.starmap",
+        "multiprocessing.context.BaseContext.Pool"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "lifecycle",
+      "title": "回到 Slime 的创建、交接与清理",
+      "lesson": "14-slime-walkthrough",
+      "anchor": "slime-lifecycle",
+      "apis": [],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "asyncio-event",
+      "title": "Event 的等待、通知、状态与清零",
+      "lesson": "15-async-notification",
+      "anchor": "event-notification",
+      "apis": [
+        "asyncio.Event"
+      ],
+      "methods": [
+        "asyncio.Event.wait",
+        "asyncio.Event.set",
+        "asyncio.Event.clear",
+        "asyncio.Event.is_set"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "asyncio-lock",
+      "title": "asyncio.Lock 保护任务共享状态",
+      "lesson": "15-async-notification",
+      "anchor": "async-lock",
+      "apis": [
+        "asyncio.Lock"
+      ],
+      "methods": [
+        "asyncio.Lock.acquire",
+        "asyncio.Lock.release",
+        "asyncio.Lock.locked"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "threading-condition",
+      "title": "Condition 谓词循环、锁交接与通知",
+      "lesson": "16-thread-coordination",
+      "anchor": "condition-predicate",
+      "apis": [
+        "threading.Condition"
+      ],
+      "methods": [
+        "threading.Condition.wait",
+        "threading.Condition.wait_for",
+        "threading.Condition.notify_all"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "threading-rlock",
+      "title": "同一线程重入 RLock",
+      "lesson": "16-thread-coordination",
+      "anchor": "rlock-reentrancy",
+      "apis": [
+        "threading.RLock"
+      ],
+      "methods": [
+        "threading.RLock.acquire",
+        "threading.RLock.release"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "threading-timer",
+      "title": "Timer 启动、取消与退出",
+      "lesson": "16-thread-coordination",
+      "anchor": "timer-lifecycle",
+      "apis": [
+        "threading.Timer"
+      ],
+      "methods": [
+        "threading.Timer.start",
+        "threading.Timer.cancel",
+        "threading.Timer.join"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "executor-submit-map",
+      "title": "线程池 submit 与 map 的结果组织",
+      "lesson": "17-executor-results",
+      "anchor": "executor-submit-map",
+      "apis": [
+        "concurrent.futures.ThreadPoolExecutor"
+      ],
+      "methods": [
+        "concurrent.futures.ThreadPoolExecutor.submit",
+        "concurrent.futures.ThreadPoolExecutor.map",
+        "concurrent.futures.Executor.submit",
+        "concurrent.futures.Executor.map"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "future-result-state",
+      "title": "同步 Future 的结果、异常与完成状态",
+      "lesson": "17-executor-results",
+      "anchor": "future-result-state",
+      "apis": [
+        "concurrent.futures.CancelledError"
+      ],
+      "methods": [
+        "concurrent.futures.Future.result",
+        "concurrent.futures.Future.exception",
+        "concurrent.futures.Future.done"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "future-cancel-callback",
+      "title": "Future 取消边界与完成回调",
+      "lesson": "17-executor-results",
+      "anchor": "future-cancel-callback",
+      "apis": [],
+      "methods": [
+        "concurrent.futures.Future.cancel",
+        "concurrent.futures.Future.cancelled",
+        "concurrent.futures.Future.running",
+        "concurrent.futures.Future.add_done_callback"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "executor-wait-completed",
+      "title": "同步 wait 与 FIRST_COMPLETED",
+      "lesson": "17-executor-results",
+      "anchor": "executor-wait-completed",
+      "apis": [
+        "concurrent.futures.wait",
+        "concurrent.futures.FIRST_COMPLETED"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "executor-as-completed",
+      "title": "按完成次序消费线程池结果",
+      "lesson": "17-executor-results",
+      "anchor": "executor-as-completed",
+      "apis": [
+        "concurrent.futures.as_completed"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "executor-shutdown",
+      "title": "线程池关闭与在途工作清理",
+      "lesson": "17-executor-results",
+      "anchor": "executor-shutdown",
+      "apis": [],
+      "methods": [
+        "concurrent.futures.ThreadPoolExecutor.shutdown",
+        "concurrent.futures.Executor.shutdown"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "future-test-double",
+      "title": "测试替身直接构造 Future 并设置结果",
+      "lesson": "17-executor-results",
+      "anchor": "future-test-double",
+      "apis": [
+        "concurrent.futures.Future"
+      ],
+      "methods": [
+        "concurrent.futures.Future.set_result",
+        "concurrent.futures.Future.set_exception"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "process-context",
+      "title": "创建进程、启动上下文与所有权",
+      "lesson": "18-process-lifecycle",
+      "anchor": "process-start",
+      "apis": [
+        "multiprocessing.Process",
+        "multiprocessing.get_context",
+        "multiprocessing.set_start_method",
+        "multiprocessing.active_children"
+      ],
+      "methods": [
+        "multiprocessing.Process.start",
+        "multiprocessing.Process.is_alive",
+        "multiprocessing.context.BaseContext.Process",
+        "multiprocessing.context.BaseContext.Queue"
+      ],
+      "syntax": [],
+      "imports": [
+        "multiprocessing"
+      ]
+    },
+    {
+      "id": "process-queues",
+      "title": "跨进程生产消费与结束协议",
+      "lesson": "18-process-lifecycle",
+      "anchor": "process-queue",
+      "apis": [
+        "multiprocessing.Queue",
+        "queue.Empty"
+      ],
+      "methods": [
+        "multiprocessing.Queue.put",
+        "multiprocessing.Queue.get",
+        "multiprocessing.Queue.empty",
+        "multiprocessing.Queue.qsize"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "process-reaping",
+      "title": "等待、终止、回收与队列关闭",
+      "lesson": "18-process-lifecycle",
+      "anchor": "process-join",
+      "apis": [],
+      "methods": [
+        "multiprocessing.Process.join",
+        "multiprocessing.Process.terminate",
+        "multiprocessing.Process.kill",
+        "multiprocessing.Process.close",
+        "multiprocessing.Queue.close",
+        "multiprocessing.Queue.join_thread"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "process-pool-lifecycle",
+      "title": "进程池分派与退出",
+      "lesson": "18-process-lifecycle",
+      "anchor": "process-pool",
+      "apis": [
+        "multiprocessing.Pool"
+      ],
+      "methods": [
+        "multiprocessing.context.BaseContext.Pool",
+        "multiprocessing.Pool.starmap",
+        "multiprocessing.Pool.close",
+        "multiprocessing.Pool.terminate",
+        "multiprocessing.Pool.join",
+        "multiprocessing.Pool.__enter__",
+        "multiprocessing.Pool.__exit__"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "subprocess-communication",
+      "title": "子进程通信、超时与回收",
+      "lesson": "18-process-lifecycle",
+      "anchor": "subprocess-communicate",
+      "apis": [
+        "subprocess.Popen",
+        "subprocess.TimeoutExpired",
+        "subprocess"
+      ],
+      "methods": [
+        "subprocess.Popen.communicate",
+        "subprocess.Popen.poll",
+        "subprocess.Popen.wait",
+        "subprocess.Popen.kill",
+        "subprocess.Popen.terminate"
+      ],
+      "syntax": [],
+      "imports": [
+        "subprocess"
+      ]
+    },
+    {
+      "id": "subprocess-output",
+      "title": "捕获、合并与丢弃输出",
+      "lesson": "18-process-lifecycle",
+      "anchor": "subprocess-output",
+      "apis": [
+        "subprocess.PIPE",
+        "subprocess.STDOUT",
+        "subprocess.DEVNULL"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "subprocess-checked-results",
+      "title": "同步命令检查与失败状态",
+      "lesson": "18-process-lifecycle",
+      "anchor": "subprocess-failure",
+      "apis": [
+        "subprocess.run",
+        "subprocess.check_call",
+        "subprocess.check_output",
+        "subprocess.CalledProcessError"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "file-lock-ownership",
+      "title": "跨进程文件锁与目录所有权",
+      "lesson": "19-signals-locks",
+      "anchor": "lock-readiness",
+      "apis": [
+        "fcntl.flock",
+        "fcntl.LOCK_EX",
+        "fcntl.LOCK_NB",
+        "fcntl.LOCK_SH"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "fcntl"
+      ]
+    },
+    {
+      "id": "select-ready",
+      "title": "管道可读等待与就绪协议",
+      "lesson": "19-signals-locks",
+      "anchor": "lock-readiness",
+      "apis": [
+        "select.select"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "select"
+      ]
+    },
+    {
+      "id": "file-lock-release",
+      "title": "进程退出与解锁",
+      "lesson": "19-signals-locks",
+      "anchor": "lock-release",
+      "apis": [
+        "fcntl.LOCK_UN"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "process-identity",
+      "title": "父子身份与定向信号",
+      "lesson": "19-signals-locks",
+      "anchor": "process-identity",
+      "apis": [
+        "os.getpid",
+        "os.getppid",
+        "os.kill"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "os"
+      ]
+    },
+    {
+      "id": "signal-handlers",
+      "title": "保存、安装与恢复信号处理器",
+      "lesson": "19-signals-locks",
+      "anchor": "signal-handlers",
+      "apis": [
+        "signal.signal",
+        "signal.getsignal",
+        "signal.SIGINT",
+        "signal.SIGTERM",
+        "signal.SIGHUP",
+        "signal.SIGKILL"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "signal"
+      ]
+    },
+    {
+      "id": "process-group-signal",
+      "title": "进程组信号与清理范围",
+      "lesson": "19-signals-locks",
+      "anchor": "process-group",
+      "apis": [
+        "os.killpg",
+        "signal.SIG_IGN"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "signal-alarm",
+      "title": "同步工作闹钟与恢复边界",
+      "lesson": "19-signals-locks",
+      "anchor": "signal-alarm",
+      "apis": [
+        "signal.alarm",
+        "signal.SIGALRM"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "shell-process-boundary",
+      "title": "同步 shell 调用与退出状态",
+      "lesson": "19-signals-locks",
+      "anchor": "shell-boundary",
+      "apis": [
+        "os.system"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "cancellation-boundaries",
+      "title": "Task、线程、进程和进程组的不同停止责任",
+      "lesson": "19-signals-locks",
+      "anchor": "cancellation-boundary",
+      "apis": [],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "future-basics",
+      "title": "Future：待完成结果与所属 loop",
+      "lesson": "13-event-loop",
+      "anchor": "future-basics",
+      "apis": [
+        "asyncio.get_running_loop",
+        "asyncio.Future",
+        "asyncio.InvalidStateError"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.Future.result"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "future-callbacks",
+      "title": "Future 完成、取消与分批回调",
+      "lesson": "13-event-loop",
+      "anchor": "pacer-callbacks",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.call_soon",
+        "asyncio.AbstractEventLoop.call_later",
+        "asyncio.Future.done",
+        "asyncio.Future.set_result",
+        "asyncio.Future.set_exception",
+        "asyncio.Future.cancel",
+        "asyncio.Future.cancelled",
+        "asyncio.Future.add_done_callback"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "event-loop-lifecycle",
+      "title": "创建、登记、运行与跨线程提交",
+      "lesson": "13-event-loop",
+      "anchor": "event-loop-lifecycle",
+      "apis": [
+        "asyncio.AbstractEventLoop",
+        "asyncio.new_event_loop",
+        "asyncio.set_event_loop",
+        "asyncio.run_coroutine_threadsafe",
+        "asyncio.wrap_future"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.run_forever",
+        "asyncio.AbstractEventLoop.run_until_complete",
+        "concurrent.futures.Future.result"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "loop-shutdown",
+      "title": "事件循环停止、executor 排空与关闭",
+      "lesson": "13-event-loop",
+      "anchor": "loop-shutdown",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.call_soon_threadsafe",
+        "asyncio.AbstractEventLoop.is_running",
+        "asyncio.AbstractEventLoop.stop",
+        "asyncio.AbstractEventLoop.close",
+        "asyncio.AbstractEventLoop.shutdown_default_executor"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "task-inspection",
+      "title": "Task 身份、归属与完成读取",
+      "lesson": "13-event-loop",
+      "anchor": "task-inspection",
+      "apis": [
+        "asyncio.current_task",
+        "asyncio.all_tasks",
+        "asyncio.Task",
+        "asyncio.CancelledError"
+      ],
+      "methods": [
+        "asyncio.Task.done",
+        "asyncio.Task.result",
+        "asyncio.Task.exception",
+        "asyncio.Task.cancel",
+        "asyncio.Task.cancelled",
+        "asyncio.Task.get_loop",
+        "asyncio.Task.add_done_callback"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "manual-loop-cleanup",
+      "title": "手动 loop 的异步生成器兜底清理",
+      "lesson": "13-event-loop",
+      "anchor": "lifecycle-lab",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.shutdown_asyncgens"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "start-server",
+      "title": "创建本地监听与流式连接",
+      "lesson": "20-async-streams",
+      "anchor": "start-server",
+      "apis": [
+        "asyncio.start_server",
+        "asyncio.open_connection",
+        "asyncio.Server",
+        "asyncio.StreamReader",
+        "asyncio.StreamWriter"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "stream-reader",
+      "title": "流式读取与协议分帧",
+      "lesson": "20-async-streams",
+      "anchor": "stream-reader",
+      "apis": [
+        "asyncio.LimitOverrunError"
+      ],
+      "methods": [
+        "asyncio.StreamReader.read",
+        "asyncio.StreamReader.readline",
+        "asyncio.StreamReader.readuntil",
+        "asyncio.StreamReader.readexactly"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "incomplete-read",
+      "title": "提前 EOF 的部分数据与期待长度",
+      "lesson": "20-async-streams",
+      "anchor": "incomplete-read",
+      "apis": [
+        "asyncio.IncompleteReadError"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "stream-writer",
+      "title": "写入流量控制与连接关闭",
+      "lesson": "20-async-streams",
+      "anchor": "stream-writer",
+      "apis": [],
+      "methods": [
+        "asyncio.StreamWriter.write",
+        "asyncio.StreamWriter.drain",
+        "asyncio.StreamWriter.close",
+        "asyncio.StreamWriter.wait_closed"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "server-lifecycle",
+      "title": "监听器与连接任务的独立收尾",
+      "lesson": "20-async-streams",
+      "anchor": "server-lifecycle",
+      "apis": [],
+      "methods": [
+        "asyncio.Server.is_serving",
+        "asyncio.Server.serve_forever",
+        "asyncio.Server.close",
+        "asyncio.Server.wait_closed"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "inspect-awaitable",
+      "title": "调用后检查返回对象能否 await",
+      "lesson": "21-async-inspection",
+      "anchor": "isawaitable",
+      "apis": [
+        "inspect.isawaitable"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [
+        "inspect"
+      ]
+    },
+    {
+      "id": "inspect-coroutine-function",
+      "title": "装饰时判断协程函数并选择 wrapper",
+      "lesson": "21-async-inspection",
+      "anchor": "iscoroutinefunction",
+      "apis": [
+        "inspect.iscoroutinefunction"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "async-type-annotations",
+      "title": "Awaitable 和 AsyncIterator 注解契约",
+      "lesson": "21-async-inspection",
+      "anchor": "async-type-annotations",
+      "apis": [
+        "collections.abc.Awaitable",
+        "collections.abc.AsyncIterator"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "async-protocol-methods",
+      "title": "上下文与迭代的异步协议入口",
+      "lesson": "21-async-inspection",
+      "anchor": "async-protocol-methods",
+      "apis": [
+        "builtins.StopAsyncIteration"
+      ],
+      "methods": [
+        "contextlib.AbstractAsyncContextManager.__aenter__",
+        "contextlib.AbstractAsyncContextManager.__aexit__",
+        "collections.abc.AsyncIterable.__aiter__",
+        "collections.abc.AsyncIterator.__anext__"
+      ],
+      "syntax": [
+        "async_protocol_def"
+      ],
+      "imports": []
+    },
+    {
+      "id": "async-generator-cleanup",
+      "title": "提前退出异步生成器时显式关闭",
+      "lesson": "21-async-inspection",
+      "anchor": "async-generator-cleanup",
+      "apis": [
+        "contextlib.aclosing"
+      ],
+      "methods": [
+        "collections.abc.AsyncGenerator.aclose"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "object-method-boundaries",
+      "title": "同名方法与原生接收者证据边界",
+      "lesson": "21-async-inspection",
+      "anchor": "object-method-boundaries",
+      "apis": [],
+      "methods": [
+        "dict.get",
+        "str.join",
+        "queue.Queue.get",
+        "queue.Queue.join",
+        "asyncio.Queue.get",
+        "asyncio.Queue.join",
+        "threading.Thread.join"
+      ],
+      "syntax": [],
+      "imports": []
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 520,
+      "endLine": 533,
+      "symbol": "generate_rollout_async",
+      "text": "            state.submit_generate_tasks(samples)\n\n        # wait for the generation to finish\n        done, state.pendings = await asyncio.wait(state.pendings, return_when=asyncio.FIRST_COMPLETED)\n        for task in done:\n            group: list[Sample] = task.result()\n\n            if do_print:\n                sample = group[0][0] if isinstance(group[0], list) else group[0]\n                logger.info(\n                    f\"First rollout sample: {[str(sample.prompt) + sample.response]}, label: {str(sample.label)[:100]}, reward: {sample.reward}\",\n                )\n                do_print = False\n",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 725,
+      "endLine": 739,
+      "symbol": "eval_rollout_single_dataset",
+      "text": "    for coro in asyncio.as_completed(tasks):\n        sample = await coro\n        if do_print:\n            logged_sample = sample[0] if isinstance(sample, list) else sample\n            logger.info(\n                \"eval_rollout_single_dataset example data: \"\n                f\"{[str(logged_sample.prompt) + logged_sample.response]} \"\n                f\"reward={logged_sample.reward}\"\n            )\n            do_print = False\n        if isinstance(sample, list):\n            data.extend(sample)\n        else:\n            data.append(sample)\n        pbar.update(1)",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    }
+  }
+}

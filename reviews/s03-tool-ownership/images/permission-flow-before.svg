@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-labelledby="s03-review-before-title s03-review-before-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s03-review-before-title">图 2 · S03：在执行入口加权限判断</title>
+<desc id="s03-review-before-desc">紫色是新增权限层；原工具、执行模块、停止动作与回传继续保留。</desc>
+<defs><marker id="s03-review-before-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s03-review-before-change-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-change-stroke, #c45656)"/></marker>
+<marker id="s03-review-before-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 2 · S03：在执行入口加权限判断</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">紫色是新增权限层；原工具、执行模块、停止动作与回传继续保留。</text>
+<rect data-stage="history" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">对话历史</text>
+<text x="80" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">保存问题与结果</text>
+<rect data-stage="model" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+<text x="228" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">system + tools</text>
+<rect data-stage="decision" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">判断响应</text>
+<text x="376" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">是否 tool_use</text>
+<rect data-stage="execute" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">分发并执行</text>
+<text x="524" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">handlers[name]</text>
+<rect data-stage="result" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">回传结果</text>
+<text x="672" y="143" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">按调用 ID 配对</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<rect data-stage="tools" x="172" y="183" width="112" height="58" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="228" y="209" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">TOOLS</text>
+<text x="228" y="230" text-anchor="middle" font-size="10.5" font-weight="400" fill="var(--diagram-muted, #58677b)">Bash + 四个文件工具</text>
+<path d="M228 183V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<rect data-stage="stop" x="320" y="183" width="112" height="38" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="376" y="207" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+<path d="M376 160V183" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<text x="390" y="177" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">否则</text>
+<rect data-stage="permission-site" x="468" y="183" width="112" height="58" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="209" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">权限检查</text>
+<text x="524" y="230" text-anchor="middle" font-size="11.5" font-weight="400" fill="var(--diagram-muted, #58677b)">check_permission</text>
+<path data-route="enter-check" d="M432 128H450V212H468" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-review-before-focus-arrow)"/>
+<path data-route="allow" d="M524 183V160" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-review-before-focus-arrow)"/>
+<text x="536" y="176" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">允许</text>
+<path data-route="deny" d="M580 212H600V145H616" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s03-review-before-focus-arrow)"/>
+<text x="602" y="230" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">拒绝结果</text>
+<path data-route="loop" d="M672 160V300H80V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s03-review-before-base-arrow)"/>
+<text x="486" y="293" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-text, #24334b)">执行 / 拒绝结果追加 → 再问模型</text>
+<rect x="24" y="320" width="11" height="10" rx="2" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" data-evolution-legend="true"/>
+<text x="43" y="330" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)" data-evolution-legend="true">保留的工具与循环</text>
+<rect x="236" y="320" width="11" height="10" rx="2" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" data-evolution-legend="true"/>
+<text x="255" y="330" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)" data-evolution-legend="true">S03 新增的权限判断</text>
+</svg>

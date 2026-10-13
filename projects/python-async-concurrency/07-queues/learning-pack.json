@@ -1,0 +1,33 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 283,
+      "endLine": 292,
+      "symbol": "_GenerationActor._start",
+      "text": "    async def _start(self, rollout_id):\n        self.rollout_id = rollout_id\n        self.running = True\n        if self.producer is None or self.producer.done():\n            if self.producer is not None:\n                self.producer.result()\n            # Keep completed results bounded even when training stops consuming.\n            # At most one queued result plus one result per pool slot stays local.\n            self.outputs = asyncio.Queue(maxsize=1)\n            self.producer = asyncio.create_task(self._produce())",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 319,
+      "endLine": 326,
+      "symbol": "_GenerationActor._produce",
+      "text": "    async def _produce(self):\n        async def generate_slot(group):\n            while self.running or group is not None:\n                output = await self._generate_group(self.rollout_id, group)\n                group = None\n                if output is not None:  # Aborted groups have been returned to the durable queue.\n                    await self.outputs.put(output)\n                del output",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 142,
+      "endLine": 159,
+      "symbol": "AsyncRolloutWorker.get_completed_groups / queue_size",
+      "text": "    def get_completed_groups(self, limit: int | None = None) -> list[tuple[int, list[Sample]]]:\n        \"\"\"Pop up to ``limit`` completed groups (all of them when ``None``).\n\n        Callers that only need a fixed number of groups must pass ``limit`` —\n        anything popped beyond it would otherwise have to be thrown away, and\n        these groups are fully generated and reward-scored, with their prompts\n        already consumed from ``data_buffer``.\n        \"\"\"\n        completed: list[tuple[int, list[Sample]]] = []\n        while limit is None or len(completed) < limit:\n            try:\n                completed.append(self.output_queue.get_nowait())\n            except queue.Empty:\n                break\n        return completed\n\n    def queue_size(self) -> int:\n        return self.output_queue.qsize()",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    }
+  }
+}

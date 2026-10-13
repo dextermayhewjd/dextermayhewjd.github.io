@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="s16-step03-schema" width="1266.231689453125" class="flowchart" height="224" viewBox="0 0 1266.231689453125 224" role="img" aria-labelledby="s16-step03-title s16-step03-desc">
+  <title id="s16-step03-title">将候选问题与原始代码交给复核</title>
+  <desc id="s16-step03-desc">从 findings 中取出一条 finding，与原始代码 changes 和复核要求组成新的 prompt。ctx.agent 按 VERDICT_SCHEMA 约定返回 verdict。图中展示校验成功的路径。</desc>
+  <style>#s16-step03-schema{font-family:system-ui,-apple-system,sans-serif;font-size:16px;fill:var(--diagram-text, #24334b);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#s16-step03-schema .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#s16-step03-schema .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#s16-step03-schema .error-icon{fill:hsl(36, 26.3157894737%, 100%);}#s16-step03-schema .error-text{fill:#000000;stroke:#000000;}#s16-step03-schema .edge-thickness-normal{stroke-width:1px;}#s16-step03-schema .edge-thickness-thick{stroke-width:3.5px;}#s16-step03-schema .edge-pattern-solid{stroke-dasharray:0;}#s16-step03-schema .edge-thickness-invisible{stroke-width:0;fill:none;}#s16-step03-schema .edge-pattern-dashed{stroke-dasharray:3;}#s16-step03-schema .edge-pattern-dotted{stroke-dasharray:2;}#s16-step03-schema .marker{fill:var(--diagram-base-stroke, #537cc0);stroke:var(--diagram-base-stroke, #537cc0);}#s16-step03-schema .marker.cross{stroke:var(--diagram-base-stroke, #537cc0);}#s16-step03-schema svg{font-family:system-ui,-apple-system,sans-serif;font-size:16px;}#s16-step03-schema p{margin:0;}#s16-step03-schema .label{font-family:system-ui,-apple-system,sans-serif;color:var(--diagram-text, #24334b);}#s16-step03-schema .cluster-label text{fill:#000000;}#s16-step03-schema .cluster-label span{color:#000000;}#s16-step03-schema .cluster-label span p{background-color:transparent;}#s16-step03-schema .label text,#s16-step03-schema span{fill:var(--diagram-text, #24334b);color:var(--diagram-text, #24334b);}#s16-step03-schema .node rect,#s16-step03-schema .node circle,#s16-step03-schema .node ellipse,#s16-step03-schema .node polygon,#s16-step03-schema .node path{fill:var(--diagram-storage-fill, #f3f5f8);stroke:var(--diagram-storage-stroke, #8a96a6);stroke-width:1px;}#s16-step03-schema .rough-node .label text,#s16-step03-schema .node .label text,#s16-step03-schema .image-shape .label,#s16-step03-schema .icon-shape .label{text-anchor:middle;}#s16-step03-schema .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#s16-step03-schema .rough-node .label,#s16-step03-schema .node .label,#s16-step03-schema .image-shape .label,#s16-step03-schema .icon-shape .label{text-align:center;}#s16-step03-schema .node.clickable{cursor:pointer;}#s16-step03-schema .root .anchor path{fill:var(--diagram-base-stroke, #537cc0)!important;stroke-width:0;stroke:var(--diagram-base-stroke, #537cc0);}#s16-step03-schema .arrowheadPath{fill:#0b0b0b;}#s16-step03-schema .edgePath .path{stroke:var(--diagram-base-stroke, #537cc0);stroke-width:2.0px;}#s16-step03-schema .flowchart-link{stroke:var(--diagram-base-stroke, #537cc0);fill:none;}#s16-step03-schema .edgeLabel{background-color:var(--theme, #ffffff);text-align:center;}#s16-step03-schema .edgeLabel p{background-color:var(--theme, #ffffff);}#s16-step03-schema .edgeLabel rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step03-schema .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#s16-step03-schema .cluster rect{fill:hsl(36, 26.3157894737%, 100%);stroke:hsl(36, 0%, 90%);stroke-width:1px;}#s16-step03-schema .cluster text{fill:#000000;}#s16-step03-schema .cluster span{color:#000000;}#s16-step03-schema div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;background:hsl(36, 26.3157894737%, 100%);border:1px solid hsl(36, 0%, 90%);border-radius:2px;pointer-events:none;z-index:100;}#s16-step03-schema .flowchartTitleText{text-anchor:middle;font-size:18px;fill:var(--diagram-text, #24334b);}#s16-step03-schema rect.text{fill:none;stroke-width:0;}#s16-step03-schema .icon-shape,#s16-step03-schema .image-shape{background-color:var(--theme, #ffffff);text-align:center;}#s16-step03-schema .icon-shape p,#s16-step03-schema .image-shape p{background-color:var(--theme, #ffffff);padding:2px;}#s16-step03-schema .icon-shape rect,#s16-step03-schema .image-shape rect{opacity:0.5;background-color:var(--theme, #ffffff);fill:var(--theme, #ffffff);}#s16-step03-schema .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#s16-step03-schema .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#s16-step03-schema :root{--mermaid-font-family:system-ui,-apple-system,sans-serif;}</style>
+  <g>
+    <marker id="s16-step03-schema_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step03-schema_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step03-schema_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step03-schema_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step03-schema_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <marker id="s16-step03-schema_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;" />
+    </marker>
+    <g class="root">
+      <g class="clusters" />
+      <g class="edgePaths">
+        <path d="M196.891,31L248.398,31L295.906,31" id="s16-step03-schema-L_findings_finding_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_findings_finding_0" data-points="W3sieCI6MTk2Ljg5MDYyNSwieSI6MzF9LHsieCI6MjQ4LjM5ODQzNzUsInkiOjMxfSx7IngiOjI5OS45MDYyNSwieSI6MzF9XQ==" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M481.125,31L498.625,31L574.107,86.627" id="s16-step03-schema-L_finding_prompt_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_finding_prompt_0" data-points="W3sieCI6NDgxLjEyNSwieSI6MzF9LHsieCI6NDk4LjYyNSwieSI6MzF9LHsieCI6NTc3LjMyNzQ5ODA3MDk4NzYsInkiOjg5fV0=" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M480.086,112L498.625,112L534.145,112" id="s16-step03-schema-L_changes_prompt_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_changes_prompt_0" data-points="W3sieCI6NDgwLjA4NTkzNzUsInkiOjExMn0seyJ4Ijo0OTguNjI1LCJ5IjoxMTJ9LHsieCI6NTM4LjE0NTIzMzE1NDI5NjksInkiOjExMn1d" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M446.523,193L498.625,193L574.107,137.373" id="s16-step03-schema-L_instructions_prompt_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_instructions_prompt_0" data-points="W3sieCI6NDQ2LjUyMzQzNzUsInkiOjE5M30seyJ4Ijo0OTguNjI1LCJ5IjoxOTN9LHsieCI6NTc3LjMyNzQ5ODA3MDk4NzYsInkiOjEzNX1d" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M678.929,112L768.457,112L832.127,130.727" id="s16-step03-schema-L_prompt_agent_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_prompt_agent_0" data-points="W3sieCI6Njc4LjkyODk4NTU5NTcwMzEsInkiOjExMn0seyJ4Ijo3NjguNDU3MDMxMjUsInkiOjExMn0seyJ4Ijo4MzUuOTY0ODQzNzUsInkiOjEzMS44NTU4MjkwODA1MjU5Mn1d" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M700.949,193L768.457,193L832.127,174.273" id="s16-step03-schema-L_schema_agent_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_schema_agent_0" data-points="W3sieCI6NzAwLjk0OTIxODc1LCJ5IjoxOTN9LHsieCI6NzY4LjQ1NzAzMTI1LCJ5IjoxOTN9LHsieCI6ODM1Ljk2NDg0Mzc1LCJ5IjoxNzMuMTQ0MTcwOTE5NDc0MDh9XQ==" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+        <path d="M976.341,152.5L1027.849,152.5L1075.357,152.5" id="s16-step03-schema-L_agent_verdict_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="s16-step03-schema-L_agent_verdict_0" data-points="W3sieCI6OTc2LjM0MTAzMzkzNTU0NjksInkiOjE1Mi41fSx7IngiOjEwMjcuODQ4ODQ2NDM1NTQ2OSwieSI6MTUyLjV9LHsieCI6MTA3OS4zNTY2NTg5MzU1NDY5LCJ5IjoxNTIuNX1d" marker-end="url(#s16-step03-schema_flowchart-v2-pointEnd)" />
+      </g>
+      <g class="edgeLabels">
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g>
+          <rect class="background" style="stroke: none" />
+        </g>
+        <g class="edgeLabel" transform="translate(248.3984375, 31)">
+          <g class="label" data-id="s16-step03-schema-L_findings_finding_0" transform="translate(-34.0078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="68.015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">取出一条</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step03-schema-L_finding_prompt_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step03-schema-L_changes_prompt_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step03-schema-L_instructions_prompt_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel">
+          <g class="label" data-id="s16-step03-schema-L_prompt_agent_0" transform="translate(0, 0)">
+            <text y="-10.1">
+              <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em" />
+            </text>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(768.45703125, 193)">
+          <g class="label" data-id="s16-step03-schema-L_schema_agent_0" transform="translate(-50.0078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="100.015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">约定输出结构</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="edgeLabel" transform="translate(1027.8488464355469, 152.5)">
+          <g class="label" data-id="s16-step03-schema-L_agent_verdict_0" transform="translate(-34.0078125, -13)">
+            <g>
+              <rect class="background" style="" x="-2" y="-3" width="68.015625" height="26" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">校验通过</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="nodes">
+        <g class="node default" id="s16-step03-schema-flowchart-findings-0" transform="translate(102.4453125, 31)">
+          <rect class="basic label-container" style="" x="-94.4453125" y="-23" width="188.890625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">findings：检查结果</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-finding-1" transform="translate(390.515625, 31)">
+          <rect class="basic label-container" style="" x="-90.609375" y="-23" width="181.21875" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">finding：候选问题</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-prompt-3" transform="translate(608.537109375, 112)">
+          <rect class="basic label-container" style="" x="-70.39187622070312" y="-23" width="140.78375244140625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">复核</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> prompt</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-changes-4" transform="translate(390.515625, 112)">
+          <rect class="basic label-container" style="" x="-89.5703125" y="-23" width="179.140625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">原始代码</tspan>
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal"> changes</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-instructions-6" transform="translate(390.515625, 193)">
+          <rect class="basic label-container" style="" x="-56.0078125" y="-23" width="112.015625" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">复核要求</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-agent-9" transform="translate(906.1529388427734, 152.5)">
+          <rect class="basic label-container" style="" x="-70.18809509277344" y="-23" width="140.37619018554688" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">ctx.agent(...)</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-schema-10" transform="translate(608.537109375, 193)">
+          <rect class="basic label-container" style="" x="-92.412109375" y="-23" width="184.82421875" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">VERDICT_SCHEMA</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+        <g class="node default" id="s16-step03-schema-flowchart-verdict-13" transform="translate(1168.7941589355469, 152.5)">
+          <rect class="basic label-container" style="" x="-89.4375" y="-23" width="178.875" height="46" />
+          <g class="label" style="" transform="translate(0, -11)">
+            <rect />
+            <g>
+              <rect class="background" style="stroke: none" />
+              <text y="-10.1" style="">
+                <tspan class="text-outer-tspan" x="0" y="-0.1em" dy="1.1em">
+                  <tspan font-style="normal" class="text-inner-tspan" font-weight="normal">verdict：复核结论</tspan>
+                </tspan>
+              </text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1844" viewBox="0 0 1000 1844" role="img" aria-labelledby="title desc">
+  <title id="title">4. Launch Agent：从运行条件到 CLI 退出码</title>
+  <desc id="desc">Pre-4 已经准备执行环境、工作区、会话、Adapter 地址、任务指令和等待预算。ClaudeCodeHarness 继承的 BaseHarness.run 先确保 agent 用户与工作区权限，封装 HarnessContext，写入免交互配置，再调用 launch_and_wait。Claude 分支由任务指令构造启动命令、由上下文构造环境变量，交给 run_agent 创建输出目录并调用 exec_and_wait 执行等待，最终把整数退出码返回 generate。图中的动作五和动作六是被调用的能力，不是后续独立时间阶段。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+    <style>
+      text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334}
+      .title{font-size:30px;font-weight:700}.heading{font-size:25px;font-weight:700}.subheading{font-size:21px;font-weight:700}
+      .body{font-size:20px}.note{font-size:17px;fill:#526173}
+      .code{font-family:"DejaVu Sans Mono",monospace;font-size:19px;fill:#453a80}
+      .field{font-family:"DejaVu Sans Mono",monospace;font-size:18px;fill:#453a80}
+      .owner{fill:#f7faff;stroke:#93b8e8;stroke-width:2}.card{fill:#fff;stroke:#b9c7d9;stroke-width:1.5}
+      .part{fill:#f2f0fa;stroke:#c3badf;stroke-width:1.2}.helper{fill:#f9f7fe;stroke:#afa0d0;stroke-width:1.5}
+      .exit{fill:#edf7f0;stroke:#82ac91;stroke-width:2}.flow{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1000" height="1844" fill="#fff"/>
+  <text x="24" y="44" class="title">4. Launch Agent：把运行条件交给 CLI</text>
+  <text x="24" y="80" class="note">这里读启动与等待；模型请求会在 CLI 运行期间发生。</text>
+
+  <g data-component="prepared-inputs">
+    <rect x="44" y="106" width="912" height="176" rx="12" class="card"/>
+    <text x="64" y="141" class="heading">入口：Pre-4 已备齐的运行条件</text>
+    <text x="64" y="180" class="body">sb / workdir：操作已准备的环境与工作区</text>
+    <text x="64" y="218" class="body">session_id / adapter_url：关联本次会话，并找到模型请求入口</text>
+    <text x="64" y="256" class="body">prompt / time_budget_sec：任务指令与等待预算</text>
+  </g>
+  <path d="M500 282 V315" class="flow"/>
+
+  <g data-owner="base-harness-run">
+    <rect x="24" y="318" width="952" height="1334" rx="14" class="owner"/>
+    <text x="48" y="355" class="heading">BaseHarness.run()：ClaudeCodeHarness 继承的入口</text>
+
+    <g data-step="1" data-component="ensure-agent-user">
+      <rect x="48" y="375" width="904" height="145" rx="12" class="card"/>
+      <text x="68" y="410" class="heading">① 确认执行身份与工作区权限</text>
+      <text x="68" y="444" class="code">await ensure_agent_user(sb, workdir)</text>
+      <text x="68" y="478" class="body">确保 agent 用户、工作区归属与 Git 安全目录已就绪。</text>
+      <text x="68" y="505" class="note">通过 sb.exec() 执行环境命令。</text>
+    </g>
+    <path d="M500 521 V550" class="flow"/>
+
+    <g data-step="2" data-component="harness-context">
+      <rect x="48" y="553" width="904" height="224" rx="12" class="card"/>
+      <text x="68" y="589" class="heading">② 封装本次运行上下文</text>
+      <text x="68" y="623" class="code">ctx = HarnessContext(workdir, session_id, adapter_url)</text>
+      <g data-member="workdir">
+        <rect x="68" y="639" width="272" height="88" rx="9" class="part"/>
+        <text x="82" y="665" class="subheading">执行位置</text>
+        <text x="82" y="692" class="field">ctx.workdir</text>
+        <text x="82" y="714" class="note">CLI 在哪个工作区运行</text>
+      </g>
+      <g data-member="session-id">
+        <rect x="364" y="639" width="272" height="88" rx="9" class="part"/>
+        <text x="378" y="665" class="subheading">会话关联</text>
+        <text x="378" y="692" class="field">ctx.session_id</text>
+        <text x="378" y="714" class="note">关联这次 Agent 会话</text>
+      </g>
+      <g data-member="adapter-url">
+        <rect x="660" y="639" width="272" height="88" rx="9" class="part"/>
+        <text x="674" y="665" class="subheading">模型请求入口</text>
+        <text x="674" y="692" class="field">ctx.adapter_url</text>
+        <text x="674" y="714" class="note">CLI 回连的 Adapter 地址</text>
+      </g>
+      <text x="68" y="757" class="note">另有默认 model_label = "slime-actor"，供 CLI 填写模型名。</text>
+    </g>
+    <path d="M500 778 V807" class="flow"/>
+
+    <g data-step="3" data-component="write-config">
+      <rect x="48" y="810" width="904" height="153" rx="12" class="card"/>
+      <text x="68" y="846" class="heading">③ 写入免交互启动设置</text>
+      <text x="68" y="880" class="code">await self.write_config(sb, ctx)</text>
+      <text x="68" y="914" class="body">预先确认 onboarding 与 bypass-permissions，让 CLI 可无人值守启动。</text>
+      <text x="68" y="943" class="note">Claude 分支这里通过 sb.exec() 写配置；此处不读取 ctx。</text>
+    </g>
+    <path d="M500 964 V993" class="flow"/>
+
+    <g data-step="4" data-component="launch-and-wait">
+      <rect x="48" y="996" width="904" height="558" rx="12" class="card"/>
+      <text x="68" y="1032" class="heading">④ 组装命令与环境，启动并等待 CLI</text>
+      <text x="68" y="1066" class="code">await self.launch_and_wait(sb, ctx, prompt, time_budget_sec)</text>
+      <g data-component="command">
+        <rect x="68" y="1086" width="420" height="90" rx="9" class="part"/>
+        <text x="84" y="1115" class="subheading">prompt → cmd</text>
+        <text x="84" y="1147" class="body">构造 claude -p … 的启动命令</text>
+      </g>
+      <g data-component="environment">
+        <rect x="512" y="1086" width="420" height="90" rx="9" class="part"/>
+        <text x="528" y="1115" class="subheading">ctx → env</text>
+        <text x="528" y="1147" class="body">传入模型地址、会话 ID 与模型名</text>
+      </g>
+      <path d="M500 1178 V1207" class="flow"/>
+      <g data-component="run-agent">
+        <rect x="68" y="1210" width="864" height="315" rx="12" class="helper"/>
+        <text x="88" y="1246" class="subheading">委派共用执行器 run_agent(...)</text>
+        <g data-component="prepare-output">
+          <rect x="88" y="1264" width="824" height="88" rx="9" class="card"/>
+          <text x="106" y="1296" class="body">创建工作区中的 .harness/ 输出目录</text>
+          <text x="106" y="1326" class="note">sb.exec() 确保目录存在且由 agent 用户持有。</text>
+        </g>
+        <path d="M500 1353 V1380" class="flow"/>
+        <g data-component="exec-and-wait">
+          <rect x="88" y="1383" width="824" height="116" rx="9" class="card"/>
+          <text x="106" y="1415" class="code">exec_and_wait(...)</text>
+          <text x="106" y="1448" class="body">在工作区以 agent 身份运行命令，等待结束并取得退出码。</text>
+          <text x="106" y="1479" class="note">CLI 输出写入 .harness/trajectory.jsonl；它不同于训练 token 轨迹。</text>
+        </g>
+      </g>
+    </g>
+    <text x="48" y="1600" class="body">退出码沿 run_agent → launch_and_wait → run 逐层返回。</text>
+    <text x="48" y="1630" class="note">run 负责启动与等待；任务准备、评估与最终清理由调用方组织。</text>
+  </g>
+  <path d="M500 1653 V1686" class="flow"/>
+  <g data-component="return-to-generate">
+    <rect x="48" y="1689" width="904" height="82" rx="12" class="exit"/>
+    <text x="68" y="1724" class="heading">出口：int exit_code → generate()</text>
+    <text x="68" y="1754" class="note">调用方恢复执行，进入后续结果收集与任务收尾。</text>
+  </g>
+  <text x="24" y="1805" class="note">向下箭头表示调用主线；动作 5 解释 sb.exec，动作 6 展开 exec_and_wait。</text>
+  <text x="24" y="1831" class="note">它们是此处用到的能力；不是等动作 4 全部结束后才发生的时间阶段。</text>
+</svg>

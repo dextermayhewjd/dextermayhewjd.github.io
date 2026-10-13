@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 425" role="img" aria-labelledby="s08-summary-title s08-summary-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s08-summary-title">局部 C · 用事实摘要替换活跃历史</title><desc id="s08-summary-desc">先留档，再请求模型整理事实；当前用户要求与参考摘要分开放。</desc>
+<defs><marker id="s08-summary-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s08-summary-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">局部 C · 用事实摘要替换活跃历史</text>
+<text x="24" y="55" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">先留档，再请求模型整理事实；当前用户要求与参考摘要分开放。</text>
+<path  d="M224 142H280" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-summary-added-arrow)"/>
+<path  d="M480 142H536" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-summary-added-arrow)"/>
+<path data-route="before-to-after" d="M336 287H424" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-summary-added-arrow)"/>
+<rect data-stage="archive" data-change="added" x="24" y="104" width="200" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="124" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">保存当时的消息</text>
+<text x="124" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">write_transcript()</text>
+<rect data-stage="summary" data-change="added" x="280" y="104" width="200" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="380" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">模型整理事实</text>
+<text x="380" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">summarize_history()</text>
+<rect data-stage="replace" data-change="modified" x="536" y="104" width="200" height="76" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="636" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">替换活跃历史</text>
+<text x="636" y="152" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">1 条新的 user 消息</text>
+<rect data-stage="before" data-change="modified" x="24" y="229" width="312" height="108" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="180" y="255" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">压缩前</text>
+<text x="180" y="277" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">多轮消息、工具调用与结果</text>
+<text x="180" y="311" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">本轮请求单独由 active_request 传入</text>
+<rect data-stage="after" data-change="modified" x="424" y="229" width="312" height="108" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="580" y="255" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">压缩后</text>
+<text x="580" y="276" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">Current user request：当前要求</text>
+<text x="580" y="300" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">Conversation summary：参考状态</text>
+<text x="580" y="323" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">Full transcript：回查路径</text>
+<text x="24" y="372" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">新消息成为后续模型请求的历史；摘要不代表任务完成，也不是无损记忆。</text>
+<text x="24" y="398" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">该源码使用普通 Messages API，没有签名摘要或自动重读项目资料。</text>
+</svg>

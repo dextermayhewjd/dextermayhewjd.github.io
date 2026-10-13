@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sample_hooks.py",
+      "line": 11,
+      "endLine": 27,
+      "symbol": "rollout_context",
+      "text": "_current_rollout_id: int | None = None\n_task_rollout_id = ContextVar(\"rollout_sample_hook_id\", default=None)\n\n\ndef set_current_rollout_id(rollout_id: int | None) -> None:\n    global _current_rollout_id\n    _current_rollout_id = rollout_id\n\n\n@contextmanager\ndef rollout_context(rollout_id):\n    \"\"\"Keep concurrent worker requests' hook contexts independent.\"\"\"\n    token = _task_rollout_id.set(rollout_id)\n    try:\n        yield\n    finally:\n        _task_rollout_id.reset(token)",
+      "blobSha256": "9c50150facc91013e45335e360cff8e27d4a9987fa80094b9c0eaddd2b9f6bfb"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/sample_hooks.py",
+      "line": 37,
+      "endLine": 42,
+      "symbol": "_apply_to_sample",
+      "text": "async def _apply_to_sample(args, sample: Sample, paths: list[str], **kwargs) -> Sample:\n    for path in paths:\n        hook = load_function(path)\n        result = hook(args, sample, **_accepted_kwargs(hook, kwargs))\n        if inspect.isawaitable(result):\n            result = await result",
+      "blobSha256": "9c50150facc91013e45335e360cff8e27d4a9987fa80094b9c0eaddd2b9f6bfb"
+    }
+  }
+}

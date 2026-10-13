@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 390" role="img" aria-labelledby="s07-target-context-title s07-target-context-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s07-target-context-title">E · 同一份 Skill，交给哪个执行上下文</title><desc id="s07-target-context-desc">默认 inline 与可选 fork 是两条分支；是否后台运行另由配置与环境决定。</desc>
+<defs><marker id="s07-target-context-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s07-target-context-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">E · 同一份 Skill，交给哪个执行上下文</text>
+<text x="24" y="55" text-anchor="start" font-size="13" fill="var(--diagram-muted, #58677b)">默认 inline 与可选 fork 是两条分支；是否后台运行另由配置与环境决定。</text>
+<rect data-stage="body" x="24" y="171" width="144" height="80" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="96" y="197" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">准备好的正文</text>
+<text x="96" y="218" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">目标、步骤与范围</text>
+<text x="96" y="237" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">已处理调用参数</text>
+<rect data-stage="inline" x="254" y="96" width="180" height="80" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="344" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">默认：当前会话</text>
+<text x="344" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">结合现有对话</text>
+<text x="344" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">正文进入当前上下文</text>
+<rect data-stage="inline-result" x="532" y="96" width="204" height="80" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="634" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">主 Agent 继续工作</text>
+<text x="634" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">沿既有工具循环执行</text>
+<text x="634" y="162" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">输出结果</text>
+<rect data-stage="fork" x="254" y="250" width="180" height="80" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="344" y="276" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">可选：fork 子上下文</text>
+<text x="344" y="297" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">正文作为子任务</text>
+<text x="344" y="316" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">不自动继承完整父对话</text>
+<rect data-stage="fork-result" x="532" y="250" width="204" height="80" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="634" y="276" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">结果交回主会话</text>
+<text x="634" y="297" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">工具、权限由 agent 配置</text>
+<text x="634" y="316" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">等待 / 后台分开判断</text>
+<path d="M168 211H208V136H254" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-target-context-base-arrow)"/>
+<path d="M168 211H208V290H254" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" stroke-dasharray="3 3"/>
+<path d="M434 136H532" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-target-context-base-arrow)"/>
+<path d="M434 290H532" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-target-context-base-arrow)"/>
+<text x="24" y="369" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">预加载 skills 是另一种组合入口；不要把 fork、预加载和后台执行当作同一开关。</text>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" role="img" aria-labelledby="s06-core-title s06-core-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s06-core-title">图 3 · 子循环：独立历史与同步返回</title>
+<desc id="s06-core-desc">task 新建子历史；子模型通过共享工具入口完成工作，工具结果只进入子历史。Stop 不要求继续时提取最终文本返回父循环，父子共享工作目录。</desc>
+<defs><marker id="s06-core-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">图 3 · 子循环：独立历史与同步返回</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">子工具结果进入子历史；无工具且 Stop 不续跑时返回最终文本。</text>
+<rect data-stage="task" data-change="added" x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="12" font-weight="650" fill="var(--diagram-text, #24334b)">task(prompt)</text>
+<text x="80" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">来自父工具调用</text>
+<rect data-stage="child-history" data-change="added" x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">新 messages</text>
+<text x="228" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">第一条只有 prompt</text>
+<rect data-stage="child-model" data-change="added" x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求子模型</text>
+<text x="376" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">SUB_SYSTEM / 工具</text>
+<rect data-stage="child-decision" data-change="added" x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">判断响应</text>
+<text x="524" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">工具调用 / Stop</text>
+<rect data-stage="child-final" data-change="added" x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">提取最终文本</text>
+<text x="672" y="143" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">无额外摘要请求</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<rect data-stage="shared-tools" data-change="modified" x="320" y="216" width="260" height="64" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="450" y="242" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">execute_tool：父子共用</text>
+<text x="450" y="263" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">权限 → 原工具 → 后置 Hook → 结果</text>
+<rect data-stage="workspace" data-change="base" x="24" y="216" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="80" y="242" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">共享工作区</text>
+<text x="80" y="263" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">原有 · 本轮展开</text>
+<rect data-stage="parent-history" data-change="base" x="616" y="216" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="242" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">父历史继续</text>
+<text x="672" y="263" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">普通 task 工具结果</text>
+<path d="M524 160V216" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<text x="536" y="194" font-size="11" fill="var(--diagram-muted, #58677b)">有工具</text>
+<path data-route="stop-feedback" d="M492 160V190H228V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<text x="320" y="183" font-size="10.5" fill="var(--diagram-muted, #58677b)">Stop 反馈 → 子历史</text>
+<path d="M320 248H300V326H228V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<text x="316" y="322" font-size="11" fill="var(--diagram-muted, #58677b)">结果追加到子历史</text>
+<path d="M672 160V216" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s06-core-arrow)"/>
+<path data-relation="shared-workspace" d="M136 248H208V294H448V280" fill="none" stroke="var(--diagram-muted, #58677b)" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text x="24" y="365" font-size="12" fill="var(--diagram-muted, #58677b)">父循环同步等待；子 Agent 没有 task 工具，最多运行 30 轮。</text>
+<text x="24" y="391" font-size="12" fill="var(--diagram-muted, #58677b)">消息历史独立，WORKDIR 共享；原有工具和权限策略仍由 execute_tool 使用。</text>
+</svg>

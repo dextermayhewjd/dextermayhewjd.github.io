@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 350" role="img" aria-labelledby="s12-task-deps-title s12-task-deps-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s12-task-deps-title">S10 · 用依赖判断当前哪些任务可做</title>
+<desc id="s12-task-deps-desc">箭头从前置任务指向后续任务；后者的 blockedBy 保存前者的 ID。</desc>
+<defs>
+<marker id="s12-task-deps-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker>
+<marker id="s12-task-deps-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker>
+</defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">S10 · 用依赖判断当前哪些任务可做</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">箭头从前置任务指向后续任务；后者的 blockedBy 保存前者的 ID。</text>
+<rect x="24" y="108" width="150" height="74" rx="9" fill="var(--diagram-done-fill, #e8f5ec)" stroke="var(--diagram-done-stroke, #3e8460)" stroke-width="1.5"/>
+<text x="99" y="134" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">数据库结构 schema</text>
+<text x="99" y="155" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">completed</text>
+<rect x="210" y="108" width="150" height="74" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="285" y="134" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">API 接口 api</text>
+<text x="285" y="155" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">in_progress · agent</text>
+<rect x="396" y="108" width="150" height="74" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="471" y="134" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">测试 tests</text>
+<text x="471" y="155" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">pending · 被阻塞</text>
+<rect x="582" y="108" width="150" height="74" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="657" y="134" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">部署 deploy</text>
+<text x="657" y="155" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">pending · 被阻塞</text>
+<rect x="210" y="220" width="150" height="74" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="285" y="246" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">文档 docs</text>
+<text x="285" y="267" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">pending · 可认领</text>
+<path d="M174 145H210" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s12-task-deps-arrow)"/>
+<path d="M360 145H396" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s12-task-deps-arrow)"/>
+<path d="M546 145H582" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s12-task-deps-arrow)"/>
+<path d="M99 182V257H210" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s12-task-deps-arrow)"/>
+<path d="M360 257H657V182" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s12-task-deps-arrow)"/>
+<text x="492" y="246" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">部署需要 tests 和 docs 都完成</text>
+<text x="24" y="325" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">schema 已完成：API 已认领，docs 可认领；tests 与 deploy 仍受依赖阻塞。</text>
+<text x="24" y="343" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">绿色 completed · 蓝色 in_progress · 灰色 pending；可认领不代表已经开始。</text>
+</svg>
