@@ -1,0 +1,33 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "tests/test_server_control.py",
+      "line": 230,
+      "endLine": 259,
+      "symbol": "test_http_transport_preserves_streams_timeouts_and_connection_budget.serve",
+      "text": "        async def serve(reader, writer):\n            nonlocal active, peak, accepted\n            task = asyncio.current_task()\n            tasks.add(task)\n            active += 1\n            accepted += 1\n            peak = max(peak, active)\n            try:\n                while True:\n                    headers = await reader.readuntil(b\"\\r\\n\\r\\n\")\n                    length = next(\n                        (\n                            int(line.split(b\":\", 1)[1])\n                            for line in headers.split(b\"\\r\\n\")\n                            if line.lower().startswith(b\"content-length:\")\n                        ),\n                        0,\n                    )\n                    body = await reader.readexactly(length)\n                    if b\"/slow \" in headers:\n                        await asyncio.sleep(0.1)\n                    writer.write(b\"HTTP/1.1 200 OK\\r\\nContent-Length: \" + str(len(body)).encode() + b\"\\r\\n\\r\\n\" + body)\n                    await writer.drain()\n            except (asyncio.IncompleteReadError, ConnectionError):\n                pass\n            finally:\n                active -= 1\n                writer.close()\n                await writer.wait_closed()\n                tasks.discard(task)",
+      "blobSha256": "766a122119804ddbda08559b71891738f0ff023ffb4d317044f9960cca8ff563"
+    },
+    "source-2": {
+      "available": true,
+      "path": "tests/test_server_control.py",
+      "line": 261,
+      "endLine": 272,
+      "symbol": "local TCP server and HTTP clients",
+      "text": "        server = await asyncio.start_server(serve, \"127.0.0.1\", 0, backlog=2 * concurrency)\n        url = f\"http://127.0.0.1:{server.sockets[0].getsockname()[1]}\"\n        try:\n            async with httpx.AsyncClient(transport=http_utils._ShardedHTTPTransport(concurrency)) as client:\n\n                async def request(i):\n                    body = str(i).encode()\n                    async with client.stream(\"POST\", url, content=body) as response:\n                        assert await response.aread() == body\n\n                for _ in range(2):\n                    await asyncio.gather(*(request(i) for i in range(concurrency + 3)))",
+      "blobSha256": "766a122119804ddbda08559b71891738f0ff023ffb4d317044f9960cca8ff563"
+    },
+    "source-3": {
+      "available": true,
+      "path": "tests/test_server_control.py",
+      "line": 278,
+      "endLine": 282,
+      "symbol": "server shutdown and handler draining",
+      "text": "        finally:\n            server.close()\n            await server.wait_closed()\n            await asyncio.gather(*tasks, return_exceptions=True)\n        assert active == 0",
+      "blobSha256": "766a122119804ddbda08559b71891738f0ff023ffb4d317044f9960cca8ff563"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{{- $category := .Get "category" -}}
+{{- $path := printf "python-async-concurrency/usage-categories/%s.md" $category -}}
+{{- if not (fileExists $path) -}}
+  {{- errorf "Python async inventory category missing: %s" $category -}}
+{{- else -}}
+  {{- $body := readFile $path -}}
+  {{- $body = replaceRE `^# [^\n]+\n+` "" $body -}}
+  {{- $body = replace $body "(../README.md)" "(/projects/python-async-concurrency/)" -}}
+  {{- $body = replace $body "(../FILES.md)" "(/python-async-concurrency/FILES.md)" -}}
+  {{- $body = replace $body "(../inventory.json)" "(/python-async-concurrency/inventory.json)" -}}
+  {{- $body = replace $body "(../inventory.tsv)" "(/python-async-concurrency/inventory.tsv)" -}}
+  {{- $body = replace $body "(../source_snapshot/" "(/python-async-concurrency/source_snapshot/" -}}
+  {{- .Page.RenderString (dict "display" "block") $body -}}
+{{- end -}}

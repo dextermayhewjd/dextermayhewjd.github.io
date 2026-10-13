@@ -90,3 +90,11 @@ identifier = "archives"
 [[module.mounts]]
   source = "slime_photo"
   target = "assets/slime-photo"
+
+# Serve the independent Python reference folder beside its learning project.
+[[module.mounts]]
+  source = "static"
+  target = "static"
+[[module.mounts]]
+  source = "python-async-concurrency"
+  target = "static/python-async-concurrency"

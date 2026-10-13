@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "checked_at_utc": "2026-10-13T07:41:07.192791+00:00",
+  "source_head": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "checks": {
+    "tracked_python_files": 381,
+    "snapshot_hashes": 90,
+    "exact_occurrence_lines": 2288,
+    "independent_async_syntax": {
+      "async_def_total": 288,
+      "async_with": 42,
+      "await": 409,
+      "async_for": 1
+    },
+    "category_tables": 19,
+    "documentation_snippets": 29,
+    "local_markdown_links": 2620,
+    "pinned_source_links": 2366,
+    "exact_guide_code_blocks": 4,
+    "book_quote_pairs": 1,
+    "source_license": true,
+    "standalone_folder": true
+  },
+  "errors": [],
+  "scope": "Static source and document validation only; no Slime modules imported, training, model services or sandbox tasks executed."
+}

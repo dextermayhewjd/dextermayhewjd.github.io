@@ -1,0 +1,33 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 305,
+      "endLine": 317,
+      "symbol": "_GenerationActor._next",
+      "text": "    async def _next(self):\n        take = asyncio.create_task(self.outputs.get())\n        try:\n            await asyncio.wait((take, self.producer), return_when=asyncio.FIRST_COMPLETED)\n            if take.done():\n                return take.result()\n            self.producer.result()  # Propagate custom generation errors.\n            if not self.outputs.empty():\n                return await take\n            return None\n        finally:\n            take.cancel()\n            await asyncio.gather(take, return_exceptions=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-2": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 201,
+      "endLine": 211,
+      "symbol": "generate",
+      "text": "    try:\n        async with asyncio.timeout(CONFIG.rollout_guard_sec):\n            async with boot_agent_sandbox(md[\"image\"], instance_id) as sb:\n                await swe.prepare_workspace(sb, md[\"workdir\"], md)\n                agent_exit_code = await HARNESS_CLS().run(\n                    sb,\n                    workdir=md[\"workdir\"],\n                    session_id=session_id,\n                    adapter_url=state.adapter_url,\n                    time_budget_sec=CONFIG.agent_time_budget_sec,\n                    prompt=swe.SWE_PROMPT,",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/data/transport.py",
+      "line": 368,
+      "endLine": 389,
+      "symbol": "run_rollout_io",
+      "text": "\n\nasync def run_rollout_io(args, function, *values, **kwargs):\n    \"\"\"Bound the executor backlog before submitting encoding/sync work.\"\"\"\n    loop = asyncio.get_running_loop()\n    key = (os.getpid(), loop)\n    if key not in _async_limits:\n        _async_limits[key] = asyncio.Semaphore(getattr(args, \"rollout_io_concurrency\", 4))\n    async with _async_limits[key]:\n        pending = asyncio.create_task(asyncio.to_thread(function, *values, **kwargs))\n        try:\n            return await asyncio.shield(pending)\n        except asyncio.CancelledError:\n            # Repeated cancellation still cannot stop a filesystem commit.\n            # Keep capacity and input ownership until the accepted write finishes.\n            while not pending.done():\n                try:\n                    await asyncio.shield(pending)\n                except asyncio.CancelledError:\n                    pass\n            pending.result()\n            raise",
+      "blobSha256": "9315c9bd0b66c7a7e4c237cd24a58b4b195c0ebcb48aeb7afe8e96e7cdbaad36"
+    }
+  }
+}

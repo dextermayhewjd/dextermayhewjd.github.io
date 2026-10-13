@@ -1,0 +1,250 @@
+{
+  "source_revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "route": "/projects/python-async-concurrency/",
+  "lessons": [
+    {
+      "number": 1,
+      "slug": "01-async-def",
+      "title": "01 · async def：定义之后，什么时候执行？",
+      "example": true,
+      "expected_stdout": "created\nrun 10\nresult 10\n",
+      "source_count": 1
+    },
+    {
+      "number": 2,
+      "slug": "02-await",
+      "title": "02 · await：等待结果，不等于自动并发",
+      "example": true,
+      "expected_stdout": "start 10\nend 10\nstart 11\nend 11\nresults [10, 11]\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "comparison.py",
+          "scenarios": [
+            "with assignment",
+            "without assignment"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "slug": "03-tasks",
+      "title": "03 · Task 与 gather：把多份工作安排起来",
+      "example": true,
+      "expected_stdout": "scheduled 2\nresults [10, 11]\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "comparison.py",
+          "scenarios": [
+            "no other task",
+            "another task is ready",
+            "blocking sleep"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "slug": "04-results",
+      "title": "04 · wait 与 as_completed：先处理已经完成的工作",
+      "example": true,
+      "expected_stdout": "done [11]\npending 1\nremaining [10]\n",
+      "source_count": 2,
+      "valid_stdout": [
+        "done [11]\npending 1\nremaining [10]\n",
+        "done [10, 11]\npending 0\nremaining []\n"
+      ],
+      "additional_examples": [
+        {
+          "file": "as_completed.py",
+          "scenarios": [
+            "completion order"
+          ],
+          "expected_stdout": "result 11\nresult 10\n"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "slug": "05-cancellation",
+      "title": "05 · 取消与超时：请求停止以后，还要等待收尾",
+      "example": true,
+      "expected_stdout": "cleanup 10\ncancelled\ntimeout\n",
+      "source_count": 3
+    },
+    {
+      "number": 6,
+      "slug": "06-semaphore",
+      "title": "06 · Semaphore：限制同时进入的工作数量",
+      "example": true,
+      "expected_stdout": "results [0, 1, 2, 3, 4]\npeak 2\n",
+      "source_count": 2
+    },
+    {
+      "number": 7,
+      "slug": "07-queues",
+      "title": "07 · Queue：把生产速度和消费速度接起来",
+      "example": true,
+      "expected_stdout": "received [10, 11]\n",
+      "source_count": 3
+    },
+    {
+      "number": 8,
+      "slug": "08-executors",
+      "title": "08 · 线程池：把阻塞工作移出事件循环",
+      "example": true,
+      "expected_stdout": "to_thread [0, 1, 2]\nreader [0, 1, 2]\n",
+      "source_count": 3
+    },
+    {
+      "number": 9,
+      "slug": "09-thread-synchronization",
+      "title": "09 · Lock、Event 与线程退出",
+      "example": true,
+      "expected_stdout": "count 2000\n",
+      "source_count": 2
+    },
+    {
+      "number": 10,
+      "slug": "10-async-protocols",
+      "title": "10 · async with、async for 与异步生成器",
+      "example": true,
+      "expected_stdout": "enter\nsandbox\nA\nB\nexit\n",
+      "source_count": 2
+    },
+    {
+      "number": 11,
+      "slug": "11-contextvars",
+      "title": "11 · ContextVar：让并发任务保留各自的上下文",
+      "example": true,
+      "expected_stdout": "task values [10, 11]\nouter value None\n",
+      "source_count": 2
+    },
+    {
+      "number": 12,
+      "slug": "12-processes",
+      "title": "12 · 进程池、子进程与系统边界",
+      "example": true,
+      "expected_stdout": "pool [4, 9]\nsubprocess child\n",
+      "source_count": 2
+    },
+    {
+      "number": 13,
+      "slug": "13-event-loop",
+      "title": "13 · Future、回调与跨线程事件循环",
+      "example": true,
+      "expected_stdout": "value 7\n",
+      "source_count": 13,
+      "additional_examples": [
+        {
+          "file": "lifecycle.py",
+          "scenarios": [
+            "Future completion and failure",
+            "Task inspection and cancellation",
+            "cross-thread event loop lifecycle"
+          ],
+          "expected_stdout": "loop running True\ncurrent registered True\nfuture result 7\nfuture callback [7]\nfuture error bad value\nfuture cancelled True True\ntask state True 9 None\ntask loop True\ntask cancelled True True\nthread stopped True\n"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "slug": "14-slime-walkthrough",
+      "title": "14 · 回到 Slime：串起创建、等待与清理",
+      "example": false,
+      "expected_stdout": null,
+      "source_count": 3
+    },
+    {
+      "number": 15,
+      "slug": "15-async-notification",
+      "title": "Event 通知与异步互斥",
+      "example": true,
+      "expected_stdout": "initial False\nwaiting True\nset True\nreceived [['sample']]\nwait again True\ncleared False\nwaiting again True\nlock held True\nupdate waiting True\nupdated checkpoint-2\nlock released False\n",
+      "source_count": 3
+    },
+    {
+      "number": 16,
+      "slug": "16-thread-coordination",
+      "title": "Condition、RLock 与 Timer",
+      "example": true,
+      "expected_stdout": "notify while holding lock True\npredicate still false True\nreceived ['sample']\nsame thread entered twice\nouter lock still held\ntimer called True\ncancelled timer called False\n",
+      "source_count": 10
+    },
+    {
+      "number": 17,
+      "slug": "17-executor-results",
+      "title": "线程池 Future 的结果与退出",
+      "example": true,
+      "expected_stdout": "running True done False\ncancel running False\ncancel queued True done True\nqueued result CancelledError\nresult timeout; work still running True\nresult first\ncallback ['first']\nsuccess exception None\nraised cannot read broken\nstored exception ValueError\nmap [3, 1, 2]\nfirst completed ['fast']\npending 1\nas_completed fast\nas_completed slow\nshutdown finished\n",
+      "source_count": 9
+    },
+    {
+      "number": 18,
+      "slug": "18-process-lifecycle",
+      "title": "18 · 进程生命周期：从队列工作到超时回收",
+      "example": true,
+      "expected_stdout": "owned worker True\nresults [(10, 1), (11, 1)]\njoined True\njoin timed out True\nprocess reaped True\npool [4, 9]\n",
+      "source_count": 13,
+      "additional_examples": [
+        {
+          "file": "subprocess_example.py",
+          "scenarios": [
+            "merged output",
+            "communicate timeout and reap",
+            "terminate and wait",
+            "checked command failures"
+          ],
+          "expected_stdout": "merged ['out', 'err']\ntimeout still running True\nkilled and reaped True\nterminated and waited True\ncommand failed 7\ncheck_call 0\ncheck_output probe\n"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "slug": "19-signals-locks",
+      "title": "19 · 信号、进程组与文件锁：退出以后谁释放资源？",
+      "example": true,
+      "expected_stdout": "ready True\nlock blocked True\nchild killed True\nlock reacquired True\n",
+      "source_count": 8,
+      "platforms": [
+        "linux",
+        "darwin"
+      ],
+      "additional_examples": [
+        {
+          "file": "signals_example.py",
+          "scenarios": [
+            "alarm timeout",
+            "signal handler restoration",
+            "owned process group cleanup",
+            "shell status"
+          ],
+          "expected_stdout": "alarm timeout\nalarm handler restored True\ngroup reaped True\nhandlers restored True\nshell status 0\n",
+          "platforms": [
+            "linux",
+            "darwin"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "slug": "20-async-streams",
+      "title": "20 · asyncio Streams：接收、分帧与连接收尾",
+      "example": true,
+      "expected_stdout": "server listening True\nreply line echo\nreply body b'abc'\nhandler ('complete', b'abc', b'!')\nhandler ('incomplete', b'xy', 5)\nserver listening False\n",
+      "source_count": 3
+    },
+    {
+      "number": 21,
+      "slug": "21-async-inspection",
+      "title": "21 · 异步能力检查与协议边界",
+      "example": true,
+      "expected_stdout": "sample 8\ntrace ['sync:enter', 'sync:exit', 'async:enter', 'async:exit', 'async:enter', 'async:exit']\ndeferred False True\nawaited 6\nresource enter\nvalues [1, 2]\nresource exit None\nfirst 10\ngenerator closed\n",
+      "source_count": 5
+    }
+  ],
+  "coverage": "teaching-coverage.json"
+}

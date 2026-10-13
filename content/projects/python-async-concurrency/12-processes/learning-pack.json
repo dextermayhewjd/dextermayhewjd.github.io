@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "tools/convert_torch_dist_to_hf_parallel.py",
+      "line": 511,
+      "endLine": 530,
+      "symbol": "模型转换进程池",
+      "text": "    ctx = multiprocessing.get_context(\"spawn\")\n    with ctx.Pool(num_workers) as pool:\n        results = pool.starmap(\n            conversion_worker,\n            [\n                (\n                    i,\n                    key_chunks[i],\n                    args,\n                    megatron_args,\n                    args.model_name,\n                    state_dict_metadata_dict,\n                    load_max_workers,\n                    save_max_workers,\n                )\n                for i in range(num_workers)\n            ],\n        )\n\n    final_weight_map = {}",
+      "blobSha256": "3e77303edf537812ecba1896a57c5ed51d2b6b61e1423e497f3b146156412db5"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/deployment.py",
+      "line": 49,
+      "endLine": 62,
+      "symbol": "_start_router",
+      "text": "        router_args.disable_health_check = True\n\n    logger.info(f\"Launch router with args: {router_args}\")\n\n    process = multiprocessing.Process(\n        target=run_router,\n        args=(router_args,),\n    )\n    process.daemon = True\n    process.start()\n    time.sleep(3)\n    assert process.is_alive()\n    logger.info(f\"Router launched at {router_ip}:{router_port}, Prometheus port: {router_args.prometheus_port}\")\n    return router_ip, router_port",
+      "blobSha256": "bdbb3cb9b24310f12a6ee231e7d39f4e6ad1841ec2195f079ac12b919c1a9556"
+    }
+  }
+}

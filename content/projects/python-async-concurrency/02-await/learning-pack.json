@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/agent/sandbox.py",
+      "line": 73,
+      "endLine": 79,
+      "symbol": "_await_done_marker",
+      "text": "    deadline = time.time() + time_budget_sec\n    while time.time() < deadline:\n        await asyncio.sleep(5)\n        ec, out, _ = await sb.exec(f\"test -f {done_file} && cat {done_file}\", user=user, timeout=15, check=False)\n        if ec == 0 and (out or \"\").strip():\n            return int(out.strip())\n    return EXIT_TIME_BUDGET_EXCEEDED",
+      "blobSha256": "0c1b475e02ccce0ed3089c9f73272c755d5090f7e63e9be909a44c8a40339d91"
+    }
+  }
+}

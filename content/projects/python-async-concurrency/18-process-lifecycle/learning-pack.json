@@ -1,0 +1,123 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/sglang_engine.py",
+      "line": 49,
+      "endLine": 63,
+      "symbol": "launch_server_process",
+      "text": "    multiprocessing.set_start_method(\"spawn\", force=True)\n    server_args.host = server_args.host.strip(\"[]\")\n    p = multiprocessing.Process(target=_launch_server, args=(server_args, os.getpid()))\n    p.start()\n\n    if getattr(server_args, \"node_rank\", 0) != 0:\n        return p\n\n    _wait_server_healthy(\n        base_url=server_args.url(),\n        api_key=server_args.api_key,\n        is_process_alive=lambda: p.is_alive(),\n    )\n\n    return p",
+      "blobSha256": "040069fb31d4b55430d7425d4e8ce16a2b69fa8ea4691d2bbcb603259977aff5"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/ray/serving.py",
+      "line": 57,
+      "endLine": 78,
+      "symbol": "ServingCluster.__init__：新子进程归属",
+      "text": "        existing_children = {process.pid for process in multiprocessing.active_children()}\n        try:\n            # Constructor failure must release partial topology too. A detached\n            # actor can fail before any driver obtains a usable deployment.\n            self.placements = create_placement_groups(args)\n            try:\n                self.servers, handles = (\n                    ({}, []) if args.debug_train_only else start_rollout_servers(args, self.placements[\"rollout\"])\n                )\n            finally:\n                self.router_processes = [\n                    process for process in multiprocessing.active_children() if process.pid not in existing_children\n                ]\n            ray.get(handles)\n            self.lock = Lock.options(num_cpus=0, num_gpus=0).remote()\n        except BaseException:\n            try:\n                self.dispose()\n            except Exception:\n                logging.getLogger(__name__).exception(\"Failed to dispose partial serving deployment\")\n            raise\n",
+      "blobSha256": "7255dde2196d0cc75d7ee7a3c0ef601a1de4b8e407bd33ab8fc0836652760080"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime_plugins/rollout_buffer/generator/base_generator.py",
+      "line": 108,
+      "endLine": 140,
+      "symbol": "worker_process",
+      "text": "def worker_process(task_queue, done_queue, rollout_func, reward_func, client, sampling_params):\n\n    for line in iter(task_queue.get, \"STOP\"):\n        if isinstance(line, str):\n            item = json.loads(line)\n        else:\n            item = line\n\n        # try:\n        messages, finish_reason = rollout_func(client, item[\"prompt\"], sampling_params)\n\n        item[\"uid\"] = str(uuid.uuid4())\n        item[\"messages\"] = messages\n        reward = reward_func(item)\n        item[\"rollout_index\"] = 1\n        item[\"reward\"] = reward\n        item[\"extra_info\"] = {}\n        item.update(sampling_params)\n        item[\"timestamp\"] = str(time.time())\n        item[\"round_number\"] = len([_ for _ in item[\"messages\"] if _[\"role\"] == \"assistant\"])\n        item[\"finish_reason\"] = finish_reason\n\n        output_item = {\n            \"uid\": item.pop(\"uid\"),\n            \"messages\": messages,\n            \"reward\": reward,\n            \"instance_id\": item.pop(\"instance_id\"),\n            \"extra_info\": item,\n        }\n\n        done_queue.put(output_item)\n\n    done_queue.put(\"COMPLETE\")",
+      "blobSha256": "c8431ff5e6c584111d5735811038104438ca61b28231b1a221a447866904a2ba"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime_plugins/rollout_buffer/generator/base_generator.py",
+      "line": 192,
+      "endLine": 265,
+      "symbol": "BaseGenerator.run",
+      "text": "    def run(self, input_file, rollout_func, reward_func):\n        task_queue, done_queue = Queue(maxsize=self.queue_size), Queue(maxsize=self.queue_size)\n\n        def read_data_into_queue():\n            cnt = 0\n            items = []\n            skipped_count = 0\n            with open(input_file) as f:\n                for i, line in enumerate(f):\n                    item = json.loads(line)\n                    if \"instance_id\" not in item:\n                        item[\"instance_id\"] = i\n                    items.append(item)\n            random.shuffle(items)\n\n            for _ in range(self.num_repeats):\n\n                for item in items:\n                    for _ in range(self.num_repeat_per_sample):\n                        item_repeat = copy.deepcopy(item)\n\n                        if \"uid\" not in item_repeat:\n                            item_repeat[\"uid\"] = str(uuid.uuid4())\n\n                        # Check if instance_id should be skipped\n                        if self.skip_instance_ids is not None and item_repeat[\"instance_id\"] in self.skip_instance_ids:\n                            print(f\"Skipping instance_id: {item_repeat['instance_id']}\")\n                            # Remove from skip list to handle potential duplicates in multiple epochs\n                            self.skip_instance_ids.remove(item_repeat[\"instance_id\"])\n                            skipped_count += 1\n                            continue\n\n                        task_queue.put(item_repeat)\n                    cnt += 1\n                time.sleep(300)\n\n            if skipped_count > 0:\n                remaining_skip_count = len(self.skip_instance_ids) if self.skip_instance_ids is not None else 0\n                print(\n                    f\"Rollout summary: skipped {skipped_count} instance_ids, {remaining_skip_count} still in skip list\"\n                )\n\n            for _ in range(self.num_process):\n                task_queue.put(\"STOP\")\n\n        processes = []\n        SAMPLING_PARAMS[\"max_tokens\"] = self.max_tokens\n\n        for _ in range(self.num_process):\n            process = Process(\n                target=partial(worker_process, client=self.client, sampling_params=SAMPLING_PARAMS),\n                args=(task_queue, done_queue, rollout_func, reward_func),\n            )\n            process.start()\n            processes.append(process)\n\n        process = Process(target=read_data_into_queue)\n        process.start()\n\n        progress_bar = tqdm()\n        num_finished = 0\n        while num_finished < self.num_process:\n            item = done_queue.get()\n            if item == \"COMPLETE\":\n                num_finished += 1\n            else:\n                assert \"reward\" in item, f\"reward not in item: {item}\"\n                assert \"instance_id\" in item, f\"instance_id not in item: {item}\"\n                self.send_data_to_buffer(item)\n                progress_bar.update(1)\n\n        progress_bar.close()\n\n        return \"finished\"",
+      "blobSha256": "c8431ff5e6c584111d5735811038104438ca61b28231b1a221a447866904a2ba"
+    },
+    "source-5": {
+      "available": true,
+      "path": "slime/ray/serving.py",
+      "line": 317,
+      "endLine": 323,
+      "symbol": "ServingCluster.dispose：路由器回收",
+      "text": "            for router in self.router_processes:\n                if router.is_alive():\n                    cleanup.run(\"terminate router\", router.terminate)\n                    cleanup.run(\"join router\", router.join, timeout=min(10, cleanup.remaining / 2))\n                    if router.is_alive():\n                        cleanup.run(\"kill router\", router.kill)\n                        cleanup.run(\"reap router\", router.join, timeout=cleanup.remaining)",
+      "blobSha256": "7255dde2196d0cc75d7ee7a3c0ef601a1de4b8e407bd33ab8fc0836652760080"
+    },
+    "source-6": {
+      "available": true,
+      "path": "tools/convert_torch_dist_to_hf_parallel.py",
+      "line": 511,
+      "endLine": 528,
+      "symbol": "转换进程池",
+      "text": "    ctx = multiprocessing.get_context(\"spawn\")\n    with ctx.Pool(num_workers) as pool:\n        results = pool.starmap(\n            conversion_worker,\n            [\n                (\n                    i,\n                    key_chunks[i],\n                    args,\n                    megatron_args,\n                    args.model_name,\n                    state_dict_metadata_dict,\n                    load_max_workers,\n                    save_max_workers,\n                )\n                for i in range(num_workers)\n            ],\n        )",
+      "blobSha256": "3e77303edf537812ecba1896a57c5ed51d2b6b61e1423e497f3b146156412db5"
+    },
+    "source-7": {
+      "available": true,
+      "path": "examples/strands_sglang/subprocess_interpreter.py",
+      "line": 227,
+      "endLine": 244,
+      "symbol": "SubprocessInterpreter.run_file：超时回收",
+      "text": "        try:\n            proc = subprocess.Popen(\n                cmd,\n                stdout=subprocess.PIPE,\n                stderr=subprocess.PIPE,\n                text=True,\n                env=env,\n                shell=False,  # Never use shell=True for security\n            )\n            # Add timeout to prevent hanging processes\n            stdout, stderr = proc.communicate(timeout=self.execution_timeout)\n            return_code = proc.returncode\n        except subprocess.TimeoutExpired:\n            proc.kill()\n            stdout, stderr = proc.communicate()\n            return_code = proc.returncode\n            timeout_msg = f\"Process timed out after {self.execution_timeout} seconds and was terminated.\"\n            stderr = f\"{stderr}\\n{timeout_msg}\"",
+      "blobSha256": "d252740a7953b30096c8152367c510a0f55817c0916b3a458a998ac5e358f050"
+    },
+    "source-8": {
+      "available": true,
+      "path": "tests/ci/gpu_lock_exec.py",
+      "line": 38,
+      "endLine": 65,
+      "symbol": "_run_command：检查与等待子进程",
+      "text": "def _run_command(args):\n    cmd = args.cmd\n    if cmd[0] == \"--\":\n        cmd = cmd[1:]\n\n    child = subprocess.Popen(cmd, start_new_session=True)\n\n    def terminate_child(signum, _frame):\n        if child.poll() is None:\n            child.terminate()\n            try:\n                child.wait(timeout=5)\n                sys.exit(128 + signum)\n            except subprocess.TimeoutExpired:\n                pass\n\n            try:\n                os.killpg(child.pid, signum)\n            except ProcessLookupError:\n                pass\n            try:\n                child.wait(timeout=5)\n            except subprocess.TimeoutExpired:\n                try:\n                    os.killpg(child.pid, signal.SIGKILL)\n                except ProcessLookupError:\n                    pass\n                child.wait()",
+      "blobSha256": "3cdbab0cb542983dd86e0bb9bdf588d707f5d036cd70debc6453b48bf4c2d08e"
+    },
+    "source-9": {
+      "available": true,
+      "path": "slime/utils/misc.py",
+      "line": 79,
+      "endLine": 97,
+      "symbol": "exec_command",
+      "text": "def exec_command(cmd: str, capture_output: bool = False) -> str | None:\n    print(f\"EXEC: {cmd}\", flush=True)\n\n    try:\n        result = subprocess.run(\n            [\"bash\", \"-c\", cmd],\n            shell=False,\n            check=True,\n            capture_output=capture_output,\n            **(dict(text=True) if capture_output else {}),\n        )\n    except subprocess.CalledProcessError as e:\n        if capture_output:\n            print(f\"{e.stdout=} {e.stderr=}\")\n        raise\n\n    if capture_output:\n        print(f\"Captured stdout={result.stdout} stderr={result.stderr}\")\n        return result.stdout",
+      "blobSha256": "6678a7028bc57e9e9191c3657e0ff6b3f5975ab7f720990016d4194578133c6d"
+    },
+    "source-10": {
+      "available": true,
+      "path": "examples/strands_sglang/subprocess_interpreter.py",
+      "line": 425,
+      "endLine": 437,
+      "symbol": "SubprocessInterpreter._is_command_available",
+      "text": "        else:  # Unix-like systems\n            # On Unix-like systems, use which to find the command\n            try:\n                with open(os.devnull, \"w\") as devnull:\n                    subprocess.check_call(\n                        [\"which\", command],\n                        stdout=devnull,\n                        stderr=devnull,\n                        shell=False,\n                    )\n                return True\n            except subprocess.CalledProcessError:\n                return False",
+      "blobSha256": "d252740a7953b30096c8152367c510a0f55817c0916b3a458a998ac5e358f050"
+    },
+    "source-11": {
+      "available": true,
+      "path": "tests/test_qwen3_4B_external_pd.py",
+      "line": 45,
+      "endLine": 56,
+      "symbol": "_get_bond_ipv4：check_output",
+      "text": "    if not net_root.exists():\n        return None\n\n    bond_ifaces = [\n        path.name for path in net_root.iterdir() if path.name.startswith(\"bond\") and path.name[4:].isdigit()\n    ]\n    bond_ifaces.sort(key=lambda name: int(name[4:]))\n    for iface in bond_ifaces:\n        try:\n            output = subprocess.check_output([\"ip\", \"-o\", \"-4\", \"addr\", \"show\", \"dev\", iface], text=True)\n        except (OSError, subprocess.CalledProcessError):\n            continue",
+      "blobSha256": "cf89a4d0306fb4a343dbb852effa6d80436f2f847850f40a80422f07567da1fc"
+    },
+    "source-12": {
+      "available": true,
+      "path": "tests/test_glm52_6layer_deterministic_e2e.py",
+      "line": 402,
+      "endLine": 409,
+      "symbol": "_run：合并日志并等待",
+      "text": "    proc = subprocess.Popen(cmd, env=env, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n    lines = []\n    for line in proc.stdout:\n        lines.append(line)\n        sys.stdout.write(line)\n        sys.stdout.flush()\n    proc.wait()\n    return proc.returncode, \"\".join(lines)",
+      "blobSha256": "ddbc09f595de36d60c21078e5858a1197d73adf087f7648e8bbcd2dea2e50d53"
+    },
+    "source-13": {
+      "available": true,
+      "path": "slime/utils/external_utils/command_utils.py",
+      "line": 111,
+      "endLine": 121,
+      "symbol": "execute_train：探测 Ray 状态",
+      "text": "    # Successful training cleans up its own resources; failures retain them.\n    if not external_ray:\n        # A manual trainer restart must leave the Ray head and its detached\n        # rollout session alive. A stale address file alone is not proof of a\n        # running cluster, so query the head before deciding to start one.\n        ray_running = (\n            subprocess.run(\n                [\"ray\", \"status\"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30\n            ).returncode\n            == 0\n        )",
+      "blobSha256": "0d7f8f134e0c825677e006e74bdce731fcd2a7f8130c26beb7f3f5cece2dc0fe"
+    }
+  }
+}
