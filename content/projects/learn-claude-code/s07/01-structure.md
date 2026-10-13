@@ -1,75 +1,115 @@
 ---
-title: "S07.1 Skill Structure：先看一个最小例子"
+title: "S07.1 Minimal Skill：写出一份最小完整技能"
 weight: 10
-summary: "区分元信息、工作指令和配套资源，建立一个可理解的 review-diff 示例。"
+summary: "采用官网 Quickstart 的 roll-dice 示例，通过一次掷骰子认识 name、description 和正文指令。"
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
 ---
 
-在 [Skills 独立总图]({{< relref "/projects/learn-claude-code/s07/_index.md" >}}#skills-map) 中，本节对应 **A 技能包**。先区分元信息、正文与资源，暂不展开 Agent Loop。
+这一节采用 [Agent Skills Quickstart](https://agentskills.io/skill-creation/quickstart) 的 **roll-dice** 示例：让 Agent 使用随机数命令掷一次骰子。
 
-本节的主 SKILL.md、文件位置与实验步骤见 [S07.10 完整示例附录]({{< relref "/projects/learn-claude-code/s07/10-appendix.md" >}}#lab-project-claude-skills-review-diff-skill-md)。
+先写一份完整的 `SKILL.md`，再认识其中的三个组成部分：`name`、`description` 和正文指令。
 
-## 我想弄清楚的问题
+## 1. 先确定一个小任务
 
-目录里放一份 Markdown，为什么就能叫 Skill？关键在于 Agent 应用能发现这份内容、知道何时使用它，并在调用时把指令交给模型。
+向 Agent 提出请求：
 
-我们先写一个 `review-diff`。它的任务很具体：检查当前仓库的未提交改动，报告可能影响行为的缺陷。
+> Roll a d20.
 
-## 最小目录和完整正文
+`d20` 中的 `d` 表示骰子（die），`20` 表示它有 20 个面，通常标着 1～20。因此，`Roll a d20` 就是“掷一次 20 面骰子”，结果为 1～20 中的一个整数。同样，`d6` 表示常见的六面骰子，结果为 1～6。
 
-文件放在项目中：
+我们希望 Agent 实际运行随机数命令，得到这次掷骰子的结果，再告诉我们。
+
+## 2. 写出完整的 SKILL.md
+
+官网 Quickstart 使用 **VS Code + GitHub Copilot 的 Agent 模式**。按该示例，在项目中创建：
 
 ```text
-.claude/skills/review-diff/SKILL.md
+.agents/
+└── skills/
+    └── roll-dice/
+        └── SKILL.md
 ```
 
-内容可以是：
+文件内容如下：
 
 ````markdown
 ---
-name: review-diff
-description: 检查当前 Git 仓库的未提交改动。用户要求审查 diff、排查改动风险或检查这次修改时使用。
+name: roll-dice
+description: Roll dice using a random number generator. Use when asked to roll a die (d6, d20, etc.), roll dice, or generate a random dice roll.
 ---
 
-## 工作步骤
+To roll a die, use the following command that generates a random number from 1
+to the given number of sides:
 
-1. 查看 git status --short，确认改动范围。
-2. 查看 git diff HEAD，再读必要的上下文。
-3. 检查输入边界、错误处理和行为变化。
-4. 每个问题写清楚文件位置、触发条件和后果。
-5. 只提交审查报告；没有足够证据时说明不确定性。
+```bash
+echo $((RANDOM % <sides> + 1))
+```
 
-## 输出格式
+```powershell
+Get-Random -Minimum 1 -Maximum (<sides> + 1)
+```
 
-先列问题，再说明检查范围。没有发现问题时明确写出。
+Replace `<sides>` with the number of sides on the die (e.g., 6 for a standard
+die, 20 for a d20).
 ````
 
-这是原创示例，不是官网内置审查 Skill 的副本。`git diff HEAD` 展示已跟踪文件相对 HEAD 的改动；新建但未跟踪的文件需要根据 `git status` 另外检查。
+同一份 Skill 也可以写成中文。下面是对应的中文版本，保留相同的名称与命令；两种版本任选其一保存到 `SKILL.md` 即可。
 
-## 三部分分别是谁处理的
+````markdown
+---
+name: roll-dice
+description: 使用随机数生成器掷骰子。当用户要求掷一次骰子（如六面骰 d6、二十面骰 d20）、掷骰子或生成随机掷骰结果时使用。
+---
 
-| 部分 | 作用 |
-|------|------|
-| YAML frontmatter | Agent 应用解析名称、描述及调用配置 |
-| Markdown 正文 | 加载后交给模型，指导它怎样完成任务 |
-| 参考文件、脚本和素材 | 按任务需要进一步读取、执行或使用 |
+要掷一次骰子，请使用下面的命令，生成一个从 1 到指定面数之间的随机整数。
 
-正文中的“查看 diff”是交给模型的行动指令。模型仍要请求 Bash 或文件工具，由 Harness 执行；加载 Skill 不会把正文里的每一句话当程序运行。
+```bash
+echo $((RANDOM % <sides> + 1))
+```
 
-更确定的操作可以写成脚本，由模型调用；带 `!` 的动态命令则属于应用的预处理，后面会单独讲。
+```powershell
+Get-Random -Minimum 1 -Maximum (<sides> + 1)
+```
 
-## 开放标准和 Claude Code 扩展
+将 `<sides>` 替换为骰子的面数，例如普通六面骰使用 6，二十面骰 d20 使用 20。
+````
 
-[Agent Skills 规范](https://agentskills.io/specification#skillmd-format)定义了 `SKILL.md`、元信息和资源组织。Claude Code 使用这个基本形态，并添加自己的字段。
+这里的 `<sides>` 是占位符，表示骰子的面数。Agent 要根据请求把它替换为具体数字；Bash 和 PowerShell 是两种环境的写法，执行时选择当前环境对应的一种。
 
-例如 `disable-model-invocation` 和 `context` 是 Claude Code 的调用与执行配置。把 Skill 移到另一个 Agent 产品时，应查看对方支持的字段；文件格式相似并不意味着运行行为完全相同。
+## 3. 分清这三部分
 
-本例明确写 `name`、`description`，让名称与用途容易判断。Claude Code 对缺省字段有自己的回退规则，[官网 frontmatter 参考](https://code.claude.com/docs/en/skills#frontmatter-reference)也不同于标准对必需字段的规定。
+| 部分 | 本例写了什么 | 负责回答的问题 |
+|---|---|---|
+| `name` | `roll-dice` | 这份 Skill 叫什么？ |
+| `description` | 用随机数掷骰子，以及哪些请求适合使用 | 当前任务适不适合用它？ |
+| Markdown 正文 | 使用哪条命令，怎样替换骰子面数 | 使用之后具体怎么做？ |
 
-## 我的理解
+开头两条 `---` 之间是 YAML 元信息，后面是 Markdown 正文。`name` 与所在的 `roll-dice` 文件夹同名。
 
-Skill 的可复用性来自“发现信息 + 工作指令 + 配套资源”的组织。它把审查方法装成一个能被调用的包，真正的审查仍由模型和工具共同完成。
+`description` 帮助 Agent 判断是否采用这个 Skill；正文则在采用之后提供操作方法。正文中的代码块是交给 Agent 的说明，需要它通过终端工具执行。
 
-[下一节：Skill 怎么被发现]({{< relref "/projects/learn-claude-code/s07/02-discovery.md" >}})
+## 4. 让 Agent 用一次
+
+在 VS Code 打开项目，进入 Copilot Chat 的 Agent 模式。先输入 `/skills`，确认列表中出现 `roll-dice`，再提出：
+
+> Roll a d20.
+
+也可以用中文提出同一个请求：
+
+> 帮我掷一次二十面骰子（d20）。
+
+如果 Agent 使用 Bash，它应把命令中的 `<sides>` 替换成 `20`，实际执行：
+
+```bash
+echo $((RANDOM % 20 + 1))
+```
+
+观察它是否调用了终端工具，以及返回值是否在 1 到 20 之间。只在回复中说出一个数字，还不能说明它执行了 Skill 中的命令。
+
+至此，一份最小完整 Skill 就串起来了：**名称标识技能，描述帮助选择，正文指导行动。**
+
+来源：[Agent Skills Home](https://agentskills.io/home)、[Quickstart](https://agentskills.io/skill-creation/quickstart)。
+
+[下一节：把有效做法写成可复用技能]({{< relref "/projects/learn-claude-code/s07/02-real-expertise.md" >}})

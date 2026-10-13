@@ -1,8 +1,9 @@
 ---
-title: "S07.7 Subagent：谁接收指令，主 Agent 是否等待"
+title: "S07.R Subagent：谁接收指令，主 Agent 是否等待"
 weight: 70
 summary: "比较 inline、fork、后台和等待模式，并区分上下文隔离与工作目录隔离。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---

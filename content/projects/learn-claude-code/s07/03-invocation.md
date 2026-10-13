@@ -1,8 +1,9 @@
 ---
-title: "S07.3 Invocation：用户点名，或模型按描述选择"
+title: "S07.R Invocation：用户点名，或模型按描述选择"
 weight: 30
 summary: "区分发现、菜单可见、模型可见和真正调用，解释两种调用控制字段。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---

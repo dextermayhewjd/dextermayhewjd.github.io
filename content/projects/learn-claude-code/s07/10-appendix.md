@@ -3,6 +3,7 @@ title: "S07.10 Appendix：一套完整的 Skills 示例"
 weight: 100
 summary: "用可下载的 review-diff 练习工程覆盖 S07.1–S07.9；每份文件标明位置、讲解章节和注意点。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---
@@ -18,12 +19,12 @@ hideMeta: true
 | 章节 | 附录中的落点 | 这次覆盖的内容 |
 |---|---|---|
 | [S07.1 结构]({{< relref "/projects/learn-claude-code/s07/01-structure.md" >}}) | 主 `SKILL.md`、references、scripts、assets | 元信息、正文、配套资源；标准结构与 Claude Code 扩展 |
-| [S07.2 发现]({{< relref "/projects/learn-claude-code/s07/02-discovery.md" >}}) | project 与 discovery 模板 | 项目、个人、嵌套、管理、额外目录、插件、账号和云端；同名来源与 `/skills` |
-| [S07.3 调用]({{< relref "/projects/learn-claude-code/s07/03-invocation.md" >}}) | inline、manual、model-only 变体及 eval 正反例 | 用户点名、模型选择、描述质量、调用开关、应用侧拒绝 |
-| [S07.4 渐进披露]({{< relref "/projects/learn-claude-code/s07/04-context.md" >}}) | 两份参考资料、脚本、调用轨迹和生命周期实验 | 元信息／正文／资源；文件已读与模型可见不同；重复调用、内容变化与压缩 |
-| [S07.5 渲染]({{< relref "/projects/learn-claude-code/s07/05-rendering.md" >}}) | 参数、Git 动态快照、inspect-diff 脚本、失败变体 | `$ARGUMENTS`、`$0`、`$1`、技能目录变量；预处理与普通工具调用；失效快照与渲染失败 |
-| [S07.6 权限与 Hook]({{< relref "/projects/learn-claude-code/s07/06-permissions.md" >}}) | allowed/disallowed-tools、Hook 脚本、权限 profiles | 工作指令／工具可用性／执行授权；deny 与预授权；JSON 决策；正文、临时权限、持久 Hook 与 once |
-| [S07.7 子 Agent]({{< relref "/projects/learn-claude-code/s07/07-subagents.md" >}}) | fork-wait、fork-background、preload、worktree | 接收上下文、同步／后台、非交互例外、共享目录、隔离工作树、反向预加载 |
+| [发现与加载位置参考]({{< relref "/projects/learn-claude-code/s07/02-discovery.md" >}}) | project 与 discovery 模板 | 项目、个人、嵌套、管理、额外目录、插件、账号和云端；同名来源与 `/skills` |
+| [调用参考]({{< relref "/projects/learn-claude-code/s07/03-invocation.md" >}}) | inline、manual、model-only 变体及 eval 正反例 | 用户点名、模型选择、描述质量、调用开关、应用侧拒绝 |
+| [渐进披露参考]({{< relref "/projects/learn-claude-code/s07/04-context.md" >}}) | 两份参考资料、脚本、调用轨迹和生命周期实验 | 元信息／正文／资源；文件已读与模型可见不同；重复调用、内容变化与压缩 |
+| [渲染参考]({{< relref "/projects/learn-claude-code/s07/05-rendering.md" >}}) | 参数、Git 动态快照、inspect-diff 脚本、失败变体 | `$ARGUMENTS`、`$0`、`$1`、技能目录变量；预处理与普通工具调用；失效快照与渲染失败 |
+| [权限与 Hook 参考]({{< relref "/projects/learn-claude-code/s07/06-permissions.md" >}}) | allowed/disallowed-tools、Hook 脚本、权限 profiles | 工作指令／工具可用性／执行授权；deny 与预授权；JSON 决策；正文、临时权限、持久 Hook 与 once |
+| [子 Agent 参考]({{< relref "/projects/learn-claude-code/s07/07-subagents.md" >}}) | fork-wait、fork-background、preload、worktree | 接收上下文、同步／后台、非交互例外、共享目录、隔离工作树、反向预加载 |
 | [S07.8 评估]({{< relref "/projects/learn-claude-code/s07/08-evaluation.md" >}}) | 两种真实回归、cases.json、结果模板、关闭 Skill profile | 正例／反例、显式运行、质量与触发分开、无 Skill 基线、重复观察、分阶段定位失败 |
 | [S07.9 接回循环]({{< relref "/projects/learn-claude-code/s07/09-agent-loop.md" >}}) | trace_inline.py | 目录、调用、正文、按需资源与工具结果串接；与真实产品实现区分 |
 
@@ -89,9 +90,9 @@ s07-skills-lab/
 | 生成路径 | 用途 | 对应章节 |
 |---|---|---|
 | `<练习目录>/.git/` | 保存正常实现与配置的基线提交，让 diff 有明确比较对象 | S07.8 |
-| `<练习目录>/untracked-note.txt` | 演示 git diff 不包含未跟踪文件正文；也用于观察 worktree 边界 | S07.2、S07.5、S07.7 |
-| `<练习目录>/.claude/agents/review-worker.md` | 仅 preload/worktree 变体生成的子 Agent 定义 | S07.7 |
-| `<练习目录>/.s07-trace/events.jsonl` | Hook 实际运行后的观察日志，初始不存在 | S07.6 |
+| `<练习目录>/untracked-note.txt` | 演示 git diff 不包含未跟踪文件正文；也用于观察 worktree 边界 | 发现说明、渲染参考、子 Agent 参考 |
+| `<练习目录>/.claude/agents/review-worker.md` | 仅 preload/worktree 变体生成的子 Agent 定义 | 子 Agent 参考 |
+| `<练习目录>/.s07-trace/events.jsonl` | Hook 实际运行后的观察日志，初始不存在 | 权限参考 |
 | 手工填写的结果 JSON | 从 evals/result-template.json 复制，记录真实实验 | S07.8 |
 
 管理、个人和账号来源不是复制工程就会生效；对应模板的目标位置见下面的发现实验。
@@ -141,21 +142,21 @@ claude
 
 | 字段或文件位置 | 具体讲解 | 本例要注意什么 |
 |---|---|---|
-| `name`、`description` 与正文 | S07.1、S07.3 | 描述说明何时使用；正文规定工作步骤。来源探针带 SOURCE_TAG，便于观察同名覆盖 |
-| `.claude/skills/<name>/SKILL.md` | S07.2 | 文件位置决定来源范围；目录存在不等于当前会话已发现 |
-| `disable-model-invocation` | S07.3、S07.7 | manual 变体只供显式启动，不可拿它做预加载 |
-| `user-invocable` | S07.3 | model-only 变体通过自然语言任务观察，不用斜杠命令验证 |
-| `argument-hint`、`$ARGUMENTS`、`$0`、`$1` | S07.5 | hint 不是校验器；参数不直接拼进 Shell。缺失的位置参数可能仍保留为占位符 |
-| `${CLAUDE_SKILL_DIR}` | S07.5 | 本例用在正文与 allowed-tools 的 Bash 规则里，定位同一个随技能分发的脚本 |
-| Hook command 中的 `$CLAUDE_PROJECT_DIR` | S07.5、S07.6 | 这里使用 Hook 进程提供的项目目录变量；不要假设正文替换变量在所有 frontmatter 字段都适用 |
-| `!` 动态命令与 `scripts/` | S07.4、S07.5 | 前者在正文交付前处理，后者在普通工具调用时执行；脚本不会因在文件夹里就自动运行 |
-| `allowed-tools` 与 `disallowed-tools` | S07.6 | 前者预授权，后者移除工具；禁止 Write/Edit 不能证明 Bash 没有写能力 |
-| `hooks.PreToolUse` | S07.6 | 在真正执行前返回允许或拒绝；不是把 JSON 放到正文就生效 |
-| `hooks.PostToolUse` 与 `once` | S07.6 | once 由宿主管理；Hook 脚本日志不是官方自动执行次数的模拟器 |
-| `context: fork`、`agent`、`background` | S07.7 | 决定正文交给谁及调度方式；任务应自包含，不依赖父聊天未传入的信息 |
-| 子 Agent 的 `skills` | S07.7 | 全文预加载；不是工具白名单，也不是再次通过描述选择 |
-| 子 Agent 的 `tools`、`disallowedTools` | S07.7 | 这是代理工具集合；字段采用 camelCase，不能照抄 Skill 的 `disallowed-tools` 拼法 |
-| 子 Agent 的 `isolation: worktree` | S07.7 | 改变文件工作区；不自动复制父目录未提交修改 |
+| `name`、`description` 与正文 | S07.1、调用参考 | 描述说明何时使用；正文规定工作步骤。来源探针带 SOURCE_TAG，便于观察同名覆盖 |
+| `.claude/skills/<name>/SKILL.md` | 发现说明 | 文件位置决定来源范围；目录存在不等于当前会话已发现 |
+| `disable-model-invocation` | 调用参考、子 Agent 参考 | manual 变体只供显式启动，不可拿它做预加载 |
+| `user-invocable` | 调用参考 | model-only 变体通过自然语言任务观察，不用斜杠命令验证 |
+| `argument-hint`、`$ARGUMENTS`、`$0`、`$1` | 渲染参考 | hint 不是校验器；参数不直接拼进 Shell。缺失的位置参数可能仍保留为占位符 |
+| `${CLAUDE_SKILL_DIR}` | 渲染参考 | 本例用在正文与 allowed-tools 的 Bash 规则里，定位同一个随技能分发的脚本 |
+| Hook command 中的 `$CLAUDE_PROJECT_DIR` | 渲染参考、权限参考 | 这里使用 Hook 进程提供的项目目录变量；不要假设正文替换变量在所有 frontmatter 字段都适用 |
+| `!` 动态命令与 `scripts/` | 渐进披露参考、渲染参考 | 前者在正文交付前处理，后者在普通工具调用时执行；脚本不会因在文件夹里就自动运行 |
+| `allowed-tools` 与 `disallowed-tools` | 权限参考 | 前者预授权，后者移除工具；禁止 Write/Edit 不能证明 Bash 没有写能力 |
+| `hooks.PreToolUse` | 权限参考 | 在真正执行前返回允许或拒绝；不是把 JSON 放到正文就生效 |
+| `hooks.PostToolUse` 与 `once` | 权限参考 | once 由宿主管理；Hook 脚本日志不是官方自动执行次数的模拟器 |
+| `context: fork`、`agent`、`background` | 子 Agent 参考 | 决定正文交给谁及调度方式；任务应自包含，不依赖父聊天未传入的信息 |
+| 子 Agent 的 `skills` | 子 Agent 参考 | 全文预加载；不是工具白名单，也不是再次通过描述选择 |
+| 子 Agent 的 `tools`、`disallowedTools` | 子 Agent 参考 | 这是代理工具集合；字段采用 camelCase，不能照抄 Skill 的 `disallowed-tools` 拼法 |
+| 子 Agent 的 `isolation: worktree` | 子 Agent 参考 | 改变文件工作区；不自动复制父目录未提交修改 |
 | `skillOverrides` | S07.8 | 对个人／项目技能做关闭对照；插件另按插件机制评估 |
 | `evals/*.json` 与 trace_inline.py | S07.8、S07.9 | 前者记录真实结果；后者是无模型的教学模拟，不能替代模型评估 |
 

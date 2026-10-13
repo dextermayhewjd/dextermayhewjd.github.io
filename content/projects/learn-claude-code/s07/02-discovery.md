@@ -1,13 +1,14 @@
 ---
-title: "S07.2 Discovery：放在哪里决定谁能用"
+title: "S07.R Discovery：发现与加载位置"
 weight: 20
+hideInProjectNav: true
 summary: "看清个人、项目、嵌套目录和插件 Skill 的发现方式，以及名称冲突的处理。"
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
 ---
 
-在 [Skills 独立总图]({{< relref "/projects/learn-claude-code/s07/_index.md" >}}#skills-map) 中，本节对应 **B 可见目录**。这一节解释系统发现范围与调用者可见性；发现不等于调用。
+在 [Skills 机制参考图]({{< relref "/projects/learn-claude-code/s07/_index.md" >}}#skills-map) 中，本页对应 **B 可见目录**，解释系统发现范围与调用者可见性。技能写作主线见 [7.2：把有效做法写成可复用技能]({{< relref "/projects/learn-claude-code/s07/02-real-expertise.md" >}})。
 
 本节的项目来源探针及发现实验、文件位置与实验步骤见 [S07.10 完整示例附录]({{< relref "/projects/learn-claude-code/s07/10-appendix.md" >}}#lab-project-claude-skills-origin-probe-skill-md)。
 

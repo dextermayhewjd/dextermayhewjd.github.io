@@ -3,6 +3,7 @@ title: "S07.9 Integration：把 Skills 接回 Agent Loop"
 weight: 90
 summary: "学完独立机制后，回顾 S06，再用总图和伪代码说明目录、调用与正文交付如何进入原循环。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---
@@ -32,7 +33,7 @@ hideMeta: true
 
 这里的紫色箭头表达内容流，不能把它读成绕过工具权限、Hook 或 API 消息配对的捷径。模型发起的工具调用仍需收到匹配结果；用户直接点名则由命令入口处理，不需要伪造一次模型工具调用。
 
-图 2 先展示默认 inline 路径。需要 `context: fork` 时，正文交付到子上下文，再按对应配置返回结果；目标与等待方式见 [S07.7]({{< relref "/projects/learn-claude-code/s07/07-subagents.md" >}})。这一选择不要求把所有 Skill 都改成 Subagent。
+图 2 先展示默认 inline 路径。需要 `context: fork` 时，正文交付到子上下文，再按对应配置返回结果；目标与等待方式见[子 Agent 参考]({{< relref "/projects/learn-claude-code/s07/07-subagents.md" >}})。这一选择不要求把所有 Skill 都改成 Subagent。
 
 ## 3. 用伪代码追踪同一份内容
 
@@ -53,7 +54,7 @@ def prepare_inline_skill(name, arguments, caller, session):
     return PreparedInstructions(skill=skill, content=body)
 ```
 
-准备正文不等于执行正文中的自然语言步骤。例如“查看 git diff”这句普通指令，还要等模型接收到它后请求工具。动态命令的预处理路径则已在 S07.5 单独讨论。
+准备正文不等于执行正文中的自然语言步骤。例如“查看 git diff”这句普通指令，还要等模型接收到它后请求工具。动态命令的预处理路径则已在[渲染参考]({{< relref "/projects/learn-claude-code/s07/05-rendering.md" >}})中单独讨论。
 
 用户点名时，调用入口已经确定：
 
@@ -118,7 +119,7 @@ while True:
     session.deliver_skill_instructions(instruction_deliveries)
 ```
 
-这里将“匹配调用结果”和“交付指令”分开命名，便于检查接口；本例的确认结果不含完整正文。如果某个平台直接在工具结果中承载正文，就不要再重复交付。消息封装不表示官方一定有两个同名步骤；权限与 Hook 的具体策略按 S07.6 接在应用边界上。调用失败返回错误并停止本次装载，不能按“正文已经交付”继续。
+这里将“匹配调用结果”和“交付指令”分开命名，便于检查接口；本例的确认结果不含完整正文。如果某个平台直接在工具结果中承载正文，就不要再重复交付。消息封装不表示官方一定有两个同名步骤；权限与 Hook 的具体策略按[权限参考]({{< relref "/projects/learn-claude-code/s07/06-permissions.md" >}})接在应用边界上。调用失败返回错误并停止本次装载，不能按“正文已经交付”继续。
 
 目录来自发现阶段的当前状态，并不意味着每次循环都重新扫描磁盘。调用后的正文会成为后续可见信息，普通参考文件和脚本仍按任务需要取用。[官方内容生命周期](https://code.claude.com/docs/en/skills#skill-content-lifecycle)
 

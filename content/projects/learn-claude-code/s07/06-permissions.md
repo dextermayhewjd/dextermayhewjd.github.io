@@ -1,8 +1,9 @@
 ---
-title: "S07.6 Permissions and Hooks：区分指令、授权和执行拦截"
+title: "S07.R Permissions and Hooks：区分指令、授权和执行拦截"
 weight: 60
 summary: "分清 allowed-tools、disallowed-tools 与权限策略，说明 Skill Hooks 的执行和持续时间。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---

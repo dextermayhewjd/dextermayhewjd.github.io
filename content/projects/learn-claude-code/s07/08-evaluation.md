@@ -3,6 +3,7 @@ title: "S07.8 Evaluation：触发正确，还要真正完成任务"
 weight: 80
 summary: "用明确的输入和结果标准分别验证自动触发与任务质量，定位发现、渲染和执行阶段的问题。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---

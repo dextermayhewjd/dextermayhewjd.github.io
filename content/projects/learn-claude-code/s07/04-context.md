@@ -1,8 +1,9 @@
 ---
-title: "S07.4 Progressive Disclosure：区分磁盘、应用内存和模型上下文"
+title: "S07.R Progressive Disclosure：区分磁盘、应用内存和模型上下文"
 weight: 40
 summary: "跟踪描述、正文、参考文件的可见时间，解释加载后的保留、重复调用和压缩。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---
@@ -10,6 +11,8 @@ hideMeta: true
 在 [Skills 独立总图]({{< relref "/projects/learn-claude-code/s07/_index.md" >}}#skills-map) 中，本节对应 **D 正文交付 / F 按需资源**。只追踪内容何时进入模型上下文，暂不展开执行会话内部。
 
 本节的按需读取的参考文件、文件位置与实验步骤见 [S07.10 完整示例附录]({{< relref "/projects/learn-claude-code/s07/10-appendix.md" >}}#lab-project-claude-skills-review-diff-references-input-boundaries-md)。
+
+如果要先学习参考文件怎样组织、相对链接怎样写，以及如何明确读取条件，可先读 [7.7 References]({{< relref "07-references.md" >}})。本页继续解释这些内容何时对模型可见。
 
 ## 我想弄清楚的问题
 
@@ -48,9 +51,13 @@ review-diff/
 ```markdown
 ## 需要时读取的资料
 
-- 改动涉及空输入、类型转换或默认值时，读 references/input-boundaries.md。
-- 改动涉及共享状态或异步执行时，读 references/concurrency.md。
+- 改动涉及空输入、缺失字段、默认值或类型边界时，
+  阅读[输入边界审查](references/input-boundaries.md)。
+- 改动涉及共享状态、异步任务或并发时，
+  阅读[共享状态审查](references/concurrency.md)。
 ```
+
+这里采用官方示例中的 Markdown 相对链接，路径以 `SKILL.md` 所在目录为基准。纯文本路径并未被规范禁止；使用链接是为了清楚表达文件关系。`references/` 是可选的组织目录，参考文件也可以直接放在主文件旁边。参见 [Agent Skills 文件引用规范](https://agentskills.io/specification#file-references)与 [Claude Code 配套文件示例](https://code.claude.com/docs/en/skills#add-supporting-files)。
 
 两份资料不需要随每次调用全部进入上下文。Claude 要进一步了解输入边界时，再用文件工具读取第一份。脚本可以直接运行，模型通常看到的是执行结果；运行程序不会自动把全部源码当作参考文本注入。
 

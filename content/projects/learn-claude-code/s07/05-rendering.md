@@ -1,8 +1,9 @@
 ---
-title: "S07.5 Rendering：模型读到的是处理后的正文"
+title: "S07.R Rendering：模型读到的是处理后的正文"
 weight: 50
 summary: "用实际调用说明参数替换、技能目录变量和动态命令注入，区分预处理与模型行动。"
 ShowToc: true
+hideInProjectNav: true
 ShowPostNavLinks: false
 hideMeta: true
 ---

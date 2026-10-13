@@ -215,6 +215,40 @@ skill_overview = Architecture()
 skill_overview.feed((root / 's07/index.html').read_text())
 assert len(skill_overview.figures) == 1
 assert 'skills-map' in skill_overview.ids
+writing_nav = Navigation()
+writing_nav.feed((root / 's07/02-real-expertise/index.html').read_text())
+assert base + 's07/01-structure/' in writing_nav.links
+assert base + 's07/02-real-expertise/' in writing_nav.links
+assert base + 's07/03-content-selection/' in writing_nav.links
+assert base + 's07/04-task-scope/' in writing_nav.links
+assert base + 's07/05-control-calibration/' in writing_nav.links
+references_url = base + 's07/07-references/'
+assert references_url in writing_nav.links
+references_html = (root / 's07/07-references/index.html').read_text()
+references_nav = Navigation()
+references_nav.feed(references_html)
+assert references_url in references_nav.links
+for number in range(1, 7):
+    assert re.search(r'<h2\b[^>]*>7\.7\.' + str(number) + r'\s', references_html), number
+assert 'S07.R Subagent' in (root / 's07/07-subagents/index.html').read_text()
+patterns_url = base + 's07/06-instruction-patterns/'
+assert patterns_url in writing_nav.links
+pattern_units = ('01-gotchas', '02-output-templates', '03-checklists',
+                 '04-validation-loops', '05-plan-validation', '06-scripts')
+for slug in pattern_units:
+    unit_nav = Navigation()
+    unit_html = (root / 's07/06-instruction-patterns' / slug / 'index.html').read_text()
+    unit_nav.feed(unit_html)
+    assert patterns_url in unit_nav.links
+    for sibling in pattern_units:
+        assert patterns_url + sibling + '/' in unit_nav.links
+    for heading in ('问题', '解决方案', '最小示例', '怎样检查'):
+        assert re.search(r'<h2\b[^>]*>' + re.escape(heading) + r'(?:<|$)', unit_html), (slug, heading)
+assert base + 's07/03-content-selection/' in (root / 's07/02-content-selection/index.html').read_text()
+for reference in ('02-discovery', '03-invocation', '04-context', '05-rendering',
+                  '06-permissions', '07-subagents', '08-evaluation',
+                  '09-agent-loop', '10-appendix'):
+    assert base + 's07/' + reference + '/' not in writing_nav.links, reference
 assert not {'handler', 'history', 'decision'} & {
     n.get('data-stage') for n in skill_overview.figures[0]['nodes']}
 integration = Architecture()
@@ -332,17 +366,31 @@ with zipfile.ZipFile(archive_path) as archive:
         assert archive.read('s07-skills-lab/' + entry['path']) == (lab_root / entry['path']).read_bytes(), entry['path']
 PY
 
-for chapter in 01-structure 02-discovery 03-invocation 04-context 05-rendering 06-permissions 07-subagents 08-evaluation 09-agent-loop 10-appendix; do
+# 原发现说明与旧内容取舍地址继续可达，当前写作单元进入主导航。
+test -f "$output_dir/projects/learn-claude-code/s07/02-discovery/index.html"
+test -f "$output_dir/projects/learn-claude-code/s07/02-content-selection/index.html"
+for chapter in 01-structure 02-real-expertise 03-content-selection 04-task-scope 05-control-calibration 06-instruction-patterns 07-references; do
   chapter_url="/projects/learn-claude-code/s07/$chapter/"
   chapter_page="$output_dir${chapter_url}index.html"
   test -f "$chapter_page"
   # 当前子章节应高亮，并在项目导航中展开 S07。
   grep -q "class=\"project-nav__link project-nav__link--active\" href=$chapter_url aria-current=page" "$chapter_page"
   grep -q 'class=project-nav__branch open' "$chapter_page"
-  # 进入任一子章节后，仍能导航到九节主线和完整附录。
-  for sibling in 01-structure 02-discovery 03-invocation 04-context 05-rendering 06-permissions 07-subagents 08-evaluation 09-agent-loop 10-appendix; do
+  # 写作主导航只列已展开的单元；原有机制资料从总览参考入口访问。
+  for sibling in 01-structure 02-real-expertise 03-content-selection 04-task-scope 05-control-calibration 06-instruction-patterns 07-references; do
     grep -q "href=/projects/learn-claude-code/s07/$sibling/" "$chapter_page"
   done
+done
+
+for unit in 01-gotchas 02-output-templates 03-checklists 04-validation-loops 05-plan-validation 06-scripts; do
+  unit_url="/projects/learn-claude-code/s07/06-instruction-patterns/$unit/"
+  unit_page="$output_dir${unit_url}index.html"
+  test -f "$unit_page"
+  grep -q "class=\"project-nav__link project-nav__link--active\" href=$unit_url aria-current=page" "$unit_page"
+done
+
+for reference in 02-discovery 03-invocation 04-context 05-rendering 06-permissions 07-subagents 08-evaluation 09-agent-loop 10-appendix; do
+  test -f "$output_dir/projects/learn-claude-code/s07/$reference/index.html"
 done
 
 post_page="$output_dir/about/index.html"

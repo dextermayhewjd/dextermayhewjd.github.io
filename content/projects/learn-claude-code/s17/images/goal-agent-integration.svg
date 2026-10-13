@@ -93,8 +93,8 @@
   <text x="1055" y="246" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">执行后观察</text>
   <rect data-stage="skill-catalog" data-change="base" x="420" y="380" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
   <text x="485" y="405" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">技能目录</text>
-  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/02-discovery/" aria-label="查看技能目录 S07.2" tabindex="0">
-    <text x="485" y="426" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">名称 / 描述 · S07.2</text>
+  <a class="diagram-chapter-link" href="/projects/learn-claude-code/s07/02-discovery/" aria-label="查看技能目录 发现参考" tabindex="0">
+    <text x="485" y="426" text-anchor="middle" font-size="9" fill="var(--diagram-muted, #58677b)">名称 / 描述 · 发现参考</text>
   </a>
   <rect data-stage="skill-loading" data-change="base" x="40" y="400" width="130" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
   <text x="105" y="425" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">Skill 装载</text>
