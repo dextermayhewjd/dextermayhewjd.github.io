@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python 语法逐步学习"
+  short_description: "按原子知识点与依赖顺序组织 Python 语法课，逐步建立心智模型"
+  default_prompt: "使用 $python-syntax-learning，按我的已知基础，把当前 Python 语法写成层级清晰、能逐步掌握的一课。"
