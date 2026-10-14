@@ -71,7 +71,17 @@
       "normalize_elapsed_seconds": true,
       "source_repository": "areal",
       "source_revision": "298412a40f5b84ae6b2042987e81777e6dd0f284",
-      "source_snapshot_root": "python-async-reference/repositories/areal/source_snapshot"
+      "source_snapshot_root": "python-async-reference/repositories/areal/source_snapshot",
+      "additional_examples": [
+        {
+          "file": "start_before_exit.py",
+          "scenarios": [
+            "yield inside the TaskGroup before reaching its exit"
+          ],
+          "normalize_elapsed_seconds": true,
+          "expected_stdout": "generate 10: sleep 2s\ngenerate 11: sleep 1s\nmain: inside group\ngenerate 11: resumed\ngenerate 10: resumed\nmain: group finished\n"
+        }
+      ]
     },
     {
       "number": 5,
@@ -94,13 +104,15 @@
     {
       "number": 6,
       "slug": "04-results",
-      "title": "06 · wait 与 as_completed：先处理已经完成的工作",
+      "title": "06 · wait：先取得任务的完成情况",
       "example": true,
-      "expected_stdout": "done [11]\npending 1\nremaining [10]\n",
+      "expected_stdout": "done 1\npending 1\ncompleted 11\nremaining 10\n",
       "source_count": 2,
       "valid_stdout": [
-        "done [11]\npending 1\nremaining [10]\n",
-        "done [10, 11]\npending 0\nremaining []\n"
+        "done 1\npending 1\ncompleted 11\nremaining 10\n",
+        "done 1\npending 1\ncompleted 10\nremaining 11\n",
+        "done 2\npending 0\ncompleted 10\ncompleted 11\n",
+        "done 2\npending 0\ncompleted 11\ncompleted 10\n"
       ],
       "additional_examples": [
         {
@@ -125,16 +137,41 @@
       "slug": "06-semaphore",
       "title": "08 · Semaphore：限制同时进入的工作数量",
       "example": true,
-      "expected_stdout": "results [0, 1, 2, 3, 4]\npeak 2\n",
-      "source_count": 2
+      "expected_stdout": "tasks scheduled 5\nwaiting 10\nentered 10\nwaiting 11\nentered 11\nwaiting 12\nwaiting 13\nwaiting 14\nfinished 10\ncleanup 10\nfinished 11\ncleanup 11\nentered 12\nentered 13\nfinished 12\ncleanup 12\nfinished 13\ncleanup 13\nentered 14\nfinished 14\ncleanup 14\nresults [10, 11, 12, 13, 14]\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "release the acquired permit after a task fails"
+          ],
+          "expected_stdout": "waiting 10\nentered 10\ncleanup 10\nerror generation 10 failed\nwaiting 11\nentered 11\nfinished 11\ncleanup 11\nresult 11\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "release the acquired permit after cancellation cleanup"
+          ],
+          "expected_stdout": "waiting 10\nentered 10\ncleanup 10\ncancelled 10\nwaiting 11\nentered 11\nfinished 11\ncleanup 11\nresult 11\n"
+        }
+      ]
     },
     {
       "number": 9,
       "slug": "07-queues",
       "title": "09 · Queue：把生产速度和消费速度接起来",
       "example": true,
-      "expected_stdout": "received [10, 11]\n",
-      "source_count": 3
+      "expected_stdout": "get request\nput request 10\nput done 10\nput request 11\nget 10\nput done 11\nprocessed 10\nget request\nget 11\nproducer finished\nprocessed 11\nget request\nconsumer finished\nreceived [10, 11]\n",
+      "source_count": 4,
+      "additional_examples": [
+        {
+          "file": "with_taskgroup.py",
+          "scenarios": [
+            "reuse the queue producer and consumer inside a TaskGroup"
+          ],
+          "expected_stdout": "get request\nput request 10\nput done 10\nput request 11\nget 10\nput done 11\nprocessed 10\nget request\nget 11\nproducer finished\nprocessed 11\nget request\nconsumer finished\nreceived [10, 11]\n"
+        }
+      ]
     },
     {
       "number": 10,
@@ -292,5 +329,275 @@
       "source_count": 5
     }
   ],
-  "coverage": "teaching-coverage.json"
+  "coverage": "teaching-coverage.json",
+  "curriculum_lessons": [
+    {
+      "number": 4,
+      "slug": "04-with-async-with",
+      "title": "04 · with / async with：进入、执行与退出",
+      "example": true,
+      "source_count": 0,
+      "working_directory": "bundle",
+      "expected_stdout": "content hello\ninside closed False\noutside closed True\n"
+    },
+    {
+      "number": 8,
+      "slug": "07-task-results",
+      "title": "08 · done、result、exception：读取 Task 的状态与结果",
+      "example": true,
+      "expected_stdout": "pending done False\npending result InvalidStateError\npending exception InvalidStateError\nsuccess done True\nsuccess result 10\nsuccess exception None\nfailed done True\nfailed exception generation 11 failed\nfailed result ValueError: generation 11 failed\n",
+      "source_count": 2
+    },
+    {
+      "number": 9,
+      "slug": "09-task-cancellation",
+      "title": "09 · Task.cancel：请求取消并等待收尾",
+      "example": true,
+      "expected_stdout": "generate 10 started\ncancel requested True\ndone immediately False\ncleanup 10\ncancelled\ndone after await True\n",
+      "source_count": 1
+    },
+    {
+      "number": 10,
+      "slug": "15-gather-failures",
+      "title": "10.1 · asyncio.gather：收集报错，任务仍可继续",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ngather error generation 11 failed\nremaining done False\nfinished 10\ncleanup 10\nremaining result 10\n",
+      "additional_examples": [
+        {
+          "file": "collect_exceptions.py",
+          "scenarios": [
+            "collect every result or exception before inspecting failures"
+          ],
+          "expected_stdout": "start 10\nstart 11\ncleanup 11\nfinished 10\ncleanup 10\nresults [10, ValueError('generation 11 failed')]\nresult 10\nerror ValueError generation 11 failed\n"
+        },
+        {
+          "file": "cancel_remaining.py",
+          "scenarios": [
+            "cancel unnecessary remaining work and await its cleanup"
+          ],
+          "expected_stdout": "start 10\nstart 11\ncleanup 11\ngather error generation 11 failed\ncleanup 10\nremaining cancelled\n"
+        }
+      ],
+      "part": 1
+    },
+    {
+      "number": 10,
+      "part": 2,
+      "slug": "15-gather-exceptions",
+      "title": "10.2 · return_exceptions=True：收齐结果与异常",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\nfinished 10\ncleanup 10\nresults [10, ValueError('generation 11 failed')]\nresult 10\nerror ValueError generation 11 failed\n"
+    },
+    {
+      "number": 11,
+      "part": 1,
+      "slug": "11-taskgroup-failures",
+      "title": "11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾",
+      "example": true,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ncleanup 10\ngroup failed\n",
+      "source_count": 1,
+      "source_repository": "cpython",
+      "source_revision": "v3.12.3",
+      "source_snapshot_root": "python-async-reference/repositories/cpython/source_snapshot"
+    },
+    {
+      "number": 11,
+      "part": 2,
+      "slug": "11-exception-groups",
+      "title": "11.2 · ExceptionGroup / except*：读取任务组的错误",
+      "example": true,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ncleanup 10\ncaught ExceptionGroup\nerror generation 11 failed\n",
+      "source_count": 1,
+      "source_repository": "cpython",
+      "source_revision": "v3.12.3",
+      "source_snapshot_root": "python-async-reference/repositories/cpython/source_snapshot",
+      "additional_examples": [
+        {
+          "file": "multiple_errors.py",
+          "scenarios": [
+            "collect multiple task failures"
+          ],
+          "expected_stdout": "start 10\ncleanup 10\nstart 11\ncleanup 11\ncaught ExceptionGroup\nerror generation 10 failed\nerror generation 11 failed\n"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "slug": "08-as-completed",
+      "title": "12 · asyncio.as_completed：按完成顺序取结果",
+      "example": true,
+      "expected_stdout": "result 11\nresult 10\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "handle an expected failure and continue collecting"
+          ],
+          "expected_stdout": "error generation 11 failed\nresult 10\n"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "slug": "10-wait-for",
+      "title": "13 · asyncio.wait_for：限制一次等待的时长",
+      "example": true,
+      "expected_stdout": "cleanup 10\ntimeout\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "slow_cleanup.py",
+          "scenarios": [
+            "wait for cleanup after the timeout"
+          ],
+          "expected_stdout": "cleanup start 10\ncleanup finished 10\ntimeout\n"
+        },
+        {
+          "file": "timeout_message.py",
+          "scenarios": [
+            "propagate a timeout with a custom message"
+          ],
+          "expected_stdout": "cleanup 10\ntimeout: 任务 10 未在等待时限内完成\n"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "slug": "11-time-budget",
+      "title": "14 · time.monotonic / time.perf_counter：计量经过时间与预算",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "cleanup start 10\ncleanup finished 10\ntimeout\n",
+      "normalize_elapsed_seconds": true,
+      "additional_examples": [
+        {
+          "file": "budget.py",
+          "scenarios": [
+            "calculate remaining time from a fixed deadline"
+          ],
+          "expected_stdout": "budget expired\n"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "slug": "12-timeout-scope",
+      "title": "15 · asyncio.timeout：给一段异步代码共享时间预算",
+      "example": true,
+      "expected_stdout": "start 10\nfinished 10\ncleanup 10\nstart 20\ncleanup 20\nshared budget expired\noutside timeout block\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "individual.py",
+          "scenarios": [
+            "compare separate wait_for timeouts with a shared timeout scope"
+          ],
+          "expected_stdout": "start 10\nfinished 10\ncleanup 10\nstart 20\nfinished 20\ncleanup 20\nboth finished\noutside timeout block\n"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "slug": "13-shield",
+      "title": "16 · asyncio.shield：区分取消等待者与内部工作",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nwaiter timed out\nfinished 10\ncleanup 10\nresult 10\n",
+      "additional_examples": [
+        {
+          "file": "unshielded.py",
+          "scenarios": [
+            "compare direct await cancellation with shield"
+          ],
+          "expected_stdout": "start 10\ncleanup 10\nwaiter timed out\ninner task cancelled\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "retrieve an inner task failure after the outer timeout"
+          ],
+          "expected_stdout": "start 10\nwaiter timed out\ncleanup 10\nerror generation 10 failed\n"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "slug": "19-async-lock",
+      "title": "19 · asyncio.Lock：保护跨 await 的共享状态",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "A waiting\nA read 0\nB waiting\nA wrote 1\nA released\nB read 1\nB wrote 2\nB released\ntotal 2\n",
+      "additional_examples": [
+        {
+          "file": "without_lock.py",
+          "scenarios": [
+            "observe a lost update across an await"
+          ],
+          "expected_stdout": "A read 0\nB read 0\nA wrote 1\nB wrote 1\ntotal 1\n"
+        },
+        {
+          "file": "manual.py",
+          "scenarios": [
+            "protect the same operation with acquire and finally release"
+          ],
+          "expected_stdout": "A waiting\nA read 0\nB waiting\nA wrote 1\nA released\nB read 1\nB wrote 2\nB released\ntotal 2\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "reacquire the lock after cancelling its holder"
+          ],
+          "expected_stdout": "holder acquired\nholder cleanup\nholder cancelled\nlock acquired again\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "reacquire the lock after an ordinary exception"
+          ],
+          "expected_stdout": "update acquired\nerror update failed\nlock acquired again\n"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "slug": "20-async-event",
+      "title": "20 · asyncio.Event：让任务等待一个通知",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "fetch waiting\nmain set\nmain after set\nfetch resumed True\nreceived [['sample']]\n",
+      "additional_examples": [
+        {
+          "file": "flags.py",
+          "scenarios": [
+            "repeat wait without consuming the flag, then reset it with clear"
+          ],
+          "expected_stdout": "first wait True\nsecond wait True\nwaiting after clear True\nafter next set True\n"
+        },
+        {
+          "file": "broadcast.py",
+          "scenarios": [
+            "notify all current waiters without running them inline"
+          ],
+          "expected_stdout": "A waiting\nB waiting\nmain after set\nA continued\nB continued\nall finished\n"
+        },
+        {
+          "file": "set_then_clear.py",
+          "scenarios": [
+            "preserve existing wakeups while blocking later waiters"
+          ],
+          "expected_stdout": "already awakened True\nnew waiter blocked True\nnew waiter released True\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "cancel one waiter without setting the flag or cancelling its peer"
+          ],
+          "expected_stdout": "A waiting\nB waiting\nA cleanup\nA cancelled\nB still waiting True\nB continued\nB cleanup\n"
+        }
+      ]
+    }
+  ]
 }

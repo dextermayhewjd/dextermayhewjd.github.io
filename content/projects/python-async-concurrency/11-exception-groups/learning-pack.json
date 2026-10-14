@@ -1,0 +1,15 @@
+{
+  "revision": "v3.12.3",
+  "repository": "https://github.com/python/cpython",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "Lib/asyncio/taskgroups.py",
+      "line": 139,
+      "endLine": 147,
+      "symbol": "TaskGroup.__aexit__",
+      "text": "        if self._errors:\n            # Exceptions are heavy objects that can have object\n            # cycles (bad for GC); let's not keep a reference to\n            # a bunch of them.\n            try:\n                me = BaseExceptionGroup('unhandled errors in a TaskGroup', self._errors)\n                raise me from None\n            finally:\n                self._errors = None",
+      "blobSha256": "04895039b4870219ba5b94d42f3dccf996b4bf26108a54c47f30326eae4af0cc"
+    }
+  }
+}

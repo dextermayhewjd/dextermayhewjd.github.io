@@ -1,63 +1,64 @@
+{{/* This output is rendered again inside python-async-slime; indenting HTML creates Markdown code blocks. */}}
 {{- $path := "python-async-concurrency/teaching-coverage.json" -}}
 {{- if not (fileExists $path) -}}
-  {{- errorf "Python async teaching coverage is missing; run build_teaching_coverage.py" -}}
+{{- errorf "Python async teaching coverage is missing; run build_teaching_coverage.py" -}}
 {{- else -}}
-  {{- $data := readFile $path | transform.Unmarshal -}}
-  {{- $lesson := .Get "lesson" -}}
-  {{- if $lesson -}}
-    {{- $rows := where $data.occurrences "lesson" $lesson -}}
-    <section id="source-usage-locations">
-    <h2>本节对应的全部源码位置</h2>
-    <p>下面把同类用法在 Slime 中的每个扫描位置接回本节讲解；点击文件名可查看完整源码快照。重复出现的 API 共用解释，具体输入与清理由所在函数决定。</p>
-    {{ if eq $lesson "21-async-inspection" }}
-    <details><summary>先辨认对象类型，再查同名接口的具体讲解</summary>
-    <p>这些只是可能相关的原生接口；必须先核对接收者类型。没有匹配的名字仍可能属于普通对象或第三方接口。</p>
-    <table><thead><tr><th>候选方法名</th><th>位置数</th><th>辨认类型后的阅读入口</th></tr></thead><tbody>
-    {{ range $data.candidate_methods }}
-      <tr><td><code>{{ .name }}</code></td><td>{{ .count }}</td><td>
-      {{ range .related_topic_ids }}{{ $topic := index (where $data.topics "id" .) 0 }}<a href="../{{ $topic.lesson }}/#{{ $topic.anchor }}">{{ $topic.title }}</a><br>{{ end }}
-      </td></tr>
-    {{ end }}
-    </tbody></table></details>
-    {{ end }}
-    <details><summary>展开本节 {{ len $rows }} 条源码记录</summary>
-    <table><thead><tr><th>记录 / 讲解</th><th>源码位置</th><th>原代码</th></tr></thead><tbody>
-    {{ range $rows }}
-      <tr id="source-{{ .id }}">
-        <td><a href="#{{ .anchor }}">{{ .id }}</a>{{ if eq .status "inferred" }}<br>有接收者线索{{ else if eq .status "candidate" }}<br>待核实接收者{{ end }}</td>
-        <td><a href="/python-async-concurrency/{{ .snapshot }}">{{ .file }}</a>:<a href="{{ .source_url }}">{{ .line }}</a><br><small>{{ .symbol }}</small></td>
-        <td><code>{{ .source_line }}</code></td>
-      </tr>
-    {{ end }}
-    </tbody></table></details>
-    </section>
-  {{- else -}}
-    <p>固定版本 <code>{{ $data.source_revision }}</code>，共扫描 {{ $data.counts.tracked_python_files }} 个 Python 文件。下面的“对应”表示有明确讲解入口，不表示执行过 Slime 训练或证明了所有运行时类型。</p>
-    <table><thead><tr><th>记录</th><th>数量</th><th>怎样阅读</th></tr></thead><tbody>
-      <tr><td>直接标准库 API</td><td>{{ $data.counts.direct_api_positions }} 个位置 / {{ $data.counts.direct_api_names }} 个名称</td><td>逐项对应下面的讲解</td></tr>
-      <tr><td>异步语法</td><td>{{ $data.counts.syntax_positions }}</td><td>定义、等待、资源作用域、异步迭代</td></tr>
-      <tr><td>导入</td><td>{{ $data.counts.import_positions }}</td><td>对应所属机制的入口</td></tr>
-      <tr><td>有接收者线索的方法</td><td>{{ $data.counts.inferred }}</td><td>按构造或注解对应具体接口；仍保留推断标记</td></tr>
-      <tr><td>其余同名方法候选</td><td>{{ $data.counts.candidate }}</td><td>到第 23 节核对类型，不算作已确认的原生 API</td></tr>
-      <tr><td>Markdown 中的示例</td><td>{{ $data.counts.documentation_snippets }}</td><td>本页下方保留全文及对应讲解</td></tr>
-    </tbody></table>
-    <h2 id="api-to-lesson">每种用法到哪里学习</h2>
-    <table><thead><tr><th>讲解</th><th>对应的 API、方法与语法（含理解所需的补充接口）</th><th>源码位置数</th></tr></thead><tbody>
-    {{ range $data.topics }}
-      <tr><td><a href="../{{ .lesson }}/#{{ .anchor }}">{{ .title }}</a></td>
-      <td>{{ range .apis }}<code>{{ . }}</code> {{ end }}{{ range .methods }}<code>{{ . }}</code> {{ end }}{{ range .syntax }}<code>{{ . }}</code> {{ end }}</td>
-      <td>{{ .source_positions }}</td></tr>
-    {{ end }}
-    </tbody></table>
-    <p>源码位置数只计算扫描到的记录；部分接口为理解完整机制而补充，不能据此认定 Slime 使用了表内每个接口。</p>
-    <h2 id="documentation-examples">文档中的全部 Python 示例</h2>
-    <p>以下代码出自 Slime 文档，保留原文；其中可能有省略号、业务对象和第三方依赖，不能当作独立可运行实验。每节下载的 example.py 才是验证过的最小实验。</p>
-    {{ range $data.documentation_snippets }}
-      <details id="{{ .id }}"><summary>{{ .id }} · {{ .path }}:{{ .start_line }}</summary>
-      <p><a href="{{ .source_url }}">固定版本的原文</a> · 对应讲解：
-      {{ range .topic_ids }}{{ $topic := index (where $data.topics "id" .) 0 }}<a href="../{{ $topic.lesson }}/#{{ $topic.anchor }}">{{ $topic.title }}</a> {{ end }}</p>
-      {{ highlight .snippet "python" "" }}
-      </details>
-    {{ end }}
-  {{- end -}}
+{{- $data := readFile $path | transform.Unmarshal -}}
+{{- $lesson := .Get "lesson" -}}
+{{- if $lesson -}}
+{{- $rows := where $data.occurrences "lesson" $lesson -}}
+<section id="source-usage-locations">
+<h2>本节对应的全部源码位置</h2>
+<p>下面把同类用法在 Slime 中的每个扫描位置接回本节讲解；点击文件名可查看完整源码快照。重复出现的 API 共用解释，具体输入与清理由所在函数决定。</p>
+{{ if eq $lesson "21-async-inspection" }}
+<details><summary>先辨认对象类型，再查同名接口的具体讲解</summary>
+<p>这些只是可能相关的原生接口；必须先核对接收者类型。没有匹配的名字仍可能属于普通对象或第三方接口。</p>
+<table><thead><tr><th>候选方法名</th><th>位置数</th><th>辨认类型后的阅读入口</th></tr></thead><tbody>
+{{ range $data.candidate_methods }}
+<tr><td><code>{{ .name }}</code></td><td>{{ .count }}</td><td>
+{{ range .related_topic_ids }}{{ $topic := index (where $data.topics "id" .) 0 }}<a href="../{{ $topic.lesson }}/#{{ $topic.anchor }}">{{ $topic.title }}</a><br>{{ end }}
+</td></tr>
+{{ end }}
+</tbody></table></details>
+{{ end }}
+<details><summary>展开本节 {{ len $rows }} 条源码记录</summary>
+<table><thead><tr><th>记录 / 讲解</th><th>源码位置</th><th>原代码</th></tr></thead><tbody>
+{{ range $rows }}
+<tr id="source-{{ .id }}">
+<td><a href="#{{ .anchor }}">{{ .id }}</a>{{ if eq .status "inferred" }}<br>有接收者线索{{ else if eq .status "candidate" }}<br>待核实接收者{{ end }}</td>
+<td><a href="/python-async-concurrency/{{ .snapshot }}">{{ .file }}</a>:<a href="{{ .source_url }}">{{ .line }}</a><br><small>{{ .symbol }}</small></td>
+<td><code>{{ .source_line }}</code></td>
+</tr>
+{{ end }}
+</tbody></table></details>
+</section>
+{{- else -}}
+<p>固定版本 <code>{{ $data.source_revision }}</code>，共扫描 {{ $data.counts.tracked_python_files }} 个 Python 文件。下面的“对应”表示有明确讲解入口，不表示执行过 Slime 训练或证明了所有运行时类型。</p>
+<table><thead><tr><th>记录</th><th>数量</th><th>怎样阅读</th></tr></thead><tbody>
+<tr><td>直接标准库 API</td><td>{{ $data.counts.direct_api_positions }} 个位置 / {{ $data.counts.direct_api_names }} 个名称</td><td>逐项对应下面的讲解</td></tr>
+<tr><td>异步语法</td><td>{{ $data.counts.syntax_positions }}</td><td>定义、等待、资源作用域、异步迭代</td></tr>
+<tr><td>导入</td><td>{{ $data.counts.import_positions }}</td><td>对应所属机制的入口</td></tr>
+<tr><td>有接收者线索的方法</td><td>{{ $data.counts.inferred }}</td><td>按构造或注解对应具体接口；仍保留推断标记</td></tr>
+<tr><td>其余同名方法候选</td><td>{{ $data.counts.candidate }}</td><td>到第 23 节核对类型，不算作已确认的原生 API</td></tr>
+<tr><td>Markdown 中的示例</td><td>{{ $data.counts.documentation_snippets }}</td><td>本页下方保留全文及对应讲解</td></tr>
+</tbody></table>
+<h2 id="api-to-lesson">每种用法到哪里学习</h2>
+<table><thead><tr><th>讲解</th><th>对应的 API、方法与语法（含理解所需的补充接口）</th><th>源码位置数</th></tr></thead><tbody>
+{{ range $data.topics }}
+<tr><td><a href="../{{ .lesson }}/#{{ .anchor }}">{{ .title }}</a></td>
+<td>{{ range .apis }}<code>{{ . }}</code> {{ end }}{{ range .methods }}<code>{{ . }}</code> {{ end }}{{ range .syntax }}<code>{{ . }}</code> {{ end }}</td>
+<td>{{ .source_positions }}</td></tr>
+{{ end }}
+</tbody></table>
+<p>源码位置数只计算扫描到的记录；部分接口为理解完整机制而补充，不能据此认定 Slime 使用了表内每个接口。</p>
+<h2 id="documentation-examples">文档中的全部 Python 示例</h2>
+<p>以下代码出自 Slime 文档，保留原文；其中可能有省略号、业务对象和第三方依赖，不能当作独立可运行实验。每节下载的 example.py 才是验证过的最小实验。</p>
+{{ range $data.documentation_snippets }}
+<details id="{{ .id }}"><summary>{{ .id }} · {{ .path }}:{{ .start_line }}</summary>
+<p><a href="{{ .source_url }}">固定版本的原文</a> · 对应讲解：
+{{ range .topic_ids }}{{ $topic := index (where $data.topics "id" .) 0 }}<a href="../{{ $topic.lesson }}/#{{ $topic.anchor }}">{{ $topic.title }}</a> {{ end }}</p>
+{{ highlight .snippet "python" "" }}
+</details>
+{{ end }}
+{{- end -}}
 {{- end -}}

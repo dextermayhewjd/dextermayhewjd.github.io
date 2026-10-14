@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/server_control.py",
+      "line": 237,
+      "endLine": 254,
+      "symbol": "abort_servers_until_idle",
+      "text": "async def abort_servers_until_idle(\n    urls: list[str],\n    *,\n    timeout: float = DEFAULT_ABORT_TIMEOUT_SECONDS,\n    request_timeout: float = DEFAULT_CONTROL_REQUEST_TIMEOUT_SECONDS,\n) -> None:\n    # Let every server finish its own bounded drain, then report all failures.\n    # Proceeding after only some servers became idle would make controls unsafe.\n    results = await asyncio.gather(\n        *(abort_server_until_idle(url, timeout=timeout, request_timeout=request_timeout) for url in urls),\n        return_exceptions=True,\n    )\n    failures = [(url, result) for url, result in zip(urls, results, strict=True) if isinstance(result, BaseException)]\n    if failures:\n        detail = \"; \".join(f\"{url}: {error}\" for url, error in failures)\n        raise RuntimeError(f\"Failed to abort all SGLang servers to a confirmed idle state: {detail}\") from failures[0][\n            1\n        ]",
+      "blobSha256": "0547c2e78306373786c65b7096c03e6faeb5b65c63d79d36954357b06c43033b"
+    }
+  }
+}

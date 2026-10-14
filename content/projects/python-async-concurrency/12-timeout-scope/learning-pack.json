@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 201,
+      "endLine": 222,
+      "symbol": "generate",
+      "text": "    try:\n        async with asyncio.timeout(CONFIG.rollout_guard_sec):\n            async with boot_agent_sandbox(md[\"image\"], instance_id) as sb:\n                await swe.prepare_workspace(sb, md[\"workdir\"], md)\n                agent_exit_code = await HARNESS_CLS().run(\n                    sb,\n                    workdir=md[\"workdir\"],\n                    session_id=session_id,\n                    adapter_url=state.adapter_url,\n                    time_budget_sec=CONFIG.agent_time_budget_sec,\n                    prompt=swe.SWE_PROMPT,\n                )\n                diff_text = await swe.git_diff(sb, md[\"workdir\"])\n\n            reward, applied_cleanly = await swe.run_evaluation(\n                md,\n                diff_text=diff_text,\n                timeout_sec=CONFIG.eval_timeout_sec,\n            )\n            if evaluation:\n                logger.info(\n                    \"[coding_agent_rl] %s: reward=%.2f applied=%s agent_exit_code=%d elapsed=%.1fs (eval-only)\",",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    },
+    "source-2": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 270,
+      "endLine": 283,
+      "symbol": "generate",
+      "text": "    except asyncio.TimeoutError:\n        _log_timeout_diagnostic(t0, instance_id)\n        return _abort_result(base_sample, \"wall_clock_timeout\", instance_id)\n    except Exception as e:\n        logger.warning(\n            \"[coding_agent_rl] %s: rollout failed: %s\\n%s\",\n            instance_id,\n            e,\n            traceback.format_exc(),\n        )\n        return _abort_result(base_sample, f\"exception:{type(e).__name__}\", instance_id)\n    finally:\n        await state.adapter.drop_session(session_id, wait_timeout=30)  # cleanup only, idempotent\n        await asyncio.sleep(10)",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # 第 03 课：create_task 的讲解核对
 
-本次按已确认的教学顺序调整：回顾 01/02 → 直接 await 的顺序 → create_task 提前安排 → await Task 取得结果。正文只增加 create_task；gather 已迁到独立的第 05 课，原三组交错实验仍为独立折叠选读。
+本次按已确认的教学顺序调整：回顾 01/02 → 直接 await 的顺序 → create_task 提前安排 → await Task 取得结果。正文只增加 create_task；gather 已迁到独立的第 06 课，原三组交错实验仍为独立折叠选读。
 
 章节开头按“已知能力 → 新增要求 → 尝试旧法”组织：直接顺序 await 可以得到两个结果，但尚未满足两份独立工作在等待期间交错推进的要求。原回顾表、代码和输出保留，在观察旧写法之后才引入 create_task。
 
@@ -24,7 +24,7 @@
 - 这证明当前例子中的等待重叠与结果收取顺序，不构成精确的计时或调度保证。回归检查只忽略日志的可变时间前缀，仍逐行核对事件及其顺序。
 - 正文说明协作式让出执行机会；没有使用 TaskGroup，也没有创建额外工作线程。
 
-## C02 · 已迁至第 05 课：gather 收集结果
+## C02 · 已迁至第 06 课：gather 收集结果
 
 核对事实：`gather` 接收 Task，也能通过内部 `_ensure_future` 安排传入的协程；正常完成时按传入顺序遍历子任务、组装结果。`*tasks` 是 Python 参数展开。
 
@@ -42,9 +42,9 @@
 
 - `example.py` 改为两份 Task 分别 await 的主实验；`sequential.py` 是同一生成函数的直接 await 对照；原 gather 实验另存为 `gather_example.py`。
 - 原 `comparison.py` 和 Slime 摘录保持不变，正文中的相关下载已同步。
-- 保留 `task-creation`、`gather-results`、`comparison-b`、`sleep-key-point` 四个显式锚点；其中旧 `gather-results` 保留为第 05 课的跳转入口。
+- 保留 `task-creation`、`gather-results`、`comparison-b`、`sleep-key-point` 四个显式锚点；其中旧 `gather-results` 保留为第 06 课的跳转入口。
 - Slime 对照与全量源码位置统一放入页面末尾默认关闭的阅读区；原正文代码块、源码引用和显式锚点保留。
 - 页面检查覆盖渲染后的正文顺序、折叠默认关闭、锚点及专题链接。专题与覆盖测试合计 14 项通过。
 - Chrome 检查第 03、13、19 页在 1280px 与 390px 下的焦点、展开、收起、源码可见性和横向溢出。检查时仅在临时代理页面禁用主题过渡动画；未修改网站动画，未验证真实键盘按键事件。
 
-第 05 课沿用同一份 `generate` 并扩展结果收集实验；03 的原 `gather_example.py` 下载地址保留，新入口与简短示例位于 `05-gather/`。
+第 06 课沿用同一份 `generate` 并扩展结果收集实验；03 的原 `gather_example.py` 下载地址保留，新入口与简短示例位于 `05-gather/`。

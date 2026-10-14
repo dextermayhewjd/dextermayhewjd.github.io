@@ -1,21 +1,28 @@
 import asyncio
 
-async def generate(rollout_id, semaphore, state):
+
+async def generate(rollout_id, semaphore, fail=False):
+    print("waiting", rollout_id)
     async with semaphore:
-        state["active"] += 1
-        state["peak"] = max(state["peak"], state["active"])
+        print("entered", rollout_id)
         try:
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.1)
+            if fail:
+                raise ValueError(f"generation {rollout_id} failed")
+            print("finished", rollout_id)
             return rollout_id
         finally:
-            state["active"] -= 1
+            print("cleanup", rollout_id)
+
 
 async def exercise():
     semaphore = asyncio.Semaphore(2)
-    state = {"active": 0, "peak": 0}
-    results = await asyncio.gather(*(generate(i, semaphore, state) for i in range(5)))
-    print("results", results)
-    print("peak", state["peak"])
+    tasks = []
+    for rollout_id in range(10, 15):
+        tasks.append(asyncio.create_task(generate(rollout_id, semaphore)))
+    print("tasks scheduled", len(tasks))
+    print("results", await asyncio.gather(*tasks))
+
 
 if __name__ == "__main__":
     asyncio.run(exercise())

@@ -1,7 +1,7 @@
 ---
-title: "05 · gather：等待一组任务，收集一组结果"
+title: "06 · gather：等待一组任务，收集一组结果"
 description: "沿用已创建的两个 Task，理解 gather 的结果列表与传入顺序。"
-weight: 50
+weight: 60
 ShowToc: false
 ShowPostNavLinks: false
 hideMeta: true
@@ -10,7 +10,7 @@ hideInOverview: true
 
 ## 1. 一组任务结束后，怎样一次拿到结果？
 
-1. **前面已经会了：** 第 03 课用 `create_task` 安排工作，再分别 `await` 取得结果；第 04 课用 TaskGroup 管理一组任务的结束。
+1. **前面已经会了：** 第 03 课用 `create_task` 安排工作，再分别 `await` 取得结果；第 05 课用 TaskGroup 管理一组任务的结束。
 2. **现在多了一个要求：** 已经安排了多份工作，希望一次等到它们完成，得到一个包含各份返回值的列表。
 3. **沿用原来的办法：** 分别 `await`，再把结果放进列表，也能做到。能不能把“等这一组”和“收这一组结果”写在一起？
 
@@ -173,7 +173,7 @@ results = await asyncio.gather(
 
 “等到整组完成并得到结果列表”在前文限定为所有任务都正常返回。默认情况下，`gather` 将首先收到的异常传播给等待者，但不会因此自动取消其他任务。`return_exceptions=True` 则将异常作为列表元素返回，由调用方检查。
 
-因此，不能把它当作 TaskGroup 的完整生命周期管理替代品。取消与收尾在[第 07 节](../05-cancellation/)继续展开。
+因此，不能把它当作 TaskGroup 的完整生命周期管理替代品。取消与收尾可从[第 09 单元](../09-task-cancellation/)继续学习；失败后的任务继续见 [10.1](../15-gather-failures/)，收齐结果与异常见 [10.2](../15-gather-exceptions/)。
 
 </details>
 
@@ -201,4 +201,4 @@ results = await asyncio.gather(
 
 ---
 
-[专题首页](../) · [上一节：04 · TaskGroup](../04-taskgroup/) · [下一节：06 · wait 与 as_completed](../04-results/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节：05 · TaskGroup：离开代码块前，等任务结束](../04-taskgroup/) · [下一节：07 · wait：先取得任务的完成情况](../04-results/) · [完整学习路线](../learning-route/)

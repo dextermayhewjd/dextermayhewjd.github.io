@@ -93,7 +93,7 @@ result 10
 
 ## 4. 按需回到 Slime
 
-原测试用 `generate(rollout_id)` 创建两份工作，再交给 `gather`。现在只需要认出函数定义与调用，下一节再读 `await`，第 05 课再展开 `gather`。
+原测试用 `generate(rollout_id)` 创建两份工作，再交给 `gather`。现在只需要认出函数定义与调用，下一节再读 `await`，第 06 课再展开 `gather`。
 
 <details>
 <summary>展开 Slime 源码：generate / exercise</summary>
@@ -108,4 +108,4 @@ result 10
 
 ---
 
-[专题首页](../) · [下一节：02 · await：等待结果，不等于自动并发](../02-await/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [下一节：02 · await：等待结果，不等于自动并发](../02-await/) · [完整学习路线](../learning-route/)

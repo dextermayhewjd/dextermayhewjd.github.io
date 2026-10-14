@@ -45,6 +45,12 @@
   color: var(--secondary);
 }
 
+.project-nav__group-label {
+  display: block;
+  padding: 7px 10px;
+  color: var(--secondary);
+}
+
 .project-nav__link:hover,
 .project-nav__link--active {
   border-left-color: var(--primary);

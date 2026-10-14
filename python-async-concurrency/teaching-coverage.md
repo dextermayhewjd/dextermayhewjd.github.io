@@ -15,9 +15,13 @@
 | [创建任务与保留引用](/projects/python-async-concurrency/03-tasks/#task-creation) | `asyncio.create_task`, `asyncio.Task` | 24 |
 | [收集整组结果与异常边界](/projects/python-async-concurrency/05-gather/#gather-results) | `asyncio.gather` | 27 |
 | [等待条件与完成集合](/projects/python-async-concurrency/04-results/#wait-results) | `asyncio.wait`, `asyncio.FIRST_COMPLETED` | 8 |
-| [按完成顺序消费结果](/projects/python-async-concurrency/04-results/#as-completed-results) | `asyncio.as_completed` | 1 |
-| [请求取消与等待清理](/projects/python-async-concurrency/05-cancellation/#task-cancellation) | `asyncio.CancelledError` | 11 |
-| [超时与取消保护的边界](/projects/python-async-concurrency/05-cancellation/#timeouts-and-shield) | `asyncio.TimeoutError`, `asyncio.timeout`, `asyncio.wait_for`, `asyncio.shield` | 18 |
+| [按完成顺序消费结果](/projects/python-async-concurrency/08-as-completed/#as-completed-results) | `asyncio.as_completed` | 1 |
+| [请求取消与等待清理](/projects/python-async-concurrency/09-task-cancellation/#task-cancellation) | `asyncio.CancelledError`, `asyncio.Task.cancel` | 16 |
+| [wait_for 等待时限与超时报告](/projects/python-async-concurrency/10-wait-for/#wait-for) | `asyncio.wait_for`, `builtins.TimeoutError` | 9 |
+| [经过时间与剩余预算](/projects/python-async-concurrency/11-time-budget/#elapsed-time) | `time.monotonic`, `time.perf_counter` | 0 |
+| [多个等待共享超时预算](/projects/python-async-concurrency/12-timeout-scope/#shared-timeout) | `asyncio.timeout` | 2 |
+| [取消等待者与内部工作的责任边界](/projects/python-async-concurrency/13-shield/#shield-cancellation) | `asyncio.shield` | 4 |
+| [超时异常别名](/projects/python-async-concurrency/05-cancellation/#timeouts-and-shield) | `asyncio.TimeoutError` | 3 |
 | [许可区域、限流与归还](/projects/python-async-concurrency/06-semaphore/#semaphore-permits) | `asyncio.Semaphore`, `asyncio.Semaphore.acquire`, `asyncio.Semaphore.release` | 11 |
 | [异步队列的生产消费与背压](/projects/python-async-concurrency/07-queues/#async-queue) | `asyncio.Queue`, `asyncio.Queue.put`, `asyncio.Queue.get`, `asyncio.Queue.empty` | 4 |
 | [同步队列与立刻尝试取结果](/projects/python-async-concurrency/07-queues/#thread-queue) | `queue.Queue`, `queue.Empty`, `queue.Queue.put`, `queue.Queue.get`, `queue.Queue.get_nowait`, `queue.Queue.qsize`, `queue.Queue.empty` | 15 |
@@ -28,8 +32,8 @@
 | [任务上下文与 token 恢复](/projects/python-async-concurrency/11-contextvars/#task-context) | `contextvars.ContextVar`, `contextvars.ContextVar.get`, `contextvars.ContextVar.set`, `contextvars.ContextVar.reset` | 18 |
 | [进程池分配与收集工作](/projects/python-async-concurrency/12-processes/#process-intro) | `multiprocessing.Pool.starmap`, `multiprocessing.context.BaseContext.Pool` | 2 |
 | [回到 Slime 的创建、交接与清理](/projects/python-async-concurrency/14-slime-walkthrough/#slime-lifecycle) | 源码类型与第三方边界 | 0 |
-| [Event 的等待、通知、状态与清零](/projects/python-async-concurrency/15-async-notification/#event-notification) | `asyncio.Event`, `asyncio.Event.wait`, `asyncio.Event.set`, `asyncio.Event.clear`, `asyncio.Event.is_set` | 35 |
-| [asyncio.Lock 保护任务共享状态](/projects/python-async-concurrency/15-async-notification/#async-lock) | `asyncio.Lock`, `asyncio.Lock.acquire`, `asyncio.Lock.release`, `asyncio.Lock.locked` | 1 |
+| [Event 的等待、通知、状态与清零](/projects/python-async-concurrency/20-async-event/#event-notification) | `asyncio.Event`, `asyncio.Event.wait`, `asyncio.Event.set`, `asyncio.Event.clear`, `asyncio.Event.is_set` | 35 |
+| [asyncio.Lock 保护任务共享状态](/projects/python-async-concurrency/19-async-lock/#async-lock) | `asyncio.Lock`, `asyncio.Lock.acquire`, `asyncio.Lock.release`, `asyncio.Lock.locked` | 1 |
 | [Condition 谓词循环、锁交接与通知](/projects/python-async-concurrency/16-thread-coordination/#condition-predicate) | `threading.Condition`, `threading.Condition.wait`, `threading.Condition.wait_for`, `threading.Condition.notify_all` | 24 |
 | [同一线程重入 RLock](/projects/python-async-concurrency/16-thread-coordination/#rlock-reentrancy) | `threading.RLock`, `threading.RLock.acquire`, `threading.RLock.release` | 6 |
 | [Timer 启动、取消与退出](/projects/python-async-concurrency/16-thread-coordination/#timer-lifecycle) | `threading.Timer`, `threading.Timer.start`, `threading.Timer.cancel`, `threading.Timer.join` | 3 |
@@ -60,7 +64,8 @@
 | [Future 完成、取消与分批回调](/projects/python-async-concurrency/13-event-loop/#pacer-callbacks) | `asyncio.AbstractEventLoop.call_soon`, `asyncio.AbstractEventLoop.call_later`, `asyncio.Future.done`, `asyncio.Future.set_result`, `asyncio.Future.set_exception`, `asyncio.Future.cancel`, `asyncio.Future.cancelled`, `asyncio.Future.add_done_callback` | 4 |
 | [创建、登记、运行与跨线程提交](/projects/python-async-concurrency/13-event-loop/#event-loop-lifecycle) | `asyncio.AbstractEventLoop`, `asyncio.new_event_loop`, `asyncio.set_event_loop`, `asyncio.run_coroutine_threadsafe`, `asyncio.wrap_future`, `asyncio.AbstractEventLoop.run_forever`, `asyncio.AbstractEventLoop.run_until_complete`, `concurrent.futures.Future.result` | 23 |
 | [事件循环停止、executor 排空与关闭](/projects/python-async-concurrency/13-event-loop/#loop-shutdown) | `asyncio.AbstractEventLoop.call_soon_threadsafe`, `asyncio.AbstractEventLoop.is_running`, `asyncio.AbstractEventLoop.stop`, `asyncio.AbstractEventLoop.close`, `asyncio.AbstractEventLoop.shutdown_default_executor` | 2 |
-| [Task 身份、归属与完成读取](/projects/python-async-concurrency/13-event-loop/#task-inspection) | `asyncio.current_task`, `asyncio.all_tasks`, `asyncio.Task`, `asyncio.CancelledError`, `asyncio.Task.done`, `asyncio.Task.result`, `asyncio.Task.exception`, `asyncio.Task.cancel`, `asyncio.Task.cancelled`, `asyncio.Task.get_loop`, `asyncio.Task.add_done_callback` | 17 |
+| [Task 的状态、返回值与异常](/projects/python-async-concurrency/07-task-results/#task-results) | `asyncio.Task.done`, `asyncio.Task.result`, `asyncio.Task.exception` | 7 |
+| [Task 身份、归属与完成读取](/projects/python-async-concurrency/13-event-loop/#task-inspection) | `asyncio.current_task`, `asyncio.all_tasks`, `asyncio.Task`, `asyncio.Task.cancelled`, `asyncio.Task.get_loop`, `asyncio.Task.add_done_callback` | 5 |
 | [手动 loop 的异步生成器兜底清理](/projects/python-async-concurrency/13-event-loop/#lifecycle-lab) | `asyncio.AbstractEventLoop.shutdown_asyncgens` | 0 |
 | [创建本地监听与流式连接](/projects/python-async-concurrency/20-async-streams/#start-server) | `asyncio.start_server`, `asyncio.open_connection`, `asyncio.Server`, `asyncio.StreamReader`, `asyncio.StreamWriter` | 1 |
 | [流式读取与协议分帧](/projects/python-async-concurrency/20-async-streams/#stream-reader) | `asyncio.LimitOverrunError`, `asyncio.StreamReader.read`, `asyncio.StreamReader.readline`, `asyncio.StreamReader.readuntil`, `asyncio.StreamReader.readexactly` | 0 |

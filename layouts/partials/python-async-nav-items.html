@@ -1,0 +1,49 @@
+{{- $section := .section -}}
+{{- $current := .current -}}
+{{- $plan := readFile "python-async-reference/curriculum.json" | transform.Unmarshal -}}
+{{- $manifest := readFile "python-async-concurrency/project-manifest.json" | transform.Unmarshal -}}
+{{- $mainPaths := slice -}}
+{{- $allPaths := slice -}}
+<li><strong class="project-nav__group-label">按学习路线</strong></li>
+{{- range $plan.lessons -}}
+  {{- if eq .status "existing" -}}
+    {{- $slugs := first 1 .source_lessons -}}
+    {{- if .parts -}}{{- $slugs = .source_lessons -}}{{- end -}}
+    {{- range $slug := $slugs -}}
+      {{- with $section.GetPage $slug -}}
+        {{- $mainPaths = $mainPaths | append .RelPermalink -}}
+        {{- $allPaths = $allPaths | append .RelPermalink -}}
+        {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+      {{- else -}}
+        {{- errorf "Missing ready Python async lesson: %s" $slug -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $legacyPages := slice -}}
+{{- $legacyActive := false -}}
+{{- range $manifest.lessons -}}
+  {{- with $section.GetPage .slug -}}
+    {{- $allPaths = $allPaths | append .RelPermalink -}}
+    {{- if not (in $mainPaths .RelPermalink) -}}
+      {{- $legacyPages = $legacyPages | append . -}}
+      {{- if eq $current.RelPermalink .RelPermalink -}}{{- $legacyActive = true -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+<li>
+  <details class="project-nav__branch"{{ if $legacyActive }} open{{ end }}>
+    <summary>旧版参考材料</summary>
+    <ul class="project-nav__list project-nav__list--nested">
+      {{- range $legacyPages -}}
+        {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+      {{- end -}}
+    </ul>
+  </details>
+</li>
+{{- $items := where (union $section.Sections $section.RegularPages) "Params.hideinprojectnav" "ne" true -}}
+{{- range sort $items "Params.weight" -}}
+  {{- if not (in $allPaths .RelPermalink) -}}
+    {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+  {{- end -}}
+{{- end -}}

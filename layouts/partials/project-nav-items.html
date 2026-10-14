@@ -4,8 +4,12 @@
   <li>
     <a class="project-nav__link{{ if eq $current.RelPermalink $section.RelPermalink }} project-nav__link--active{{ end }}" href="{{ $section.RelPermalink }}"{{ if eq $current.RelPermalink $section.RelPermalink }} aria-current="page"{{ end }}>总览</a>
   </li>
-  {{- $items := where (union $section.Sections $section.RegularPages) "Params.hideinprojectnav" "ne" true -}}
-  {{- range sort $items "Params.weight" -}}
-  {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+  {{- if eq $section.RelPermalink "/projects/python-async-concurrency/" -}}
+    {{- partial "python-async-nav-items.html" (dict "section" $section "current" $current) -}}
+  {{- else -}}
+    {{- $items := where (union $section.Sections $section.RegularPages) "Params.hideinprojectnav" "ne" true -}}
+    {{- range sort $items "Params.weight" -}}
+      {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+    {{- end -}}
   {{- end -}}
 </ul>

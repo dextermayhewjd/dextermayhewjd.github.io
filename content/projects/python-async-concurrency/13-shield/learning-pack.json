@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/data/transport.py",
+      "line": 370,
+      "endLine": 389,
+      "symbol": "run_rollout_io",
+      "text": "async def run_rollout_io(args, function, *values, **kwargs):\n    \"\"\"Bound the executor backlog before submitting encoding/sync work.\"\"\"\n    loop = asyncio.get_running_loop()\n    key = (os.getpid(), loop)\n    if key not in _async_limits:\n        _async_limits[key] = asyncio.Semaphore(getattr(args, \"rollout_io_concurrency\", 4))\n    async with _async_limits[key]:\n        pending = asyncio.create_task(asyncio.to_thread(function, *values, **kwargs))\n        try:\n            return await asyncio.shield(pending)\n        except asyncio.CancelledError:\n            # Repeated cancellation still cannot stop a filesystem commit.\n            # Keep capacity and input ownership until the accepted write finishes.\n            while not pending.done():\n                try:\n                    await asyncio.shield(pending)\n                except asyncio.CancelledError:\n                    pass\n            pending.result()\n            raise",
+      "blobSha256": "9315c9bd0b66c7a7e4c237cd24a58b4b195c0ebcb48aeb7afe8e96e7cdbaad36"
+    }
+  }
+}

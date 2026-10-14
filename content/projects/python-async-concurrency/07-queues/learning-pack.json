@@ -28,6 +28,15 @@
       "symbol": "AsyncRolloutWorker.get_completed_groups / queue_size",
       "text": "    def get_completed_groups(self, limit: int | None = None) -> list[tuple[int, list[Sample]]]:\n        \"\"\"Pop up to ``limit`` completed groups (all of them when ``None``).\n\n        Callers that only need a fixed number of groups must pass ``limit`` —\n        anything popped beyond it would otherwise have to be thrown away, and\n        these groups are fully generated and reward-scored, with their prompts\n        already consumed from ``data_buffer``.\n        \"\"\"\n        completed: list[tuple[int, list[Sample]]] = []\n        while limit is None or len(completed) < limit:\n            try:\n                completed.append(self.output_queue.get_nowait())\n            except queue.Empty:\n                break\n        return completed\n\n    def queue_size(self) -> int:\n        return self.output_queue.qsize()",
       "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 305,
+      "endLine": 317,
+      "symbol": "_GenerationActor._next",
+      "text": "    async def _next(self):\n        take = asyncio.create_task(self.outputs.get())\n        try:\n            await asyncio.wait((take, self.producer), return_when=asyncio.FIRST_COMPLETED)\n            if take.done():\n                return take.result()\n            self.producer.result()  # Propagate custom generation errors.\n            if not self.outputs.empty():\n                return await take\n            return None\n        finally:\n            take.cancel()\n            await asyncio.gather(take, return_exceptions=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
     }
   }
 }

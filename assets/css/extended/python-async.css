@@ -217,6 +217,80 @@
   margin-top: 0;
 }
 
+.post-content table.async-output-trace {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+:is(.async-queue-code, .async-coordination-code) .highlight :is(pre, code) {
+  white-space: pre-wrap;
+  overflow-wrap: normal;
+}
+
+:is(.async-queue-code, .async-coordination-code) .highlight code > span > span {
+  min-width: 0;
+}
+
+:is(.async-queue-code, .async-coordination-code) .highlight code {
+  counter-reset: queue-source-line;
+}
+
+:is(.async-queue-code, .async-coordination-code) .highlight code > span::before {
+  counter-increment: queue-source-line;
+  content: counter(queue-source-line);
+  box-sizing: border-box;
+  flex: 0 0 3em;
+  padding-right: 1em;
+  color: #b7b7b7;
+  text-align: right;
+  user-select: none;
+}
+
+.async-queue-walkthrough {
+  position: relative;
+}
+
+.async-queue-lanes {
+  padding: 8px 0;
+  background: var(--theme);
+}
+
+.async-queue-lanes h3 {
+  margin: 8px 0 12px;
+}
+
+:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes) pre {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes) pre code {
+  font-size: inherit;
+}
+
+.async-output-trace th:first-child {
+  width: 24%;
+}
+
+.post-content .async-output-trace :is(th, td) {
+  word-break: normal;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.async-output-trace code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .async-output-trace th:first-child {
+    width: 32%;
+  }
+}
+
 @media (min-width: 1100px) {
   .main:has(.taskgroup-code-comparison) {
     max-width: 1700px;

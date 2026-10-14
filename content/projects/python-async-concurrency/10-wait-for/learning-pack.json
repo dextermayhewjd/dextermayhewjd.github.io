@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/server_control.py",
+      "line": 159,
+      "endLine": 163,
+      "symbol": "_get_server_load",
+      "text": "async def _get_server_load(url: str, request_timeout: float) -> Any:\n    return await asyncio.wait_for(\n        get(f\"{url}/v1/loads?include=core,disagg,queues\", timeout=request_timeout),\n        timeout=request_timeout,\n    )",
+      "blobSha256": "0547c2e78306373786c65b7096c03e6faeb5b65c63d79d36954357b06c43033b"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/server_control.py",
+      "line": 184,
+      "endLine": 194,
+      "symbol": "abort_server_until_idle",
+      "text": "    while True:\n        remaining = deadline - loop.time()\n        if remaining <= 0:\n            detail = (\n                f\"last observed request count={last_num_requests}\"\n                if last_num_requests is not None\n                else f\"last error={last_error!r}\"\n            )\n            if last_load is not None:\n                detail += f\", non-idle queues={non_idle_request_details(last_load)!r}\"\n            raise TimeoutError(f\"Timed out draining SGLang server {url} after {timeout:.1f}s ({detail})\")",
+      "blobSha256": "0547c2e78306373786c65b7096c03e6faeb5b65c63d79d36954357b06c43033b"
+    }
+  }
+}

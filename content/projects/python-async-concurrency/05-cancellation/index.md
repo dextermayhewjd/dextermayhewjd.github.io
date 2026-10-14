@@ -8,6 +8,8 @@ hideMeta: true
 hideInOverview: true
 ---
 
+按当前路线，取消部分见 [09 · Task.cancel](../09-task-cancellation/)，单次超时见 [13 · asyncio.wait_for](../10-wait-for/)，取消传播见 [16 · asyncio.shield](../13-shield/)。本页保留旧版将取消与超时合讲的材料，供后续回查。
+
 <span id="task-cancellation"></span>
 
 ## cancel() 之后，任务就消失了吗
@@ -67,6 +69,8 @@ timeout
 清理后一般继续传播 `CancelledError`。把它吞掉并返回正常结果，会让上层误判任务成功。`shield` 保护等待对象免受这一层取消传播，但外层等待者仍然可以被取消；它不是“全程不可能取消”。
 
 ### shield 保护谁，取消后谁来收尾
+
+新规划已把这一关系整理为[第 16 单元：asyncio.shield](../13-shield/)，用独立实验区分外层取消、内部工作继续和后续收尾。
 
 把 `await pending` 换成 `await asyncio.shield(pending)`，改变的是这一层等待的取消传播：调用方被取消时，仍会收到 `CancelledError`，但这次取消不会通过 shield 顺带取消里面的 pending。pending 仍可能被其他代码直接取消，所以这不代表它永远不会停止。
 

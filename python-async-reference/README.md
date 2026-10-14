@@ -8,7 +8,7 @@
 
 ## 1. 从这里进入
 
-1. [完整课程设置](curriculum.md)：8 模块、40 个最小单元，安排全部 82 项 API；[学习范围与顺序](learning-plan.md)保存选题依据，[82 项 API 表](current-api-plan.md)保存官网入口和覆盖统计。
+1. [完整课程设置](curriculum.md)：8 模块、41 个编号单元（10、11 各分两个子课），安排全部 82 项 API；[学习范围与顺序](learning-plan.md)保存选题依据，[82 项 API 表](current-api-plan.md)保存官网入口和覆盖统计。
 2. [官方网址与本地副本](OFFICIAL-DOCS.md)：含用户指定的 12 页和补充理由；[纯网址清单](official/urls.txt)。
 3. [按官方页面统计](TOPIC-USAGE.md)：先决定哪些主题值得学习，再进入逐页明细。
 4. [核心包 API 矩阵](CORE-API-USAGE.md) / [含测试与示例的完整矩阵](API-USAGE.md) / [TSV](api-usage.tsv)。

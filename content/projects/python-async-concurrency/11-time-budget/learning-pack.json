@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 583,
+      "endLine": 588,
+      "symbol": "DistributedRollout.close",
+      "text": "            deadline = time.monotonic() + 300\n            for ref in refs:\n                try:\n                    ray.get(ref, timeout=max(0, deadline - time.monotonic()))\n                except RayActorError:\n                    logging.getLogger(__name__).warning(\"Rollout worker unavailable during shutdown\", exc_info=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    }
+  }
+}

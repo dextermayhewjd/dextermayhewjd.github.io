@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "tests/test_distributed_rollout.py",
+      "line": 2071,
+      "endLine": 2104,
+      "symbol": "test_queue_fetch_finishing_after_pause_preserves_group_without_new_generation.run",
+      "text": "    async def run():\n        entered, release = asyncio.Event(), asyncio.Event()\n        sample = Sample(tokens=[1, 2], status=Sample.Status.ABORTED)\n        sample._queue_lease = {\"task_id\": \"borrowed\"}\n        group = [sample]\n        buffered = []\n\n        async def fetch(count):\n            entered.set()\n            await release.wait()\n            return [group]\n\n        async def rebuffer(value):\n            buffered.append(value)\n\n        async def unexpected(*args):\n            raise AssertionError(\"Paused worker admitted a generation request\")\n\n        monkeypatch.setattr(sglang_rollout, \"generate_and_rm_group\", unexpected)\n        worker = _GenerationActor.__new__(_GenerationActor)\n        worker.running = True\n        worker.data_source = SimpleNamespace(get_samples_async=fetch)\n        worker._rebuffer = rebuffer\n        task = asyncio.create_task(worker._generate_group(0))\n        await entered.wait()\n        await worker._pause()\n        release.set()\n        assert await task is None\n        assert buffered == [group]\n        assert sample._queue_lease == {\"task_id\": \"borrowed\"}\n        assert sample.tokens == [1, 2]\n\n    asyncio.run(run())\n",
+      "blobSha256": "4f73dedd74a7311414f4f8f6ba176c283772b888238aad1884781a8490dd586e"
+    }
+  }
+}

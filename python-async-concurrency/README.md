@@ -6,9 +6,9 @@
 
 网站学习入口：[Python 异步与并发项目](https://dextermayhewjd.github.io/projects/python-async-concurrency/)。按知识点阅读，与下方全量资料对应。
 
-当前课程安排见 [8 模块、40 单元的课程设置](../python-async-reference/curriculum.md)，网页入口为[学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md)。01–05 沿用现有课，其余按规划拆分与补写，最终包含全部已选定的 82 项 API。本目录的旧页编号和全量索引保留用于复用与回查，不表示要同时学完。
+当前课程安排见 [8 模块、41 单元的课程设置](../python-async-reference/curriculum.md)，网页入口为[学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md)。01–03 保留原课，新增 04 语法前置，原 04 起顺延，已整理到 20，其余按规划拆分与补写，最终包含全部已选定的 82 项 API。本目录的旧页编号和全量索引保留用于复用与回查，不表示要同时学完。
 
-教程现已扩展到 **23 节**，每节附上对应源码位置。新增第 04 节 TaskGroup 使用 AReaL 的独立固定快照，其余源码统计继续绑定上述 Slime 版本；第 05 节已独立讲解 gather，显示编号继续顺延，已有页面地址保留。Slime 的完整映射见 [teaching-coverage.md](teaching-coverage.md) 与 [teaching-coverage.json](teaching-coverage.json)，知识点定义以 [teaching-topics.json](teaching-topics.json) 为准。
+旧版教程保留 **23 页**；当前路线另有语法前置与拆分后的独立课程。第 10 单元是 `15-gather-failures` 和 `15-gather-exceptions`，第 11 单元是 `11-taskgroup-failures` 和 `11-exception-groups`，各分两节。第 09 单元学习取消，12 单元学习 as_completed，13–16 学习超时和预算，17 单元在原 `06-semaphore` 地址学习许可与释放，18 单元在原 `07-queues` 地址学习异步数据交接，19 单元在 `19-async-lock` 学习共享状态的异步互斥，20 单元在 `20-async-event` 学习通知与标志；已有 URL 均保留。新 TaskGroup 失败实验核对 CPython v3.12.3 源码，常规 TaskGroup 页继续使用 AReaL 的固定快照，其余 Slime 统计版本不变。完整映射见 [teaching-coverage.md](teaching-coverage.md) 和 [teaching-coverage.json](teaching-coverage.json)，知识点定义以 [teaching-topics.json](teaching-topics.json) 为准。
 
 ## 从哪里看
 

@@ -72,6 +72,8 @@ if __name__ == "__main__":
 <span id="task-inspection"></span>
 ## 任务身份、所属 loop 与完成后的读取
 
+Task 的三个基础读取方法已拆到[新规划第 08 单元](../07-task-results/)。本页保留旧版完整参考，按后续单元需要回查。
+
 
 `asyncio.current_task()` 默认查询当前运行 loop；普通 loop 回调未必处于 Task 内，因此可能返回 `None`。`asyncio.all_tasks()` 默认返回当前 loop 的**尚未完成**任务集合，包含调用它的当前任务；它不是全进程、全线程任务清单。
 

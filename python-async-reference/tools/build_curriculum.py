@@ -40,6 +40,27 @@ def validate_plan(curriculum, scope):
         for field in ("title", "question", "takeaway", "check"):
             if not row[field].strip():
                 raise ValueError(f"Empty {field} in lesson {number}")
+        if "parts" in row:
+            parts = row["parts"]
+            labels = [f"{number}.{index}" for index in range(1, len(parts) + 1)]
+            if len(parts) < 2 or [part["label"] for part in parts] != labels:
+                raise ValueError(f"Invalid sublesson order in lesson {number}")
+            sources = [slug for part in parts for slug in part["source_lessons"]]
+            if sources != row["source_lessons"] or len(sources) != len(set(sources)):
+                raise ValueError(f"Invalid sublesson source mapping in lesson {number}")
+            earlier_parts = set()
+            for part in parts:
+                for field in ("title", "question", "takeaway", "check"):
+                    if not part[field].strip():
+                        raise ValueError(f"Empty sublesson {field} in lesson {number}")
+                for dep in part.get("depends_on", row["depends_on"]):
+                    if not ((isinstance(dep, int) and 1 <= dep < number) or dep in earlier_parts):
+                        raise ValueError(f"Invalid sublesson prerequisite in lesson {number}")
+                earlier_parts.add(part["label"])
+            for field in ("syntax", "exception_types"):
+                expanded = {name for part in parts for name in part.get(field, row[field])}
+                if expanded != set(row[field]):
+                    raise ValueError(f"Invalid sublesson {field} mapping in lesson {number}")
         previous.update(row["introduces"])
         owners.update({name: number for name in row["introduces"]})
     for field in ("syntax", "exception_types"):
@@ -49,9 +70,11 @@ def validate_plan(curriculum, scope):
     staged = [number for stage in curriculum["stages"] for number in range(stage["first"], stage["last"] + 1)]
     if staged != list(range(1, len(lessons) + 1)):
         raise ValueError("Stages must partition the complete ordered curriculum")
-    expected_first = ["01-async-def", "02-await", "03-tasks", "04-taskgroup", "05-gather"]
-    if [row["source_lessons"] for row in lessons[:5]] != [[slug] for slug in expected_first]:
-        raise ValueError("The first five existing lessons must be preserved")
+    expected_first = [
+        "01-async-def", "02-await", "03-tasks", "04-with-async-with", "04-taskgroup", "05-gather",
+    ]
+    if [row["source_lessons"] for row in lessons[:6]] != [[slug] for slug in expected_first]:
+        raise ValueError("The syntax prerequisite must precede TaskGroup in the first six lessons")
     return owners
 
 
@@ -59,8 +82,24 @@ def code_list(names):
     return "、".join(f"`{name}`" for name in names)
 
 
+def display_lessons(row):
+    """Expand reading parts without changing the parent unit or API ownership."""
+    return [
+        {**row, **part}
+        for part in row.get("parts", [{"label": f"{row['number']:02d}"}])
+    ]
+
+
 def render_body(curriculum, manifest, web=False):
-    titles = {row["slug"]: row["title"] for row in manifest["lessons"]}
+    pages = manifest["lessons"] + manifest.get("curriculum_lessons", [])
+    titles = {row["slug"]: row["title"] for row in pages}
+    # Reused page URLs and the legacy catalog retain their historical numbering.
+    # Active units use the current curriculum title everywhere in this table.
+    titles.update({
+        row['source_lessons'][0]: f"{row['label']} · {row['title']}"
+        for unit in curriculum['lessons'] if unit['status'] == 'existing'
+        for row in display_lessons(unit)
+    })
     lessons = {row["number"]: row for row in curriculum["lessons"]}
     lines = [
         "## 分阶段课程",
@@ -76,7 +115,10 @@ def render_body(curriculum, manifest, web=False):
         )
     lines += ["", "下面按模块展开。每个单元都列出唯一问题、正式引入的 API、前置和自查；同一 API 后续复用不重复计数。", ""]
     for i, stage in enumerate(curriculum["stages"], 1):
-        rows = [lessons[n] for n in range(stage["first"], stage["last"] + 1)]
+        rows = [
+            part for n in range(stage["first"], stage["last"] + 1)
+            for part in display_lessons(lessons[n])
+        ]
         lines += [
             f'<details id="curriculum-stage-{stage["id"]}">',
             f"<summary>模块 {i} · {stage['title']}（{stage['first']:02d}–{stage['last']:02d}）</summary>",
@@ -90,12 +132,12 @@ def render_body(curriculum, manifest, web=False):
                 mechanism += ("；" if mechanism else "") + "回访 " + code_list(row["revisits"])
             if not mechanism:
                 mechanism = "复用已有语法，增加新的行为关系"
-            deps = "、".join(f"{n:02d}" for n in row["depends_on"]) or "普通函数基础"
-            lines.append(f"| {row['number']:02d} · {row['title']} | {row['question']} | {mechanism} | {deps} |")
+            deps = "、".join(f"{n:02d}" if isinstance(n, int) else n for n in row["depends_on"]) or "普通函数基础"
+            lines.append(f"| {row['label']} · {row['title']} | {row['question']} | {mechanism} | {deps} |")
         lines += ["", "<details>", "<summary>本模块的原子结论与自查</summary>", ""]
         for row in rows:
             lines += [
-                f"### {row['number']:02d} · {row['title']}", "",
+                f"### {row['label']} · {row['title']}", "",
                 f"1. **带走：** {row['takeaway']}",
                 f"2. **自查：** {row['check']}",
             ]
@@ -110,8 +152,8 @@ def render_body(curriculum, manifest, web=False):
             for slug in row["source_lessons"]:
                 url = f"/projects/python-async-concurrency/{slug}/" if web else f"../content/projects/python-async-concurrency/{slug}/index.md"
                 sources.append(f"[{titles[slug]}]({url})")
-            status = "沿用现有课" if row["status"] == "existing" else "规划单元，待从旧课拆分或补写"
-            lines.append(f"- {row['number']:02d}：{status}。材料：" + "、".join(sources) + "。")
+            status = "已有独立学习主线" if row["status"] == "existing" else "规划单元，待从旧课拆分或补写"
+            lines.append(f"- {row['label']}：{status}。材料：" + "、".join(sources) + "。")
         lines += ["", "</details>", "", "</details>", ""]
     return "\n".join(lines)
 
@@ -127,15 +169,15 @@ def build_outputs():
                 raise ValueError(f"Missing reusable lesson: {slug}")
     introduction = [
         "# Python 原生异步与并发：完整课程设置", "",
-        f"**{len(curriculum['stages'])} 个模块，{len(curriculum['lessons'])} 个最小学习单元，覆盖 {len(owners)}/{len(owners)} 项调用与方法。**",
+        f"**{len(curriculum['stages'])} 个模块，{len(curriculum['lessons'])} 个编号单元，覆盖 {len(owners)}/{len(owners)} 项调用与方法。**",
         "",
-        "这是课程规划，不是 40 篇都已编写完成的声明。01–05 沿用现有课程，其余按本表拆分或补写。现有 23 页的编号与 URL 保留，不能把新单元号误当成旧页面号。",
+        f"这是课程规划，不是 {len(curriculum['lessons'])} 篇都已编写完成的声明。各单元编写状态见下表。旧版 23 页目录保留历史编号，既有 URL 保留；现行单元号以本课程表为准。",
         "",
         "输入范围：[82 项 API](current-api-plan.md)；唯一课程数据：[curriculum.json](curriculum.json)。课程按概念递进；每学完一个模块完成对应自查，不要求先记住整张清单。",
         "",
         "## 阅读与完成规则", "",
         *[f"{i}. {note}" for i, note in enumerate(curriculum["notes"], 1)],
-        "5. 每单元先写前课结论，再给新增要求；一个完整可运行例子只增加当前必要关系。",
+        "5. 每单元先写前课结论，再给新增要求；机制实验只增加当前必要关系。纯语法前置的结构示意标明不能直接运行，再由下一单元的完整实验验证。",
         "6. 模块结束能解释该模块的正常、失败或退出行为；全课结束再串联一个只含已学原生机制的综合例子。",
         "7. API 正式讲解必须解释对象、调用时机、返回值以及必要的等待/异常/退出边界；仅在代码中出现不算完成讲解。",
         "",
@@ -147,7 +189,10 @@ def build_outputs():
     audit += ["", "## 语法与异常的检查表", "", "| 类别 | 内容 | 单元 |", "| --- | --- | --- |"]
     for field, label in (("syntax", "语法"), ("exception_types", "异常类型")):
         for name in scope[field]:
-            units = "、".join(f"{row['number']:02d}" for row in curriculum["lessons"] if name in row[field])
+            units = "、".join(
+                row['label'] for unit in curriculum["lessons"]
+                for row in display_lessons(unit) if name in row[field]
+            )
             audit.append(f"| {label} | `{name}` | {units} |")
     audit += [
         "", "检查保证所有输入 API 各有一个正式引入单元，语法与异常类型无遗漏，前置只指向更早单元。它不证明待编写课程的正文已经实现了这些讲解。",
@@ -171,7 +216,13 @@ def main():
                 raise SystemExit(f"Stale curriculum output: {path.name}")
         else:
             path.write_text(content, encoding="utf-8")
-    print("Curriculum verified: 40 units, 82/82 APIs, complete syntax and exception mapping." if args.check else "Wrote curriculum.md and curriculum-web.md")
+    if args.check:
+        curriculum = read_json(ROOT / 'curriculum.json')
+        print(f"Curriculum verified: {len(curriculum['lessons'])} units, "
+              f"{curriculum['target_api_count']}/{curriculum['target_api_count']} APIs, "
+              "complete syntax and exception mapping.")
+    else:
+        print("Wrote curriculum.md and curriculum-web.md")
 
 
 if __name__ == "__main__":

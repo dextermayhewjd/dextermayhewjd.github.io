@@ -10,20 +10,24 @@ hideMeta: true
 
 这份专题只讲 Python 原生异步与并发。目标是说明工作何时开始、谁在等待、多少份可以同时推进，以及失败或退出时怎样清理。Slime、AReaL、verl 的真实用法帮助选择学习重点，框架业务与通用工程化不在本专题展开。
 
-**从第 1 节开始即可。** 只需知道 Python 函数、参数、返回值和 try/finally；不要求先理解强化学习、Ray 或模型服务。先用一句话认清本节概念，再沿小实验观察它的行为。Slime 对照与源码位置放在每页末尾，按需展开。
+**从第 1 节开始即可。** 只需知道 Python 函数、参数、返回值和变量赋值；不要求先理解强化学习、Ray 或模型服务。先用一句话认清本节概念，再沿小实验观察它的行为。Slime 对照与源码位置放在每页末尾，按需展开。
 
-最初五节逐步增加知识点：**01 创建协程对象，用 run 执行 → 02 在协程内部用 await 等待，再理解暂停与恢复 → 03 用 create_task 安排多份工作，再逐个等待结果 → 04 用 TaskGroup 等待组内任务结束 → 05 用 gather 收集整组结果。** 前一节的最小结论，成为后一节的起点。
+最初六个单元逐步增加知识点：**01 创建协程对象，用 run 执行 → 02 在协程内部用 await 等待 → 03 用 create_task 安排任务 → 04 读懂 with / async with 的进入和退出 → 05 用 TaskGroup 等待组内任务 → 06 用 gather 收集结果。** 前一节的最小结论，成为后一节的起点。
 
 [开始：async def 定义之后，什么时候执行？](01-async-def/)
 
 想先了解整体范围，可看[学习路线与完成标准](learning-route/)：按任务结果、退出、负载、线程、上下文和进程逐步展开，并区分必学与按需内容。
 
+## 已整理到第 18 单元
+
+[07 · wait：先取得任务的完成情况](04-results/) → [08 · done、result、exception：读取 Task 的状态与结果](07-task-results/) → [09 · Task.cancel：请求取消并等待收尾](09-task-cancellation/) → [10.1 · asyncio.gather：收集报错，任务仍可继续](15-gather-failures/) → [10.2 · return_exceptions=True：收齐结果与异常](15-gather-exceptions/) → [11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾](11-taskgroup-failures/) → [11.2 · ExceptionGroup / except*：读取任务组的错误](11-exception-groups/) → [12 · asyncio.as_completed：按完成顺序取结果](08-as-completed/) → [13 · asyncio.wait_for：限制一次等待的时长](10-wait-for/) → [14 · time.monotonic / time.perf_counter：计量经过时间与预算](11-time-budget/) → [15 · asyncio.timeout：给一段异步代码共享时间预算](12-timeout-scope/) → [16 · asyncio.shield：区分取消等待者与内部工作](13-shield/) → [17 · asyncio.Semaphore：限制同时进入的工作](06-semaphore/) → [18 · asyncio.Queue：让生产者与消费者交接数据](07-queues/) → [19 · asyncio.Lock：保护跨 await 的共享状态](19-async-lock/) → [20 · asyncio.Event：让任务等待一个通知](20-async-event/)。先读取消与整组失败，再学习按完成顺序取结果，再进入超时和时间预算，随后学习协程间的协调。10、11 各分为两个子课。
+
 ## 课程目录
 
-编号保留，阅读顺序按学习路线选择。多主题页面可以先读当前需要的一部分，不要求一开始通读全部课程。
+下方旧目录保留历史编号，现行单元号以学习路线和页面标题为准；既有 URL 不因顺延而改动。多主题页面可以先读当前需要的一部分，不要求一开始通读全部课程。
 
-<details>
-<summary>展开全部 23 节与对应问题</summary>
+<details id="legacy-course-catalog">
+<summary>展开旧版 23 页与对应问题</summary>
 
 ## 01–16：先建立任务执行的主线
 
@@ -34,7 +38,7 @@ hideMeta: true
 | [03 · create_task：先安排工作，再等待结果](03-tasks/) | 对比直接 await 与提前创建 Task，分清安排任务和等待结果。 |
 | [04 · TaskGroup：离开代码块前，等任务结束](04-taskgroup/) | 沿用两份任务，只增加退出组时等待全部任务结束的关系。 |
 | [05 · gather：等待一组任务，收集一组结果](05-gather/) | 等待已创建的 Task，按传入顺序收集返回值。 |
-| [06 · wait 与 as_completed：先处理已经完成的工作](04-results/) | 区分整组返回、完成集合和按完成顺序消费。 |
+| [06 · wait：先取得任务的完成情况](04-results/) | 区分 done/pending，用已学的 await 取值并等完剩余任务。 |
 | [07 · 取消与超时：请求停止以后，还要等待收尾](05-cancellation/) | 理解 cancel、CancelledError、finally 和任务级超时。 |
 | [08 · Semaphore：限制同时进入的工作数量](06-semaphore/) | 把并发许可与任务总量区分开。 |
 | [09 · Queue：把生产速度和消费速度接起来](07-queues/) | 用有界队列理解等待、背压与结束信号。 |

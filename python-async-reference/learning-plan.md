@@ -69,7 +69,7 @@
 
 ## 4. 按概念展开的路线与调用次数
 
-前五课继续建立协程、await、Task、TaskGroup 和 gather 的理解。gather 之后，按下表的概念依赖继续展开，而不是按调用次数跳到另一个主题。每个概念组仍拆成最小学习单元，不要求一课讲完组内所有接口。
+最初六个单元继续建立协程、await、Task、with / async with、TaskGroup 和 gather 的理解。gather 之后，按下表的概念依赖继续展开，而不是按调用次数跳到另一个主题。每个概念组仍拆成最小学习单元，不要求一课讲完组内所有接口。
 
 下表是核心包静态调用位置数，方法包含有接收者类型线索的推断；不含单纯导入、非调用引用和类型不明的候选。
 
@@ -135,7 +135,7 @@
 | verl | 233/377（61.8%） | **279/377（74.0%）** | 46 |
 
 1. **保持概念顺序**：任务结果 → 超时 → 异步协调 → 阻塞工作与线程 → 上下文 → Future/循环交接 → 外部程序与子进程。不要为凑比例改变依赖顺序。
-2. **先补现有主题，再决定拆课**：这五组主要补齐现有结果、超时、线程、上下文和进程主题。01–05 不因此增加内容；某个主题有多个新关系时再拆成最小单元。
+2. **先补现有主题，再决定拆课**：这五组主要补齐现有结果、超时、线程、上下文和进程主题。01–06 继续只保留理解当前机制所需的内容；某个主题有多个新关系时再拆成最小单元。
 3. **保留按需范围**：Slime 尚有手动事件循环、`RLock/Condition`、同步队列和信号；verl 的信号超时、AReaL 的执行器与进程配套也需在实际读到时回查。不为了数字单独讲 `os.getpid`。
 4. **区分计划与效果**：以上只表示显式 API 清单能对应多少已识别标准库调用位置，不证明已完成学习，也不等于覆盖了 70%–80% 的实际训练场景。Ray、HTTP 客户端、分布式通信与业务协调不在这个分母中。
 
@@ -145,13 +145,13 @@
 
 **必学**表示需要能解释并实现一个最小例子；**查阅**用于清单外内容。表中一行是机制分组，不是一课；按“旧方法能做什么 → 新增要求 → 新机制”继续拆分。82 项内的复杂接口可以后学，但在整套课程结束前都有正式单元覆盖。
 
-用户进一步要求全课结束时包含全部 82 项 API。正式课程安排以 [8 模块、40 单元的课程设置](curriculum.md)及其 [curriculum.json](curriculum.json) 为准；下面的编号与链接保留为机制分组及旧材料索引，不能当作新单元编号。82 项内的内容全部安排正式单元，不再无限期放在选读中；只有清单外内容继续按需。
+用户进一步要求全课结束时包含全部 82 项 API。正式课程安排以 [8 模块、41 单元的课程设置](curriculum.md)及其 [curriculum.json](curriculum.json) 为准；下面的编号与链接保留为机制分组及旧材料索引，不能当作新单元编号。82 项内的内容全部安排正式单元，不再无限期放在选读中；只有清单外内容继续按需。
 
 下表负责学习顺序与深度；[当前 API 表](current-api-plan.md)负责完整列出具体方法、官网页面和调用次数。当前范围足以服务至少 70%、约 80% 的静态调用覆盖目标，不继续把所有剩余低频 API 加进主线，也不据此声称覆盖了等比例的实际运行场景。
 
 | 顺序与深度 | 要解决的具体问题 | Python 原生内容与官方小节 | 现有入口与处理 |
 | --- | --- | --- | --- |
-| 1. 执行基础 · 必学 | 一份工作何时执行？多份独立工作怎样在等待期间推进？ | `async def`、`await`、`asyncio.run`、`sleep`、`create_task`、TaskGroup 正常退出、`gather` 正常收集；[协程与任务](https://docs.python.org/3.16/library/asyncio-task.html)、[运行入口](https://docs.python.org/3.16/library/asyncio-runner.html) | 保留 01–05 的最小边界，不提前塞入失败、线程或完整事件循环实现。 |
+| 1. 执行基础 · 必学 | 一份工作何时执行？多份独立工作怎样在等待期间推进？ | `async def`、`await`、`asyncio.run`、`sleep`、`create_task`、TaskGroup 正常退出、`gather` 正常收集；[协程与任务](https://docs.python.org/3.16/library/asyncio-task.html)、[运行入口](https://docs.python.org/3.16/library/asyncio-runner.html) | 保留 01–06 的最小边界，不提前塞入失败、线程或完整事件循环实现。 |
 | 2. 结果与失败 · 必学 | 一项先完成或失败后，剩余工作由谁继续等待或结束？ | `wait`、Task 的 `done/result/exception`；随后比较 `gather` 的异常传播与 TaskGroup 的失败收尾；最小 `ExceptionGroup`/`except*`；[等待](https://docs.python.org/3.16/library/asyncio-task.html#waiting-primitives)、[任务组](https://docs.python.org/3.16/library/asyncio-task.html#task-groups) | 06 先讲完成集合；07 讲清取消后，再回访 04/05 的异常分支。`as_completed` 保留短例或源码补学。 |
 | 3. 取消与时间预算 · 必学 | 超时后到底停止了谁？清理执行完了吗？ | `Task.cancel`、`CancelledError`、`try/finally`、`wait_for`；再补 `asyncio.timeout` 的作用域预算；`shield` 连同任务引用和后续收尾作为源码补学；[取消](https://docs.python.org/3.16/library/asyncio-task.html#task-cancellation)、[超时](https://docs.python.org/3.16/library/asyncio-task.html#timeouts) | 07 当前同时包含多种机制，后续拆成取消请求、等待清理、单次超时、作用域预算。不在一页一次讲完。 |
 | 4. 负载与共享状态 · 必学 | 慢服务和快生产者一起运行时，怎样控制在途工作与积压？ | `Semaphore`；有界 `asyncio.Queue` 的 `put/get`；`asyncio.Lock`；`Event.set/wait/clear`；[同步原语](https://docs.python.org/3.16/library/asyncio-sync.html)、[队列](https://docs.python.org/3.16/library/asyncio-queue.html) | 08 → 09 → 17。许可数、排队容量、共享状态、条件通知分别讲。Semaphore 与 Event 即使不是三库共用，也因工程责任进入必学。`task_done/join` 只在采用计数完成协议时补，不与结束标记强行混用。 |
@@ -162,9 +162,9 @@
 
 验证附属于各个原生机制：运行例子、必要断言、受控的事件顺序和 asyncio 自身的调试信息，用来确认结果、取消、阻塞与退出行为。`unittest`、`AsyncMock`、日志和性能分析工具只在例子确实需要时说明最小用法，不列为独立必学模块。
 
-前五课之后，按新规划的 **06–08 完成与结果 → 09–15 取消、预算与失败 → 16–19 协程协调 → 20–24 资源、迭代与上下文 → 25–31 线程与执行器 → 32–35 协程和线程交接 → 36–40 进程与命令** 推进。旧页保留作材料入口，不能要求读者为了一个新问题先读完整个旧页。
+最初六个单元之后，按当前规划的 **07–12 任务状态、取消、整组失败与完成顺序 → 13–16 超时与时间预算 → 17–20 协程协调 → 21–25 资源、迭代与上下文 → 26–32 线程与执行器 → 33–36 协程和线程交接 → 37–41 进程与命令** 推进。旧页保留作材料入口，不能要求读者为了一个新问题先读完整个旧页。
 
-`run_coroutine_threadsafe` 安排在新单元 35，完成全课必须覆盖；旧页 15 的手动 loop 生命周期、旧页 18 的 `Condition/RLock`、旧页 21 的信号/进程组/文件锁，以及进程池属于清单外按需内容。
+`run_coroutine_threadsafe` 安排在新单元 36，完成全课必须覆盖；旧页 15 的手动 loop 生命周期、旧页 18 的 `Condition/RLock`、旧页 21 的信号/进程组/文件锁，以及进程池属于清单外按需内容。
 
 按需查阅：22 的原始 Streams、低层 Transport/Protocol、选择器、任务调用图及新版本特有调度选项。`asyncio.create_subprocess_exec` 是异步管理外部命令的可选方案，在实现异步工具执行器时补；不因官方有整页就要求先学完。对线程、协程和进程的选型，应结合阻塞 I/O、CPU 运算、GIL 和扩展库实际行为，不许诺线程能让所有计算多核加速。
 
@@ -195,7 +195,7 @@
 
 ## 5. 与现有教程的衔接
 
-最新课程设置已保存为 [curriculum.md](curriculum.md)：8 模块、40 单元，每个单元都指定前置、新问题、正式引入 API、原子结论、自查和可复用旧材料。01–05 沿用现有课；06–40 是拆分与补写计划，不声称已完成。机器检查覆盖 82/82 项 API、7 项语法和 8 类异常，验证前置只能指向更早单元。运行 `python3 python-async-reference/tools/build_curriculum.py --check` 复核。网页 [学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md) 从同一课程数据生成模块表，避免两套安排分叉。
+最新课程设置已保存为 [curriculum.md](curriculum.md)：8 模块、41 个编号单元，10、11 各有两个独立子课。01–18 已整理，19–41 保持后续规划。当前顺序把取消与整组失败放在时间预算之前，所有前置引用同步指向同一知识点，既有 URL 保留。机器检查覆盖 82/82 项 API、7 项语法和 8 类异常；运行 `python3 python-async-reference/tools/build_curriculum.py --check` 复核。网页 [学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md) 从同一课程数据生成模块表。
 
 2026-10-13 落地：新增 [05 gather](../content/projects/python-async-concurrency/05-gather/index.md)，原第 05 课及之后显示编号顺延，页面地址保留。此前已新增 [04 TaskGroup](../content/projects/python-async-concurrency/04-taskgroup/index.md)，只讲正常退出作用域时等待组内任务；沿用 03 的生成函数和两份任务。已有章节显示编号顺延，旧网页地址保留。异常组和完整取消机制在后续展开。
 

@@ -182,7 +182,7 @@ results [10, 11]
 
 <span id="gather-results"></span>
 
-整组结果收集已独立为[第 05 课：gather](../05-gather/#gather-results)。先学第 04 课的任务组，再继续收集结果。
+整组结果收集已独立为[第 06 课：gather](../05-gather/#gather-results)。先读[第 04 单元的 with / async with](../04-with-async-with/)，再用第 05 课的任务组观察退出时的等待，最后继续收集结果。
 
 <details>
 <summary>可选实验：任务安排好了，为什么仍可能不交错？</summary>
@@ -375,4 +375,4 @@ end 11
 
 ---
 
-[专题首页](../) · [上一节](../02-await/) · [下一节：04 · TaskGroup：离开代码块前，等任务结束](../04-taskgroup/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节：02 · await：等待结果，不等于自动并发](../02-await/) · [下一节：04 · with / async with：进入、执行与退出](../04-with-async-with/) · [完整学习路线](../learning-route/)

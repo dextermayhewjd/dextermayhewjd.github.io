@@ -1,0 +1,15 @@
+{
+  "revision": "v3.12.3",
+  "repository": "https://github.com/python/cpython",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "Lib/asyncio/taskgroups.py",
+      "line": 183,
+      "endLine": 204,
+      "symbol": "TaskGroup._abort / TaskGroup._on_task_done",
+      "text": "    def _abort(self):\n        self._aborting = True\n\n        for t in self._tasks:\n            if not t.done():\n                t.cancel()\n\n    def _on_task_done(self, task):\n        self._tasks.discard(task)\n\n        if self._on_completed_fut is not None and not self._tasks:\n            if not self._on_completed_fut.done():\n                self._on_completed_fut.set_result(True)\n\n        if task.cancelled():\n            return\n\n        exc = task.exception()\n        if exc is None:\n            return\n\n        self._errors.append(exc)",
+      "blobSha256": "04895039b4870219ba5b94d42f3dccf996b4bf26108a54c47f30326eae4af0cc"
+    }
+  }
+}

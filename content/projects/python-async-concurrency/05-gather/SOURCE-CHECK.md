@@ -1,4 +1,4 @@
-# 第 05 课 gather 核对记录
+# 第 06 课 gather 核对记录
 
 ## 1. 本课边界
 
@@ -20,7 +20,7 @@
 
 03 的 gather 讲解迁到本课。原 `03-tasks/#gather-results` 留下跳转链接，`03-tasks/gather_example.py` 保留下载兼容；本课的同名简短示例与它一致。
 
-`teaching-topics.json` 中 gather 的讲解目标改为 `05-gather/#gather-results`，并重新生成全部源码位置映射。原第 05 课及后续显示编号顺延，旧页面地址保留。相邻导航、首页、学习规划及章节交叉引用同步更新。
+`teaching-topics.json` 中 gather 的讲解目标改为 `05-gather/#gather-results`，并重新生成全部源码位置映射。原第 06 课及后续显示编号顺延，旧页面地址保留。相邻导航、首页、学习规划及章节交叉引用同步更新。
 
 ## 4. 验证
 
