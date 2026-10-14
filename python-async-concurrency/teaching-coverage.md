@@ -13,7 +13,7 @@
 | [沿当前调用链等待与恢复](/projects/python-async-concurrency/02-await/#await-execution) | `asyncio.sleep`, `await` | 442 |
 | [阻塞线程与挂起任务的区别](/projects/python-async-concurrency/03-tasks/#sleep-key-point) | `time.sleep` | 57 |
 | [创建任务与保留引用](/projects/python-async-concurrency/03-tasks/#task-creation) | `asyncio.create_task`, `asyncio.Task` | 24 |
-| [收集整组结果与异常边界](/projects/python-async-concurrency/03-tasks/#gather-results) | `asyncio.gather` | 27 |
+| [收集整组结果与异常边界](/projects/python-async-concurrency/05-gather/#gather-results) | `asyncio.gather` | 27 |
 | [等待条件与完成集合](/projects/python-async-concurrency/04-results/#wait-results) | `asyncio.wait`, `asyncio.FIRST_COMPLETED` | 8 |
 | [按完成顺序消费结果](/projects/python-async-concurrency/04-results/#as-completed-results) | `asyncio.as_completed` | 1 |
 | [请求取消与等待清理](/projects/python-async-concurrency/05-cancellation/#task-cancellation) | `asyncio.CancelledError` | 11 |

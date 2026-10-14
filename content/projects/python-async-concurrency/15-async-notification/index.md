@@ -1,7 +1,7 @@
 ---
-title: "15 · Event 通知与异步互斥"
+title: "17 · Event 通知与异步互斥"
 description: "从已知任务等待通知开始，理解 Event 的布尔标志，以及 Lock 保护共享状态的边界。"
-weight: 150
+weight: 170
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -55,39 +55,7 @@ result = await task
 
 `release.clear()` 把标志重新设成 `False`，使**随后开始的等待**需要下一次 `set()`；它不会把已经结束的任务退回去，也不能收回已经唤醒的等待者。因此要像本节示例一样，先等上一轮任务结束，再 clear，才开始下一轮。[Event.clear 语义](https://docs.python.org/3.12/library/asyncio-sync.html#asyncio.Event.clear)
 
-Event 不保存“来了三份数据”这种数量，也不携带样本。样本仍在 `group` 中。如果每次通知都必须消费一份独立工作，应回到第 07 节的 Queue；Event 适合表达“已就绪”“允许继续”这样的状态。
-
-## 回到 Slime：先暂停，再让取样返回
-
-这次沿测试中的 `_GenerationActor._generate_group()` 进入异步取样。测试先等 entered，确认取样确实在途，再调用 `worker._pause()`，最后 release.set，让取样结果回来。随后检查：结果被放回缓冲，没有新启动生成请求。Event 的作用是把暂停与返回的相对顺序固定下来。
-
-<details><summary>源码入口：取样与暂停的双向通知</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
-
-同一版本其他 Event 用法也围绕“把测试停在一个明确位置”展开：
-
-| 源码场景 | 谁设置，谁等待 | 读完要确认什么 |
-| --- | --- | --- |
-| 慢生成组与其他组并发 | 测试设置 release，第一组生成等待 | 慢组仍被挡住时，其他组能返回；is_set 检查挡板状态 |
-| 流式取消 | 流发出首块后设置 first_chunk_seen；服务器任务设置 server_started | 测试等两个条件，再取消；request_closed.is_set 检查清理回调发生 |
-| 节奏控制 | 指定数量任务启动后设置 first_batch / all_started，生成任务等 finish | 检查在途数量与取消，再统一放行 |
-| 中途恢复 | `await asyncio.Event().wait()` 没有设置者 | 有意保持在途，等待外部取消或进程终止，不是业务中会自行结束的等待 |
-| 样本存储顺序 | 存储后通过 `loop.call_soon_threadsafe(second.set)` 通知 | Event 由事件循环线程设置；线程间交接不能直接当作 Event 线程安全 |
-
-<details><summary>上述场景的固定版本位置</summary>
-
-- [慢生成组](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_distributed_rollout.py#L970-L1036)
-- [流式取消与清理](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_streaming_rollout.py#L351-L440)
-- [节奏控制及等待中止](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_streaming_rollout.py#L532-L624)
-- [保持恢复测试在途](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_straw_fully_async_recovery.py#L45-L52)
-- [先存储后通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L375-L392)
-
-索引中 18 处 `asyncio.Event()` 构造均在测试文件。该版本没有直接调用 `asyncio.Event.clear()`；本节补充它，是为了完整说明复用状态的语义。测试还在学习包摘录之外使用了 `wait_for(event.wait(), timeout)`：Event 本身不接受 timeout，超时管理交给前面学过的异步等待工具。
-
-</details>
+Event 不保存“来了三份数据”这种数量，也不携带样本。样本仍在 `group` 中。如果每次通知都必须消费一份独立工作，应回到第 09 节的 Queue；Event 适合表达“已就绪”“允许继续”这样的状态。
 
 <span id="async-lock"></span>
 
@@ -108,15 +76,6 @@ finally:
 
 同一把异步锁已有多个等待者时，先开始等待 acquire 的任务先获得锁。对未锁定的锁调用 `release()` 会抛出 `RuntimeError`。`asyncio.Lock` 也不提供同一任务重入的承诺：持有它时再次 acquire 会把自己挡住；下一节的 `threading.RLock` 是不同的机制。
 
-Slime 的 HTTP 更新请求先进入 `update_from_disk()`，在锁内检查 `in_progress`、模型路径与已有 Future：同路径请求共用 Future，不同路径请求返回冲突；新更新则预留状态。之后离开锁再做耗时更新，最后重新取得锁，设置结果并清理状态。这把锁保护的是短暂的状态交接，没有覆盖整个磁盘更新过程。
-
-<details><summary>源码入口：检查状态、预留更新与最终清理</summary>
-
-{{< source-reference id="source-2" >}}
-
-{{< source-reference id="source-3" >}}
-
-</details>
 
 即使事件循环通常只有一个线程，也需要检查 await 边界：一次逻辑操作如果跨越挂起点，别的任务可能观察或改变共享状态。反过来，也不要把耗时同步函数放到锁内，以为加锁能让它变成异步。
 
@@ -225,7 +184,53 @@ if __name__ == "__main__":
 
 </details>
 
+{{< python-async-slime >}}
+
+## 回到 Slime：先暂停，再让取样返回
+
+这次沿测试中的 `_GenerationActor._generate_group()` 进入异步取样。测试先等 entered，确认取样确实在途，再调用 `worker._pause()`，最后 release.set，让取样结果回来。随后检查：结果被放回缓冲，没有新启动生成请求。Event 的作用是把暂停与返回的相对顺序固定下来。
+
+<details><summary>源码入口：取样与暂停的双向通知</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+同一版本其他 Event 用法也围绕“把测试停在一个明确位置”展开：
+
+| 源码场景 | 谁设置，谁等待 | 读完要确认什么 |
+| --- | --- | --- |
+| 慢生成组与其他组并发 | 测试设置 release，第一组生成等待 | 慢组仍被挡住时，其他组能返回；is_set 检查挡板状态 |
+| 流式取消 | 流发出首块后设置 first_chunk_seen；服务器任务设置 server_started | 测试等两个条件，再取消；request_closed.is_set 检查清理回调发生 |
+| 节奏控制 | 指定数量任务启动后设置 first_batch / all_started，生成任务等 finish | 检查在途数量与取消，再统一放行 |
+| 中途恢复 | `await asyncio.Event().wait()` 没有设置者 | 有意保持在途，等待外部取消或进程终止，不是业务中会自行结束的等待 |
+| 样本存储顺序 | 存储后通过 `loop.call_soon_threadsafe(second.set)` 通知 | Event 由事件循环线程设置；线程间交接不能直接当作 Event 线程安全 |
+
+<details><summary>上述场景的固定版本位置</summary>
+
+- [慢生成组](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_distributed_rollout.py#L970-L1036)
+- [流式取消与清理](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_streaming_rollout.py#L351-L440)
+- [节奏控制及等待中止](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_streaming_rollout.py#L532-L624)
+- [保持恢复测试在途](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_straw_fully_async_recovery.py#L45-L52)
+- [先存储后通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L375-L392)
+
+索引中 18 处 `asyncio.Event()` 构造均在测试文件。该版本没有直接调用 `asyncio.Event.clear()`；本节补充它，是为了完整说明复用状态的语义。测试还在学习包摘录之外使用了 `wait_for(event.wait(), timeout)`：Event 本身不接受 timeout，超时管理交给前面学过的异步等待工具。
+
+</details>
+
+Slime 的 HTTP 更新请求先进入 `update_from_disk()`，在锁内检查 `in_progress`、模型路径与已有 Future：同路径请求共用 Future，不同路径请求返回冲突；新更新则预留状态。之后离开锁再做耗时更新，最后重新取得锁，设置结果并清理状态。这把锁保护的是短暂的状态交接，没有覆盖整个磁盘更新过程。
+
+<details><summary>源码入口：检查状态、预留更新与最终清理</summary>
+
+{{< source-reference id="source-2" >}}
+
+{{< source-reference id="source-3" >}}
+
+</details>
+
 {{< python-async-coverage lesson="15-async-notification" >}}
+
+{{< /python-async-slime >}}
 
 ---
 

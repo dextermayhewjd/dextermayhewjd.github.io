@@ -1,16 +1,16 @@
 ---
-title: "16 · Condition、RLock 与 Timer"
+title: "18 · Condition、RLock 与 Timer"
 description: "线程怎样等待共享状态变化，为什么醒来后还要检查，重入锁和计时线程分别解决什么问题。"
-weight: 160
+weight: 180
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
 hideInOverview: true
 ---
 
-## 从第 09 节继续：线程要等的可能是一条条件
+## 从第 11 节继续：线程要等的可能是一条条件
 
-第 09 节的 Lock 保护共享状态，Event 表示开始或停止。现在消费者要等待的是“缓冲里有数据，或者生产者失败了”。这条条件由几个共享字段共同决定，而且消费者醒来后还要安全地取走数据。
+第 11 节的 Lock 保护共享状态，Event 表示开始或停止。现在消费者要等待的是“缓冲里有数据，或者生产者失败了”。这条条件由几个共享字段共同决定，而且消费者醒来后还要安全地取走数据。
 
 `threading.Condition` 把一把锁与等待通知组合起来。使用它时，先说清楚**要等哪个谓词为真**，再安排修改状态、通知和消费的顺序。
 
@@ -62,80 +62,12 @@ with condition:
 
 `Condition.wait_for(predicate, timeout)` 在持锁时调用谓词；谓词为假才释放锁等待，醒来重新取得锁后再检查。它返回最后一次谓词的值，超时后可能仍为假。谓词应快速读取共享状态，不要在里面做耗时 I/O。不要将它与 `asyncio.wait_for(awaitable, timeout)` 混淆：一个等线程共享状态，一个管理异步操作的超时。
 
-## 回到 Slime：收集结果、暂停、失败和关闭共用通知
-
-沿训练调用方进入 `RolloutScheduler.generate()`：它设置需求量，通知收集线程，然后循环检查 `ready`。没有结果就 wait；有结果就消费，降低 demand，再通知收集方。收集方更新 ready 后同样 notify_all，因此通知连接的是两个方向的状态变化。
-
-<details><summary>源码入口：generate 在结果为空时等待</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
-
-暂停沿同一把锁进入 `pause()`，但谓词换成了“控制请求及在途结果已经平息”。关闭时 `close()` 设置 closed 和 error，再通知所有等待者；等待者重新检查 error 才能抛出异常退出。仅仅通知而不改变退出条件，会让它们醒来后继续等待。
-
-<details><summary>源码入口：暂停等待与关闭唤醒</summary>
-
-{{< source-reference id="source-2" >}}
-
-{{< source-reference id="source-3" >}}
-
-</details>
-
-该版本四处 Condition 构造的职责如下。区别在谓词和状态拥有者，wait 的锁语义相同。
-
-| 使用者 | 等待或通知的真实含义 |
-| --- | --- |
-| `RolloutScheduler` | generate 等 ready 或 error；pause 等控制请求与在途结果；收集、错误和关闭均通知。`_run` 没有 RPC 可等时用带 0.05 秒超时的 wait，再回到循环检查 |
-| `AsyncRolloutWorker` | pause 等 admission_paused，以及 drain 时 active 归零；异步循环更新计数后通知，线程退出也通知。线程锁内只短暂交接状态，不能把阻塞式 Condition.wait 放进事件循环线程 |
-| `RolloutBuffer` | 显式让 Condition 复用已有 RLock；write 放数据后 notify_all。但当前 read 为空时立即返回空结果，**没有调用 wait**，不能从名字 not_empty 推断它一定阻塞 |
-| `GenerationProbe` | wait_for 等 error、done 或测试传入的事件谓词；醒来后再区分错误、提前结束、目标是否真正达成 |
-
-<details><summary>源码入口：Worker、Buffer 与 Probe</summary>
-
-{{< source-reference id="source-4" >}}
-
-{{< source-reference id="source-5" >}}
-
-{{< source-reference id="source-6" >}}
-
-[Worker 更新 active 并通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_rollout.py#L220-L225)；[Worker 线程退出时通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_rollout.py#L163-L172)。读完这些分支，返回调用方的谓词循环，而不是把一次通知当作任务完成。
-
-</details>
-
 <span id="rlock-reentrancy"></span>
 
 ## RLock 处理同一线程的嵌套加锁
 
 普通 Lock 已由当前线程占有时，再去 acquire 同一把 Lock 也会等待。`threading.RLock()` 记录拥有它的线程和重入层数；同一线程可以再次取得，但每取得一次都必须释放一次。最外层释放之前，其他线程仍然进不来。通常写嵌套 `with lock`，由上下文管理器配对 acquire/release。[RLock 文档](https://docs.python.org/3.12/library/threading.html#rlock-objects)
 
-Slime 有一条具体的嵌套调用：`get_accelerator()` 取得 `_SELECTION_LOCK` 后调用 `_register_builtin_backends()`，后者调用 `register_accelerator()`，再次取得同一把锁。RLock 允许这个同线程调用链继续。
-
-<details><summary>源码入口：沿嵌套调用检查同一把 _SELECTION_LOCK</summary>
-
-{{< source-reference id="source-7" >}}
-
-{{< source-reference id="source-8" >}}
-
-{{< source-reference id="source-9" >}}
-
-</details>
-
-另外五处构造分别保护存储写入、归档、训练状态、读者租约和插件缓冲：
-
-| RLock 所在位置 | 保护的共享状态 |
-| --- | --- |
-| `rollout_store` | 返回给同一存储池写入路径共用的锁，调用方用 with lock 写入 |
-| `RolloutArchive.save` | 非共享归档建立自己的存储及锁，写入块与元数据时使用 |
-| `RolloutQueueController._training_lock` | 训练批次、游标与恢复状态；如 ready_batch 在持锁时调用同样加锁的 batch |
-| `QueueReader._lock` | 读样本、归还与心跳线程共同访问的租约表 |
-| `RolloutBuffer.lock` | 缓冲及计数，也作为 not_empty 的底层锁 |
-
-<details><summary>其余 RLock 的固定版本入口</summary>
-
-[存储池](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/transport.py#L90-L107) · [归档](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/archive.py#L49-L74) · [训练批次的嵌套加锁](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L697-L720)及 [ready_batch 调用方](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L807-L830) · [读者租约与心跳](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L1030-L1060)。插件缓冲见上方 source-5。
-
-</details>
 
 RLock 只解决同一线程重入同一把锁；多把锁取得顺序相反，仍可能死锁。Condition 默认建立 RLock；显式传入 RLock 时，wait 会完全释放其重入占有，返回前恢复相应状态，而不是只做一次普通 release。
 
@@ -145,13 +77,6 @@ RLock 只解决同一线程重入同一把锁；多把锁取得顺序相反，�
 
 `threading.Timer(interval, function)` 创建一个 Thread 子类实例；`start()` 才开始计时，到期在该线程中执行回调。`join()` 等待这个计时线程结束；`cancel()` 只在回调开始前阻止它运行，不能打断已经进入回调的代码。间隔不是精密时钟，也不要凭“立刻 cancel”推断没有竞态。[Timer 文档](https://docs.python.org/3.12/library/threading.html#timer-objects)
 
-Slime 的存储恢复测试暂时破坏文件头，然后 `Timer(0.05, restore).start()` 延迟恢复，观察读取重试是否成功；finally 中 join，确保恢复线程已结束。这里没有使用 cancel，因为测试需要 restore 实际运行。cancel 是本节补充的清理语义。
-
-<details><summary>源码入口：恢复文件头的计时线程</summary>
-
-{{< source-reference id="source-10" >}}
-
-</details>
 
 ## 运行：一次无数据通知、一份数据、两种 Timer 结局
 
@@ -263,7 +188,88 @@ wait 放开锁，让生产者有机会改变状态；notify_all 不放锁；被�
 
 </details>
 
+{{< python-async-slime >}}
+
+## 回到 Slime：收集结果、暂停、失败和关闭共用通知
+
+沿训练调用方进入 `RolloutScheduler.generate()`：它设置需求量，通知收集线程，然后循环检查 `ready`。没有结果就 wait；有结果就消费，降低 demand，再通知收集方。收集方更新 ready 后同样 notify_all，因此通知连接的是两个方向的状态变化。
+
+<details><summary>源码入口：generate 在结果为空时等待</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+暂停沿同一把锁进入 `pause()`，但谓词换成了“控制请求及在途结果已经平息”。关闭时 `close()` 设置 closed 和 error，再通知所有等待者；等待者重新检查 error 才能抛出异常退出。仅仅通知而不改变退出条件，会让它们醒来后继续等待。
+
+<details><summary>源码入口：暂停等待与关闭唤醒</summary>
+
+{{< source-reference id="source-2" >}}
+
+{{< source-reference id="source-3" >}}
+
+</details>
+
+该版本四处 Condition 构造的职责如下。区别在谓词和状态拥有者，wait 的锁语义相同。
+
+| 使用者 | 等待或通知的真实含义 |
+| --- | --- |
+| `RolloutScheduler` | generate 等 ready 或 error；pause 等控制请求与在途结果；收集、错误和关闭均通知。`_run` 没有 RPC 可等时用带 0.05 秒超时的 wait，再回到循环检查 |
+| `AsyncRolloutWorker` | pause 等 admission_paused，以及 drain 时 active 归零；异步循环更新计数后通知，线程退出也通知。线程锁内只短暂交接状态，不能把阻塞式 Condition.wait 放进事件循环线程 |
+| `RolloutBuffer` | 显式让 Condition 复用已有 RLock；write 放数据后 notify_all。但当前 read 为空时立即返回空结果，**没有调用 wait**，不能从名字 not_empty 推断它一定阻塞 |
+| `GenerationProbe` | wait_for 等 error、done 或测试传入的事件谓词；醒来后再区分错误、提前结束、目标是否真正达成 |
+
+<details><summary>源码入口：Worker、Buffer 与 Probe</summary>
+
+{{< source-reference id="source-4" >}}
+
+{{< source-reference id="source-5" >}}
+
+{{< source-reference id="source-6" >}}
+
+[Worker 更新 active 并通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_rollout.py#L220-L225)；[Worker 线程退出时通知](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_rollout.py#L163-L172)。读完这些分支，返回调用方的谓词循环，而不是把一次通知当作任务完成。
+
+</details>
+
+Slime 有一条具体的嵌套调用：`get_accelerator()` 取得 `_SELECTION_LOCK` 后调用 `_register_builtin_backends()`，后者调用 `register_accelerator()`，再次取得同一把锁。RLock 允许这个同线程调用链继续。
+
+<details><summary>源码入口：沿嵌套调用检查同一把 _SELECTION_LOCK</summary>
+
+{{< source-reference id="source-7" >}}
+
+{{< source-reference id="source-8" >}}
+
+{{< source-reference id="source-9" >}}
+
+</details>
+
+另外五处构造分别保护存储写入、归档、训练状态、读者租约和插件缓冲：
+
+| RLock 所在位置 | 保护的共享状态 |
+| --- | --- |
+| `rollout_store` | 返回给同一存储池写入路径共用的锁，调用方用 with lock 写入 |
+| `RolloutArchive.save` | 非共享归档建立自己的存储及锁，写入块与元数据时使用 |
+| `RolloutQueueController._training_lock` | 训练批次、游标与恢复状态；如 ready_batch 在持锁时调用同样加锁的 batch |
+| `QueueReader._lock` | 读样本、归还与心跳线程共同访问的租约表 |
+| `RolloutBuffer.lock` | 缓冲及计数，也作为 not_empty 的底层锁 |
+
+<details><summary>其余 RLock 的固定版本入口</summary>
+
+[存储池](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/transport.py#L90-L107) · [归档](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/archive.py#L49-L74) · [训练批次的嵌套加锁](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L697-L720)及 [ready_batch 调用方](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L807-L830) · [读者租约与心跳](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L1030-L1060)。插件缓冲见上方 source-5。
+
+</details>
+
+Slime 的存储恢复测试暂时破坏文件头，然后 `Timer(0.05, restore).start()` 延迟恢复，观察读取重试是否成功；finally 中 join，确保恢复线程已结束。这里没有使用 cancel，因为测试需要 restore 实际运行。cancel 是本节补充的清理语义。
+
+<details><summary>源码入口：恢复文件头的计时线程</summary>
+
+{{< source-reference id="source-10" >}}
+
+</details>
+
 {{< python-async-coverage lesson="16-thread-coordination" >}}
+
+{{< /python-async-slime >}}
 
 ---
 

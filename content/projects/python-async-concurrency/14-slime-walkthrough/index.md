@@ -1,12 +1,17 @@
 ---
-title: "14 · 回到 Slime：串起创建、等待与清理"
+title: "16 · 回到 Slime：串起创建、等待与清理"
 description: "用一条完整任务主线检查前面学过的原生机制。"
-weight: 140
+weight: 160
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
 hideInOverview: true
 ---
+
+本节把前面学过的创建、等待与清理放回一条完整任务中。需要对照实际项目时，展开下面的 Slime 阅读区。
+
+
+{{< python-async-slime >}}
 
 ## 这次从一份工作走到结果
 
@@ -73,6 +78,8 @@ hideInOverview: true
 下一步可到[全部用法索引](../usage-index/)按 API 回查；那里保留固定版本的全量位置，本页只负责把任务流程读连贯。
 
 {{< python-async-coverage lesson="14-slime-walkthrough" >}}
+
+{{< /python-async-slime >}}
 
 ---
 

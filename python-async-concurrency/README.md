@@ -6,7 +6,9 @@
 
 网站学习入口：[Python 异步与并发项目](https://dextermayhewjd.github.io/projects/python-async-concurrency/)。按知识点阅读，与下方全量资料对应。
 
-教程现已扩展到 **21 节**，每节附上对应源码位置。完整映射见 [teaching-coverage.md](teaching-coverage.md) 与 [teaching-coverage.json](teaching-coverage.json)，知识点定义以 [teaching-topics.json](teaching-topics.json) 为准。
+当前课程安排见 [8 模块、40 单元的课程设置](../python-async-reference/curriculum.md)，网页入口为[学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md)。01–05 沿用现有课，其余按规划拆分与补写，最终包含全部已选定的 82 项 API。本目录的旧页编号和全量索引保留用于复用与回查，不表示要同时学完。
+
+教程现已扩展到 **23 节**，每节附上对应源码位置。新增第 04 节 TaskGroup 使用 AReaL 的独立固定快照，其余源码统计继续绑定上述 Slime 版本；第 05 节已独立讲解 gather，显示编号继续顺延，已有页面地址保留。Slime 的完整映射见 [teaching-coverage.md](teaching-coverage.md) 与 [teaching-coverage.json](teaching-coverage.json)，知识点定义以 [teaching-topics.json](teaching-topics.json) 为准。
 
 ## 从哪里看
 

@@ -1,7 +1,7 @@
 ---
-title: "18 · 进程生命周期：从队列工作到超时回收"
+title: "20 · 进程生命周期：从队列工作到超时回收"
 description: "沿 Slime 的生成器、服务进程和命令解释器，分清完成消息、进程退出与资源回收。"
-weight: 180
+weight: 200
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -17,13 +17,6 @@ hideInOverview: true
 <span id="process-start"></span>
 ## 1. 先创建执行边界，再启动工作
 
-Slime 的 `launch_server_process` 为模型服务选择 `spawn`，创建 `multiprocessing.Process`，调用 `start()`，然后检查服务健康。在健康检查中，`is_alive()` 只能回答“进程是否还活着”，不能回答“HTTP 服务已经可用”。
-
-<details><summary>源码入口：launch_server_process 的启动和健康检查交接</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
 
 教学程序使用同一种启动方式，但把模型服务换成生成固定答案的 `worker_process`：
 
@@ -39,15 +32,10 @@ process.start()
 
 `Process(...)` 先建立进程对象；`start()` 才安排子进程执行 `target(*args)`。`spawn` 会启动新解释器，因而把入口放在 `if __name__ == "__main__":` 下，worker 放在模块顶层，传递可序列化的参数。子进程不会共享父进程里的普通列表。
 
-这里 `multiprocessing.get_context("spawn")` 返回具有 `Process`、`Queue`、`Pool` 工厂的上下文，相关对象统一从它创建。源码用 `multiprocessing.set_start_method("spawn", force=True)` 改全局选择；库式代码通常更适合局部上下文。不要在任意导入位置反复设置全局启动方式，也不要混用不同上下文创建的同步对象。[Python 3.12 启动方式](https://docs.python.org/3.12/library/multiprocessing.html#contexts-and-start-methods)
+这里 `multiprocessing.get_context("spawn")` 返回具有 `Process`、`Queue`、`Pool` 工厂的上下文，相关对象统一从它创建。库式代码通常更适合局部上下文。不要在任意导入位置反复设置全局启动方式，也不要混用不同上下文创建的同步对象。[Python 3.12 启动方式](https://docs.python.org/3.12/library/multiprocessing.html#contexts-and-start-methods)
 
-创建者负责清理自己创建的进程。`multiprocessing.active_children()` 返回当前进程仍活着的 multiprocessing 子进程，不是全系统进程表。Slime 在启动前后取差集记录新路由器；实验只检查已经握有的 worker 是否在其中，不遍历并杀掉其他任务的子进程。
+创建者负责清理自己创建的进程。`multiprocessing.active_children()` 返回当前进程仍活着的 multiprocessing 子进程，不是全系统进程表。实验只检查已经握有的 worker 是否在其中，不遍历并杀掉其他任务的子进程。
 
-<details><summary>源码入口：ServingCluster 保存本轮启动的子进程</summary>
-
-{{< source-reference id="source-2" >}}
-
-</details>
 
 <span id="process-queue"></span>
 ## 2. 从题目队列走到完成消息
@@ -71,17 +59,6 @@ def worker_process(task_queue, done_queue, rollout_func, reward_func, client, sa
 
 这是**教学裁剪**：保留原 `worker_process` 的签名、两条 Queue 和 `STOP/COMPLETE` 协议；只启动一个 worker，固定返回答案 `4`，删去 HTTP 调用、UUID、采样统计、JSON 字符串输入和结果上报。`extra_info` 只保留一个字段，真实实现放入更多题目与采样信息。生产者 `read_data_into_queue` 从原来的局部函数移到模块顶层，显式接收队列，以便用 `spawn` 导入；真实实现还读文件、打乱数据并重复投递。
 
-<details><summary>源码入口：worker_process 接收题目、生成结果、发送 COMPLETE</summary>
-
-{{< source-reference id="source-3" >}}
-
-</details>
-
-<details><summary>源码入口：BaseGenerator.run 创建 Queue、投递 STOP、启动进程并消费结果</summary>
-
-{{< source-reference id="source-4" >}}
-
-</details>
 
 每个 worker 需要自己的停止消息。一个 `STOP` 只能被一个消费者取走；父进程也要收齐 worker 数量的 `COMPLETE`，不能因为暂时没收到结果就判断整个生成任务完成。
 
@@ -122,11 +99,6 @@ if process.is_alive():
 
 `terminate()` 在 POSIX 发送 `SIGTERM`，`kill()` 在 POSIX 使用 `SIGKILL`；Windows 的行为不同，不能把它们都理解成可执行 Python 清理逻辑的通知。它们也不自动终止后代进程。源码把等待限制在剩余清理预算内；教学例子只处理自己的单个无后代睡眠进程，因此最后的 `join()` 不另设置预算。[Process 生命周期](https://docs.python.org/3.12/library/multiprocessing.html#multiprocessing.Process)
 
-<details><summary>源码入口：ServingCluster.dispose 对路由器 terminate → join → kill → join</summary>
-
-{{< source-reference id="source-5" >}}
-
-</details>
 
 强制终止正在写 Queue 或持锁的进程，可能留下损坏的管道或让其他进程永久等锁。正常路径优先 `STOP`；异常路径停止本轮进程后，放弃本轮通信对象。实验最后对两条 Queue 调用 `close()`、`join_thread()`，释放本进程的队列资源并等待发送线程完成。不要在消费者还没取走大量结果时先 `join` 生产者，否则生产者可能卡在刷新队列，父进程又卡在等它退出。[进程与 Queue 的清理注意事项](https://docs.python.org/3.12/library/multiprocessing.html#programming-guidelines)
 
@@ -135,18 +107,11 @@ if process.is_alive():
 
 现在回到第 12 讲：`ctx.Pool(...)` 管理多个 worker，`pool.starmap(conversion_worker, ...)` 分派参数元组并等待返回值。本讲例子把生命周期显式写出：成功后 `pool.close()` 停止接收新任务；随后 `pool.join()` 等待 worker 退出；失败时改为 `pool.terminate()` 放弃尚未完成的工作，再 `join()`。
 
-真实转换工具使用 `with ctx.Pool(num_workers) as pool:`。要注意，Pool 的上下文退出调用 `terminate()`；不是所有上下文管理器都承诺等完未完成工作。此处 `starmap` 已经同步返回，结果才进入后续权重汇总。如果改成后台提交后立刻离开 `with`，就不能沿用“所有任务都做完了”的推断。[Pool 关闭合同](https://docs.python.org/3.12/library/multiprocessing.html#multiprocessing.pool.Pool)
-
-<details><summary>源码入口：转换工具在 Pool 内收集结果，退出后汇总</summary>
-
-{{< source-reference id="source-6" >}}
-
-</details>
 
 <span id="subprocess-communicate"></span>
 ## 5. 外部命令超时：异常发生了，进程还活着
 
-`Process` 执行 Python callable；`subprocess.Popen` 启动命令并立即交回控制对象。Slime 的 `SubprocessInterpreter.run_file` 用 `Popen` 跑文件，再用 `communicate(timeout=...)` 收集输出并等待退出。超过期限会抛 `subprocess.TimeoutExpired`，但这一调用不会自动杀进程。
+`Process` 执行 Python callable；`subprocess.Popen` 启动命令并立即交回控制对象。超过期限会抛 `subprocess.TimeoutExpired`，但这一调用不会自动杀进程。
 
 ```python
 try:
@@ -159,19 +124,9 @@ except subprocess.TimeoutExpired:
 
 第二次 `communicate()` 才完成输出读取、管道收尾和退出等待。不能只记一条“超时”日志就丢掉 `proc`。这是本例直接保留的源码顺序；命令替换成当前 Python 解释器的 `time.sleep(60)`，没有调用真实模型或工具服务。[communicate 超时合同](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen.communicate)
 
-<details><summary>源码入口：SubprocessInterpreter.run_file 的超时回收</summary>
-
-{{< source-reference id="source-7" >}}
-
-</details>
 
 `proc.poll()` 不阻塞：仍运行返回 `None`，结束返回退出码。`proc.wait(timeout=...)` 等待退出但不读取输出。给 stdout/stderr 配了 `PIPE` 却一直只 `wait`，孩子可能写满管道后等父进程读取；父进程同时等孩子退出。本例因此对捕获输出的进程使用 `communicate`，对丢弃输出的进程才直接 `terminate()`、`wait()`，超时再 `kill()`、`wait()`。[Popen 等待与终止](https://docs.python.org/3.12/library/subprocess.html#popen-objects)
 
-<details><summary>源码入口：GPU 命令包装器检查运行状态并等待退出</summary>
-
-{{< source-reference id="source-8" >}}
-
-</details>
 
 <span id="subprocess-output"></span>
 ## 6. 输出送到哪里，决定父进程怎样等待
@@ -190,42 +145,10 @@ check_output probe
 
 `subprocess.PIPE` 建立父子进程间的管道；`stderr=subprocess.STDOUT` 把错误输出合并进标准输出，此时 `communicate()` 返回的第二项为 `None`；`subprocess.DEVNULL` 丢弃相应输出。示例用 `-u` 消除子 Python 的输出缓冲影响，先写 `out` 再写 `err`。[subprocess 输出参数](https://docs.python.org/3.12/library/subprocess.html#frequently-used-arguments)
 
-Slime 的流式训练测试用 `STDOUT` 合并日志，边读 `proc.stdout` 边显示，再 `wait()`；启动训练前探测 `ray status` 则把输出丢到 `DEVNULL`，只检查状态码。两者都是同步代码，管道存在不表示正在使用 asyncio。
-
-<details><summary>源码入口：合并训练日志，读完再 wait</summary>
-
-{{< source-reference id="source-12" >}}
-
-</details>
-
-<details><summary>源码入口：只关心 ray status 的返回码</summary>
-
-{{< source-reference id="source-13" >}}
-
-</details>
 
 <span id="subprocess-failure"></span>
 ## 7. 命令失败和命令超时是两条分支
 
-Slime 的 `exec_command` 用 `subprocess.run(..., check=True)`，非零退出时收到 `subprocess.CalledProcessError`；异常携带 `returncode`，捕获了输出时还可检查 stdout/stderr。`check_call()` 同样在非零退出时抛异常，成功返回 `0`；`check_output()` 成功返回捕获的 stdout。这些接口已完成等待，返回值合同不同于立即返回控制对象的 `Popen`。[检查退出状态](https://docs.python.org/3.12/library/subprocess.html#subprocess.CalledProcessError)
-
-<details><summary>源码入口：exec_command 保留命令失败的退出码与输出</summary>
-
-{{< source-reference id="source-9" >}}
-
-</details>
-
-<details><summary>源码入口：check_call 检查命令是否存在</summary>
-
-{{< source-reference id="source-10" >}}
-
-</details>
-
-<details><summary>源码入口：check_output 获取网卡查询结果</summary>
-
-{{< source-reference id="source-11" >}}
-
-</details>
 
 `TimeoutExpired` 表示等待期限耗尽；`CalledProcessError` 表示受检查的命令已经以非零状态结束。普通 `Popen` 收到非零退出码不会自动抛后者。`run(timeout=...)` 超时会先杀死并等待直接子进程，再重新抛出异常；`Popen.communicate(timeout=...)` 则把后续清理留给调用方，不能仅凭参数都叫 `timeout` 就套用同一段代码。[run 的超时合同](https://docs.python.org/3.12/library/subprocess.html#subprocess.run)
 
@@ -365,8 +288,104 @@ if __name__ == "__main__":
 
 </details>
 
+{{< python-async-slime >}}
+
+Slime 的 `launch_server_process` 为模型服务选择 `spawn`，创建 `multiprocessing.Process`，调用 `start()`，然后检查服务健康。在健康检查中，`is_alive()` 只能回答“进程是否还活着”，不能回答“HTTP 服务已经可用”。
+
+<details><summary>源码入口：launch_server_process 的启动和健康检查交接</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+源码用 `multiprocessing.set_start_method("spawn", force=True)` 改全局选择；
+
+Slime 在启动前后取差集记录新路由器；
+
+<details><summary>源码入口：ServingCluster 保存本轮启动的子进程</summary>
+
+{{< source-reference id="source-2" >}}
+
+</details>
+
+<details><summary>源码入口：worker_process 接收题目、生成结果、发送 COMPLETE</summary>
+
+{{< source-reference id="source-3" >}}
+
+</details>
+
+<details><summary>源码入口：BaseGenerator.run 创建 Queue、投递 STOP、启动进程并消费结果</summary>
+
+{{< source-reference id="source-4" >}}
+
+</details>
+
+<details><summary>源码入口：ServingCluster.dispose 对路由器 terminate → join → kill → join</summary>
+
+{{< source-reference id="source-5" >}}
+
+</details>
+
+真实转换工具使用 `with ctx.Pool(num_workers) as pool:`。要注意，Pool 的上下文退出调用 `terminate()`；不是所有上下文管理器都承诺等完未完成工作。此处 `starmap` 已经同步返回，结果才进入后续权重汇总。如果改成后台提交后立刻离开 `with`，就不能沿用“所有任务都做完了”的推断。[Pool 关闭合同](https://docs.python.org/3.12/library/multiprocessing.html#multiprocessing.pool.Pool)
+
+<details><summary>源码入口：转换工具在 Pool 内收集结果，退出后汇总</summary>
+
+{{< source-reference id="source-6" >}}
+
+</details>
+
+Slime 的 `SubprocessInterpreter.run_file` 用 `Popen` 跑文件，再用 `communicate(timeout=...)` 收集输出并等待退出。
+
+<details><summary>源码入口：SubprocessInterpreter.run_file 的超时回收</summary>
+
+{{< source-reference id="source-7" >}}
+
+</details>
+
+<details><summary>源码入口：GPU 命令包装器检查运行状态并等待退出</summary>
+
+{{< source-reference id="source-8" >}}
+
+</details>
+
+Slime 的流式训练测试用 `STDOUT` 合并日志，边读 `proc.stdout` 边显示，再 `wait()`；启动训练前探测 `ray status` 则把输出丢到 `DEVNULL`，只检查状态码。两者都是同步代码，管道存在不表示正在使用 asyncio。
+
+<details><summary>源码入口：合并训练日志，读完再 wait</summary>
+
+{{< source-reference id="source-12" >}}
+
+</details>
+
+<details><summary>源码入口：只关心 ray status 的返回码</summary>
+
+{{< source-reference id="source-13" >}}
+
+</details>
+
+Slime 的 `exec_command` 用 `subprocess.run(..., check=True)`，非零退出时收到 `subprocess.CalledProcessError`；异常携带 `returncode`，捕获了输出时还可检查 stdout/stderr。`check_call()` 同样在非零退出时抛异常，成功返回 `0`；`check_output()` 成功返回捕获的 stdout。这些接口已完成等待，返回值合同不同于立即返回控制对象的 `Popen`。[检查退出状态](https://docs.python.org/3.12/library/subprocess.html#subprocess.CalledProcessError)
+
+<details><summary>源码入口：exec_command 保留命令失败的退出码与输出</summary>
+
+{{< source-reference id="source-9" >}}
+
+</details>
+
+<details><summary>源码入口：check_call 检查命令是否存在</summary>
+
+{{< source-reference id="source-10" >}}
+
+</details>
+
+<details><summary>源码入口：check_output 获取网卡查询结果</summary>
+
+{{< source-reference id="source-11" >}}
+
+</details>
+
 {{< python-async-coverage lesson="18-process-lifecycle" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../17-executor-results/) · [下一节：19 · 信号、进程组与文件锁：退出以后谁释放资源？](../19-signals-locks/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../17-executor-results/) · [下一节：21 · 信号、进程组与文件锁：退出以后谁释放资源？](../19-signals-locks/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)

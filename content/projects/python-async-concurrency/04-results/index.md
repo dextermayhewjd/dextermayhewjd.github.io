@@ -1,7 +1,7 @@
 ---
-title: "04 · wait 与 as_completed：先处理已经完成的工作"
+title: "06 · wait 与 as_completed：先处理已经完成的工作"
 description: "先用已知的任务和 sleep 理解 wait，再学习按完成顺序取得结果。"
-weight: 40
+weight: 60
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -10,7 +10,7 @@ hideInOverview: true
 
 ## 这次只给已知的两份任务换一种等待方式
 
-上一节已经学过：`create_task()` 安排任务，`await asyncio.sleep()` 可以让任务暂停一段时间。本节沿用它们，先集中看一行新的 `asyncio.wait()`。
+上一节已经会用 `gather` 等待整组任务正常完成并取得结果。现在增加一个需求：有任务完成时，先取得完成情况，继续管理尚未结束的任务。本节沿用已知的 Task 和 sleep，先集中看一行新的 `asyncio.wait()`。
 
 先准备一个你已经认识的协程：
 
@@ -103,7 +103,7 @@ print(task_11.result())  # 得到 generate 中 return 的 11
 
 ## 第三步：还没完成的任务怎么办
 
-10 还在 `pending` 里。可以用上一节学过的 `gather` 等它完成：
+10 还在 `pending` 里。这里用整组收集工具 `gather` 等它完成；写法见[第 05 课的 gather 讲解](../05-gather/#gather-results)：
 
 ```python
 await asyncio.gather(*pending)
@@ -270,6 +270,10 @@ if __name__ == "__main__":
 | `wait(..., FIRST_COMPLETED)` | 此刻已完成和未完成的两组任务；后续怎样处理由调用方决定 |
 | `as_completed(tasks)` | 逐个等待完成结果的入口，方便循环处理每一份结果 |
 
+语义核对：[wait / as_completed](https://docs.python.org/3.12/library/asyncio-task.html#waiting-primitives)。
+
+{{< python-async-slime >}}
+
 ## 回到 Slime 的两种消费者
 
 理解前面的独立实验后，再展开源码。rollout 循环用 `wait` 拿到完成集合，继续管理 `state.pendings`；评测分支用 `as_completed` 逐个处理结果。
@@ -288,10 +292,10 @@ if __name__ == "__main__":
 
 </details>
 
-语义核对：[wait / as_completed](https://docs.python.org/3.12/library/asyncio-task.html#waiting-primitives)。
-
 {{< python-async-coverage lesson="04-results" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../03-tasks/) · [下一节：05 · 取消与超时：请求停止以后，还要等待收尾](../05-cancellation/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../05-gather/) · [下一节：07 · 取消与超时：请求停止以后，还要等待收尾](../05-cancellation/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)

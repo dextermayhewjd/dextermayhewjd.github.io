@@ -1,7 +1,7 @@
 ---
-title: "21 · 异步能力检查与协议边界"
+title: "23 · 异步能力检查与协议边界"
 description: "区分函数、返回对象、类型注解和语法协议，读懂 Slime 的同步/异步扩展点。"
-weight: 210
+weight: 230
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -16,20 +16,13 @@ hideInOverview: true
 <span id="isawaitable"></span>
 ## isawaitable 检查已经得到的对象
 
-`slime/rollout/sample_hooks.py` 的 `_apply_to_sample()` 先加载 `hook`，执行 `result = hook(...)`，然后 `inspect.isawaitable(result)`。若为真才 `result = await result`，最后检查结果类型。这样同一扩展点可接收同步函数、协程函数，也可接收“普通函数返回可等待对象”的实现。
 
 `isawaitable` 只判断对象能否用于 `await`，不启动它，不等它结束，也不保证业务结果类型正确。同步 hook 的函数体在调用那一行立即执行；如果它做长时间阻塞 I/O，这个检查不能把阻塞变成异步。
 
-<details><summary>展开固定源码：hook 的真实返回值检查</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
 
 <span id="iscoroutinefunction"></span>
 ## iscoroutinefunction 在调用前决定 wrapper 形状
 
-`trace_function()` 在装饰时用 `inspect.iscoroutinefunction(fn)`：协程函数走 `async_wrapper`，在 trace 范围内 `await fn(...)`；同步函数走 `sync_wrapper`，在 trace 范围内直接 `fn(...)`。它检查的是函数，和前面检查返回对象的时机不同。
 
 | 传入实现 | `iscoroutinefunction(fn)` | 调用后的对象 | 合适的后续动作 |
 | --- | --- | --- | --- |
@@ -39,37 +32,20 @@ hideInOverview: true
 
 Python 3.12 的函数检查还识别 `functools.partial` 包装的协程函数，以及显式标记的同步函数；所以“通常为假”描述的是本实验中未标记的普通函数。不要把对少数定义形式的检查扩张成“所有异步行为均能提前识别”。
 
-这个差异也影响 trace 边界：如果同步分支返回一个尚未执行的协程，`with trace_span` 在返回该对象时已经退出；以后别处才 await 的执行不自动仍处于同一个 span。Slime 的同步 wrapper 本身没有追加 `isawaitable` 适配，不能把 hook 的能力推到装饰器上。
-
-<details><summary>展开固定源码：异步和同步 wrapper 的分支</summary>
-
-{{< source-reference id="source-2" >}}
-
-</details>
 
 <span id="async-type-annotations"></span>
 ## Awaitable 与 AsyncIterator 描述契约，不安排执行
 
 `collections.abc.Awaitable[T]` 表示 await 后能取得 T 的对象；`collections.abc.AsyncIterator[T]` 表示可以异步逐项取得 T 的迭代器。它们可以用于注解，也作为抽象基类描述协议；写一条注解不创建 Task、不自动 await，也不在运行时验证返回值。
 
-真实源码 `_run_request_abortable_generate(..., generate_call: Awaitable[Sample | list[Sample]])` 接收**已经创建的可等待对象**，在函数体内显式 `await generate_call`。`boot_agent_sandbox(...) -> AsyncIterator[E2BSandbox]` 的注解则配合其含 `yield` 的异步生成器实现，再由 `@asynccontextmanager` 变成异步上下文管理器入口。不能仅靠 `-> AsyncIterator[...]` 断言某函数一定启动了迭代。
 
 `async def f() -> int` 中 `int` 描述 await 后的值；调用 `f()` 先拿到协程对象。这和参数注解 `value: Awaitable[int]` 描述的输入层次不同。
 
-<details><summary>展开固定源码：等待对象参数与沙箱生成器注解</summary>
-
-{{< source-reference id="source-3" >}}
-
-{{< source-reference id="source-4" >}}
-
-{{< source-reference id="source-5" >}}
-
-</details>
 
 <span id="async-protocol-methods"></span>
 ## 语法会进入哪些特殊方法
 
-第 10 节读过使用方式，现在展开协议入口。协议要求返回的对象具备相应行为；不是在任意普通方法名前添加 `async` 就能满足。
+第 12 节读过使用方式，现在展开协议入口。协议要求返回的对象具备相应行为；不是在任意普通方法名前添加 `async` 就能满足。
 
 | 语法/协议方法 | 输入与输出 | 结束和异常 |
 | --- | --- | --- |
@@ -85,9 +61,8 @@ Python 3.12 的函数检查还识别 `functools.partial` 包装的协程函数�
 
 含 `yield` 的 `async def` 是异步生成器函数，调用后得到异步生成器，不是普通协程。每次恢复取到一个产出；自然耗尽以 `StopAsyncIteration` 结束。不要在异步生成器中用 `return value` 返回最终值，也不要自己抛 `StopAsyncIteration` 代替正常结束。
 
-消费方提前 `break` 时，应把需要的清理边界写清楚。`await generator.aclose()` 让生成器执行退出流程，包括已经进入的 `try/finally`；`contextlib.aclosing(generator)` 把它绑定到 `async with` 的退出点。这比依赖垃圾回收时间或事件循环的最终兜底更明确。第 13 节 `loop.shutdown_asyncgens()` 是手动 loop 的兜底，不替代资源使用点的关闭。
+消费方提前 `break` 时，应把需要的清理边界写清楚。`await generator.aclose()` 让生成器执行退出流程，包括已经进入的 `try/finally`；`contextlib.aclosing(generator)` 把它绑定到 `async with` 的退出点。这比依赖垃圾回收时间或事件循环的最终兜底更明确。第 15 节 `loop.shutdown_asyncgens()` 是手动 loop 的兜底，不替代资源使用点的关闭。
 
-Slime 的沙箱生成器在 `yield sb` 外围用 `finally: await sb.__aexit__(None, None, None)` 负责释放。这个直接调用是源码的具体做法；一般 `async with` 语法还会传真实异常三元组，不能把两者所有行为视为完全相同。
 
 <span id="inspection-lab"></span>
 ## 可运行实验：函数形状、返回值与关闭
@@ -241,9 +216,9 @@ generator closed
 
 | 表面相同的调用 | 实际区别 | 继续阅读 |
 | --- | --- | --- |
-| `.get(...)` | `dict.get` 读取映射；`queue.Queue.get` 是同步队列读取；`asyncio.Queue.get` 返回要等待的操作；`ray.get` 是第三方入口 | [07 · 队列](../07-queues/) |
-| `.join(...)` | `str.join` 拼接字符串；`threading.Thread.join` 等线程退出；队列 `join` 等任务记账归零；调用是否阻塞/可 await 各不相同 | [07 · 队列](../07-queues/)、[09 · 线程同步](../09-thread-synchronization/) |
-| `.close(...)` | 文件、子进程管道、StreamWriter、Server、第三方 client 或业务对象可能都使用这个名字；关闭资源的层次和是否需要等待不同 | [18 · 进程生命周期](../18-process-lifecycle/)、[20 · Streams](../20-async-streams/) |
+| `.get(...)` | `dict.get` 读取映射；`queue.Queue.get` 是同步队列读取；`asyncio.Queue.get` 返回要等待的操作；`ray.get` 是第三方入口 | [09 · 队列](../07-queues/) |
+| `.join(...)` | `str.join` 拼接字符串；`threading.Thread.join` 等线程退出；队列 `join` 等任务记账归零；调用是否阻塞/可 await 各不相同 | [09 · 队列](../07-queues/)、[11 · 线程同步](../09-thread-synchronization/) |
+| `.close(...)` | 文件、子进程管道、StreamWriter、Server、第三方 client 或业务对象可能都使用这个名字；关闭资源的层次和是否需要等待不同 | [20 · 进程生命周期](../18-process-lifecycle/)、[22 · Streams](../20-async-streams/) |
 
 同样，`inspect.isawaitable(obj)` 能告诉我们 await 合法，却不能证明 obj 来自 asyncio；第三方对象也可以实现可等待协议。源码候选表用于定位和复核，不应因为方法名像 `get` / `join` / `close` 就计入已证明的原生 API 使用。
 
@@ -263,7 +238,43 @@ generator closed
 
 语义核对：[inspect 的异步检查](https://docs.python.org/3.12/library/inspect.html#inspect.isawaitable)、[异步上下文与迭代协议](https://docs.python.org/3.12/reference/datamodel.html#coroutines)、[异步生成器关闭](https://docs.python.org/3.12/reference/expressions.html#asynchronous-generator-iterator-methods)、[aclosing](https://docs.python.org/3.12/library/contextlib.html#contextlib.aclosing)、[collections.abc](https://docs.python.org/3.12/library/collections.abc.html)。
 
+{{< python-async-slime >}}
+
+`slime/rollout/sample_hooks.py` 的 `_apply_to_sample()` 先加载 `hook`，执行 `result = hook(...)`，然后 `inspect.isawaitable(result)`。若为真才 `result = await result`，最后检查结果类型。这样同一扩展点可接收同步函数、协程函数，也可接收“普通函数返回可等待对象”的实现。
+
+<details><summary>展开固定源码：hook 的真实返回值检查</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+`trace_function()` 在装饰时用 `inspect.iscoroutinefunction(fn)`：协程函数走 `async_wrapper`，在 trace 范围内 `await fn(...)`；同步函数走 `sync_wrapper`，在 trace 范围内直接 `fn(...)`。它检查的是函数，和前面检查返回对象的时机不同。
+
+这个差异也影响 trace 边界：如果同步分支返回一个尚未执行的协程，`with trace_span` 在返回该对象时已经退出；以后别处才 await 的执行不自动仍处于同一个 span。Slime 的同步 wrapper 本身没有追加 `isawaitable` 适配，不能把 hook 的能力推到装饰器上。
+
+<details><summary>展开固定源码：异步和同步 wrapper 的分支</summary>
+
+{{< source-reference id="source-2" >}}
+
+</details>
+
+真实源码 `_run_request_abortable_generate(..., generate_call: Awaitable[Sample | list[Sample]])` 接收**已经创建的可等待对象**，在函数体内显式 `await generate_call`。`boot_agent_sandbox(...) -> AsyncIterator[E2BSandbox]` 的注解则配合其含 `yield` 的异步生成器实现，再由 `@asynccontextmanager` 变成异步上下文管理器入口。不能仅靠 `-> AsyncIterator[...]` 断言某函数一定启动了迭代。
+
+<details><summary>展开固定源码：等待对象参数与沙箱生成器注解</summary>
+
+{{< source-reference id="source-3" >}}
+
+{{< source-reference id="source-4" >}}
+
+{{< source-reference id="source-5" >}}
+
+</details>
+
+Slime 的沙箱生成器在 `yield sb` 外围用 `finally: await sb.__aexit__(None, None, None)` 负责释放。这个直接调用是源码的具体做法；一般 `async with` 语法还会传真实异常三元组，不能把两者所有行为视为完全相同。
+
 {{< python-async-coverage lesson="21-async-inspection" >}}
+
+{{< /python-async-slime >}}
 
 ---
 

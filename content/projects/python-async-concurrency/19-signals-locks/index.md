@@ -1,7 +1,7 @@
 ---
-title: "19 · 信号、进程组与文件锁：退出以后谁释放资源？"
+title: "21 · 信号、进程组与文件锁：退出以后谁释放资源？"
 description: "从 Slime 的 checkpoint 所有权和 GPU 命令包装器，理解文件锁、信号和进程组清理。"
-weight: 190
+weight: 210
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -19,19 +19,8 @@ hideInOverview: true
 <span id="lock-readiness"></span>
 ## 1. 锁保护的是目录所有权，就绪消息确认锁已取得
 
-Slime 的 `RolloutQueueController` 打开 `rollout/session.lock`，在写 checkpoint 分支之前调用：
-
-```python
-fcntl.flock(self._checkpoint_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-```
-
 `fcntl.LOCK_EX` 请求独占锁；与 `fcntl.LOCK_NB` 按位或表示立即尝试，失败就抛异常，不在这里一直等。源码把锁竞争转换成“另一个训练任务已经拥有目录”的错误，然后停止启动。需要共享锁时标准库还提供 `fcntl.LOCK_SH`，本场景为了独占写入选择 `LOCK_EX`。文件本身存在不等于锁仍被持有；检查文件名是否存在不能代替加锁。
 
-<details><summary>源码入口：控制器先锁定 checkpoint 目录再发布分支</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
 
 实验的子进程取得相同种类的锁，输出 `ready` 和自己的 PID/父 PID，再等标准输入。父进程不能先睡固定秒数就假设它已经拿到锁，而是等待 stdout 变得可读：
 
@@ -43,13 +32,6 @@ fields = process.stdout.readline().split()
 
 `select.select(rlist, wlist, xlist, timeout)` 返回三个列表，这里只关心第一个“可读列表”。超时返回空列表；可读可能是数据，也可能是 EOF，因此还要检查读到的内容。它不等价于“拿到完整一行”，一般协议仍需处理部分数据；本例的孩子一次输出短行并立即 flush，而且此前没有其他 stdout 数据。[select 的返回合同](https://docs.python.org/3.12/library/select.html#select.select)
 
-Slime 的 checkpoint 回归测试也先 `select`，再检查 `b"ready\n"`，才尝试创建第二个控制器。这份测试证明的是该控制器锁的失败与释放路径，不是实际训练性能。
-
-<details><summary>源码入口：等待 ready、验证排他、杀进程后重新取得所有权</summary>
-
-{{< source-reference id="source-2" >}}
-
-</details>
 
 <span id="lock-release"></span>
 ## 2. 不依赖被杀进程运行 finally
@@ -73,69 +55,27 @@ lock reacquired True
 
 这是协作式文件锁：所有写入者都要遵守加锁协议，它不会自动禁止绕过协议的普通文件写入。`LOCK_NB` 失败时应处理平台返回的锁竞争错误；例子同时检查 `EACCES` 和 `EAGAIN`。[文件锁平台说明](https://docs.python.org/3.12/library/fcntl.html)
 
-Slime 的 GPU 包装器也把锁的生命周期绑定到打开的文件，命令结束后在父进程 `finally` 里关闭句柄。完整退出必须同时处理孩子和父进程持有的资源。
-
-<details><summary>源码入口：FdLock 的打开、非阻塞加锁和关闭</summary>
-
-{{< source-reference id="source-8" >}}
-
-</details>
 
 <span id="process-identity"></span>
 ## 3. 先知道信号发给谁
 
 `os.getpid()` 返回当前进程的 PID；`os.getppid()` 返回当前父进程的 PID。本例的就绪消息核对“孩子报告的 PID 等于 `Popen.pid`，孩子报告的父 PID 等于本进程 PID”，不把机器上的任意 PID 当成自己的孩子。
 
-Slime 启动模型服务时，把父 PID 作为 `_launch_server` 的参数传下去；孩子安装外部库提供的父进程死亡监测后，再比较 `os.getppid()` 和传入 PID，避免在父进程已经变化的情况下继续启动模型服务。不能把这个比较本身说成持续监测器：持续行为由导入的 SGLang 函数承担。
 
-<details><summary>源码入口：_launch_server 检查父进程身份</summary>
+`os.kill(pid, sig)` 是给进程发指定信号，并不总意味着杀死；效果由信号和接收端处置决定。本讲改成让父进程杀自己刚创建的孩子，因此不会终止你的调用 shell。[os 的进程接口](https://docs.python.org/3.12/library/os.html#os.kill)
 
-{{< source-reference id="source-5" >}}
-
-</details>
-
-`os.kill(pid, sig)` 是给进程发指定信号，并不总意味着杀死；效果由信号和接收端处置决定。Slime 故障注入测试的 `os.kill(os.getpid(), signal.SIGKILL)` 刻意让当前测试角色立即退出。本讲改成让父进程杀自己刚创建的孩子，因此不会终止你的调用 shell。[os 的进程接口](https://docs.python.org/3.12/library/os.html#os.kill)
-
-<details><summary>源码入口：恢复测试故意模拟进程突然死亡</summary>
-
-{{< source-reference id="source-6" >}}
-
-</details>
 
 <span id="signal-handlers"></span>
 ## 4. 包装器收到信号，怎样安排自己的孩子退出
 
-CI 的 `gpu_lock_exec._run_command` 用 `subprocess.Popen(..., start_new_session=True)` 启动命令，记录旧处理器，再对 `SIGINT`、`SIGTERM`、`SIGHUP` 安装 `terminate_child`。它不是在创建一个新 Task；这是操作系统通知与 Python 主线程之间的入口。
-
-```python
-previous_handlers[signum] = signal.getsignal(signum)
-signal.signal(signum, terminate_child)
-```
-
 `signal.getsignal()` 读当前处理方式，`signal.signal()` 安装新处理器；离开包装器的 `finally` 用保存值恢复它们。Python 处理器运行在主解释器的主线程，也只能在该主线程安装。不能用它让某条工作线程替你执行回调。[信号与线程](https://docs.python.org/3.12/library/signal.html#signals-and-threads)
 
-<details><summary>源码入口：保存处理器、转发终止、恢复处理器</summary>
 
-{{< source-reference id="source-3" >}}
-
-</details>
-
-这些常量在源码中的职责是：
-
-| 信号 | 此处的使用语境 |
-| --- | --- |
-| `signal.SIGINT` | 终端中断，包装器为它安排清理 |
-| `signal.SIGTERM` | 请求进程终止，可被处理；先给孩子一次有期限的退出机会 |
-| `signal.SIGHUP` | 挂断通知，包装器同样转入清理 |
-| `signal.SIGKILL` | 最后强制停止，不能捕获或忽略 |
-| `signal.SIGALRM` | 下一节中给当前进程设置的定时通知 |
-
-信号语义有平台边界。POSIX 的 `Popen` 返回码为负数时可表示由信号终止，源码用 `128 - returncode` 转换成 shell 惯例；不要把 Python 的负返回码直接当成 shell 状态码。[信号常量](https://docs.python.org/3.12/library/signal.html#module-contents)、[Popen.returncode](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen.returncode)
+信号语义有平台边界。POSIX 的 `Popen` 返回码为负数时可表示由信号终止，不要把 Python 的负返回码直接当成 shell 状态码。[信号常量](https://docs.python.org/3.12/library/signal.html#module-contents)、[Popen.returncode](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen.returncode)
 
 <span id="process-group"></span>
 ## 5. 直接孩子和一组进程是不同范围
 
-源码先 `child.terminate()` 并有期限地 `wait()`。孩子仍不退出时，再用 `os.killpg(child.pid, signum)` 作用于该新会话中的进程组，超时升级为 `os.killpg(child.pid, signal.SIGKILL)`，最后等待直接孩子。
 
 `start_new_session=True` 在 POSIX 为孩子创建新会话；刚启动时它也是新进程组的组长，因此这里可用 `child.pid` 当组 ID。这个前提不能省略，更不能对调用 shell 的进程组照搬。进程组可以覆盖留在同组的后代；自行创建新会话或迁出组的后代不受这一组信号覆盖，`wait()` 也只等待该 `Popen` 直接管理的孩子。[新会话参数](https://docs.python.org/3.12/library/subprocess.html#subprocess.Popen)、[os.killpg](https://docs.python.org/3.12/library/os.html#os.killpg)
 
@@ -156,13 +96,6 @@ shell status 0
 <span id="signal-alarm"></span>
 ## 6. alarm 限制的是当前进程的一段同步工作
 
-`math_dapo_utils.timeout` 在进入时安装 `SIGALRM` 处理器并调用 `signal.alarm(seconds)`；到期时处理器抛 `TimeoutError`；离开时 `signal.alarm(0)` 撤销尚未触发的闹钟。
-
-<details><summary>源码入口：数学答案处理使用的同步超时上下文</summary>
-
-{{< source-reference id="source-4" >}}
-
-</details>
 
 `signals_example.py` 保留类名、`handle_timeout` 和三个上下文方法，增加了旧处理器的保存与恢复。它在独立脚本的主线程中给睡眠设置 1 秒期限。源码的 `__exit__` 只取消闹钟，没有恢复旧处理器；这处教学补充不是原实现已经具备的行为。
 
@@ -171,13 +104,6 @@ shell status 0
 <span id="shell-boundary"></span>
 ## 7. os.system 是同步 shell 边界
 
-权重转换脚本里的 `os.system("cp -rf ...")` 用 shell 命令复制配置等文件。这是同步等待 shell，不是创建可 `await` 的工作。POSIX 返回编码后的等待状态；不能一概与 `Popen.returncode` 混用。实验只执行固定的 `os.system("exit 0")`，因此打印 `shell status 0`。[os.system](https://docs.python.org/3.12/library/os.html#os.system)
-
-<details><summary>源码入口：转换工具把若干文件复制交给 shell</summary>
-
-{{< source-reference id="source-7" >}}
-
-</details>
 
 这里保留这个用途是为了认出源码边界，不是照搬字符串拼接策略。若命令包含外部输入或需要可靠取得 stdout、stderr 和退出码，应回到第 18 讲的参数列表与 `subprocess` 合同；示例不会执行真实复制或修改源仓库。
 
@@ -267,8 +193,99 @@ elif __name__ == "__main__":
 
 </details>
 
+{{< python-async-slime >}}
+
+Slime 的 `RolloutQueueController` 打开 `rollout/session.lock`，在写 checkpoint 分支之前调用：
+
+```python
+fcntl.flock(self._checkpoint_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+```
+
+<details><summary>源码入口：控制器先锁定 checkpoint 目录再发布分支</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+Slime 的 checkpoint 回归测试也先 `select`，再检查 `b"ready\n"`，才尝试创建第二个控制器。这份测试证明的是该控制器锁的失败与释放路径，不是实际训练性能。
+
+<details><summary>源码入口：等待 ready、验证排他、杀进程后重新取得所有权</summary>
+
+{{< source-reference id="source-2" >}}
+
+</details>
+
+Slime 的 GPU 包装器也把锁的生命周期绑定到打开的文件，命令结束后在父进程 `finally` 里关闭句柄。完整退出必须同时处理孩子和父进程持有的资源。
+
+<details><summary>源码入口：FdLock 的打开、非阻塞加锁和关闭</summary>
+
+{{< source-reference id="source-8" >}}
+
+</details>
+
+Slime 启动模型服务时，把父 PID 作为 `_launch_server` 的参数传下去；孩子安装外部库提供的父进程死亡监测后，再比较 `os.getppid()` 和传入 PID，避免在父进程已经变化的情况下继续启动模型服务。不能把这个比较本身说成持续监测器：持续行为由导入的 SGLang 函数承担。
+
+<details><summary>源码入口：_launch_server 检查父进程身份</summary>
+
+{{< source-reference id="source-5" >}}
+
+</details>
+
+Slime 故障注入测试的 `os.kill(os.getpid(), signal.SIGKILL)` 刻意让当前测试角色立即退出。
+
+<details><summary>源码入口：恢复测试故意模拟进程突然死亡</summary>
+
+{{< source-reference id="source-6" >}}
+
+</details>
+
+CI 的 `gpu_lock_exec._run_command` 用 `subprocess.Popen(..., start_new_session=True)` 启动命令，记录旧处理器，再对 `SIGINT`、`SIGTERM`、`SIGHUP` 安装 `terminate_child`。它不是在创建一个新 Task；这是操作系统通知与 Python 主线程之间的入口。
+
+```python
+previous_handlers[signum] = signal.getsignal(signum)
+signal.signal(signum, terminate_child)
+```
+
+<details><summary>源码入口：保存处理器、转发终止、恢复处理器</summary>
+
+{{< source-reference id="source-3" >}}
+
+</details>
+
+这些常量在源码中的职责是：
+
+| 信号 | 此处的使用语境 |
+| --- | --- |
+| `signal.SIGINT` | 终端中断，包装器为它安排清理 |
+| `signal.SIGTERM` | 请求进程终止，可被处理；先给孩子一次有期限的退出机会 |
+| `signal.SIGHUP` | 挂断通知，包装器同样转入清理 |
+| `signal.SIGKILL` | 最后强制停止，不能捕获或忽略 |
+| `signal.SIGALRM` | 下一节中给当前进程设置的定时通知 |
+
+源码用 `128 - returncode` 转换成 shell 惯例；
+
+源码先 `child.terminate()` 并有期限地 `wait()`。孩子仍不退出时，再用 `os.killpg(child.pid, signum)` 作用于该新会话中的进程组，超时升级为 `os.killpg(child.pid, signal.SIGKILL)`，最后等待直接孩子。
+
+`math_dapo_utils.timeout` 在进入时安装 `SIGALRM` 处理器并调用 `signal.alarm(seconds)`；到期时处理器抛 `TimeoutError`；离开时 `signal.alarm(0)` 撤销尚未触发的闹钟。
+
+<details><summary>源码入口：数学答案处理使用的同步超时上下文</summary>
+
+{{< source-reference id="source-4" >}}
+
+</details>
+
+权重转换脚本里的 `os.system("cp -rf ...")` 用 shell 命令复制配置等文件。这是同步等待 shell，不是创建可 `await` 的工作。POSIX 返回编码后的等待状态；不能一概与 `Popen.returncode` 混用。实验只执行固定的 `os.system("exit 0")`，因此打印 `shell status 0`。[os.system](https://docs.python.org/3.12/library/os.html#os.system)
+
+<details><summary>源码入口：转换工具把若干文件复制交给 shell</summary>
+
+{{< source-reference id="source-7" >}}
+
+</details>
+
 {{< python-async-coverage lesson="19-signals-locks" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../18-process-lifecycle/) · [下一节：20 · asyncio Streams：接收、分帧与连接收尾](../20-async-streams/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../18-process-lifecycle/) · [下一节：22 · asyncio Streams：接收、分帧与连接收尾](../20-async-streams/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)

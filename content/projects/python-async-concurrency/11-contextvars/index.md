@@ -1,7 +1,7 @@
 ---
-title: "11 · ContextVar：让并发任务保留各自的上下文"
+title: "13 · ContextVar：让并发任务保留各自的上下文"
 description: "区分任务上下文与共享全局变量，并恢复进入前的状态。"
-weight: 110
+weight: 130
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -59,6 +59,18 @@ outer value None
 
 实验中的两个任务都在设置编号后暂停一次。它们恢复后仍读到各自的编号；退出上下文以后，外层仍是默认值 None。
 
+ContextVar 隔离的是上下文中的绑定，不会把绑定到的可变对象自动深拷贝。如果多个上下文都持有同一个列表，它们仍可能修改同一份列表；这时还要考虑状态设计和同步。
+
+<details><summary>复述检查</summary>
+
+锁决定谁可以同时操作共享状态；ContextVar 决定这次任务读取哪一个上下文值。两者解决不同问题。
+
+</details>
+
+语义核对：[contextvars](https://docs.python.org/3.12/library/contextvars.html)、[isawaitable](https://docs.python.org/3.12/library/inspect.html#inspect.isawaitable)。
+
+{{< python-async-slime >}}
+
 ## Slime 怎样把它交给 hook
 
 `rollout_context` 保存和恢复编号；`apply_rollout_sample_hooks` 读取当前任务编号。hook 的返回值还可能是 awaitable，因此先用 `inspect.isawaitable()` 判断，再决定是否 await。
@@ -77,18 +89,10 @@ outer value None
 
 </details>
 
-ContextVar 隔离的是上下文中的绑定，不会把绑定到的可变对象自动深拷贝。如果多个上下文都持有同一个列表，它们仍可能修改同一份列表；这时还要考虑状态设计和同步。
-
-<details><summary>复述检查</summary>
-
-锁决定谁可以同时操作共享状态；ContextVar 决定这次任务读取哪一个上下文值。两者解决不同问题。
-
-</details>
-
-语义核对：[contextvars](https://docs.python.org/3.12/library/contextvars.html)、[isawaitable](https://docs.python.org/3.12/library/inspect.html#inspect.isawaitable)。
-
 {{< python-async-coverage lesson="11-contextvars" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../10-async-protocols/) · [下一节：12 · 进程池、子进程与系统边界](../12-processes/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../10-async-protocols/) · [下一节：14 · 进程池、子进程与系统边界](../12-processes/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)

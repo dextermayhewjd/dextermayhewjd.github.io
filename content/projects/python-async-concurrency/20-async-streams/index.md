@@ -1,7 +1,7 @@
 ---
-title: "20 · asyncio Streams：接收、分帧与连接收尾"
+title: "22 · asyncio Streams：接收、分帧与连接收尾"
 description: "跟随 Slime 的本地测试服务器，区分读取语义、写入背压和服务关闭。"
-weight: 200
+weight: 220
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -11,9 +11,8 @@ hideInOverview: true
 <span id="stream-route"></span>
 ## 这一次跟随一条 TCP 连接
 
-本章输入是一串 TCP 字节，输出是处理函数写回的字节。主线是“监听 → 接受连接 → 按协议读取 → 写回 → 关闭该连接 → 关闭监听”。第 10 节的 `async with` 只说明进入和退出可以等待；这次把等待放到真实 I/O 边界上。
+本章输入是一串 TCP 字节，输出是处理函数写回的字节。主线是“监听 → 接受连接 → 按协议读取 → 写回 → 关闭该连接 → 关闭监听”。第 12 节的 `async with` 只说明进入和退出可以等待；这次把等待放到真实 I/O 边界上。
 
-固定源码来自 `tests/test_server_control.py`。测试用一个本地 TCP 服务器检查 Slime 的 HTTP transport；HTTPX 只是它的客户端，`reader` / `writer` 来自 Python 标准库 asyncio。我们只裁剪服务器职责，不把 HTTPX、Ray 或其他第三方同名方法当成原生 Streams API。
 
 <span id="start-server"></span>
 ## 第一步：start_server 把连接交给 serve
@@ -24,16 +23,10 @@ hideInOverview: true
 
 客户端的对称入口是 `reader, writer = await asyncio.open_connection(host, port)`。传入的端口必须来自这次 server 的实际监听，而不是硬编码一个可能被占用的端口。
 
-<details><summary>展开固定源码：监听入口与真实调用环境</summary>
-
-{{< source-reference id="source-2" >}}
-
-</details>
 
 <span id="stream-reader"></span>
 ## 第二步：TCP 没有消息边界，Reader 按协议取字节
 
-Slime 测试先 `await reader.readuntil(b"\r\n\r\n")` 取出完整 HTTP 头，再解析 `Content-Length`，最后 `await reader.readexactly(length)` 取 body。两个 await 分别对应两个协议边界。不能把“一次发送”推断成“一次 read 恰好返回完整消息”。
 
 | `asyncio.StreamReader` 方法 | 返回与 EOF 行为 | 适用边界 |
 | --- | --- | --- |
@@ -50,13 +43,6 @@ Slime 测试先 `await reader.readuntil(b"\r\n\r\n")` 取出完整 HTTP 头，�
 
 `IncompleteReadError.partial` 保存不完整字节，`expected` 在 `readexactly(n)` 场景记录期待的长度。实验故意声明长度 5，只发 `b"xy"` 就关闭，服务端得到 `partial == b"xy"`、`expected == 5`。不能把这两个字节当作完整成功结果。
 
-真实测试捕获 `(asyncio.IncompleteReadError, ConnectionError)` 后进入 `finally`，适合它的持久连接测试：客户端正常结束连接时，下一轮读头也会遇到 EOF。生产协议是否重试、返回错误还是记录截断，要结合当前处理阶段决定。
-
-<details><summary>展开固定源码：按头/body 分帧与 EOF 分支</summary>
-
-{{< source-reference id="source-1" >}}
-
-</details>
 
 <span id="stream-writer"></span>
 ## 第四步：write 入队，drain 配合写入流量控制
@@ -76,13 +62,6 @@ Slime 测试先 `await reader.readuntil(b"\r\n\r\n")` 取出完整 HTTP 头，�
 | `await wait_closed()` | 等 server 与其连接关闭完成；handler 余下业务仍应显式等完或取消 |
 | `async with server` | 为 server 的退出安排关闭和等待；同样不能替代管理业务任务 |
 
-Slime 测试最后先 `server.close()` / `await server.wait_closed()`，再 `await asyncio.gather(*tasks, return_exceptions=True)` 排空记录下来的处理任务。这需要客户端和 handler 配合结束连接；连接仍打开时 `wait_closed()` 也可能等待，handler 永远等不到协议输入时 gather 同样会一直等，实际服务需要自己的超时或取消策略。
-
-<details><summary>展开固定源码：server 与 handlers 的两层收尾</summary>
-
-{{< source-reference id="source-3" >}}
-
-</details>
 
 <span id="stream-lab"></span>
 ## 可运行实验：完整消息与截断消息
@@ -172,8 +151,38 @@ server listening False
 
 语义核对：[Streams 与读取/写入方法](https://docs.python.org/3.12/library/asyncio-stream.html)、[Server 生命周期](https://docs.python.org/3.12/library/asyncio-eventloop.html#server-objects)、[IncompleteReadError](https://docs.python.org/3.12/library/asyncio-exceptions.html#asyncio.IncompleteReadError)。
 
+{{< python-async-slime >}}
+
+固定源码来自 `tests/test_server_control.py`。测试用一个本地 TCP 服务器检查 Slime 的 HTTP transport；HTTPX 只是它的客户端，`reader` / `writer` 来自 Python 标准库 asyncio。我们只裁剪服务器职责，不把 HTTPX、Ray 或其他第三方同名方法当成原生 Streams API。
+
+<details><summary>展开固定源码：监听入口与真实调用环境</summary>
+
+{{< source-reference id="source-2" >}}
+
+</details>
+
+Slime 测试先 `await reader.readuntil(b"\r\n\r\n")` 取出完整 HTTP 头，再解析 `Content-Length`，最后 `await reader.readexactly(length)` 取 body。两个 await 分别对应两个协议边界。不能把“一次发送”推断成“一次 read 恰好返回完整消息”。
+
+真实测试捕获 `(asyncio.IncompleteReadError, ConnectionError)` 后进入 `finally`，适合它的持久连接测试：客户端正常结束连接时，下一轮读头也会遇到 EOF。生产协议是否重试、返回错误还是记录截断，要结合当前处理阶段决定。
+
+<details><summary>展开固定源码：按头/body 分帧与 EOF 分支</summary>
+
+{{< source-reference id="source-1" >}}
+
+</details>
+
+Slime 测试最后先 `server.close()` / `await server.wait_closed()`，再 `await asyncio.gather(*tasks, return_exceptions=True)` 排空记录下来的处理任务。这需要客户端和 handler 配合结束连接；连接仍打开时 `wait_closed()` 也可能等待，handler 永远等不到协议输入时 gather 同样会一直等，实际服务需要自己的超时或取消策略。
+
+<details><summary>展开固定源码：server 与 handlers 的两层收尾</summary>
+
+{{< source-reference id="source-3" >}}
+
+</details>
+
 {{< python-async-coverage lesson="20-async-streams" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../19-signals-locks/) · [下一节：21 · 异步能力检查与协议边界](../21-async-inspection/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../19-signals-locks/) · [下一节：23 · 异步能力检查与协议边界](../21-async-inspection/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)

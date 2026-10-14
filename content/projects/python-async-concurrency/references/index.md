@@ -10,9 +10,11 @@ ShowPostNavLinks: false
 
 ## 示例与源码的边界
 
-当前共有 21 节，其中 20 节提供主要标准库实验，第 14 节串联真实任务主线；另有 6 份对比或补充实验。实验用来观察语言行为；涉及 Slime 时，优先保留原函数名，并说明删去的业务内容。折叠区域展示的是实际源码连续摘录，不把实验代码冒充原实现。
+当前共有 23 节，其中 22 节提供主要标准库实验，第 16 节串联真实任务主线；另有 9 份对比或补充实验。实验用来观察语言行为；涉及 Slime 时，优先保留原函数名，并说明删去的业务内容。折叠区域展示的是实际源码连续摘录，不把实验代码冒充原实现。
 
 本专题固定 Slime 提交为 `2f2318653f6f794dddd321eff7c9d4b7b174643f`。示例在 Python 3.12 上校验，因使用 `asyncio.timeout`，统一要求 Python 3.11 及以上。它不是对 Slime 所有部署环境版本的推断。
+
+新增第 04 节 TaskGroup 的源码对照来自 AReaL 提交 `298412a40f5b84ae6b2042987e81777e6dd0f284`，单独保存在该节的源码包中。它是用户要求补充的任务组作用域单元，不计入 Slime 的全量使用统计。
 
 ## 书上怎么说
 
@@ -50,6 +52,13 @@ ShowPostNavLinks: false
 - [线程](https://docs.python.org/3.12/library/threading.html)与[执行器](https://docs.python.org/3.12/library/concurrent.futures.html)
 - [多进程](https://docs.python.org/3.12/library/multiprocessing.html)与[外部命令](https://docs.python.org/3.12/library/subprocess.html)
 - [上下文变量](https://docs.python.org/3.12/library/contextvars.html)与[异步上下文管理器](https://docs.python.org/3.12/library/contextlib.html#contextlib.asynccontextmanager)
+- [异步程序开发与诊断](https://docs.python.org/3.12/library/asyncio-dev.html)、[IsolatedAsyncioTestCase](https://docs.python.org/3.12/library/unittest.html#unittest.IsolatedAsyncioTestCase)与[AsyncMock](https://docs.python.org/3.12/library/unittest.mock.html#unittest.mock.AsyncMock)
+
+## 学习范围与能力验证
+
+[学习路线与完成标准](../learning-route/)按原生任务组件所需的执行、退出、负载、上下文和验证能力安排深度。三库源码频次用于选择例子；低频的失败处理和测试仍是必要内容。
+
+三库选题统计另用固定快照：Slime `22a89f96835969a47055a659c588f46151f8b07a`、AReaL `298412a40f5b84ae6b2042987e81777e6dd0f284`、verl `1d367a4f459a43768f76312c0d3430a99ec46b8c`。它们与上文逐课源码包分开记录；不能把选题统计版本当成每个旧课的源码版本。
 
 
 ## 完整源码与讲解的对应关系

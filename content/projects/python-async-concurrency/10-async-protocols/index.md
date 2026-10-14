@@ -1,7 +1,7 @@
 ---
-title: "10 · async with、async for 与异步生成器"
+title: "12 · async with、async for 与异步生成器"
 description: "把异步资源的进入、迭代和退出连起来。"
-weight: 100
+weight: 120
 ShowToc: true
 ShowPostNavLinks: false
 hideMeta: true
@@ -59,13 +59,25 @@ exit
 
 带 `@asynccontextmanager` 的异步生成器，在 `yield` 之前准备资源，把 yield 的值交给 `as` 后的变量；退出作用域后继续执行后面的清理。`finally` 使异常退出也有机会清理。
 
-Slime 的 `boot_agent_sandbox()` 在准备成功后 yield 沙箱，退出时调用 `__aexit__()`。不要把进入、使用和回收分散到互不关联的调用里理解。
 
 <span id="async-iteration"></span>
 
 ## 再看异步迭代
 
 `async def` 中出现 `yield`，这个函数就产生异步生成器。调用它得到的对象用于异步迭代，不能像普通协程那样直接 `await chunks()`。
+
+
+<details><summary>复述检查</summary>
+
+`await` 等一个结果；`async for` 逐个等结果；`async with` 管理资源进入和退出时的等待。`async for` 的循环体仍然按顺序推进，除非里面另行安排并发任务。
+
+</details>
+
+语义核对：[asynccontextmanager](https://docs.python.org/3.12/library/contextlib.html#contextlib.asynccontextmanager)、[异步迭代](https://docs.python.org/3.12/reference/compound_stmts.html#the-async-for-statement)。
+
+{{< python-async-slime >}}
+
+Slime 的 `boot_agent_sandbox()` 在准备成功后 yield 沙箱，退出时调用 `__aexit__()`。不要把进入、使用和回收分散到互不关联的调用里理解。
 
 Slime 的流式 rollout 在 `async for raw_line in response.aiter_lines()` 中逐段处理服务返回的数据；Python 语法本身不绑定 HTTPX 或某种模型服务。
 
@@ -83,16 +95,10 @@ Slime 的流式 rollout 在 `async for raw_line in response.aiter_lines()` 中�
 
 </details>
 
-<details><summary>复述检查</summary>
-
-`await` 等一个结果；`async for` 逐个等结果；`async with` 管理资源进入和退出时的等待。`async for` 的循环体仍然按顺序推进，除非里面另行安排并发任务。
-
-</details>
-
-语义核对：[asynccontextmanager](https://docs.python.org/3.12/library/contextlib.html#contextlib.asynccontextmanager)、[异步迭代](https://docs.python.org/3.12/reference/compound_stmts.html#the-async-for-statement)。
-
 {{< python-async-coverage lesson="10-async-protocols" >}}
+
+{{< /python-async-slime >}}
 
 ---
 
-[专题首页](../) · [上一节](../09-thread-synchronization/) · [下一节：11 · ContextVar：让并发任务保留各自的上下文](../11-contextvars/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
+[专题首页](../) · [上一节](../09-thread-synchronization/) · [下一节：13 · ContextVar：让并发任务保留各自的上下文](../11-contextvars/) · [源码与教程对照](../coverage/) · [全部用法](../usage-index/)
