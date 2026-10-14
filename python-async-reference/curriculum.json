@@ -1,0 +1,1054 @@
+{
+  "schema_version": 1,
+  "api_scope": "current-api-plan.json",
+  "status": "curriculum-plan",
+  "target_api_count": 82,
+  "notes": [
+    "01–05 沿用现有页面；06–40 是教学重组计划，不表示已写完。",
+    "单元编号是新规划编号；复用的旧页面保留原编号和 URL。",
+    "每个 API 有一个正式引入单元；后面的复用与回访不重复计数。",
+    "完成整套课程时覆盖全部 82 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。清单外内容仍按需。"
+  ],
+  "stages": [
+    {
+      "id": "coroutines",
+      "title": "协程与任务基础",
+      "first": 1,
+      "last": 5,
+      "focus": "创建 → 内部等待 → 安排 → 分组 → 收集结果"
+    },
+    {
+      "id": "results",
+      "title": "完成情况与结果",
+      "first": 6,
+      "last": 8,
+      "focus": "先认任务对象，再按完成情况处理结果"
+    },
+    {
+      "id": "cancellation",
+      "title": "取消、预算与失败",
+      "first": 9,
+      "last": 15,
+      "focus": "先理解取消，再理解时间预算和整组失败"
+    },
+    {
+      "id": "coordination",
+      "title": "协程之间的协调",
+      "first": 16,
+      "last": 19,
+      "focus": "分别解决许可、数据交接、互斥与通知"
+    },
+    {
+      "id": "protocols",
+      "title": "异步资源、迭代与上下文",
+      "first": 20,
+      "last": 24,
+      "focus": "先说明作用域与产出，再解释关闭、隔离和对象检查"
+    },
+    {
+      "id": "threads",
+      "title": "线程与执行器",
+      "first": 25,
+      "last": 31,
+      "focus": "从阻塞函数到线程，再到线程池和退出"
+    },
+    {
+      "id": "bridges",
+      "title": "协程与线程的交接",
+      "first": 32,
+      "last": 35,
+      "focus": "区分 Future 类型以及跨线程提交方向"
+    },
+    {
+      "id": "processes",
+      "title": "进程与外部命令",
+      "first": 36,
+      "last": 40,
+      "focus": "先运行与取输出，再处理终止和回收"
+    }
+  ],
+  "lessons": [
+    {
+      "number": 1,
+      "title": "定义、创建与运行协程",
+      "question": "调用 async def 定义的函数后，函数体已经运行了吗？",
+      "introduces": [
+        "asyncio.run"
+      ],
+      "depends_on": [],
+      "takeaway": "定义产生协程函数，调用产生协程对象，运行入口才驱动它执行。",
+      "check": "预测创建协程与运行协程时分别会打印什么。",
+      "source_lessons": [
+        "01-async-def"
+      ],
+      "syntax": [
+        "async def"
+      ],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "existing"
+    },
+    {
+      "number": 2,
+      "title": "在协程内部等待",
+      "question": "已经在协程里，怎样等待另一份工作的结果？",
+      "introduces": [
+        "asyncio.sleep"
+      ],
+      "depends_on": [
+        1
+      ],
+      "takeaway": "await 等待对象完成；等待未完成的异步操作时，当前任务可以挂起。",
+      "check": "沿两次直接 await 预测执行顺序。",
+      "source_lessons": [
+        "02-await"
+      ],
+      "syntax": [
+        "await"
+      ],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "existing"
+    },
+    {
+      "number": 3,
+      "title": "先安排多份任务",
+      "question": "怎样让两份独立工作在等待期间都能推进？",
+      "introduces": [
+        "asyncio.create_task"
+      ],
+      "depends_on": [
+        2
+      ],
+      "takeaway": "create_task 安排协程；调用方在后续挂起时，事件循环可以运行已安排的任务。",
+      "check": "分清安排顺序、完成顺序与 await 取值顺序。",
+      "source_lessons": [
+        "03-tasks"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "现有计时展示使用 time.perf_counter；这里只说明用于显示经过时间，第 11 单元正式解释。"
+      ],
+      "status": "existing"
+    },
+    {
+      "number": 4,
+      "title": "让代码块负责等完任务",
+      "question": "怎样给一组任务一个明确的结束位置？",
+      "introduces": [
+        "asyncio.TaskGroup",
+        "asyncio.TaskGroup.create_task"
+      ],
+      "depends_on": [
+        3
+      ],
+      "takeaway": "正常退出 TaskGroup 的代码块前，会等完组内任务。",
+      "check": "预测代码块之后的输出能否先于组内任务结束。",
+      "source_lessons": [
+        "04-taskgroup"
+      ],
+      "syntax": [
+        "async with"
+      ],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "这里只建立 async with 进入与退出的最小关系；资源协议在第 20 单元展开。"
+      ],
+      "status": "existing"
+    },
+    {
+      "number": 5,
+      "title": "收集整组返回值",
+      "question": "怎样把这组任务的结果一次收齐？",
+      "introduces": [
+        "asyncio.gather"
+      ],
+      "depends_on": [
+        3,
+        4
+      ],
+      "takeaway": "正常完成时，gather 按传入顺序给出结果列表。",
+      "check": "任务反向完成时，预测结果列表的顺序。",
+      "source_lessons": [
+        "05-gather"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "existing"
+    },
+    {
+      "number": 6,
+      "title": "先取得完成情况",
+      "question": "不等全部结束，怎样先知道哪些任务完成了？",
+      "introduces": [
+        "asyncio.wait"
+      ],
+      "depends_on": [
+        5
+      ],
+      "takeaway": "wait 返回完成与未完成的任务集合，未完成的任务不会因此停止。",
+      "check": "用已知 await 读取 done 中任务并等完 pending，暂不引入 as_completed。",
+      "source_lessons": [
+        "04-results"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 7,
+      "title": "读取 Task 的状态与结果",
+      "question": "Task 对象与它保存的返回值、异常有什么区别？",
+      "introduces": [
+        "asyncio.Task.done",
+        "asyncio.Task.result",
+        "asyncio.Task.exception"
+      ],
+      "depends_on": [
+        6
+      ],
+      "takeaway": "done 判断是否结束；result 读取值或抛出保存的异常，exception 读取保存的异常。",
+      "check": "分别预测未完成、成功和失败任务的读取结果。",
+      "source_lessons": [
+        "04-results",
+        "13-event-loop"
+      ],
+      "syntax": [],
+      "exception_types": [
+        "asyncio.InvalidStateError"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [
+        "只观察任务状态与正常/异常结束；取消状态在第 9 单元再加入。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 8,
+      "title": "按完成顺序取结果",
+      "question": "怎样依次处理先完成的工作？",
+      "introduces": [
+        "asyncio.as_completed"
+      ],
+      "depends_on": [
+        6,
+        7
+      ],
+      "takeaway": "as_completed 提供按完成推进的等待入口，与 gather 的传入顺序结果不同。",
+      "check": "说明为何先完成的任务可以先被处理。",
+      "source_lessons": [
+        "04-results"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "主例子使用 Python 3.12 的普通 for 加 await 写法；新版本 async for 写法不作前置。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 9,
+      "title": "请求取消并等到退出",
+      "question": "发出取消请求以后，怎样确认任务收尾了？",
+      "introduces": [
+        "asyncio.Task.cancel"
+      ],
+      "depends_on": [
+        7
+      ],
+      "takeaway": "cancel 请求取消；继续等待任务，才能观察它处理取消并执行已进入的 finally。",
+      "check": "让任务先进入等待，再取消，确认清理和取消传播的顺序。",
+      "source_lessons": [
+        "05-cancellation"
+      ],
+      "syntax": [
+        "try/finally"
+      ],
+      "exception_types": [
+        "asyncio.CancelledError"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 10,
+      "title": "限制一次等待的时长",
+      "question": "这次等待超过预算时，取消和异常怎样发生？",
+      "introduces": [
+        "asyncio.wait_for",
+        "builtins.TimeoutError"
+      ],
+      "depends_on": [
+        9
+      ],
+      "takeaway": "wait_for 通常取消等待对象并等它处理取消；TimeoutError 表达超时失败。",
+      "check": "解释为什么清理会让总耗时超过指定 timeout，并给出自定义超时异常信息。",
+      "source_lessons": [
+        "05-cancellation"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 11,
+      "title": "计量经过时间与预算",
+      "question": "怎样度量等待耗时，而不把时钟读数当成调度顺序？",
+      "introduces": [
+        "time.monotonic",
+        "time.perf_counter"
+      ],
+      "depends_on": [
+        10
+      ],
+      "takeaway": "用单调时钟计算时间差与截止预算；计时本身不驱动任务。",
+      "check": "分别标出开始、结束与剩余预算，不用墙钟误差推断并发先后。",
+      "source_lessons": [
+        "03-tasks",
+        "05-cancellation"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "正式解释第 3–5 单元展示时间戳时使用的 perf_counter；不引入通用性能分析课程。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 12,
+      "title": "给一段异步代码共享时间预算",
+      "question": "多个 await 怎样共用一个超时边界？",
+      "introduces": [
+        "asyncio.timeout"
+      ],
+      "depends_on": [
+        4,
+        10,
+        11
+      ],
+      "takeaway": "timeout 管理代码块的时间预算，超时异常在其作用域外处理。",
+      "check": "比较每次 wait_for 单独计时与整个代码块共用预算。",
+      "source_lessons": [
+        "05-cancellation"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 13,
+      "title": "区分取消等待者与内部工作",
+      "question": "调用方取消时，有没有需要继续负责等完的工作？",
+      "introduces": [
+        "asyncio.shield"
+      ],
+      "depends_on": [
+        9,
+        10
+      ],
+      "takeaway": "shield 阻断这一层取消传播，外层仍可取消，内部工作仍须有人持有并收尾。",
+      "check": "指出外层取消后仍存活的任务由谁等待、谁读取错误。",
+      "source_lessons": [
+        "05-cancellation"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 14,
+      "title": "gather 中有任务失败",
+      "question": "一份任务报错以后，整组结果与剩余任务怎样处理？",
+      "introduces": [],
+      "depends_on": [
+        5,
+        7,
+        9
+      ],
+      "takeaway": "默认 gather 传播首个异常但不会因此取消其他任务；return_exceptions 改变结果的收集方式。",
+      "check": "分别追踪默认模式和 return_exceptions=True 的剩余工作。",
+      "source_lessons": [
+        "05-gather",
+        "05-cancellation"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [
+        "asyncio.gather"
+      ],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 15,
+      "title": "TaskGroup 中有任务失败",
+      "question": "相关任务需要共同失败时，代码块怎样收尾？",
+      "introduces": [],
+      "depends_on": [
+        4,
+        9,
+        14
+      ],
+      "takeaway": "TaskGroup 遇到一般子任务异常会取消并等完其余任务，再报告异常组。",
+      "check": "用同一组失败任务比较第 14 单元，并读取 ExceptionGroup 的成员。",
+      "source_lessons": [
+        "04-taskgroup",
+        "05-cancellation"
+      ],
+      "syntax": [
+        "except*"
+      ],
+      "exception_types": [
+        "builtins.ExceptionGroup"
+      ],
+      "revisits": [
+        "asyncio.TaskGroup",
+        "asyncio.TaskGroup.create_task"
+      ],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 16,
+      "title": "限制同时进入的工作",
+      "question": "任务都已安排后，怎样只允许少量工作进入？",
+      "introduces": [
+        "asyncio.Semaphore",
+        "asyncio.Semaphore.acquire",
+        "asyncio.Semaphore.release"
+      ],
+      "depends_on": [
+        4,
+        9
+      ],
+      "takeaway": "许可数限制进入受控区域的工作，退出时归还许可。",
+      "check": "记录进入区域的最大数量，并验证异常后许可可重新取得。",
+      "source_lessons": [
+        "06-semaphore"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 17,
+      "title": "让生产者与消费者交接数据",
+      "question": "生产快、消费慢时，数据怎样有界地等待？",
+      "introduces": [
+        "asyncio.Queue",
+        "asyncio.Queue.put",
+        "asyncio.Queue.get"
+      ],
+      "depends_on": [
+        3,
+        9,
+        16
+      ],
+      "takeaway": "有界 Queue 在满时等待 put、空时等待 get，连接生产与消费。",
+      "check": "区分排队容量与在途数量，并说明结束信号由应用约定。",
+      "source_lessons": [
+        "07-queues"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 18,
+      "title": "保护跨 await 的共享状态",
+      "question": "多份任务会交错修改同一状态时怎么办？",
+      "introduces": [
+        "asyncio.Lock",
+        "asyncio.Lock.acquire",
+        "asyncio.Lock.release"
+      ],
+      "depends_on": [
+        4,
+        9,
+        17
+      ],
+      "takeaway": "同一事件循环中的 Lock 保护约定的共享操作，获取等待可以挂起任务。",
+      "check": "指出需要保护的读改写范围，以及退出时谁释放锁。",
+      "source_lessons": [
+        "15-async-notification"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 19,
+      "title": "让任务等待一个通知",
+      "question": "没有数据要传，只需要通知其他任务继续，怎么办？",
+      "introduces": [
+        "asyncio.Event",
+        "asyncio.Event.set",
+        "asyncio.Event.wait",
+        "asyncio.Event.clear"
+      ],
+      "depends_on": [
+        17,
+        18
+      ],
+      "takeaway": "Event 保存一个可设置和清除的标志，wait 等待标志为真；它不是计数队列。",
+      "check": "预测 set、wait、clear 对后续等待者的影响。",
+      "source_lessons": [
+        "15-async-notification"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 20,
+      "title": "把异步资源绑定到作用域",
+      "question": "资源使用结束或报错后，怎样统一关闭？",
+      "introduces": [
+        "contextlib.asynccontextmanager"
+      ],
+      "depends_on": [
+        4,
+        9
+      ],
+      "takeaway": "asynccontextmanager 将准备、yield 使用与 finally 清理组织成异步作用域。",
+      "check": "沿正常、异常与取消路径指出已进入资源的清理位置。",
+      "source_lessons": [
+        "10-async-protocols"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "若普通 with、生成器 yield 或装饰器尚不熟悉，先用最小前置例子解释，不混入主例子的新机制。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 21,
+      "title": "逐项等待异步产出",
+      "question": "结果是一项项到来的，怎样逐项消费？",
+      "introduces": [],
+      "depends_on": [
+        2,
+        20
+      ],
+      "takeaway": "含 yield 的 async def 产生异步生成器；async for 逐项等待，不自动并行循环体。",
+      "check": "区分 await 一次结果与 async for 多次取项。",
+      "source_lessons": [
+        "10-async-protocols"
+      ],
+      "syntax": [
+        "async for",
+        "异步生成器中的 yield"
+      ],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 22,
+      "title": "提前停止异步迭代",
+      "question": "循环 break 之后，怎样让生成器及时清理？",
+      "introduces": [
+        "contextlib.aclosing"
+      ],
+      "depends_on": [
+        9,
+        20,
+        21
+      ],
+      "takeaway": "aclosing 将异步生成器的关闭绑定到使用它的作用域退出。",
+      "check": "提前停止消费，确认生成器已进入的 finally 被执行。",
+      "source_lessons": [
+        "21-async-inspection"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 23,
+      "title": "保存每份任务自己的上下文",
+      "question": "并发任务怎样各自读取并恢复临时值？",
+      "introduces": [
+        "contextvars.ContextVar",
+        "contextvars.ContextVar.get",
+        "contextvars.ContextVar.set",
+        "contextvars.ContextVar.reset"
+      ],
+      "depends_on": [
+        3,
+        9,
+        20
+      ],
+      "takeaway": "ContextVar 保存上下文中的绑定，set 的 token 用于恢复先前状态。",
+      "check": "验证两个任务与嵌套作用域的值，并区分绑定隔离与共享可变对象。",
+      "source_lessons": [
+        "11-contextvars"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 24,
+      "title": "辨认函数与可等待对象",
+      "question": "一个函数调用之后，究竟应不应该 await 返回值？",
+      "introduces": [
+        "inspect.isawaitable",
+        "inspect.iscoroutinefunction"
+      ],
+      "depends_on": [
+        2,
+        21
+      ],
+      "takeaway": "函数形状与返回对象是不同证据；isawaitable 检查对象，不执行它。",
+      "check": "对比 async def、普通值和普通函数返回协程三种情况。",
+      "source_lessons": [
+        "21-async-inspection"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对象。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 25,
+      "title": "把阻塞函数交给线程",
+      "question": "同步等待会占住事件循环线程时怎么办？",
+      "introduces": [
+        "asyncio.to_thread",
+        "time.sleep"
+      ],
+      "depends_on": [
+        3,
+        9,
+        23
+      ],
+      "takeaway": "to_thread 让同步函数在线程中执行；取消等待者不会强杀已开始的线程工作。",
+      "check": "比较 time.sleep 与 asyncio.sleep，并观察 to_thread 的上下文传播。",
+      "source_lessons": [
+        "08-executors",
+        "03-tasks"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 26,
+      "title": "创建、启动并等待线程",
+      "question": "线程对象创建以后，何时开始，怎样等到退出？",
+      "introduces": [
+        "threading.Thread",
+        "threading.Thread.start",
+        "threading.Thread.is_alive",
+        "threading.Thread.join"
+      ],
+      "depends_on": [
+        25
+      ],
+      "takeaway": "start 启动线程，is_alive 观察存活状态，join 等待退出而不是请求停止。",
+      "check": "辨认创建、启动、执行、join 返回四个阶段。",
+      "source_lessons": [
+        "09-thread-synchronization"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 27,
+      "title": "保护线程共享状态",
+      "question": "多个线程同时修改共享数据时怎样互斥？",
+      "introduces": [
+        "threading.Lock",
+        "threading.Lock.acquire",
+        "threading.Lock.release"
+      ],
+      "depends_on": [
+        18,
+        26
+      ],
+      "takeaway": "线程 Lock 在获取失败时阻塞调用线程，配对释放保护共享操作。",
+      "check": "与 asyncio.Lock 比较等待位置，并验证共享计数。",
+      "source_lessons": [
+        "09-thread-synchronization"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 28,
+      "title": "通知线程合作退出",
+      "question": "线程需要收到停止请求时怎样安排？",
+      "introduces": [
+        "threading.Event",
+        "threading.Event.set",
+        "threading.Event.wait",
+        "threading.Event.clear"
+      ],
+      "depends_on": [
+        19,
+        26,
+        27
+      ],
+      "takeaway": "Event 传递线程间标志；线程需要合作检查，join 才负责等待退出。",
+      "check": "按设置标志、线程结束、join 返回的顺序核对。",
+      "source_lessons": [
+        "09-thread-synchronization"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 29,
+      "title": "在线程之间交接数据",
+      "question": "同步队列怎样等待数据，或立即尝试取数？",
+      "introduces": [
+        "queue.Queue",
+        "queue.Queue.put",
+        "queue.Queue.get",
+        "queue.Queue.get_nowait"
+      ],
+      "depends_on": [
+        17,
+        26,
+        28
+      ],
+      "takeaway": "queue.Queue 为线程交接提供同步等待；get_nowait 为空时抛 Empty。",
+      "check": "区分空队列等待、非阻塞取数，以及有界 put 的 Full。",
+      "source_lessons": [
+        "07-queues"
+      ],
+      "syntax": [],
+      "exception_types": [
+        "queue.Empty",
+        "queue.Full"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 30,
+      "title": "把工作提交到线程池",
+      "question": "不手动创建每个线程，怎样取得已提交工作的结果？",
+      "introduces": [
+        "concurrent.futures.ThreadPoolExecutor",
+        "concurrent.futures.Executor.submit",
+        "concurrent.futures.Future.done",
+        "concurrent.futures.Future.result",
+        "concurrent.futures.Future.exception"
+      ],
+      "depends_on": [
+        7,
+        26,
+        27
+      ],
+      "takeaway": "submit 返回执行器 Future；result 可以阻塞调用线程，成功值与失败异常由 Future 保存。",
+      "check": "说明它与 asyncio Task 的相似点，以及为何不能直接 await 它。",
+      "source_lessons": [
+        "08-executors",
+        "17-executor-results"
+      ],
+      "syntax": [],
+      "exception_types": [
+        "concurrent.futures.TimeoutError"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 31,
+      "title": "结束线程池并处理未执行工作",
+      "question": "退出执行器时，排队工作和运行中工作分别怎么办？",
+      "introduces": [
+        "concurrent.futures.Future.cancel",
+        "concurrent.futures.Executor.shutdown"
+      ],
+      "depends_on": [
+        9,
+        28,
+        30
+      ],
+      "takeaway": "Future.cancel 不能强停已运行的工作，shutdown 决定等待及未开始工作的处理。",
+      "check": "分别检查排队取消、运行中取消失败与最终退出。",
+      "source_lessons": [
+        "17-executor-results"
+      ],
+      "syntax": [],
+      "exception_types": [
+        "concurrent.futures.CancelledError"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 32,
+      "title": "从协程使用指定执行器",
+      "question": "已经选定线程池，怎样提交并用 await 等结果？",
+      "introduces": [
+        "asyncio.get_running_loop",
+        "asyncio.AbstractEventLoop.run_in_executor"
+      ],
+      "depends_on": [
+        25,
+        30
+      ],
+      "takeaway": "从当前运行循环提交执行器工作，得到可 await 的 asyncio Future。",
+      "check": "标出同步函数运行位置和等待者恢复位置。",
+      "source_lessons": [
+        "08-executors",
+        "13-event-loop"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 33,
+      "title": "等待已有的执行器 Future",
+      "question": "已经拿到执行器 Future，怎样接入协程等待？",
+      "introduces": [
+        "asyncio.wrap_future"
+      ],
+      "depends_on": [
+        30,
+        32
+      ],
+      "takeaway": "wrap_future 将执行器 Future 衔接为当前循环可等待的 Future，不重新提交工作。",
+      "check": "证明被包装的工作只提交一次，并区分两类 Future。",
+      "source_lessons": [
+        "13-event-loop"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 34,
+      "title": "读取 asyncio Future 的结果",
+      "question": "协程接口给回一个 Future 时，怎样判断与读取？",
+      "introduces": [
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception"
+      ],
+      "depends_on": [
+        7,
+        32,
+        33
+      ],
+      "takeaway": "asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。",
+      "check": "对比 asyncio Future 与执行器 Future 的 result 行为。",
+      "source_lessons": [
+        "13-event-loop"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 35,
+      "title": "从另一个线程提交协程",
+      "question": "同步线程怎样把协程交给正在运行的事件循环？",
+      "introduces": [
+        "asyncio.run_coroutine_threadsafe"
+      ],
+      "depends_on": [
+        26,
+        28,
+        30,
+        32,
+        34
+      ],
+      "takeaway": "跨线程提交返回执行器 Future；事件循环线程不能阻塞等待自己才能完成的工作。",
+      "check": "画出提交线程、循环线程与结果返回的方向，排除循环等待。",
+      "source_lessons": [
+        "13-event-loop"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "主例子用 asyncio.run 持有循环并从工作线程提交；不强行把 new_event_loop/run_forever 等清单外 API 作为前置。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 36,
+      "title": "运行并等待外部命令",
+      "question": "一次性运行外部程序时，如何取得退出结果？",
+      "introduces": [
+        "subprocess.run"
+      ],
+      "depends_on": [
+        26,
+        31
+      ],
+      "takeaway": "run 等待外部程序结束；它是同步接口，需要注意调用线程。",
+      "check": "指出外部进程与当前 Python 线程的不同，并读取退出结果。",
+      "source_lessons": [
+        "12-processes",
+        "18-process-lifecycle"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 37,
+      "title": "启动命令并收集管道输出",
+      "question": "想在启动后继续安排事情，再收集输出怎么办？",
+      "introduces": [
+        "subprocess.Popen",
+        "subprocess.Popen.communicate"
+      ],
+      "depends_on": [
+        36
+      ],
+      "takeaway": "Popen 创建进程后返回句柄，communicate 处理管道通信并等待结束。",
+      "check": "说明为什么带管道时不能只等退出而不消费输出。",
+      "source_lessons": [
+        "18-process-lifecycle"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 38,
+      "title": "命令超时后的回收",
+      "question": "等待超时或发出终止请求，等不等于进程已经结束？",
+      "introduces": [
+        "subprocess.Popen.wait",
+        "subprocess.Popen.terminate",
+        "subprocess.Popen.kill"
+      ],
+      "depends_on": [
+        9,
+        10,
+        37
+      ],
+      "takeaway": "超时与终止请求都不代替最终等待；带管道的工作还需完成通信收尾。",
+      "check": "按超时、终止、必要时强制结束、等待回收检查句柄。",
+      "source_lessons": [
+        "18-process-lifecycle"
+      ],
+      "syntax": [],
+      "exception_types": [
+        "subprocess.TimeoutExpired"
+      ],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    },
+    {
+      "number": 39,
+      "title": "让 Python 工作在子进程执行",
+      "question": "怎样启动另一份 Python 工作，并确认它退出？",
+      "introduces": [
+        "multiprocessing.Process",
+        "multiprocessing.Process.start",
+        "multiprocessing.Process.is_alive",
+        "multiprocessing.Process.join"
+      ],
+      "depends_on": [
+        26,
+        38
+      ],
+      "takeaway": "Process 对象负责 Python 子进程的启动和等待，线程对象与进程对象不能混为一谈。",
+      "check": "用顶层 target 和入口保护启动，区分 join 超时与已退出。",
+      "source_lessons": [
+        "18-process-lifecycle"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [
+        "说明运行平台和 Python 版本的默认启动方式；显式启动上下文与进程池保留为清单外按需补充。"
+      ],
+      "status": "planned"
+    },
+    {
+      "number": 40,
+      "title": "结束 Python 子进程并完成回收",
+      "question": "进程没有按约定结束时，怎样请求终止并等到退出？",
+      "introduces": [
+        "multiprocessing.Process.terminate",
+        "multiprocessing.Process.kill"
+      ],
+      "depends_on": [
+        38,
+        39
+      ],
+      "takeaway": "terminate/kill 发出终止动作，join 确认退出；强制终止不保证目标 finally 或共享资源完整。",
+      "check": "区分合作退出与强制结束，并验证自己启动的进程不再存活。",
+      "source_lessons": [
+        "18-process-lifecycle"
+      ],
+      "syntax": [],
+      "exception_types": [],
+      "revisits": [],
+      "prerequisite_notes": [],
+      "status": "planned"
+    }
+  ]
+}

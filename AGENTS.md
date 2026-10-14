@@ -56,6 +56,29 @@ Use lowercase, hyphenated content paths and descriptive asset names. Use `_index
 - 最小实现优先从真实源码裁剪，保留真实接口、函数名和输入输出字段。不要为了简化而另造包装函数，让读者随后还要重新映射到源码。
 - 明确标注教学裁剪与原实现的差别，例如只保留一个审查维度、暂时改为顺序执行；后续在同一份示例上逐步还原完整机制。示意代码与原始源码摘录必须区分。
 
+## Python 异步与并发学习规划
+
+- 编写、续读或调整本专题前，先读 [完整课程规划](python-async-reference/curriculum.md)，确认当前单元、前置、新增问题和 API；需要核对选题理由时再读 [学习范围与顺序](python-async-reference/learning-plan.md)。不要从全部 API 清单重新推导一套课程顺序。
+- 用户再次明确：本专题只考虑 Python 原生异步与并发，岗位仅是学习动机。按概念依赖安排先后，用 Slime、AReaL、verl 的相关用法和 API 次数辅助决定详略；不扩展为完整岗位准备、框架设计或通用工程化课程。具体路线与自查见学习规划第 4.3–4.5 节。
+- 数据从 [资料总入口](python-async-reference/README.md) 查找；重点使用 [核心包 API 统计](python-async-reference/CORE-API-USAGE.md)、[官方文档目录](python-async-reference/OFFICIAL-DOCS.md) 和 `python-async-reference/repositories/<repo>/inventory.json`。调用、引用、语法和不确定候选遵循各自统计口径。
+- `learning-plan.md` 中每库至少 3 处的高频筛选线是本轮工作口径，可根据讨论调整；必要前置与低频衔接接口要单独说明，不能冒称都是高频。具体讲解继续遵循 `.agents/skills/python-syntax-learning/SKILL.md`。
+- 三库各约 70%–80% 的调用位置覆盖是阶段性选题核算，保留在学习规划第 4.2 节及 [覆盖与缺口核算](python-async-reference/learning-coverage.md)。显式 API 清单在 `python-async-reference/learning-scope.json`，用 `python3 python-async-reference/tools/build_learning_coverage.py --check` 核对；它不是完整岗位路线的覆盖分母。允许必要的仓库特有生命周期操作，不得把调用位置比例描述成实际场景覆盖率或学习完成度。
+- 当前要学的具体 API 以 [82 项 API 清单](python-async-reference/current-api-plan.md)和 `current-api-plan.json` 为准；上面的 53 项保留作历史基线。新清单补齐对象的方法，固定快照调用覆盖为 Slime 79.5%、AReaL 83.6%、verl 78.2%，不为压低比例删除必要操作。用 `python3 python-async-reference/tools/build_current_api_plan.py --check` 复核，语法和异常引用不与调用数混算。
+- 用户要求全课结束时包含全部 82 项 API。正式课程设置唯一数据为 `python-async-reference/curriculum.json`，说明与逐项映射为 [curriculum.md](python-async-reference/curriculum.md)：8 模块、40 个最小单元；01–05 沿用现有课，06–40 待拆分/补写。每个 API 恰有一个正式引入单元；82 项内不再以选读代替覆盖，清单外仍按需。新单元号与旧网页号分开，保留旧链接。改动后运行 `python3 python-async-reference/tools/build_curriculum.py --check`。
+- 主线包括原生任务与结果、取消与超时、同步与队列、线程与执行器、进程、异步协议与上下文。测试、日志和诊断工具只辅助验证当前并发机制，不另设通用必学模块。01–05 继续保持最小递进，后续每次只引入一个新关系；公开入口见 `content/projects/python-async-concurrency/learning-route/index.md`。
+- 保存规划不等于已经改写现有章节。后续改动应先核对规划、源码版本和 Python 文档版本；学习表格保存在独立文件中，刷新自动生成的统计报告时应保留它。
+
+### 本专题的 Reference 入口
+
+| 要查什么 | 文件 |
+| --- | --- |
+| 完整课程安排：8 模块、40 单元、前置、原子结论、自查和 API 对应 | [python-async-reference/curriculum.md](python-async-reference/curriculum.md) |
+| 修改课程结构的唯一数据源 | [python-async-reference/curriculum.json](python-async-reference/curriculum.json) |
+| 82 项 API、Python 官网入口、三库调用次数和覆盖比例 | [python-async-reference/current-api-plan.md](python-async-reference/current-api-plan.md) |
+| 学习边界、选题依据与历史讨论结论 | [python-async-reference/learning-plan.md](python-async-reference/learning-plan.md) |
+
+调整课程结构时修改 `curriculum.json`，运行 `python3 python-async-reference/tools/build_curriculum.py` 同步生成 Markdown 和网页课程表，再运行同一命令加 `--check` 核对 82 项 API、语法、异常和前置顺序。不要单独修改生成的 `curriculum.md` 或 `curriculum-web.md`。
+
 ## Testing Guidelines
 
 Tests use Bash assertions and Python's standard-library `unittest`; no coverage threshold is configured. Name Python checks `tests/test_<feature>.py`. Add focused regression checks for changed navigation, diagrams, or interactions. Browser checks require Chrome; some source checks require local teaching repositories and skip when unavailable. Review skipped tests and manually verify desktop, narrow-screen, and keyboard behavior for UI changes.

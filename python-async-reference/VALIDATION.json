@@ -1,0 +1,43 @@
+{
+  "validated_at": "2026-10-13T19:51:57+00:00",
+  "scope": "Asyncio and concurrency only",
+  "official_pages_ok": 46,
+  "official_pages_recorded": 47,
+  "requested_pages_ok": 12,
+  "api_entries": 922,
+  "tracked_files_verified": 2114,
+  "snapshots_verified": 1371,
+  "occurrences_verified": 22905,
+  "relative_links_verified": 5128,
+  "repositories": {
+    "slime": {
+      "head": "22a89f96835969a47055a659c588f46151f8b07a",
+      "tracked_python_files": 388,
+      "occurrences": 3978,
+      "snapshots": 248
+    },
+    "areal": {
+      "head": "298412a40f5b84ae6b2042987e81777e6dd0f284",
+      "tracked_python_files": 1051,
+      "occurrences": 12679,
+      "snapshots": 667
+    },
+    "verl": {
+      "head": "1d367a4f459a43768f76312c0d3430a99ec46b8c",
+      "tracked_python_files": 675,
+      "occurrences": 6248,
+      "snapshots": 456
+    }
+  },
+  "tests": {
+    "scope": "python-async-reference/tests",
+    "count": 40,
+    "result": "passed"
+  },
+  "not_executed": [
+    "training",
+    "models",
+    "GPU integration",
+    "full website test suite completion"
+  ]
+}

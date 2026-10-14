@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-13",
+  "purpose": "2026-10-13 阶段性选题基线：将三库的静态调用位置覆盖提高到约 70%–80%。这份 53 项 API 清单不代表完整原生异步与并发路线、课程完成度或实际场景覆盖率；当前原生机制路线见 learning-plan.md 第 4.3–4.5 节。",
+  "baseline_apis": [
+    "asyncio.run",
+    "asyncio.sleep",
+    "asyncio.create_task",
+    "asyncio.gather",
+    "asyncio.TaskGroup",
+    "asyncio.TaskGroup.create_task",
+    "asyncio.wait",
+    "asyncio.as_completed",
+    "asyncio.Task.cancel",
+    "asyncio.wait_for",
+    "asyncio.shield",
+    "asyncio.Semaphore",
+    "asyncio.Queue",
+    "asyncio.Lock",
+    "asyncio.Event",
+    "asyncio.to_thread",
+    "asyncio.get_running_loop",
+    "asyncio.AbstractEventLoop.run_in_executor",
+    "asyncio.wrap_future",
+    "asyncio.run_coroutine_threadsafe",
+    "concurrent.futures.ThreadPoolExecutor",
+    "concurrent.futures.Executor.submit",
+    "concurrent.futures.Future.result",
+    "threading.Thread",
+    "threading.Lock",
+    "threading.Event",
+    "contextvars.ContextVar",
+    "contextvars.ContextVar.get",
+    "contextvars.ContextVar.set",
+    "subprocess.run",
+    "time.sleep",
+    "time.perf_counter",
+    "time.monotonic"
+  ],
+  "supplements": [
+    {
+      "id": "task-results",
+      "title": "判断完成并取结果或异常",
+      "placement": "Task 的 done/result 随 wait 展开；Future 对应方法放到后面的 Future 衔接。",
+      "question": "已经拿到任务对象，怎样判断完成，并读取它的结果或异常？",
+      "apis": [
+        "asyncio.Task.done",
+        "asyncio.Task.result",
+        "asyncio.Task.exception",
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception"
+      ],
+      "official_urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html#task-object",
+        "https://docs.python.org/3.16/library/asyncio-future.html#future-object"
+      ]
+    },
+    {
+      "id": "timeout-errors",
+      "title": "超时的报告与处理",
+      "placement": "补入取消与超时主题，先接 wait_for，再看手动截止时间检查。",
+      "question": "等待超时之后，调用方怎样知道失败，哪些工作仍需清理？",
+      "apis": ["builtins.TimeoutError"],
+      "official_urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html#asyncio.wait_for",
+        "https://docs.python.org/3.16/library/exceptions.html#TimeoutError"
+      ]
+    },
+    {
+      "id": "thread-lifecycle",
+      "title": "启动线程、通知与等待退出",
+      "placement": "补入线程主题；创建与启动、事件通知、退出与回收分别作为最小单元。",
+      "question": "创建线程之后，怎样启动它、通知它，以及等待它退出？",
+      "apis": [
+        "threading.Thread.start",
+        "threading.Thread.join",
+        "threading.Thread.is_alive",
+        "threading.Event.set",
+        "threading.Event.wait",
+        "threading.Event.clear"
+      ],
+      "official_urls": [
+        "https://docs.python.org/3.16/library/threading.html#thread-objects",
+        "https://docs.python.org/3.16/library/threading.html#event-objects"
+      ]
+    },
+    {
+      "id": "context-reset",
+      "title": "退出时恢复上下文",
+      "placement": "补入 ContextVar 主题，与 set 返回的 token 和 try/finally 连起来。",
+      "question": "临时设置请求信息之后，怎样恢复进入之前的值？",
+      "apis": ["contextvars.ContextVar.reset"],
+      "official_urls": [
+        "https://docs.python.org/3.16/library/contextvars.html#contextvars.ContextVar.reset"
+      ]
+    },
+    {
+      "id": "process-lifecycle",
+      "title": "启动、检查与回收 Python 子进程",
+      "placement": "在 subprocess.run 后补 multiprocessing.Process；生命周期独立于异步任务讲解。",
+      "question": "服务要持续在另一个 Python 进程运行，怎样启动、检查存活并在失败后回收？",
+      "apis": [
+        "multiprocessing.Process",
+        "multiprocessing.Process.start",
+        "multiprocessing.Process.is_alive",
+        "multiprocessing.Process.join",
+        "multiprocessing.Process.terminate",
+        "multiprocessing.Process.kill"
+      ],
+      "official_urls": [
+        "https://docs.python.org/3.16/library/multiprocessing.html#process-and-exceptions"
+      ]
+    }
+  ]
+}
