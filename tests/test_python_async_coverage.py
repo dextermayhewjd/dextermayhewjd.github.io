@@ -56,11 +56,14 @@ class PythonAsyncCoverage(unittest.TestCase):
 
     def test_supplementary_lessons_are_in_the_route(self):
         manifest = json.loads((MATERIAL / 'project-manifest.json').read_text())
-        self.assertEqual([lesson['number'] for lesson in manifest['lessons']], list(range(1, 22)))
+        self.assertEqual([lesson['number'] for lesson in manifest['lessons']], list(range(1, 24)))
         for lesson in manifest['lessons']:
             page = (CONTENT / lesson['slug'] / 'index.md').read_text()
-            self.assertIn('{{< python-async-coverage', page)
-            if lesson['number'] >= 15:
+            if lesson.get('source_repository') == 'areal':
+                self.assertIn('id="source-usage-locations"', page)
+            else:
+                self.assertIn('{{< python-async-coverage', page)
+            if lesson['number'] >= 17:
                 self.assertTrue(lesson['example'])
                 self.assertGreaterEqual(lesson['source_count'], 1)
 

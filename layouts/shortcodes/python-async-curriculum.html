@@ -1,0 +1,6 @@
+{{- $path := "python-async-reference/curriculum-web.md" -}}
+{{- if not (fileExists $path) -}}
+  {{- errorf "Missing Python async curriculum: run build_curriculum.py" -}}
+{{- else -}}
+  {{- .Page.RenderString (dict "display" "block") (readFile $path) -}}
+{{- end -}}

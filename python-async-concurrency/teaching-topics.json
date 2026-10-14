@@ -75,7 +75,7 @@
     {
       "id": "gather",
       "title": "收集整组结果与异常边界",
-      "lesson": "03-tasks",
+      "lesson": "05-gather",
       "anchor": "gather-results",
       "apis": [
         "asyncio.gather"

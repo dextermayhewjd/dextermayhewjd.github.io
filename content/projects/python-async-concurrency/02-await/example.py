@@ -6,10 +6,10 @@ async def generate(rollout_id):
     print("end", rollout_id)
     return rollout_id
 
-async def exercise():
+async def main():
     first = await generate(10)
     second = await generate(11)
     print("results", [first, second])
 
 if __name__ == "__main__":
-    asyncio.run(exercise())
+    asyncio.run(main())

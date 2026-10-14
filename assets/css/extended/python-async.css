@@ -1,0 +1,236 @@
+/* Show the one missing step inside an already running coroutine. */
+.async-await-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin: 20px 0;
+}
+
+.post-content .async-await-comparison figure {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+}
+
+.post-content .async-await-comparison figcaption {
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 0.9em;
+  font-weight: 700;
+  text-align: center;
+  color: var(--primary);
+}
+
+.post-content .async-call-context {
+  display: flex;
+  flex-direction: column;
+  max-width: 560px;
+  margin: 20px auto;
+}
+
+.async-call-context__scope {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.post-content .async-call-context__label {
+  margin: 0 0 12px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--secondary);
+}
+
+.async-call-context__step {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--code-bg);
+  text-align: center;
+}
+
+.async-call-context__external {
+  align-self: center;
+  width: 70%;
+}
+
+.async-call-context__step > span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.9em;
+  color: var(--secondary);
+}
+
+.async-call-context__connector,
+.async-call-context__gap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0;
+  text-align: center;
+  color: var(--secondary);
+}
+
+.async-call-context__connector > span,
+.async-call-context__arrow {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.async-call-context__question {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px dashed var(--secondary);
+  border-radius: 50%;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.post-content .async-call-code pre {
+  margin: 0 0 14px;
+  padding: 12px;
+  background: var(--code-bg);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.75;
+}
+
+.post-content .async-call-code pre code {
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent !important;
+  white-space: inherit;
+  word-break: normal;
+  overflow: visible;
+}
+
+.async-call-code__blocked,
+.async-call-code__entry {
+  display: block;
+  border-left: 3px solid;
+}
+
+.async-call-code__blocked {
+  border-color: #c74343;
+  background: rgba(199, 67, 67, 0.1);
+}
+
+.async-call-code__entry {
+  border-color: #27845b;
+  background: rgba(39, 132, 91, 0.1);
+}
+
+.post-content .async-call-code__note {
+  margin: 12px 0 0;
+  padding-left: 12px;
+  border-left: 3px solid;
+  font-size: 0.9em;
+}
+
+.post-content .async-call-code__note--blocked {
+  border-color: #c74343;
+}
+
+.post-content .async-call-code__note--entry {
+  border-color: #27845b;
+}
+
+@media (max-width: 700px) {
+  .async-await-comparison {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+.post-content .async-task-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin: 16px 0;
+  font-size: 1em;
+  line-height: 1.8;
+}
+
+.async-task-comparison__panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+
+.post-content .async-task-comparison h3 {
+  margin: 0 0 12px;
+  font-size: 1.05em;
+  line-height: 1.5;
+}
+
+.post-content .async-task-comparison p {
+  margin: 10px 0 0;
+}
+
+.post-content .async-task-comparison code {
+  font-size: 0.95em;
+}
+
+@media (max-width: 700px) {
+  .post-content .async-task-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.taskgroup-code-comparison {
+  display: grid;
+  gap: 24px;
+  align-items: start;
+  margin: 20px 0;
+}
+
+.taskgroup-code-comparison__current,
+.taskgroup-code-comparison__previous {
+  min-width: 0;
+}
+
+.post-content .taskgroup-code-comparison__title,
+.taskgroup-code-comparison__previous > summary {
+  box-sizing: border-box;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--code-bg);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.taskgroup-code-comparison .highlight pre {
+  margin-top: 0;
+}
+
+@media (min-width: 1100px) {
+  .main:has(.taskgroup-code-comparison) {
+    max-width: 1700px;
+  }
+
+  .main:has(.taskgroup-code-comparison) .post-content > :is(p, ol, ul, table) {
+    max-width: 960px;
+  }
+
+  .taskgroup-code-comparison {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+
+  .taskgroup-code-comparison:has(.taskgroup-code-comparison__previous[open]) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}

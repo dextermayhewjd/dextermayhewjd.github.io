@@ -1,0 +1,15 @@
+{
+  "revision": "298412a40f5b84ae6b2042987e81777e6dd0f284",
+  "repository": "https://github.com/areal-project/AReaL",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "areal/v2/inference_service/data_proxy/app.py",
+      "line": 1008,
+      "endLine": 1024,
+      "symbol": "AReaL session scoring TaskGroup",
+      "text": "                # Match v1's independently exported group members. Serial judge\n                # calls can exceed the gateway timeout even when each succeeds.\n                # Wait for session-scoring tasks before releasing their sessions.\n                async with asyncio.TaskGroup() as scoring:\n                    tasks = [\n                        scoring.create_task(score_session(sid, interactions))\n                        for sid, interactions in zip(\n                            export_session_ids, grouped_interactions, strict=True\n                        )\n                    ]\n                rejected = False\n                for index, task in enumerate(tasks):\n                    result = task.result()\n                    if result is None:\n                        rejected = True\n                        continue\n                    scored, session_stats = result",
+      "blobSha256": "d6c41657220eaa41d2c3f69804b92c98f47237b4ad92e92f9262d1a7f0d5780d"
+    }
+  }
+}

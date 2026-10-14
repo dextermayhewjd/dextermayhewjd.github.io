@@ -17,6 +17,13 @@ MATERIAL = ROOT / 'python-async-concurrency'
 CONTENT = ROOT / 'content/projects/python-async-concurrency'
 
 
+def documented_stdout(stdout, experiment):
+    if experiment.get('normalize_elapsed_seconds'):
+        # Elapsed wall time varies; preserve and compare the observable events.
+        return re.sub(r'^\[\d+\.\d{3}s\] ', '', stdout, flags=re.MULTILINE)
+    return stdout
+
+
 class Links(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -31,10 +38,78 @@ class Links(HTMLParser):
             self.hrefs.append(attrs['href'])
 
 
+class SourceReading(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.details = []
+        self.groups = 0
+        self.unfolded_sources = []
+        self.source_ids = set()
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'details':
+            self.details.append(attrs.get('id'))
+            if attrs.get('id') == 'slime-source-reading':
+                self.groups += 1
+                if 'open' in attrs:
+                    self.unfolded_sources.append('open group')
+        if 'reading-source' in attrs.get('class', '').split() or attrs.get('id') == 'source-usage-locations':
+            self.source_ids.add(attrs['id'])
+            if 'slime-source-reading' not in self.details:
+                self.unfolded_sources.append(attrs['id'])
+
+    def handle_endtag(self, tag):
+        if tag == 'details':
+            self.details.pop()
+
+
 class PythonAsyncMaterial(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.manifest = json.loads((MATERIAL / 'project-manifest.json').read_text())
+
+    def test_taskgroup_joins_tasks_before_leaving_scope(self):
+        path = CONTENT / '04-taskgroup' / 'example.py'
+        self.assertTrue(path.exists(), 'TaskGroup needs its own runnable lesson')
+        result = subprocess.run(
+            [sys.executable, '-W', 'error', str(path)],
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        lines = re.sub(r'^\[\d+\.\d{3}s\] ', '', result.stdout,
+                       flags=re.MULTILINE).splitlines()
+        self.assertCountEqual(lines, [
+            'main: inside group',
+            'generate 10: sleep 2s', 'generate 11: sleep 1s',
+            'generate 10: resumed', 'generate 11: resumed',
+            'main: group finished',
+        ])
+        self.assertEqual(lines[-1], 'main: group finished')
+        for item in (10, 11):
+            self.assertLess(lines.index(f'generate {item}: sleep {2 if item == 10 else 1}s'),
+                            lines.index(f'generate {item}: resumed'))
+
+    def test_taskgroup_lesson_follows_create_task(self):
+        lessons = self.manifest['lessons']
+        self.assertEqual([lesson['slug'] for lesson in lessons[:6]], [
+            '01-async-def', '02-await', '03-tasks', '04-taskgroup', '05-gather', '04-results',
+        ])
+        self.assertEqual([lesson['number'] for lesson in lessons], list(range(1, 24)))
+
+    def test_gather_keeps_input_order_when_tasks_finish_in_reverse_order(self):
+        path = CONTENT / '05-gather' / 'example.py'
+        self.assertTrue(path.exists(), 'Gather needs its own runnable lesson')
+        result = subprocess.run(
+            [sys.executable, '-W', 'error', str(path)],
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        lines = documented_stdout(result.stdout, {'normalize_elapsed_seconds': True}).splitlines()
+        self.assertLess(lines.index('generate 11: resumed'), lines.index('generate 10: resumed'))
+        self.assertEqual(lines[-1], 'results [10, 11]')
 
     def test_examples_run_with_documented_output(self):
         examples = 0
@@ -49,12 +124,13 @@ class PythonAsyncMaterial(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stderr, '')
-                self.assertIn(result.stdout, lesson.get('valid_stdout', [lesson['expected_stdout']]))
+                self.assertIn(documented_stdout(result.stdout, lesson),
+                              lesson.get('valid_stdout', [lesson['expected_stdout']]))
                 # The displayed experiment must be the file the reader downloads.
                 page = (path.parent / 'index.md').read_text()
                 self.assertIn('```python\n' + path.read_text().rstrip() + '\n```', page)
                 examples += 1
-        self.assertEqual(examples, 20)
+        self.assertEqual(examples, 22)
 
     def test_additional_experiments_with_registered_outputs(self):
         for lesson in self.manifest['lessons']:
@@ -69,7 +145,8 @@ class PythonAsyncMaterial(unittest.TestCase):
                     )
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertEqual(result.stderr, '')
-                    self.assertIn(result.stdout, experiment.get('valid_stdout', [experiment['expected_stdout']]))
+                    self.assertIn(documented_stdout(result.stdout, experiment),
+                                  experiment.get('valid_stdout', [experiment['expected_stdout']]))
                     self.assertIn('(' + experiment['file'] + ')', (path.parent / 'index.md').read_text())
 
     def test_await_comparison_uses_only_direct_await(self):
@@ -86,7 +163,9 @@ class PythonAsyncMaterial(unittest.TestCase):
         ])
         page = (path.parent / 'index.md').read_text()
         self.assertIn('(comparison.py)', page)
-        self.assertNotIn('create_task', page)
+        # Navigation may name the next lesson without teaching its API here.
+        lesson_body = page.rsplit('\n---\n', 1)[0]
+        self.assertNotIn('create_task', lesson_body)
         for script in path.parent.glob('*.py'):
             self.assertNotIn('create_task', script.read_text())
         for label in ('A: with assignment', 'B: without assignment'):
@@ -134,10 +213,11 @@ class PythonAsyncMaterial(unittest.TestCase):
         for lesson in self.manifest['lessons']:
             path = CONTENT / lesson['slug'] / 'learning-pack.json'
             pack = json.loads(path.read_text())
-            self.assertEqual(pack['revision'], summary['source_head'])
+            self.assertEqual(pack['revision'], lesson.get('source_revision', summary['source_head']))
+            snapshot_root = ROOT / lesson.get('source_snapshot_root', 'python-async-concurrency/source_snapshot')
             for reference in pack['references'].values():
                 with self.subTest(lesson=lesson['slug'], source=reference['path']):
-                    raw = (MATERIAL / 'source_snapshot' / (reference['path'] + '.txt')).read_bytes()
+                    raw = (snapshot_root / (reference['path'] + '.txt')).read_bytes()
                     self.assertEqual(hashlib.sha256(raw).hexdigest(), reference['blobSha256'])
                     lines = raw.decode().splitlines()
                     self.assertEqual(reference['text'], '\n'.join(lines[reference['line']-1:reference['endLine']]))
@@ -175,6 +255,18 @@ class PythonAsyncPublished(unittest.TestCase):
             self.assertIn('/projects/python-async-concurrency/', text)
             self.assertIn('source-source-1', text)
             self.assertNotRegex(text, r'\{\{(?:SOURCE|EXAMPLE|OUTPUT)\}\}')
+
+    def test_lesson_sources_share_one_closed_optional_group(self):
+        for lesson in self.manifest['lessons']:
+            with self.subTest(lesson=lesson['slug']):
+                parser = SourceReading()
+                parser.feed((self.project / lesson['slug'] / 'index.html').read_text())
+                self.assertEqual(parser.groups, 1)
+                self.assertEqual(parser.unfolded_sources, [])
+                pack = json.loads((CONTENT / lesson['slug'] / 'learning-pack.json').read_text())
+                self.assertEqual(parser.source_ids, {'source-usage-locations'} | {
+                    'source-' + ref for ref in pack['references']
+                })
 
     def test_inventory_tables_and_downloads(self):
         summary = json.loads((MATERIAL / 'summary.json').read_text())
