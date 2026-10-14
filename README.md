@@ -27,10 +27,16 @@ Learn Claude Code 系列围绕“回顾已有系统 → 看清本轮改动 → �
 ```bash
 git clone --recurse-submodules https://github.com/dextermayhewjd/dextermayhewjd.github.io.git
 cd dextermayhewjd.github.io
-hugo server -D
+./serve.sh
 ```
 
-打开 [http://localhost:1313](http://localhost:1313)。`-D` 会同时显示草稿。
+打开 [http://localhost:1313](http://localhost:1313)。脚本会同时显示草稿，修改文件后自动刷新；按 `Ctrl+C` 停止服务。
+
+已克隆仓库时，在仓库根目录运行 `./serve.sh` 即可。如果缺少主题，先运行 `git submodule update --init --recursive`。
+
+可以追加 Hugo 参数，例如端口已被占用时运行 `./serve.sh --port 1314`，然后访问 `http://localhost:1314`。也可以用 `HUGO=/path/to/hugo ./serve.sh` 指定 Hugo 程序。
+
+`serve.sh` 用于本地预览。`deploy.sh` 用于正式发布，会构建网站并强制推送到远程 `gh-pages` 分支。
 
 <details>
 <summary>开发与维护</summary>
