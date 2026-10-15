@@ -21,7 +21,7 @@ class PythonAsyncCurriculum(unittest.TestCase):
 
     def test_all_apis_have_one_formal_introduction(self):
         owners = CURRICULUM.validate_plan(self.plan, self.scope)
-        self.assertEqual(len(owners), 82)
+        self.assertEqual(len(owners), 97)
         self.assertEqual(owners["asyncio.run"], 1)
         self.assertEqual(owners["asyncio.wait"], 7)
         self.assertEqual(owners["multiprocessing.Process.kill"], 41)
@@ -57,7 +57,7 @@ class PythonAsyncCurriculum(unittest.TestCase):
         self.assertEqual(self.plan['lessons'][10]['number'], 11)
         self.assertIn(10, self.plan['lessons'][10]['depends_on'])
         owners = CURRICULUM.validate_plan(self.plan, self.scope)
-        self.assertEqual(len(owners), 82)
+        self.assertEqual(len(owners), 97)
         self.assertEqual(owners['asyncio.gather'], 6)
         manifest = json.loads((ROOT / 'python-async-concurrency/project-manifest.json').read_text())
         rendered = CURRICULUM.render_body(self.plan, manifest, web=True)
@@ -121,6 +121,24 @@ class PythonAsyncCurriculum(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'sublesson'):
                     CURRICULUM.validate_plan(plan, self.scope)
 
+    def test_contextmanager_is_six_parts_before_async_iteration(self):
+        unit = self.plan['lessons'][20]
+        parts = CURRICULUM.display_lessons(unit)
+        self.assertEqual([part['label'] for part in parts],
+                         ['21.1', '21.2', '21.3', '21.4', '21.5', '21.6'])
+        self.assertEqual(unit['source_lessons'], [
+            '21-resource-lifecycle', '21-yield-pause', '21-decorators',
+            '21-async-contextmanager', '21-context-errors', '21-context-cancellation',
+        ])
+        self.assertEqual([part['introduces'] for part in parts],
+                         [[], [], [], ['contextlib.asynccontextmanager'], [], []])
+        self.assertIn('21.3', parts[3]['depends_on'])
+        self.assertIn('21.4', parts[4]['depends_on'])
+        self.assertIn('21.5', parts[5]['depends_on'])
+        self.assertEqual(self.plan['lessons'][21]['number'], 22)
+        self.assertEqual(self.plan['lessons'][21]['source_lessons'], ['22-async-iteration'])
+        CURRICULUM.validate_plan(self.plan, self.scope)
+
     def test_future_prerequisite_is_rejected(self):
         plan = deepcopy(self.plan)
         plan["lessons"][5]["depends_on"].append(7)
@@ -137,6 +155,44 @@ class PythonAsyncCurriculum(unittest.TestCase):
     def test_generated_curriculum_is_current(self):
         for path, expected in CURRICULUM.build_outputs().items():
             self.assertEqual(path.read_text(encoding="utf-8"), expected)
+
+    def test_additions_are_assigned_to_planned_sublessons(self):
+        expected = {
+            'contextlib.AsyncExitStack': '23.2',
+            'contextlib.AsyncExitStack.pop_all': '23.3',
+            'concurrent.futures.Executor.map': '31.2',
+            'asyncio.AbstractEventLoop.time': '33.2',
+            'asyncio.AbstractEventLoop.create_future': '35.2',
+            'asyncio.Future.set_result': '35.2',
+            'asyncio.Future.set_exception': '35.2',
+            'asyncio.Task.add_done_callback': '35.3',
+            'asyncio.new_event_loop': '36.1',
+            'asyncio.set_event_loop': '36.1',
+            'asyncio.AbstractEventLoop.run_until_complete': '36.1',
+            'asyncio.AbstractEventLoop.close': '36.1',
+        }
+        owners = {api: part['label'] for unit in self.plan['lessons']
+                  for part in CURRICULUM.display_lessons(unit) for api in part['introduces']}
+        for api, label in expected.items():
+            self.assertEqual(owners.get(api), label, api)
+        ready = set(range(1, 23)) | set(range(26, 34))
+        for unit in self.plan['lessons']:
+            self.assertEqual(unit['status'], 'existing' if unit['number'] in ready else 'planned')
+
+    def test_sublesson_api_ownership_must_be_complete_and_unique(self):
+        plan = deepcopy(self.plan)
+        lesson = plan['lessons'][5]
+        template = {key: lesson[key] for key in ('title', 'question', 'takeaway', 'check')}
+        lesson['parts'] = [
+            dict(template, label='6.1', source_lessons=lesson['source_lessons'], introduces=[]),
+            dict(template, label='6.2', source_lessons=[], introduces=[]),
+        ]
+        with self.assertRaisesRegex(ValueError, 'sublesson API'):
+            CURRICULUM.validate_plan(plan, self.scope)
+        for part in lesson['parts']:
+            part['introduces'] = ['asyncio.gather']
+        with self.assertRaisesRegex(ValueError, 'sublesson API'):
+            CURRICULUM.validate_plan(plan, self.scope)
 
 
 if __name__ == "__main__":

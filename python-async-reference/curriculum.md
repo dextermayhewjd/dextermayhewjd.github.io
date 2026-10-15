@@ -1,17 +1,17 @@
 # Python 原生异步与并发：完整课程设置
 
-**8 个模块，41 个编号单元，覆盖 82/82 项调用与方法。**
+**8 个模块，41 个编号单元，覆盖 97/97 项调用与方法。**
 
 这是课程规划，不是 41 篇都已编写完成的声明。各单元编写状态见下表。旧版 23 页目录保留历史编号，既有 URL 保留；现行单元号以本课程表为准。
 
-输入范围：[82 项 API](current-api-plan.md)；唯一课程数据：[curriculum.json](curriculum.json)。课程按概念递进；每学完一个模块完成对应自查，不要求先记住整张清单。
+输入范围：[97 项 API](current-api-plan.md)；唯一课程数据：[curriculum.json](curriculum.json)。课程按概念递进；每学完一个模块完成对应自查，不要求先记住整张清单。
 
 ## 阅读与完成规则
 
-1. 01–20 已整理为独立阅读内容；21–41 是后续拆分与补写计划，不表示已写完。
-2. 现行编号按确认后的概念依赖排序；10、11 各有两个独立子课。既有页面 URL 和旧版 23 页目录的历史编号保留，不能按 URL 数字前缀推断新课号。
+1. 01–22、26–33 已整理为独立阅读内容；23–25、34–41 继续按规划补写，不表示全课已完成。
+2. 现行编号按确认后的概念依赖排序；10、11、21、23、31、33、35、36 使用独立子课逐步展开。既有页面 URL 和旧版 23 页目录的历史编号保留，不能按 URL 数字推断新课号。
 3. 每个 API 有一个正式引入单元；后面的复用与回访不重复计数。
-4. 完成整套课程时覆盖全部 82 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。清单外内容仍按需。
+4. 完成整套课程时覆盖全部 97 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。原 82 项作为历史基线保留，清单外内容仍按需。
 5. 每单元先写前课结论，再给新增要求；机制实验只增加当前必要关系。纯语法前置的结构示意标明不能直接运行，再由下一单元的完整实验验证。
 6. 模块结束能解释该模块的正常、失败或退出行为；全课结束再串联一个只含已学原生机制的综合例子。
 7. API 正式讲解必须解释对象、调用时机、返回值以及必要的等待/异常/退出边界；仅在代码中出现不算完成讲解。
@@ -24,9 +24,9 @@
 | 2. 任务状态、失败与收尾 | 07–12 | 完成情况 → 状态 → 取消 → 整组失败 → 按完成顺序取结果 | 6 |
 | 3. 超时与时间预算 | 13–16 | 单次时限 → 计时 → 共享预算 → 取消传播边界 | 6 |
 | 4. 协程之间的协调 | 17–20 | 分别解决许可、数据交接、互斥与通知 | 13 |
-| 5. 异步资源、迭代与上下文 | 21–25 | 先说明作用域与产出，再解释关闭、隔离和对象检查 | 8 |
-| 6. 线程与执行器 | 26–32 | 从阻塞函数到线程，再到线程池和退出 | 24 |
-| 7. 协程与线程的交接 | 33–36 | 区分 Future 类型以及跨线程提交方向 | 7 |
+| 5. 异步资源、迭代与上下文 | 21–25 | 先说明作用域与产出，再解释关闭、隔离和对象检查 | 13 |
+| 6. 线程与执行器 | 26–32 | 从阻塞函数到线程，再到线程池和退出 | 25 |
+| 7. 协程与线程的交接 | 33–36 | 区分 Future 类型以及跨线程提交方向 | 16 |
 | 8. 进程与外部命令 | 37–41 | 先运行与取输出，再处理终止和回收 | 12 |
 
 下面按模块展开。每个单元都列出唯一问题、正式引入的 API、前置和自查；同一 API 后续复用不重复计数。
@@ -283,31 +283,77 @@
 
 | 单元 | 本次新增的问题 | 正式引入的 API / 语法 | 前置单元 |
 | --- | --- | --- | --- |
-| 21 · async with / contextlib.asynccontextmanager：把异步资源绑定到作用域 | 资源使用结束或报错后，怎样统一关闭？ | `contextlib.asynccontextmanager` | 05、09 |
+| 21.1 · try/finally：分清准备、使用和关闭 | 先不用管理器，沙箱的准备、使用和关闭分别在哪里？ | 复用已有语法，增加新的行为关系 | 09 |
+| 21.2 · yield：交出一个值，并暂停在原处 | 交出一个值以后，函数已经执行完了吗？ | 复用已有语法，增加新的行为关系 | 21.1 |
+| 21.3 · @ 装饰器：把函数交给另一个函数处理 | 函数名、函数调用和 @ 装饰分别什么时候执行？ | 复用已有语法，增加新的行为关系 | 01 |
+| 21.4 · asynccontextmanager：把准备和关闭接到 async with | 已有准备、yield 和清理，怎样接到 async with 的进入和退出？ | `contextlib.asynccontextmanager` | 04、05、21.1、21.2、21.3 |
+| 21.5 · finally：使用区报错后怎样关闭 | 使用沙箱的代码报错后，先清理还是先收到异常？ | 复用已有语法，增加新的行为关系 | 21.4、09 |
+| 21.6 · Task.cancel：使用区被取消后怎样关闭 | 使用沙箱的任务被取消后，谁等待异步清理完成？ | 复用已有语法，增加新的行为关系 | 21.5、03、09、20 |
 | 22 · async for / 异步生成器：逐项等待异步产出 | 结果是一项项到来的，怎样逐项消费？ | `async for`、`异步生成器中的 yield` | 02、21 |
-| 23 · contextlib.aclosing：提前停止异步迭代 | 循环 break 之后，怎样让生成器及时清理？ | `contextlib.aclosing` | 09、21、22 |
+| 23.1 · contextlib.aclosing：提前停止异步迭代 | 循环 break 之后，怎样让生成器及时清理？ | `contextlib.aclosing` | 09、21、22 |
+| 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理 | 资源数量在运行时才确定，怎样为每份已取得资源登记清理？ | `contextlib.AsyncExitStack`、`contextlib.AsyncExitStack.enter_async_context`、`contextlib.AsyncExitStack.push_async_callback`、`contextlib.AsyncExitStack.aclose` | 21、23.1 |
+| 23.3 · AsyncExitStack.pop_all：转移已登记的清理责任 | 准备阶段成功后，怎样把资源的清理交给更外层的持有者？ | `contextlib.AsyncExitStack.pop_all` | 23.2 |
 | 24 · contextvars.ContextVar：保存每份任务自己的上下文 | 并发任务怎样各自读取并恢复临时值？ | `contextvars.ContextVar`、`contextvars.ContextVar.get`、`contextvars.ContextVar.set`、`contextvars.ContextVar.reset` | 03、09、21 |
 | 25 · inspect.isawaitable / inspect.iscoroutinefunction：辨认函数与可等待对象 | 一个函数调用之后，究竟应不应该 await 返回值？ | `inspect.isawaitable`、`inspect.iscoroutinefunction` | 02、22 |
 
 <details>
 <summary>本模块的原子结论与自查</summary>
 
-### 21 · async with / contextlib.asynccontextmanager：把异步资源绑定到作用域
+### 21.1 · try/finally：分清准备、使用和关闭
 
-1. **带走：** asynccontextmanager 将准备、yield 使用与 finally 清理组织成异步作用域。
-2. **自查：** 沿正常、异常与取消路径指出已进入资源的清理位置。
+1. **带走：** try 里的使用代码可以变化，finally 集中放关闭代码；先把资源的三个阶段分清。
+2. **自查：** 指出同一字典在使用区与关闭后的 open 值，区分关闭对象与删除变量。
 
-若普通 with、生成器 yield 或装饰器尚不熟悉，先用最小前置例子解释，不混入主例子的新机制。
+复用第 09 课的 try/finally 清理行为，研究一次资源使用的三个阶段。
+
+### 21.2 · yield：交出一个值，并暂停在原处
+
+1. **带走：** 调用生成器只创建对象；第一次 next 推进到 yield，交出值并暂停。
+2. **自查：** 预测 generator created、before yield、value 的顺序，解释 after yield 为什么没出现。
+
+### 21.3 · @ 装饰器：把函数交给另一个函数处理
+
+1. **带走：** 函数名可作为值传递；@decorate 等价于定义函数后执行名称重新绑定，不等于调用函数体。
+2. **自查：** 区分装饰时、保存函数时与调用函数时的输出。
+
+复用函数调用和传参的基础；函数作为值与装饰语法在本节补齐，随后与 21.2 的 yield 在 21.4 汇合。
+
+### 21.4 · asynccontextmanager：把准备和关闭接到 async with
+
+1. **带走：** asynccontextmanager 把一次 yield 前的准备与 finally 清理接到 async with；调用只创建管理器。
+2. **自查：** 逐步指出创建管理器、进入、yield 交接、使用、关闭、块外继续的顺序。
+
+### 21.5 · finally：使用区报错后怎样关闭
+
+1. **带走：** 使用区的异常回到 yield 处，本例先执行 finally 关闭，再把原异常交给外层调用方。
+2. **自查：** 指出 closed 与 error 的先后，解释使用区出错为什么仍能关闭。
+
+### 21.6 · Task.cancel：使用区被取消后怎样关闭
+
+1. **带走：** 已进入使用区时的一次取消会经过 finally；等待被取消任务，也是在等待它的异步清理。
+2. **自查：** 指出 entered、cancel、closing、closed 和取消确认的顺序。
 
 ### 22 · async for / 异步生成器：逐项等待异步产出
 
 1. **带走：** 含 yield 的 async def 产生异步生成器；async for 逐项等待，不自动并行循环体。
 2. **自查：** 区分 await 一次结果与 async for 多次取项。
 
-### 23 · contextlib.aclosing：提前停止异步迭代
+先沿同一份 Task 的取项、yield 和循环体追踪控制交接；不把异步生成器当成后台生产任务。提前停止后的关闭放到 23.1。
+
+### 23.1 · contextlib.aclosing：提前停止异步迭代
 
 1. **带走：** aclosing 将异步生成器的关闭绑定到使用它的作用域退出。
 2. **自查：** 提前停止消费，确认生成器已进入的 finally 被执行。
+
+### 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理
+
+1. **带走：** AsyncExitStack 登记已进入资源或异步清理回调，退出时按后进先出的次序完成清理。
+2. **自查：** 预测正常退出与后续资源获取失败时的清理顺序，指出 aclose 与异步作用域退出的关系。
+
+### 23.3 · AsyncExitStack.pop_all：转移已登记的清理责任
+
+1. **带走：** pop_all 把已登记的退出操作转移到新栈，不执行清理；新持有者仍需关闭它。
+2. **自查：** 指出原栈退出后资源为何还在，以及谁必须最终 aclose。
 
 ### 24 · contextvars.ContextVar：保存每份任务自己的上下文
 
@@ -326,9 +372,16 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 <details>
 <summary>可复用的旧课材料与编写状态</summary>
 
-- 21：规划单元，待从旧课拆分或补写。材料：[12 · async with、async for 与异步生成器](../content/projects/python-async-concurrency/10-async-protocols/index.md)。
-- 22：规划单元，待从旧课拆分或补写。材料：[12 · async with、async for 与异步生成器](../content/projects/python-async-concurrency/10-async-protocols/index.md)。
-- 23：规划单元，待从旧课拆分或补写。材料：[23 · 异步能力检查与协议边界](../content/projects/python-async-concurrency/21-async-inspection/index.md)。
+- 21.1：已有独立学习主线。材料：[21.1 · try/finally：分清准备、使用和关闭](../content/projects/python-async-concurrency/21-resource-lifecycle/index.md)。
+- 21.2：已有独立学习主线。材料：[21.2 · yield：交出一个值，并暂停在原处](../content/projects/python-async-concurrency/21-yield-pause/index.md)。
+- 21.3：已有独立学习主线。材料：[21.3 · @ 装饰器：把函数交给另一个函数处理](../content/projects/python-async-concurrency/21-decorators/index.md)。
+- 21.4：已有独立学习主线。材料：[21.4 · asynccontextmanager：把准备和关闭接到 async with](../content/projects/python-async-concurrency/21-async-contextmanager/index.md)。
+- 21.5：已有独立学习主线。材料：[21.5 · finally：使用区报错后怎样关闭](../content/projects/python-async-concurrency/21-context-errors/index.md)。
+- 21.6：已有独立学习主线。材料：[21.6 · Task.cancel：使用区被取消后怎样关闭](../content/projects/python-async-concurrency/21-context-cancellation/index.md)。
+- 22：已有独立学习主线。材料：[22 · async for / 异步生成器：逐项等待异步产出](../content/projects/python-async-concurrency/22-async-iteration/index.md)。
+- 23.1：规划单元，待从旧课拆分或补写。材料：[23 · 异步能力检查与协议边界](../content/projects/python-async-concurrency/21-async-inspection/index.md)。
+- 23.2：规划单元，待从旧课拆分或补写。待按本单元问题编写独立材料。
+- 23.3：规划单元，待从旧课拆分或补写。待按本单元问题编写独立材料。
 - 24：规划单元，待从旧课拆分或补写。材料：[13 · ContextVar：让并发任务保留各自的上下文](../content/projects/python-async-concurrency/11-contextvars/index.md)。
 - 25：规划单元，待从旧课拆分或补写。材料：[23 · 异步能力检查与协议边界](../content/projects/python-async-concurrency/21-async-inspection/index.md)。
 
@@ -341,12 +394,13 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 
 | 单元 | 本次新增的问题 | 正式引入的 API / 语法 | 前置单元 |
 | --- | --- | --- | --- |
-| 26 · asyncio.to_thread：把阻塞函数交给线程 | 同步等待会占住事件循环线程时怎么办？ | `asyncio.to_thread`、`time.sleep` | 03、09、24 |
+| 26 · asyncio.to_thread：把阻塞函数交给线程 | 同步等待会占住事件循环线程时怎么办？ | `asyncio.to_thread`、`time.sleep` | 03、09 |
 | 27 · threading.Thread：创建、启动并等待线程 | 线程对象创建以后，何时开始，怎样等到退出？ | `threading.Thread`、`threading.Thread.start`、`threading.Thread.is_alive`、`threading.Thread.join` | 26 |
 | 28 · threading.Lock：保护线程共享状态 | 多个线程同时修改共享数据时怎样互斥？ | `threading.Lock`、`threading.Lock.acquire`、`threading.Lock.release` | 19、27 |
-| 29 · threading.Event：通知线程合作退出 | 线程需要收到停止请求时怎样安排？ | `threading.Event`、`threading.Event.set`、`threading.Event.wait`、`threading.Event.clear` | 20、27、28 |
+| 29 · threading.Event：通知线程合作退出 | 线程需要收到停止请求时怎样安排？ | `threading.Event`、`threading.Event.set`、`threading.Event.wait`、`threading.Event.clear` | 20、27 |
 | 30 · queue.Queue：在线程之间交接数据 | 同步队列怎样等待数据，或立即尝试取数？ | `queue.Queue`、`queue.Queue.put`、`queue.Queue.get`、`queue.Queue.get_nowait` | 18、27、29 |
-| 31 · ThreadPoolExecutor / submit：把工作提交到线程池 | 不手动创建每个线程，怎样取得已提交工作的结果？ | `concurrent.futures.ThreadPoolExecutor`、`concurrent.futures.Executor.submit`、`concurrent.futures.Future.done`、`concurrent.futures.Future.result`、`concurrent.futures.Future.exception` | 08、27、28 |
+| 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 | 不手动创建每个线程，怎样取得已提交工作的结果？ | `concurrent.futures.ThreadPoolExecutor`、`concurrent.futures.Executor.submit`、`concurrent.futures.Future.done`、`concurrent.futures.Future.result`、`concurrent.futures.Future.exception` | 08、27、29 |
+| 31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果 | 对一组输入执行同一个函数，怎样逐项取得对应结果？ | `concurrent.futures.Executor.map` | 31.1、29 |
 | 32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作 | 退出执行器时，排队工作和运行中工作分别怎么办？ | `concurrent.futures.Future.cancel`、`concurrent.futures.Executor.shutdown` | 09、29、31 |
 
 <details>
@@ -356,6 +410,8 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 
 1. **带走：** to_thread 让同步函数在线程中执行；取消等待者不会强杀已开始的线程工作。
 2. **自查：** 比较 time.sleep 与 asyncio.sleep，并观察 to_thread 的上下文传播。
+
+本节只建立阻塞函数与线程等待的关系；ContextVar 传播留到第 24 课，不作为本节前置。
 
 ### 27 · threading.Thread：创建、启动并等待线程
 
@@ -378,11 +434,16 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 2. **自查：** 区分空队列等待、非阻塞取数，以及有界 put 的 Full。
 3. **需要辨认的异常：** `queue.Empty`、`queue.Full`。
 
-### 31 · ThreadPoolExecutor / submit：把工作提交到线程池
+### 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池
 
 1. **带走：** submit 返回执行器 Future；result 可以阻塞调用线程，成功值与失败异常由 Future 保存。
 2. **自查：** 说明它与 asyncio Task 的相似点，以及为何不能直接 await 它。
 3. **需要辨认的异常：** `concurrent.futures.TimeoutError`。
+
+### 31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果
+
+1. **带走：** map 返回按输入顺序取结果的迭代器，实际任务完成顺序可以不同。
+2. **自查：** 让任务倒序完成，预测迭代结果顺序，并指出任务异常何时在取结果处出现。
 
 ### 32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作
 
@@ -395,13 +456,14 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 <details>
 <summary>可复用的旧课材料与编写状态</summary>
 
-- 26：规划单元，待从旧课拆分或补写。材料：[10 · 线程池：把阻塞工作移出事件循环](../content/projects/python-async-concurrency/08-executors/index.md)、[03 · create_task：先安排工作，再等待结果](../content/projects/python-async-concurrency/03-tasks/index.md)。
-- 27：规划单元，待从旧课拆分或补写。材料：[11 · Lock、Event 与线程退出](../content/projects/python-async-concurrency/09-thread-synchronization/index.md)。
-- 28：规划单元，待从旧课拆分或补写。材料：[11 · Lock、Event 与线程退出](../content/projects/python-async-concurrency/09-thread-synchronization/index.md)。
-- 29：规划单元，待从旧课拆分或补写。材料：[11 · Lock、Event 与线程退出](../content/projects/python-async-concurrency/09-thread-synchronization/index.md)。
-- 30：规划单元，待从旧课拆分或补写。材料：[18 · asyncio.Queue：让生产者与消费者交接数据](../content/projects/python-async-concurrency/07-queues/index.md)。
-- 31：规划单元，待从旧课拆分或补写。材料：[10 · 线程池：把阻塞工作移出事件循环](../content/projects/python-async-concurrency/08-executors/index.md)、[19 · 线程池 Future 的结果与退出](../content/projects/python-async-concurrency/17-executor-results/index.md)。
-- 32：规划单元，待从旧课拆分或补写。材料：[19 · 线程池 Future 的结果与退出](../content/projects/python-async-concurrency/17-executor-results/index.md)。
+- 26：已有独立学习主线。材料：[26 · asyncio.to_thread：把阻塞函数交给线程](../content/projects/python-async-concurrency/26-to-thread/index.md)。
+- 27：已有独立学习主线。材料：[27 · threading.Thread：创建、启动并等待线程](../content/projects/python-async-concurrency/27-thread-lifecycle/index.md)。
+- 28：已有独立学习主线。材料：[28 · threading.Lock：保护线程共享状态](../content/projects/python-async-concurrency/28-thread-lock/index.md)。
+- 29：已有独立学习主线。材料：[29 · threading.Event：通知线程合作退出](../content/projects/python-async-concurrency/29-thread-event/index.md)。
+- 30：已有独立学习主线。材料：[30 · queue.Queue：在线程之间交接数据](../content/projects/python-async-concurrency/30-thread-queue/index.md)。
+- 31.1：已有独立学习主线。材料：[31.1 · ThreadPoolExecutor / submit：把工作提交到线程池](../content/projects/python-async-concurrency/31-threadpool-submit/index.md)。
+- 31.2：已有独立学习主线。材料：[31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果](../content/projects/python-async-concurrency/31-threadpool-map/index.md)。
+- 32：已有独立学习主线。材料：[32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作](../content/projects/python-async-concurrency/32-threadpool-shutdown/index.md)。
 
 </details>
 
@@ -412,45 +474,78 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 
 | 单元 | 本次新增的问题 | 正式引入的 API / 语法 | 前置单元 |
 | --- | --- | --- | --- |
-| 33 · loop.run_in_executor：从协程使用指定执行器 | 已经选定线程池，怎样提交并用 await 等结果？ | `asyncio.get_running_loop`、`asyncio.AbstractEventLoop.run_in_executor` | 26、31 |
+| 33.1 · get_running_loop / run_in_executor：从协程使用指定线程池 | 已经选定线程池，怎样提交并用 await 等结果？ | `asyncio.get_running_loop`、`asyncio.AbstractEventLoop.run_in_executor` | 26、31 |
+| 33.2 · loop.time：用事件循环时钟计算剩余预算 | 预算直接交给事件循环接口时，应使用哪一个时钟？ | `asyncio.AbstractEventLoop.time` | 14、33.1 |
 | 34 · asyncio.wrap_future：等待已有的执行器 Future | 已经拿到执行器 Future，怎样接入协程等待？ | `asyncio.wrap_future` | 31、33 |
-| 35 · Future.done() / result() / exception()：读取 asyncio Future 的结果 | 协程接口给回一个 Future 时，怎样判断与读取？ | `asyncio.Future.done`、`asyncio.Future.result`、`asyncio.Future.exception` | 08、33、34 |
-| 36 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程 | 同步线程怎样把协程交给正在运行的事件循环？ | `asyncio.run_coroutine_threadsafe` | 27、29、31、33、35 |
+| 35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果 | 协程接口给回一个 Future 时，怎样判断与读取？ | `asyncio.Future.done`、`asyncio.Future.result`、`asyncio.Future.exception` | 08、33、34 |
+| 35.2 · loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果 | 结果将由别处提供，怎样先让协程等待，再写入成功值或异常？ | `asyncio.AbstractEventLoop.create_future`、`asyncio.Future.set_result`、`asyncio.Future.set_exception` | 35.1 |
+| 35.3 · Task.add_done_callback：任务完成后安排回调 | 后台任务结束时，怎样清理任务集合或检查异常而不逐个等待？ | `asyncio.Task.add_done_callback` | 08、09、35.2 |
+| 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环 | 不使用 asyncio.run 统一接管时，怎样明确创建、运行和关闭循环？ | `asyncio.new_event_loop`、`asyncio.set_event_loop`、`asyncio.AbstractEventLoop.run_until_complete`、`asyncio.AbstractEventLoop.close` | 27、29、31、33、35 |
+| 36.2 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程 | 同步线程怎样把协程交给正在运行的事件循环？ | `asyncio.run_coroutine_threadsafe` | 36.1 |
 
 <details>
 <summary>本模块的原子结论与自查</summary>
 
-### 33 · loop.run_in_executor：从协程使用指定执行器
+### 33.1 · get_running_loop / run_in_executor：从协程使用指定线程池
 
 1. **带走：** 从当前运行循环提交执行器工作，得到可 await 的 asyncio Future。
 2. **自查：** 标出同步函数运行位置和等待者恢复位置。
+
+主例子回接 26 与 31.1；独立的调度实验复用第 29 课 Event，不把通知对象当作提交工作的必要条件。
+
+### 33.2 · loop.time：用事件循环时钟计算剩余预算
+
+1. **带走：** loop.time 提供当前循环的单调时钟读数；在同一时钟上计算截止时间与剩余预算。
+2. **自查：** 计算 deadline 和剩余预算，指出不能直接用墙钟时间替代的原因。
 
 ### 34 · asyncio.wrap_future：等待已有的执行器 Future
 
 1. **带走：** wrap_future 将执行器 Future 衔接为当前循环可等待的 Future，不重新提交工作。
 2. **自查：** 证明被包装的工作只提交一次，并区分两类 Future。
 
-### 35 · Future.done() / result() / exception()：读取 asyncio Future 的结果
+### 35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果
 
 1. **带走：** asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。
 2. **自查：** 对比 asyncio Future 与执行器 Future 的 result 行为。
 
-### 36 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程
+### 35.2 · loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果
+
+1. **带走：** create_future 创建绑定当前循环的等待结果对象；set_result 或 set_exception 完成它，Future 本身不执行协程。
+2. **自查：** 分别让等待者收到值与异常，并解释重复完成为何出错。
+3. **需要辨认的异常：** `asyncio.InvalidStateError`。
+
+### 35.3 · Task.add_done_callback：任务完成后安排回调
+
+1. **带走：** add_done_callback 注册完成后由循环安排的普通回调；回调接收 Task，并应处理其成功、失败或取消状态。
+2. **自查：** 区分回调注册、任务完成、回调执行三个时刻；检查回调能否直接使用 async def。
+
+### 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环
+
+1. **带走：** 创建循环、设置线程关联、驱动协程和关闭循环是不同操作；关闭前需等完自己创建的工作。
+2. **自查：** 标出协程真正开始的位置，以及 try/finally 中关闭和解除线程关联的责任。
+
+只展开一次 run_until_complete 与关闭的最小生命周期；run_forever、stop 和循环策略仍不自动扩入清单。
+
+### 36.2 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程
 
 1. **带走：** 跨线程提交返回执行器 Future；事件循环线程不能阻塞等待自己才能完成的工作。
 2. **自查：** 画出提交线程、循环线程与结果返回的方向，排除循环等待。
 
-主例子用 asyncio.run 持有循环并从工作线程提交；不强行把 new_event_loop/run_forever 等清单外 API 作为前置。
+先用 asyncio.run 持有目标循环，复用上一子课中循环与线程关联的认识；不额外引入常驻循环的新生命周期。
 
 </details>
 
 <details>
 <summary>可复用的旧课材料与编写状态</summary>
 
-- 33：规划单元，待从旧课拆分或补写。材料：[10 · 线程池：把阻塞工作移出事件循环](../content/projects/python-async-concurrency/08-executors/index.md)、[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
+- 33.1：已有独立学习主线。材料：[33.1 · get_running_loop / run_in_executor：从协程使用指定线程池](../content/projects/python-async-concurrency/33-run-in-executor/index.md)。
+- 33.2：已有独立学习主线。材料：[33.2 · loop.time：用事件循环时钟计算剩余预算](../content/projects/python-async-concurrency/33-loop-time/index.md)。
 - 34：规划单元，待从旧课拆分或补写。材料：[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
-- 35：规划单元，待从旧课拆分或补写。材料：[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
-- 36：规划单元，待从旧课拆分或补写。材料：[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
+- 35.1：规划单元，待从旧课拆分或补写。材料：[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
+- 35.2：规划单元，待从旧课拆分或补写。待按本单元问题编写独立材料。
+- 35.3：规划单元，待从旧课拆分或补写。待按本单元问题编写独立材料。
+- 36.1：规划单元，待从旧课拆分或补写。待按本单元问题编写独立材料。
+- 36.2：规划单元，待从旧课拆分或补写。材料：[15 · Future、回调与跨线程事件循环](../content/projects/python-async-concurrency/13-event-loop/index.md)。
 
 </details>
 
@@ -529,9 +624,12 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 | `asyncio.Task.result` | 08 · done、result、exception：读取 Task 的状态与结果 |
 | `asyncio.Task.exception` | 08 · done、result、exception：读取 Task 的状态与结果 |
 | `asyncio.Task.cancel` | 09 · Task.cancel：请求取消并等待收尾 |
-| `asyncio.Future.done` | 35 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
-| `asyncio.Future.result` | 35 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
-| `asyncio.Future.exception` | 35 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
+| `asyncio.Future.done` | 35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
+| `asyncio.Future.result` | 35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
+| `asyncio.Future.exception` | 35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果 |
+| `asyncio.Task.add_done_callback` | 35.3 · Task.add_done_callback：任务完成后安排回调 |
+| `asyncio.Future.set_result` | 35.2 · loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果 |
+| `asyncio.Future.set_exception` | 35.2 · loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果 |
 | `asyncio.wait_for` | 13 · asyncio.wait_for：限制一次等待的时长 |
 | `asyncio.timeout` | 15 · asyncio.timeout：给一段异步代码共享时间预算 |
 | `asyncio.shield` | 16 · asyncio.shield：区分取消等待者与内部工作 |
@@ -550,13 +648,14 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 | `asyncio.Event.wait` | 20 · asyncio.Event：让任务等待一个通知 |
 | `asyncio.Event.clear` | 20 · asyncio.Event：让任务等待一个通知 |
 | `asyncio.to_thread` | 26 · asyncio.to_thread：把阻塞函数交给线程 |
-| `concurrent.futures.ThreadPoolExecutor` | 31 · ThreadPoolExecutor / submit：把工作提交到线程池 |
-| `concurrent.futures.Executor.submit` | 31 · ThreadPoolExecutor / submit：把工作提交到线程池 |
+| `concurrent.futures.ThreadPoolExecutor` | 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 |
+| `concurrent.futures.Executor.submit` | 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 |
 | `concurrent.futures.Executor.shutdown` | 32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作 |
-| `concurrent.futures.Future.result` | 31 · ThreadPoolExecutor / submit：把工作提交到线程池 |
-| `concurrent.futures.Future.done` | 31 · ThreadPoolExecutor / submit：把工作提交到线程池 |
-| `concurrent.futures.Future.exception` | 31 · ThreadPoolExecutor / submit：把工作提交到线程池 |
+| `concurrent.futures.Future.result` | 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 |
+| `concurrent.futures.Future.done` | 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 |
+| `concurrent.futures.Future.exception` | 31.1 · ThreadPoolExecutor / submit：把工作提交到线程池 |
 | `concurrent.futures.Future.cancel` | 32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作 |
+| `concurrent.futures.Executor.map` | 31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果 |
 | `threading.Thread` | 27 · threading.Thread：创建、启动并等待线程 |
 | `threading.Thread.start` | 27 · threading.Thread：创建、启动并等待线程 |
 | `threading.Thread.join` | 27 · threading.Thread：创建、启动并等待线程 |
@@ -576,14 +675,25 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 | `contextvars.ContextVar.get` | 24 · contextvars.ContextVar：保存每份任务自己的上下文 |
 | `contextvars.ContextVar.set` | 24 · contextvars.ContextVar：保存每份任务自己的上下文 |
 | `contextvars.ContextVar.reset` | 24 · contextvars.ContextVar：保存每份任务自己的上下文 |
-| `contextlib.asynccontextmanager` | 21 · async with / contextlib.asynccontextmanager：把异步资源绑定到作用域 |
-| `contextlib.aclosing` | 23 · contextlib.aclosing：提前停止异步迭代 |
+| `contextlib.asynccontextmanager` | 21.4 · asynccontextmanager：把准备和关闭接到 async with |
+| `contextlib.aclosing` | 23.1 · contextlib.aclosing：提前停止异步迭代 |
 | `inspect.isawaitable` | 25 · inspect.isawaitable / inspect.iscoroutinefunction：辨认函数与可等待对象 |
 | `inspect.iscoroutinefunction` | 25 · inspect.isawaitable / inspect.iscoroutinefunction：辨认函数与可等待对象 |
-| `asyncio.get_running_loop` | 33 · loop.run_in_executor：从协程使用指定执行器 |
-| `asyncio.AbstractEventLoop.run_in_executor` | 33 · loop.run_in_executor：从协程使用指定执行器 |
+| `contextlib.AsyncExitStack` | 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理 |
+| `contextlib.AsyncExitStack.enter_async_context` | 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理 |
+| `contextlib.AsyncExitStack.push_async_callback` | 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理 |
+| `contextlib.AsyncExitStack.aclose` | 23.2 · AsyncExitStack / enter_async_context / push_async_callback / aclose：集中管理多份资源的清理 |
+| `contextlib.AsyncExitStack.pop_all` | 23.3 · AsyncExitStack.pop_all：转移已登记的清理责任 |
+| `asyncio.get_running_loop` | 33.1 · get_running_loop / run_in_executor：从协程使用指定线程池 |
+| `asyncio.AbstractEventLoop.run_in_executor` | 33.1 · get_running_loop / run_in_executor：从协程使用指定线程池 |
 | `asyncio.wrap_future` | 34 · asyncio.wrap_future：等待已有的执行器 Future |
-| `asyncio.run_coroutine_threadsafe` | 36 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程 |
+| `asyncio.run_coroutine_threadsafe` | 36.2 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程 |
+| `asyncio.new_event_loop` | 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环 |
+| `asyncio.set_event_loop` | 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环 |
+| `asyncio.AbstractEventLoop.run_until_complete` | 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环 |
+| `asyncio.AbstractEventLoop.close` | 36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环 |
+| `asyncio.AbstractEventLoop.create_future` | 35.2 · loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果 |
+| `asyncio.AbstractEventLoop.time` | 33.2 · loop.time：用事件循环时钟计算剩余预算 |
 | `multiprocessing.Process` | 40 · multiprocessing.Process：让 Python 工作在子进程执行 |
 | `multiprocessing.Process.start` | 40 · multiprocessing.Process：让 Python 工作在子进程执行 |
 | `multiprocessing.Process.is_alive` | 40 · multiprocessing.Process：让 Python 工作在子进程执行 |
@@ -612,9 +722,9 @@ Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对�
 | 语法 | `try/finally` | 09 |
 | 语法 | `except*` | 11.2 |
 | 异常类型 | `asyncio.CancelledError` | 09 |
-| 异常类型 | `asyncio.InvalidStateError` | 08 |
+| 异常类型 | `asyncio.InvalidStateError` | 08、35.2 |
 | 异常类型 | `concurrent.futures.CancelledError` | 32 |
-| 异常类型 | `concurrent.futures.TimeoutError` | 31 |
+| 异常类型 | `concurrent.futures.TimeoutError` | 31.1 |
 | 异常类型 | `queue.Empty` | 30 |
 | 异常类型 | `queue.Full` | 30 |
 | 异常类型 | `subprocess.TimeoutExpired` | 39 |

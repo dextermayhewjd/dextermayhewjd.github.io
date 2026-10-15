@@ -1,0 +1,106 @@
+{{- $data := readFile "python-async-reference/knowledge-map.json" | transform.Unmarshal -}}
+{{- $plan := readFile "python-async-reference/curriculum.json" | transform.Unmarshal -}}
+{{- $nodes := slice -}}
+{{- range $data.nodes -}}
+  {{- $links := slice -}}
+  {{- range .units -}}
+    {{- $unit := index (where $plan.lessons "number" .) 0 -}}
+    {{- $slugs := first 1 $unit.source_lessons -}}
+    {{- if $unit.parts -}}{{- $slugs = $unit.source_lessons -}}{{- end -}}
+    {{- range $slugs -}}
+      {{- $slug := . -}}
+      {{- with site.GetPage (printf "/projects/python-async-concurrency/%s" $slug) -}}
+        {{- $links = $links | append (dict "title" .Title "url" .RelPermalink) -}}
+      {{- else -}}
+        {{- errorf "Knowledge map links to missing lesson: %s" $slug -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $nodes = $nodes | append (merge . (dict "lessons" $links)) -}}
+{{- end -}}
+<section class="async-knowledge-map" aria-label="Python 异步知识地图" data-knowledge-map>
+  <div class="akm-review">
+    <h2>今天回忆什么</h2>
+    <p data-review-summary>选一个概念，开始一次短回忆。</p>
+    <div class="akm-review__links" data-review-links></div>
+    <p class="akm-help">按你上次的自测，建议间隔 1 / 3 / 7 天再回忆一次；这是起步安排，可以随时提前复习。</p>
+  </div>
+  <div class="akm-layout">
+    <nav class="akm-tree" aria-label="按问题找概念">
+      <h2>从问题找概念</h2>
+      {{ range $group := $data.groups }}
+      <details data-knowledge-group="{{ $group.id }}">
+        <summary>{{ $group.title }}</summary>
+        <p class="akm-help">{{ $group.description }}</p>
+        <ul>
+          {{ range where $data.nodes "group" $group.id }}
+          <li><button type="button" data-select-node="{{ .id }}" aria-controls="knowledge-card" disabled>
+            <span>{{ .title }}</span><small data-node-status="{{ .id }}">未自测</small>
+          </button></li>
+          {{ end }}
+        </ul>
+      </details>
+      {{ end }}
+    </nav>
+    <article class="akm-card" id="knowledge-card" aria-labelledby="knowledge-card-title">
+      <p class="akm-help" data-card-kind></p>
+      <h2 id="knowledge-card-title" tabindex="-1">选择一个概念</h2>
+      <noscript><p>互动回忆需要启用 JavaScript。也可以从<a href="../learning-route/">学习路线</a>进入各课，使用课末的自查题。</p></noscript>
+      <div data-card-content hidden>
+        <h3>1. 先用自己的话回答</h3>
+        <p class="akm-question" data-recall-question></p>
+        <label for="knowledge-recall">我的回答（可只记关键词）</label>
+        <textarea id="knowledge-recall" rows="3" maxlength="6000" placeholder="先试着回忆，再看解释。" data-recall></textarea>
+        <details class="akm-previous" data-previous-recall-panel hidden><summary>查看上次写的回答</summary><p data-previous-recall></p></details>
+        <button type="button" class="akm-primary" data-reveal aria-expanded="false" aria-controls="knowledge-explanation">展开解释，核对我的回答</button>
+        <section id="knowledge-explanation" class="akm-explanation" hidden>
+          <ul data-explanation></ul>
+          <p><strong>容易混淆：</strong><span data-misconception></span></p>
+          <h3>把它连到已学的概念</h3>
+          <p class="akm-help">关联标注“前置 → 后续”“对比”或“组合”，不表示必须同时使用。</p>
+          <ul class="akm-relations" data-relations></ul>
+          <details class="akm-lesson-links">
+            <summary>回到原课与完整例子</summary>
+            <ul data-lesson-links></ul>
+          </details>
+        </section>
+        <h3>2. 预测短代码的输出</h3>
+        <p class="akm-help">下面是 <code>async def main()</code> 内的代码片段。已导入 <code>asyncio</code>、<code>contextlib</code>、<code>time</code>；按 Python 3.12 的默认任务工厂判断。</p>
+        <pre class="akm-code"><code data-exercise-code></code></pre>
+        <p class="akm-help" data-exercise-note hidden></p>
+        <p class="akm-help"><a data-download-code download>下载完整可运行程序</a> · 想不起来时，可以运行验证，再回来记录原因。</p>
+        <form data-exercise-form>
+          <fieldset><legend>请选择实际输出</legend><div data-exercise-options></div></fieldset>
+          <button type="submit">核对判断</button>
+        </form>
+        <p class="akm-feedback" data-exercise-feedback role="status" hidden></p>
+        <h3>3. 留下错因，安排下次回忆</h3>
+        <label for="knowledge-note">我刚才混淆了什么？下次怎样辨认？</label>
+        <textarea id="knowledge-note" rows="3" maxlength="6000" placeholder="例如：把 Event 通知当成了 Lock 释放；先问是在通知条件，还是保护共享状态。" data-note></textarea>
+        <p class="akm-help">核对后按实际表现选择。答对选择题本身不会自动提高熟悉程度。</p>
+        <div class="akm-grades" role="group" aria-label="记录本次自测表现">
+          <button type="button" data-grade="review" aria-pressed="false">需要提示<span>建议 1 天后回忆</span></button>
+          <button type="button" data-grade="explain" aria-pressed="false">能独立解释<span>建议 3 天后回忆</span></button>
+          <button type="button" data-grade="apply" aria-pressed="false">能判断代码<span>建议 7 天后回忆</span></button>
+        </div>
+        <p class="akm-help" data-current-review role="status"></p>
+      </div>
+    </article>
+  </div>
+  <footer class="akm-backup">
+    <h2>保存这份复习记录</h2>
+    <p class="akm-help">回答、错因和复习时间自动保存在当前浏览器，不会上传。换设备或清理浏览器前，先导出备份；localhost 与线上网站的记录分别保存。</p>
+    <div class="akm-backup__actions">
+      <button type="button" data-export>导出 JSON 备份</button>
+      <label class="akm-import">导入 JSON 备份<input type="file" accept="application/json,.json" data-import></label>
+    </div>
+    <p class="akm-help">导入会合并记录；同一概念保留更新时间较新的记录。</p>
+    <p class="akm-save-status" data-save-status role="status"></p>
+    <div class="akm-help" data-recovery-links hidden></div>
+  </footer>
+  <script type="application/json" data-knowledge-config>{{ (dict "nodes" $nodes "relations" $data.relations) | jsonify | safeJS }}</script>
+</section>
+{{- $state := resources.Get "js/async-knowledge-state.js" | minify | fingerprint -}}
+{{- $script := resources.Get "js/async-knowledge-map.js" | minify | fingerprint -}}
+<script defer src="{{ $state.RelPermalink }}" integrity="{{ $state.Data.Integrity }}"></script>
+<script defer src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>

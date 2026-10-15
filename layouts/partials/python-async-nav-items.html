@@ -9,16 +9,42 @@
   {{- if eq .status "existing" -}}
     {{- $slugs := first 1 .source_lessons -}}
     {{- if .parts -}}{{- $slugs = .source_lessons -}}{{- end -}}
+    {{- $pages := slice -}}
+    {{- $groupActive := false -}}
     {{- range $slug := $slugs -}}
       {{- with $section.GetPage $slug -}}
         {{- $mainPaths = $mainPaths | append .RelPermalink -}}
         {{- $allPaths = $allPaths | append .RelPermalink -}}
-        {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+        {{/* Track hidden lessons so they do not reappear as legacy or utility pages. */}}
+        {{- if not .Params.hideinprojectnav -}}
+          {{- $pages = $pages | append . -}}
+          {{- if eq $current.RelPermalink .RelPermalink -}}{{- $groupActive = true -}}{{- end -}}
+        {{- end -}}
       {{- else -}}
         {{- errorf "Missing ready Python async lesson: %s" $slug -}}
       {{- end -}}
     {{- end -}}
+    {{- if and .navigation_group (gt (len $pages) 0) -}}
+    <li>
+      <details class="project-nav__branch" data-lesson-group="{{ .number }}"{{ if $groupActive }} open{{ end }}>
+        <summary>{{ printf "%02d · %s" (int .number) .navigation_group }}</summary>
+        <ul class="project-nav__list project-nav__list--nested">
+          {{- range $pages -}}
+            {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+          {{- end -}}
+        </ul>
+      </details>
+    </li>
+    {{- else -}}
+      {{- range $pages -}}
+        {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
+{{- end -}}
+{{- with $section.GetPage "knowledge-map" -}}
+  {{- $allPaths = $allPaths | append .RelPermalink -}}
+  {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
 {{- end -}}
 {{- $legacyPages := slice -}}
 {{- $legacyActive := false -}}

@@ -1,0 +1,24 @@
+{
+  "revision": "1d367a4f459a43768f76312c0d3430a99ec46b8c",
+  "repository": "https://github.com/verl-project/verl",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "verl/workers/rollout/utils.py",
+      "line": 83,
+      "endLine": 90,
+      "symbol": "ensure_async_iterator",
+      "text": "async def ensure_async_iterator(iterable):\n    \"\"\"Convert an iterable to an async iterator.\"\"\"\n    if hasattr(iterable, \"__aiter__\"):\n        async for item in iterable:\n            yield item\n    else:\n        for item in iterable:\n            yield item",
+      "blobSha256": "d9004f1d0eb4e7702182fae807475fa4da34e4705bdbc9e1e78614acff354307"
+    },
+    "source-2": {
+      "available": true,
+      "path": "verl/workers/rollout/sglang_rollout/utils.py",
+      "line": 209,
+      "endLine": 216,
+      "symbol": "get_named_tensor_buckets：逐项取得 name 与 tensor",
+      "text": "        return None, entries\n\n    async for name, tensor in ensure_async_iterator(iterable):\n        tensor_size = tensor.element_size() * tensor.numel()\n        match = _fusion_key(name, fusion_groups)\n        if match is not None:\n            prefix, group_index, expected_size = match\n            key = (prefix, group_index)",
+      "blobSha256": "f74337f500c6507fcb5b6e4f0d7f9ea9e5dac8ecabcd4c67be2bd93d38c1b4fd"
+    }
+  }
+}

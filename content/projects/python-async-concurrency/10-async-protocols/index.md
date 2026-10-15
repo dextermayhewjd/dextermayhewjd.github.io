@@ -8,6 +8,8 @@ hideMeta: true
 hideInOverview: true
 ---
 
+本页保留旧版组合示例。当前学习路线已拆出 [21.1–21.6 · 异步资源管理](../21-resource-lifecycle/) 和 [22 · async for / 异步生成器](../22-async-iteration/)，按新课顺序阅读即可。
+
 ## 两种等待发生在不同位置
 
 `async with` 管理资源的异步进入和退出；`async for` 消费一个异步可迭代对象，每次取下一项都可能需要等待。它们并不表示循环体内部自动并行。

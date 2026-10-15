@@ -18,9 +18,9 @@ CONTENT = ROOT / 'content/projects/python-async-concurrency'
 
 
 def documented_stdout(stdout, experiment):
-    if experiment.get('normalize_elapsed_seconds'):
-        # Elapsed wall time varies; preserve and compare the observable events.
-        return re.sub(r'^\[\d+\.\d{3}s\] ', '', stdout, flags=re.MULTILINE)
+    if experiment.get('normalize_elapsed_seconds') or experiment.get('normalize_clock_seconds'):
+        # Timing readings vary; preserve and compare the observable events.
+        return re.sub(r'^\[-?\d+\.\d{3}s\] ', '', stdout, flags=re.MULTILINE)
     return stdout
 
 
@@ -29,6 +29,7 @@ class Links(HTMLParser):
         super().__init__()
         self.hrefs = []
         self.ids = set()
+        self.project_nav_hrefs = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -36,6 +37,35 @@ class Links(HTMLParser):
             self.ids.add(attrs['id'])
         if tag == 'a' and 'href' in attrs:
             self.hrefs.append(attrs['href'])
+            if 'project-nav__link' in attrs.get('class', '').split():
+                self.project_nav_hrefs.append(attrs['href'])
+
+
+class LessonGroups(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.details = []
+        self.groups = []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'details':
+            group = None
+            if 'data-lesson-group' in attrs:
+                group = {'number': attrs['data-lesson-group'], 'open': 'open' in attrs,
+                         'links': [], 'active': []}
+                self.groups.append(group)
+            self.details.append(group)
+        if tag == 'a' and 'project-nav__link' in attrs.get('class', '').split():
+            for group in self.details:
+                if group is not None:
+                    group['links'].append(attrs['href'])
+                    if attrs.get('aria-current') == 'page':
+                        group['active'].append(attrs['href'])
+
+    def handle_endtag(self, tag):
+        if tag == 'details':
+            self.details.pop()
 
 
 class SourceReading(HTMLParser):
@@ -385,7 +415,19 @@ class PythonAsyncMaterial(unittest.TestCase):
                 page = (path.parent / 'index.md').read_text()
                 self.assertIn('```python\n' + path.read_text().rstrip() + '\n```', page)
                 examples += 1
-        self.assertEqual(examples, 36)
+        self.assertEqual(examples, 53)
+
+    def test_loop_clock_keeps_one_deadline_and_consistent_units(self):
+        path = CONTENT / '33-loop-time/example.py'
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        values = {label: float(value) for value, label in
+                  re.findall(r'^\[(-?\d+\.\d{3})s\] (.+)$', result.stdout, re.MULTILINE)}
+        self.assertEqual(set(values), {'start', 'deadline', 'now', 'remaining'})
+        self.assertGreaterEqual(values['now'], values['start'])
+        self.assertAlmostEqual(values['deadline'] - values['start'], 1, delta=0.002)
+        self.assertAlmostEqual(values['remaining'], values['deadline'] - values['now'], delta=0.002)
 
     def test_additional_experiments_with_registered_outputs(self):
         for lesson in self.lessons:
@@ -501,6 +543,26 @@ class PythonAsyncPublished(unittest.TestCase):
         cls.lessons = cls.manifest['lessons'] + cls.manifest.get('curriculum_lessons', [])
         cls.project = cls.output / 'projects/python-async-concurrency'
 
+    def test_unread_thread_lessons_stay_out_of_learning_navigation(self):
+        hidden = ['30-thread-queue', '32-threadpool-shutdown']
+        current = ['31-threadpool-submit', '31-threadpool-map']
+        hidden_hrefs = {f'/projects/python-async-concurrency/{slug}/' for slug in hidden}
+        for slug in ['29-thread-event', 'learning-route', *current, *hidden]:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertTrue(hidden_hrefs.isdisjoint(parser.project_nav_hrefs),
+                                'Unread lessons must not return through legacy or fallback navigation')
+                self.assertEqual(parser.project_nav_hrefs.count(
+                    '/projects/python-async-concurrency/29-thread-event/'), 2)
+                for lesson in current:
+                    self.assertEqual(parser.project_nav_hrefs.count(
+                        f'/projects/python-async-concurrency/{lesson}/'), 2)
+        route = (self.project / 'learning-route/index.html').read_text()
+        self.assertIn('../31-threadpool-submit/', route)
+        for slug in hidden:
+            self.assertTrue((self.project / slug / 'index.html').is_file())
+
     def test_async_lock_is_current_unit_19_after_queue(self):
         html = (self.project / '19-async-lock/index.html').read_text()
         self.assertIn('19 · asyncio.Lock：保护跨 await 的共享状态', html)
@@ -537,6 +599,100 @@ class PythonAsyncPublished(unittest.TestCase):
         plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
         self.assertEqual(plan['lessons'][19]['status'], 'existing')
         self.assertEqual(plan['lessons'][19]['source_lessons'], ['20-async-event'])
+
+    def test_async_contextmanager_is_current_unit_21_after_event(self):
+        html = (self.project / '21-async-contextmanager/index.html').read_text()
+        self.assertIn('21.4 · asynccontextmanager：把准备和关闭接到 async with', html)
+        self.assertIn('href="../21-decorators/"', html)
+        previous = (self.project / '20-async-event/index.html').read_text()
+        self.assertIn('href="../21-resource-lifecycle/"', previous)
+        links = Links()
+        links.feed(html)
+        self.assertTrue({'async-context', 'async-context-exits', 'async-context-takeaways'} <= links.ids)
+        parser = SourceReading()
+        parser.feed(html)
+        self.assertIn((CONTENT / '21-async-contextmanager/example.py').read_text().strip(),
+                      ''.join(parser.visible_code))
+        plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
+        self.assertEqual(plan['lessons'][20]['status'], 'existing')
+        self.assertEqual(len(plan['lessons'][20]['parts']), 6)
+        slugs = plan['lessons'][20]['source_lessons']
+        self.assertEqual(slugs, ['21-resource-lifecycle', '21-yield-pause', '21-decorators',
+                                 '21-async-contextmanager', '21-context-errors', '21-context-cancellation'])
+        chain = ['20-async-event', *slugs, '22-async-iteration']
+        for index, slug in enumerate(slugs, 1):
+            page = (self.project / slug / 'index.html').read_text()
+            self.assertIn(f'21.{index} · ', page)
+            self.assertIn(f'href="../{chain[index-1]}/"', page)
+            self.assertIn(f'href="../{chain[index+1]}/"', page)
+
+    def test_contextmanager_navigation_groups_all_six_parts(self):
+        plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
+        slugs = plan['lessons'][20]['source_lessons']
+        expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
+        for slug in ['20-async-event', *slugs, '22-async-iteration']:
+            with self.subTest(page=slug):
+                parser = LessonGroups()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                groups = [group for group in parser.groups if group['number'] == '21']
+                self.assertEqual(len(groups), 2, 'Group must appear in desktop and mobile navigation')
+                for group in groups:
+                    self.assertEqual(group['links'], expected)
+                    self.assertEqual(group['open'], slug in slugs)
+                    self.assertEqual(group['active'],
+                                     [f'/projects/python-async-concurrency/{slug}/'] if slug in slugs else [])
+
+    def test_threadpool_navigation_groups_both_parts(self):
+        slugs = ['31-threadpool-submit', '31-threadpool-map']
+        expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
+        for slug in ['29-thread-event', *slugs, 'learning-route']:
+            with self.subTest(page=slug):
+                parser = LessonGroups()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                groups = [group for group in parser.groups if group['number'] == '31']
+                self.assertEqual(len(groups), 2, 'Group must appear in desktop and mobile navigation')
+                for group in groups:
+                    self.assertEqual(group['links'], expected)
+                    self.assertEqual(group['open'], slug in slugs)
+                    self.assertEqual(group['active'],
+                                     [f'/projects/python-async-concurrency/{slug}/'] if slug in slugs else [])
+
+    def test_event_loop_navigation_groups_both_parts(self):
+        slugs = ['33-run-in-executor', '33-loop-time']
+        expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
+        for slug in ['31-threadpool-map', *slugs, 'learning-route']:
+            with self.subTest(page=slug):
+                parser = LessonGroups()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                groups = [group for group in parser.groups if group['number'] == '33']
+                self.assertEqual(len(groups), 2, 'Group must appear in desktop and mobile navigation')
+                for group in groups:
+                    self.assertEqual(group['links'], expected)
+                    self.assertEqual(group['open'], slug in slugs)
+                    self.assertEqual(group['active'],
+                                     [f'/projects/python-async-concurrency/{slug}/'] if slug in slugs else [])
+        first = (self.project / slugs[0] / 'index.html').read_text()
+        second = (self.project / slugs[1] / 'index.html').read_text()
+        self.assertIn(f'href="../{slugs[1]}/"', first)
+        self.assertIn(f'href="../{slugs[0]}/"', second)
+
+    def test_async_iteration_is_current_unit_22_after_contextmanager(self):
+        html = (self.project / '22-async-iteration/index.html').read_text()
+        self.assertIn('22 · async for / 异步生成器：逐项等待异步产出', html)
+        self.assertIn('href="../21-context-cancellation/"', html)
+        previous = (self.project / '21-context-cancellation/index.html').read_text()
+        self.assertIn('href="../22-async-iteration/"', previous)
+        links = Links()
+        links.feed(html)
+        self.assertTrue({'async-iteration', 'async-iteration-output',
+                         'async-iteration-boundaries', 'async-iteration-takeaways'} <= links.ids)
+        parser = SourceReading()
+        parser.feed(html)
+        self.assertIn((CONTENT / '22-async-iteration/example.py').read_text().strip(),
+                      ''.join(parser.visible_code))
+        plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
+        self.assertEqual(plan['lessons'][21]['status'], 'existing')
+        self.assertEqual(plan['lessons'][21]['source_lessons'], ['22-async-iteration'])
 
     def test_async_queue_is_current_unit_18_after_semaphore(self):
         html = (self.project / '07-queues/index.html').read_text()

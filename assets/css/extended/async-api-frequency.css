@@ -1,0 +1,113 @@
+.api-frequency-mark {
+  display: inline-block;
+  padding: 1px 4px;
+  border: 1px solid;
+  border-radius: 4px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.api-frequency-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.post-content .async-api-frequency .api-frequency-table {
+  display: table;
+  width: 100%;
+  min-width: 840px;
+  margin: 0;
+  table-layout: fixed;
+  font-size: 15px;
+  word-break: normal;
+}
+
+.api-frequency-table .frequency-col-lesson { width: 6%; }
+.api-frequency-table .frequency-col-api { width: 30%; }
+.api-frequency-table .frequency-col-kind { width: 10%; }
+.api-frequency-table .frequency-col-repo { width: 6%; }
+.api-frequency-table .frequency-col-value { width: 9%; }
+.api-frequency-table .frequency-col-course { width: 12%; }
+
+.post-content .async-api-frequency table.api-frequency-table th,
+.post-content .async-api-frequency table.api-frequency-table td {
+  padding: 8px 4px;
+}
+
+.api-frequency-table thead th {
+  text-align: center;
+  font-size: 13px;
+}
+
+.api-frequency-table .api-frequency-lesson {
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.api-frequency-status {
+  display: block;
+  margin-top: 4px;
+  color: var(--secondary);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.api-frequency-table .api-frequency-kind {
+  font-size: 14px;
+}
+
+.api-frequency-table .api-frequency-api code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.api-frequency-table .api-frequency-repo,
+.api-frequency-table .api-frequency-total,
+.api-frequency-table .api-frequency-share {
+  text-align: right;
+}
+
+.api-frequency-table tbody + tbody tr:first-child > * {
+  border-top: 2px solid var(--border);
+}
+
+.api-frequency-table .api-frequency-course-heading,
+.api-frequency-table .api-frequency-course-share {
+  background: var(--code-bg);
+}
+
+.api-frequency-table .api-frequency-course-heading,
+.api-frequency-table .api-frequency-course-share {
+  border-left: 2px solid var(--border);
+}
+
+.api-frequency-table .api-frequency-course-share {
+  vertical-align: middle;
+  text-align: center;
+  font-weight: 650;
+}
+
+.api-frequency-mark--total {
+  color: #164c83;
+  background: #eaf3ff;
+  border-color: #8db8e8;
+}
+
+.api-frequency-mark--repo {
+  color: #744600;
+  background: #fff0d9;
+  border-color: #d6a45b;
+}
+
+[data-theme="dark"] .api-frequency-mark--total {
+  color: #b7dcff;
+  background: #18334b;
+  border-color: #5487b6;
+}
+
+[data-theme="dark"] .api-frequency-mark--repo {
+  color: #ffdda5;
+  background: #47351e;
+  border-color: #a98045;
+}

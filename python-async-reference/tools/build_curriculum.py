@@ -49,6 +49,9 @@ def validate_plan(curriculum, scope):
             if sources != row["source_lessons"] or len(sources) != len(set(sources)):
                 raise ValueError(f"Invalid sublesson source mapping in lesson {number}")
             earlier_parts = set()
+            part_apis = Counter(name for part in parts for name in part.get('introduces', []))
+            if part_apis != Counter(row['introduces']):
+                raise ValueError(f'Invalid sublesson API mapping in lesson {number}')
             for part in parts:
                 for field in ("title", "question", "takeaway", "check"):
                     if not part[field].strip():
@@ -153,7 +156,8 @@ def render_body(curriculum, manifest, web=False):
                 url = f"/projects/python-async-concurrency/{slug}/" if web else f"../content/projects/python-async-concurrency/{slug}/index.md"
                 sources.append(f"[{titles[slug]}]({url})")
             status = "已有独立学习主线" if row["status"] == "existing" else "规划单元，待从旧课拆分或补写"
-            lines.append(f"- {row['label']}：{status}。材料：" + "、".join(sources) + "。")
+            reference = "材料：" + "、".join(sources) + "。" if sources else "待按本单元问题编写独立材料。"
+            lines.append(f"- {row['label']}：{status}。" + reference)
         lines += ["", "</details>", "", "</details>", ""]
     return "\n".join(lines)
 
@@ -173,7 +177,7 @@ def build_outputs():
         "",
         f"这是课程规划，不是 {len(curriculum['lessons'])} 篇都已编写完成的声明。各单元编写状态见下表。旧版 23 页目录保留历史编号，既有 URL 保留；现行单元号以本课程表为准。",
         "",
-        "输入范围：[82 项 API](current-api-plan.md)；唯一课程数据：[curriculum.json](curriculum.json)。课程按概念递进；每学完一个模块完成对应自查，不要求先记住整张清单。",
+        f"输入范围：[{len(owners)} 项 API](current-api-plan.md)；唯一课程数据：[curriculum.json](curriculum.json)。课程按概念递进；每学完一个模块完成对应自查，不要求先记住整张清单。",
         "",
         "## 阅读与完成规则", "",
         *[f"{i}. {note}" for i, note in enumerate(curriculum["notes"], 1)],
@@ -185,7 +189,9 @@ def build_outputs():
     audit = ["", "## API 到正式讲解单元的检查表", "", "| API | 正式讲解单元 |", "| --- | --- |"]
     for group in scope["api_groups"]:
         for name in group["apis"]:
-            audit.append(f"| `{name}` | {owners[name]:02d} · {curriculum['lessons'][owners[name] - 1]['title']} |")
+            unit = curriculum['lessons'][owners[name] - 1]
+            part = next(part for part in display_lessons(unit) if name in part['introduces'])
+            audit.append(f"| `{name}` | {part['label']} · {part['title']} |")
     audit += ["", "## 语法与异常的检查表", "", "| 类别 | 内容 | 单元 |", "| --- | --- | --- |"]
     for field, label in (("syntax", "语法"), ("exception_types", "异常类型")):
         for name in scope[field]:

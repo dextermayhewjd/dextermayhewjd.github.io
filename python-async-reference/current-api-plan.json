@@ -1,87 +1,314 @@
 {
   "schema_version": 1,
-  "date": "2026-10-13",
-  "scope": "Python 原生异步与并发；当前调用与方法清单，异常类型和语法另列。70%–80% 是选题目标，不是通过删去必要操作保持的上限。",
+  "date": "2026-10-15",
+  "scope": "Python 原生异步与并发；按四库核心包总调用量加权筛选，概念依赖决定顺序；语法与异常引用另列。",
   "api_groups": [
     {
       "id": "entry",
       "title": "协程入口与暂停",
-      "apis": ["asyncio.run", "asyncio.sleep"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-runner.html", "https://docs.python.org/3.16/library/asyncio-task.html#sleeping"]
+      "apis": [
+        "asyncio.run",
+        "asyncio.sleep"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-runner.html",
+        "https://docs.python.org/3.16/library/asyncio-task.html#sleeping"
+      ]
     },
     {
       "id": "tasks",
       "title": "任务安排与结果集合",
-      "apis": ["asyncio.create_task", "asyncio.TaskGroup", "asyncio.TaskGroup.create_task", "asyncio.gather", "asyncio.wait", "asyncio.as_completed"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-task.html"]
+      "apis": [
+        "asyncio.create_task",
+        "asyncio.TaskGroup",
+        "asyncio.TaskGroup.create_task",
+        "asyncio.gather",
+        "asyncio.wait",
+        "asyncio.as_completed"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html"
+      ]
     },
     {
       "id": "task-state",
       "title": "Task/Future 状态与结果",
-      "apis": ["asyncio.Task.done", "asyncio.Task.result", "asyncio.Task.exception", "asyncio.Task.cancel", "asyncio.Future.done", "asyncio.Future.result", "asyncio.Future.exception"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-task.html#task-object", "https://docs.python.org/3.16/library/asyncio-future.html#future-object"]
+      "apis": [
+        "asyncio.Task.done",
+        "asyncio.Task.result",
+        "asyncio.Task.exception",
+        "asyncio.Task.cancel",
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception",
+        "asyncio.Task.add_done_callback",
+        "asyncio.Future.set_result",
+        "asyncio.Future.set_exception"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html#task-object",
+        "https://docs.python.org/3.16/library/asyncio-future.html#future-object"
+      ]
     },
     {
       "id": "timeouts",
       "title": "超时与取消边界",
-      "apis": ["asyncio.wait_for", "asyncio.timeout", "asyncio.shield", "builtins.TimeoutError"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-task.html#timeouts", "https://docs.python.org/3.16/library/asyncio-exceptions.html"]
+      "apis": [
+        "asyncio.wait_for",
+        "asyncio.timeout",
+        "asyncio.shield",
+        "builtins.TimeoutError"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html#timeouts",
+        "https://docs.python.org/3.16/library/asyncio-exceptions.html"
+      ]
     },
     {
       "id": "async-sync",
       "title": "协程限流、同步与队列",
-      "apis": ["asyncio.Semaphore", "asyncio.Semaphore.acquire", "asyncio.Semaphore.release", "asyncio.Queue", "asyncio.Queue.put", "asyncio.Queue.get", "asyncio.Lock", "asyncio.Lock.acquire", "asyncio.Lock.release", "asyncio.Event", "asyncio.Event.set", "asyncio.Event.wait", "asyncio.Event.clear"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-sync.html", "https://docs.python.org/3.16/library/asyncio-queue.html"]
+      "apis": [
+        "asyncio.Semaphore",
+        "asyncio.Semaphore.acquire",
+        "asyncio.Semaphore.release",
+        "asyncio.Queue",
+        "asyncio.Queue.put",
+        "asyncio.Queue.get",
+        "asyncio.Lock",
+        "asyncio.Lock.acquire",
+        "asyncio.Lock.release",
+        "asyncio.Event",
+        "asyncio.Event.set",
+        "asyncio.Event.wait",
+        "asyncio.Event.clear"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-sync.html",
+        "https://docs.python.org/3.16/library/asyncio-queue.html"
+      ]
     },
     {
       "id": "executors",
       "title": "线程池与执行器 Future",
-      "apis": ["asyncio.to_thread", "concurrent.futures.ThreadPoolExecutor", "concurrent.futures.Executor.submit", "concurrent.futures.Executor.shutdown", "concurrent.futures.Future.result", "concurrent.futures.Future.done", "concurrent.futures.Future.exception", "concurrent.futures.Future.cancel"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-task.html#running-in-threads", "https://docs.python.org/3.16/library/concurrent.futures.html"]
+      "apis": [
+        "asyncio.to_thread",
+        "concurrent.futures.ThreadPoolExecutor",
+        "concurrent.futures.Executor.submit",
+        "concurrent.futures.Executor.shutdown",
+        "concurrent.futures.Future.result",
+        "concurrent.futures.Future.done",
+        "concurrent.futures.Future.exception",
+        "concurrent.futures.Future.cancel",
+        "concurrent.futures.Executor.map"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-task.html#running-in-threads",
+        "https://docs.python.org/3.16/library/concurrent.futures.html"
+      ]
     },
     {
       "id": "threads",
       "title": "线程生命周期、同步与交接",
-      "apis": ["threading.Thread", "threading.Thread.start", "threading.Thread.join", "threading.Thread.is_alive", "threading.Lock", "threading.Lock.acquire", "threading.Lock.release", "threading.Event", "threading.Event.set", "threading.Event.wait", "threading.Event.clear", "queue.Queue", "queue.Queue.put", "queue.Queue.get", "queue.Queue.get_nowait"],
-      "urls": ["https://docs.python.org/3.16/library/threading.html", "https://docs.python.org/3.16/library/queue.html"]
+      "apis": [
+        "threading.Thread",
+        "threading.Thread.start",
+        "threading.Thread.join",
+        "threading.Thread.is_alive",
+        "threading.Lock",
+        "threading.Lock.acquire",
+        "threading.Lock.release",
+        "threading.Event",
+        "threading.Event.set",
+        "threading.Event.wait",
+        "threading.Event.clear",
+        "queue.Queue",
+        "queue.Queue.put",
+        "queue.Queue.get",
+        "queue.Queue.get_nowait"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/threading.html",
+        "https://docs.python.org/3.16/library/queue.html"
+      ]
     },
     {
       "id": "context",
       "title": "任务上下文",
-      "apis": ["contextvars.ContextVar", "contextvars.ContextVar.get", "contextvars.ContextVar.set", "contextvars.ContextVar.reset"],
-      "urls": ["https://docs.python.org/3.16/library/contextvars.html"]
+      "apis": [
+        "contextvars.ContextVar",
+        "contextvars.ContextVar.get",
+        "contextvars.ContextVar.set",
+        "contextvars.ContextVar.reset"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/contextvars.html"
+      ]
     },
     {
       "id": "protocols",
       "title": "异步资源、迭代与对象检查",
-      "apis": ["contextlib.asynccontextmanager", "contextlib.aclosing", "inspect.isawaitable", "inspect.iscoroutinefunction"],
-      "urls": ["https://docs.python.org/3.16/library/contextlib.html", "https://docs.python.org/3.16/library/inspect.html"]
+      "apis": [
+        "contextlib.asynccontextmanager",
+        "contextlib.aclosing",
+        "inspect.isawaitable",
+        "inspect.iscoroutinefunction",
+        "contextlib.AsyncExitStack",
+        "contextlib.AsyncExitStack.enter_async_context",
+        "contextlib.AsyncExitStack.push_async_callback",
+        "contextlib.AsyncExitStack.aclose",
+        "contextlib.AsyncExitStack.pop_all"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/contextlib.html",
+        "https://docs.python.org/3.16/library/inspect.html"
+      ]
     },
     {
       "id": "loop-bridge",
       "title": "事件循环与线程交接",
-      "apis": ["asyncio.get_running_loop", "asyncio.AbstractEventLoop.run_in_executor", "asyncio.wrap_future", "asyncio.run_coroutine_threadsafe"],
-      "urls": ["https://docs.python.org/3.16/library/asyncio-eventloop.html", "https://docs.python.org/3.16/library/asyncio-task.html#scheduling-from-other-threads", "https://docs.python.org/3.16/library/asyncio-future.html"]
+      "apis": [
+        "asyncio.get_running_loop",
+        "asyncio.AbstractEventLoop.run_in_executor",
+        "asyncio.wrap_future",
+        "asyncio.run_coroutine_threadsafe",
+        "asyncio.new_event_loop",
+        "asyncio.set_event_loop",
+        "asyncio.AbstractEventLoop.run_until_complete",
+        "asyncio.AbstractEventLoop.close",
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.AbstractEventLoop.time"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/asyncio-eventloop.html",
+        "https://docs.python.org/3.16/library/asyncio-task.html#scheduling-from-other-threads",
+        "https://docs.python.org/3.16/library/asyncio-future.html"
+      ]
     },
     {
       "id": "processes",
       "title": "Python 子进程与外部命令",
-      "apis": ["multiprocessing.Process", "multiprocessing.Process.start", "multiprocessing.Process.is_alive", "multiprocessing.Process.join", "multiprocessing.Process.terminate", "multiprocessing.Process.kill", "subprocess.run", "subprocess.Popen", "subprocess.Popen.communicate", "subprocess.Popen.wait", "subprocess.Popen.terminate", "subprocess.Popen.kill"],
-      "urls": ["https://docs.python.org/3.16/library/multiprocessing.html#process-and-exceptions", "https://docs.python.org/3.16/library/subprocess.html"]
+      "apis": [
+        "multiprocessing.Process",
+        "multiprocessing.Process.start",
+        "multiprocessing.Process.is_alive",
+        "multiprocessing.Process.join",
+        "multiprocessing.Process.terminate",
+        "multiprocessing.Process.kill",
+        "subprocess.run",
+        "subprocess.Popen",
+        "subprocess.Popen.communicate",
+        "subprocess.Popen.wait",
+        "subprocess.Popen.terminate",
+        "subprocess.Popen.kill"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/multiprocessing.html#process-and-exceptions",
+        "https://docs.python.org/3.16/library/subprocess.html"
+      ]
     },
     {
       "id": "time",
       "title": "阻塞等待与经过时间",
-      "apis": ["time.sleep", "time.monotonic", "time.perf_counter"],
-      "urls": ["https://docs.python.org/3.16/library/time.html"]
+      "apis": [
+        "time.sleep",
+        "time.monotonic",
+        "time.perf_counter"
+      ],
+      "urls": [
+        "https://docs.python.org/3.16/library/time.html"
+      ]
     }
   ],
-  "syntax": ["async def", "await", "async with", "async for", "异步生成器中的 yield", "try/finally", "except*"],
-  "exception_types": ["asyncio.CancelledError", "asyncio.InvalidStateError", "concurrent.futures.CancelledError", "concurrent.futures.TimeoutError", "queue.Empty", "queue.Full", "subprocess.TimeoutExpired", "builtins.ExceptionGroup"],
+  "syntax": [
+    "async def",
+    "await",
+    "async with",
+    "async for",
+    "异步生成器中的 yield",
+    "try/finally",
+    "except*"
+  ],
+  "exception_types": [
+    "asyncio.CancelledError",
+    "asyncio.InvalidStateError",
+    "concurrent.futures.CancelledError",
+    "concurrent.futures.TimeoutError",
+    "queue.Empty",
+    "queue.Full",
+    "subprocess.TimeoutExpired",
+    "builtins.ExceptionGroup"
+  ],
   "learning_depth": [
-    "82 项是完整写出的调用/方法名，不是 82 课。相同类的操作按最小概念组织。",
+    "97 项是完整写出的调用/方法名，不是 97 课。41 个主编号保留，新增关系使用子课逐步展开。",
     "run_coroutine_threadsafe、as_completed、shield 均有正式教学单元，按前置分期展开；完成全课时必须覆盖，具体单元见 curriculum.json。",
     "Lock/Semaphore 的 acquire/release 用来解释 async with 或 with 的进入退出，不要求所有主例子手动配对调用。",
-    "CancelledError 等异常按类型和异常传播学习；只出现于 except 或注解的引用不计入调用覆盖。ExceptionGroup 此处只要求读取和捕获，不据此覆盖显式构造调用。"
-  ]
+    "CancelledError 等异常按类型和异常传播学习；只出现于 except 或注解的引用不计入调用覆盖。ExceptionGroup 此处只要求读取和捕获，不据此覆盖显式构造调用。",
+    "六组加权筛选新增 11 项，另加 run_until_complete、close、set_result、set_exception 四项必要配套；原 82 项范围保留为可复算基线。",
+    "AsyncExitStack.pop_all 使用继承方法的真实名字，文档对应 ExitStack.pop_all；不因原报告缺少该映射而漏掉清理责任的转移。"
+  ],
+  "expansion": {
+    "baseline": "api-plan-82.json",
+    "repositories": [
+      "verl",
+      "areal",
+      "slime",
+      "miles"
+    ],
+    "selected_groups": [
+      {
+        "id": "manual-loop",
+        "title": "创建和设置事件循环",
+        "apis": [
+          "asyncio.new_event_loop",
+          "asyncio.set_event_loop"
+        ]
+      },
+      {
+        "id": "exit-stack",
+        "title": "管理多份异步资源与转移清理责任",
+        "apis": [
+          "contextlib.AsyncExitStack",
+          "contextlib.AsyncExitStack.enter_async_context",
+          "contextlib.AsyncExitStack.push_async_callback",
+          "contextlib.AsyncExitStack.aclose",
+          "contextlib.AsyncExitStack.pop_all"
+        ]
+      },
+      {
+        "id": "task-callback",
+        "title": "任务完成后的回调",
+        "apis": [
+          "asyncio.Task.add_done_callback"
+        ]
+      },
+      {
+        "id": "create-future",
+        "title": "创建等待结果的 Future",
+        "apis": [
+          "asyncio.AbstractEventLoop.create_future"
+        ]
+      },
+      {
+        "id": "executor-map",
+        "title": "在线程池中批量提交与取结果",
+        "apis": [
+          "concurrent.futures.Executor.map"
+        ]
+      },
+      {
+        "id": "loop-clock",
+        "title": "读取循环的单调时钟",
+        "apis": [
+          "asyncio.AbstractEventLoop.time"
+        ]
+      }
+    ],
+    "required_companions": [
+      "asyncio.AbstractEventLoop.run_until_complete",
+      "asyncio.AbstractEventLoop.close",
+      "asyncio.Future.set_result",
+      "asyncio.Future.set_exception"
+    ],
+    "reason": "用户确认纳入四库调用量加权筛选的六组接口；运行和关闭事件循环、完成 Future 的结果或异常为必要配套。"
+  }
 }

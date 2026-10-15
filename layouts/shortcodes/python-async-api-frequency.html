@@ -1,0 +1,8 @@
+{{- $path := "python-async-reference/lesson-api-frequency.md" -}}
+{{- if not (fileExists $path) -}}
+  {{- errorf "Missing lesson API frequency: run build_lesson_api_frequency.py" -}}
+{{- else -}}
+  <div class="async-api-frequency">
+    {{ .Page.RenderString (dict "display" "block") (readFile $path) }}
+  </div>
+{{- end -}}

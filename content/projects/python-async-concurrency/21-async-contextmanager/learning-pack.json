@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 95,
+      "endLine": 134,
+      "symbol": "boot_agent_sandbox",
+      "text": "@asynccontextmanager\nasync def boot_agent_sandbox(image: str, instance_id: str) -> AsyncIterator[E2BSandbox]:\n    \"\"\"Boot a fresh E2B sandbox and install the selected harness toolchain.\n\n    Create the sandbox from the dataset image, install Node 22 + the harness CLI\n    from host tarballs, retry transient boot/install failures, and close the\n    sandbox when the caller leaves the context.\n    \"\"\"\n    sb = None\n    last_err: Exception | None = None\n    for attempt in range(CONFIG.boot_retries):\n        cand = E2BSandbox(image)\n        try:\n            async with _BOOT_SEM:\n                await cand.__aenter__()\n                try:\n                    await HARNESS_CLS().install_cli(cand)\n                except BaseException:\n                    await cand.__aexit__(None, None, None)\n                    raise\n            sb = cand\n            break\n        except Exception as e:\n            last_err = e\n            logger.warning(\n                \"[coding_agent_rl] %s: provision attempt %d/%d failed: %s: %s\",\n                instance_id,\n                attempt + 1,\n                CONFIG.boot_retries,\n                type(e).__name__,\n                str(e)[:200],\n            )\n            await asyncio.sleep(1 + attempt + random.random())\n    if sb is None:\n        assert last_err is not None\n        raise last_err\n    try:\n        yield sb\n    finally:\n        await sb.__aexit__(None, None, None)",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    }
+  }
+}

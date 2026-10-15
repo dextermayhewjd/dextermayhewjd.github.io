@@ -245,9 +245,7 @@
       "apis": [
         "asyncio.to_thread"
       ],
-      "methods": [
-        "asyncio.AbstractEventLoop.run_in_executor"
-      ],
+      "methods": [],
       "syntax": [],
       "imports": []
     },
@@ -281,7 +279,7 @@
     {
       "id": "async-context",
       "title": "异步进入、退出与资源回收",
-      "lesson": "10-async-protocols",
+      "lesson": "21-async-contextmanager",
       "anchor": "async-context",
       "apis": [
         "contextlib.asynccontextmanager"
@@ -297,7 +295,7 @@
     {
       "id": "async-iteration",
       "title": "异步迭代与异步生成器",
-      "lesson": "10-async-protocols",
+      "lesson": "22-async-iteration",
       "anchor": "async-iteration",
       "apis": [],
       "methods": [],
@@ -790,7 +788,6 @@
       "lesson": "13-event-loop",
       "anchor": "future-basics",
       "apis": [
-        "asyncio.get_running_loop",
         "asyncio.Future",
         "asyncio.InvalidStateError"
       ],
@@ -1061,6 +1058,32 @@
         "asyncio.Queue.get",
         "asyncio.Queue.join",
         "threading.Thread.join"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "executor-await",
+      "title": "从协程提交到指定线程池并等待结果",
+      "lesson": "33-run-in-executor",
+      "anchor": "executor-await",
+      "apis": [
+        "asyncio.get_running_loop"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.run_in_executor"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "loop-time-budget",
+      "title": "用事件循环时钟计算剩余预算",
+      "lesson": "33-loop-time",
+      "anchor": "loop-time-budget",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.time"
       ],
       "syntax": [],
       "imports": []

@@ -72,7 +72,7 @@ def render(scope, report, inventories):
         "",
         "由 `tools/build_learning_coverage.py` 生成；选题与 API 清单维护在 [learning-scope.json](learning-scope.json)。",
         "",
-        "这是**阶段性选题清单覆盖了多少已识别静态调用位置**，不是课程完成度、运行频率或实际场景覆盖率。核算对应 [learning-plan.md](learning-plan.md) 第 4.2 节；当前具体 API 以 [82 项清单](current-api-plan.md)为准，本页 53 项保留为历史基线。",
+        "这是**阶段性选题清单覆盖了多少已识别静态调用位置**，不是课程完成度、运行频率或实际场景覆盖率。核算对应 [learning-plan.md](learning-plan.md) 第 4.2 节；当前具体 API 以 [当前 API 清单](current-api-plan.md)为准，本页 53 项保留为历史基线。",
         "",
         "## 1. 同一统计口径下的前后变化",
         "",

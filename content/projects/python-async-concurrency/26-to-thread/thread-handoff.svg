@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="644" viewBox="0 0 480 644" role="img" aria-labelledby="title desc">
+  <title id="title">to_thread：主线程与工作线程的分工</title>
+  <desc id="desc">主线程把 get_samples(3) 交给工作线程。等待结果时，exercise 挂起，事件循环仍可运行其他就绪协程。工作线程中的 time.sleep 只阻塞工作线程。函数返回列表后，exercise 在主线程恢复。图示表示工作未完成时的等待过程，两条线程不必严格轮流执行。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="480" height="644" rx="14" fill="#f8fafc"/>
+  <g font-family="system-ui, -apple-system, 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif" text-anchor="middle">
+    <rect x="12" y="12" width="220" height="620" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+    <rect x="248" y="12" width="220" height="620" rx="10" fill="#fff7ed" stroke="#fed7aa"/>
+    <g font-size="21" font-weight="700">
+      <text x="122" y="45" fill="#1e40af">主线程</text>
+      <text x="358" y="45" fill="#9a3412">工作线程</text>
+    </g>
+    <g font-size="16" fill="#475569">
+      <text x="122" y="73">事件循环与 exercise()</text>
+      <text x="358" y="73">执行 get_samples(3)</text>
+    </g>
+    <rect x="24" y="98" width="196" height="70" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <g font-size="17" fill="#1e293b">
+      <text x="122" y="126" font-weight="700">① 来到 await to_thread</text>
+      <text x="122" y="153">提交 get_samples(3)</text>
+    </g>
+    <path d="M 150 197 H 328" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="240" y="187" font-size="15" fill="#475569">交给工作线程</text>
+    <rect x="24" y="225" width="196" height="133" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <rect x="260" y="225" width="196" height="133" rx="8" fill="#fff" stroke="#fdba74"/>
+    <g font-size="17" fill="#1e293b">
+      <text x="122" y="254" font-weight="700">② exercise 等待结果</text>
+      <text x="122" y="282">挂起的是当前协程</text>
+      <text x="122" y="320">若有其他就绪协程</text>
+      <text x="122" y="345">事件循环可继续运行</text>
+      <text x="358" y="254" font-weight="700">执行 get_samples(3)</text>
+      <text x="358" y="286">time.sleep(0.01)</text>
+      <text x="358" y="320">只阻塞此工作线程</text>
+    </g>
+    <path d="M 358 368 V 387" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+    <rect x="260" y="398" width="196" height="53" rx="8" fill="#fff" stroke="#fdba74"/>
+    <text x="358" y="431" font-size="18" font-weight="700" fill="#1e293b">③ 返回 [0, 1, 2]</text>
+    <path d="M 328 484 H 150" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="240" y="474" font-size="15" fill="#475569">结果交回，等待者可恢复</text>
+    <rect x="24" y="510" width="196" height="107" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <g font-size="17" fill="#1e293b">
+      <text x="122" y="539" font-weight="700">④ exercise 恢复</text>
+      <text x="122" y="567">samples = [0, 1, 2]</text>
+      <text x="122" y="595">继续后面的 print</text>
+    </g>
+  </g>
+</svg>

@@ -262,7 +262,7 @@ B cleanup
 
 </details>
 
-下一课会从通知回到资源的使用与退出：**怎样把异步资源的准备、使用和清理组织成一个可复用的作用域？** 见[第 21 单元的 asynccontextmanager 规划](../learning-route/#curriculum-stage-protocols)。
+下一课会从通知回到资源的使用与退出：**怎样把异步资源的准备、使用和清理组织成一个可复用的作用域？** 先从[21.1 · try/finally：分清准备、使用和关闭](../21-resource-lifecycle/)开始。
 
 {{< python-async-slime title="按需阅读：Slime 如何用两个 Event 固定取样与暂停的顺序" >}}
 
@@ -295,4 +295,4 @@ B cleanup
 
 ---
 
-[上一课：19 · asyncio.Lock](../19-async-lock/) · [返回学习路线](../learning-route/)
+[上一课：19 · asyncio.Lock](../19-async-lock/) · [下一节：21.1 · try/finally](../21-resource-lifecycle/) · [返回学习路线](../learning-route/)

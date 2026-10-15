@@ -217,7 +217,8 @@
   margin-top: 0;
 }
 
-.post-content table.async-output-trace {
+.post-content table.async-output-trace,
+.post-content .async-api-reference table {
   display: table;
   width: 100%;
   table-layout: fixed;
@@ -260,27 +261,38 @@
   margin: 8px 0 12px;
 }
 
-:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes) pre {
+:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes, .async-context-lanes) pre {
   margin: 0;
   font-size: 13px;
   line-height: 1.55;
 }
 
-:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes) pre code {
+:is(.async-queue-lanes, .async-lock-lanes, .async-event-lanes, .async-context-lanes) pre code {
   font-size: inherit;
 }
 
-.async-output-trace th:first-child {
+/* Keep horizontal scrolling on the focusable pre for keyboard navigation. */
+.post-content .async-context-lanes pre {
+  overflow-x: auto;
+}
+
+.post-content .async-context-lanes pre code {
+  min-width: max-content;
+  overflow: visible;
+}
+
+.async-output-trace th:first-child,
+.async-api-reference th:first-child {
   width: 24%;
 }
 
-.post-content .async-output-trace :is(th, td) {
+.post-content :is(.async-output-trace, .async-api-reference) :is(th, td) {
   word-break: normal;
   overflow-wrap: anywhere;
   vertical-align: top;
 }
 
-.async-output-trace code {
+:is(.async-output-trace, .async-api-reference) code {
   white-space: normal;
   overflow-wrap: anywhere;
 }
@@ -288,6 +300,10 @@
 @media (max-width: 600px) {
   .async-output-trace th:first-child {
     width: 32%;
+  }
+
+  .async-api-reference th:first-child {
+    width: 48%;
   }
 }
 

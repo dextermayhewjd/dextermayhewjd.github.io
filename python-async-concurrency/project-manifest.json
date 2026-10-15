@@ -598,6 +598,243 @@
           "expected_stdout": "A waiting\nB waiting\nA cleanup\nA cancelled\nB still waiting True\nB continued\nB cleanup\n"
         }
       ]
+    },
+    {
+      "slug": "21-resource-lifecycle",
+      "example": true,
+      "source_count": 0,
+      "number": "21.1",
+      "title": "21.1 · try/finally：分清准备、使用和关闭",
+      "expected_stdout": "boot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n"
+    },
+    {
+      "slug": "21-yield-pause",
+      "example": true,
+      "source_count": 0,
+      "number": "21.2",
+      "title": "21.2 · yield：交出一个值，并暂停在原处",
+      "expected_stdout": "generator created\nbefore yield\nvalue sandbox\nback in caller\n"
+    },
+    {
+      "slug": "21-decorators",
+      "example": true,
+      "source_count": 0,
+      "number": "21.3",
+      "title": "21.3 · @ 装饰器：把函数交给另一个函数处理",
+      "expected_stdout": "decorator received function\nfunction saved\ngreet called\n"
+    },
+    {
+      "number": "21.4",
+      "slug": "21-async-contextmanager",
+      "title": "21.4 · asynccontextmanager：把准备和关闭接到 async with",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "manager created\nboot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n",
+      "additional_examples": [
+        {
+          "file": "manual.py",
+          "scenarios": [
+            "manage the same resource directly with try and finally"
+          ],
+          "expected_stdout": "boot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n"
+        },
+        {
+          "file": "yield_steps.py",
+          "scenarios": [
+            "separate creating a generator from advancing it to yield"
+          ],
+          "expected_stdout": "generator created\nbefore yield\nvalue sandbox\nback in caller\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "finish resource cleanup before propagating a body exception"
+          ],
+          "expected_stdout": "boot demo-image case-error\ninside True\nclosing case-error\nclosed case-error\nerror work failed\noutside False\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "wait for async cleanup after cancellation inside the resource scope"
+          ],
+          "expected_stdout": "boot demo-image case-cancel\ninside True\nclosing case-cancel\nclosed case-cancel\ncancelled after cleanup\n"
+        }
+      ]
+    },
+    {
+      "slug": "21-context-errors",
+      "example": true,
+      "source_count": 0,
+      "number": "21.5",
+      "title": "21.5 · finally：使用区报错后怎样关闭",
+      "expected_stdout": "boot demo-image case-error\ninside True\nclosing case-error\nclosed case-error\nerror work failed\noutside False\n"
+    },
+    {
+      "slug": "21-context-cancellation",
+      "example": true,
+      "source_count": 0,
+      "number": "21.6",
+      "title": "21.6 · Task.cancel：使用区被取消后怎样关闭",
+      "expected_stdout": "boot demo-image case-cancel\ninside True\nclosing case-cancel\nclosed case-cancel\ncancelled after cleanup\n"
+    },
+    {
+      "number": 22,
+      "slug": "22-async-iteration",
+      "title": "22 · async for / 异步生成器：逐项等待异步产出",
+      "example": true,
+      "source_count": 2,
+      "source_repository": "verl",
+      "source_revision": "1d367a4f459a43768f76312c0d3430a99ec46b8c",
+      "source_snapshot_root": "python-async-reference/repositories/verl/source_snapshot",
+      "expected_stdout": "stream created\nsource preparing 10\nsource yield 10\nbody received 10\nbody finished 10\nsource resumed 10\nsource preparing 11\nsource yield 11\nbody received 11\nbody finished 11\nsource resumed 11\nsource exhausted\nloop finished\n",
+      "additional_examples": [
+        {
+          "file": "no_wait.py",
+          "scenarios": [
+            "async for with immediate values does not necessarily suspend the current task"
+          ],
+          "expected_stdout": "item 10\nitem 11\nloop finished\nother task\n"
+        },
+        {
+          "file": "wrong_consumption.py",
+          "scenarios": [
+            "an async generator is neither directly awaitable nor synchronously iterable"
+          ],
+          "expected_stdout": "stream created\nawait stream: TypeError\nfor item in stream: TypeError\n"
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "slug": "26-to-thread",
+      "title": "26 · asyncio.to_thread：把阻塞函数交给线程",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nsamples [0, 1, 2]\nafter await\n"
+    },
+    {
+      "number": 27,
+      "slug": "27-thread-lifecycle",
+      "title": "27 · threading.Thread：创建、启动并等待线程",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before start False\nworker 10\nafter join False\n"
+    },
+    {
+      "number": 28,
+      "slug": "28-thread-lock",
+      "title": "28 · threading.Lock：保护线程共享状态",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "count 2000\n"
+    },
+    {
+      "number": 29,
+      "slug": "29-thread-event",
+      "title": "29 · threading.Event：通知线程合作退出",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "main requests stop\nworker cleanup\njoined False\n",
+      "additional_examples": [
+        {
+          "file": "reset_flag.py",
+          "expected_stdout": "after set True\nafter clear False\n"
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "slug": "30-thread-queue",
+      "title": "30 · queue.Queue：在线程之间交接数据",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "queue full\nreceived 10\nconsumer stopped\nconsumer joined\nqueue empty\n"
+    },
+    {
+      "number": "31.1",
+      "slug": "31-threadpool-submit",
+      "title": "31.1 · ThreadPoolExecutor / submit：把工作提交到线程池",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "first [0, 1, 2]\nsecond [0, 1]\ndone True\nexception None\npool closed\n",
+      "additional_examples": [
+        {
+          "file": "edge_cases.py",
+          "scenarios": [
+            "controlled edge cases behavior"
+          ],
+          "expected_stdout": "done before release False\nwait timed out\nresult after release 10\nresult raised read failed\nstored exception ValueError\n"
+        }
+      ]
+    },
+    {
+      "number": "31.2",
+      "slug": "31-threadpool-map",
+      "title": "31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "finished 11\nfinished 10\nreceived 10\nreceived 11\n",
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "controlled failure behavior"
+          ],
+          "expected_stdout": "received 10\niteration raised failed 11\n"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "slug": "32-threadpool-shutdown",
+      "title": "32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "cancel running False\ncancel queued True\nqueued result cancelled\nrunning result [0, 1, 2]\npool closed\n",
+      "additional_examples": [
+        {
+          "file": "cancel_pending.py",
+          "scenarios": [
+            "controlled cancel pending behavior"
+          ],
+          "expected_stdout": "running done False\nqueued result cancelled\nrunning result [0, 1, 2]\ncleanup finished\n"
+        }
+      ]
+    },
+    {
+      "number": "33.1",
+      "slug": "33-run-in-executor",
+      "title": "33.1 · get_running_loop / run_in_executor：从协程使用指定线程池",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before submit\nwork submitted\nsamples [0, 1, 2]\npool closed\n",
+      "additional_examples": [
+        {
+          "file": "responsive.py",
+          "scenarios": [
+            "await leaves the event loop available to notify the waiting worker"
+          ],
+          "expected_stdout": "before await\nother coroutine ran\nsamples [0, 1, 2]\npool closed\n"
+        }
+      ]
+    },
+    {
+      "number": "33.2",
+      "slug": "33-loop-time",
+      "title": "33.2 · loop.time：用事件循环时钟计算剩余预算",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "start\ndeadline\nnow\nremaining\n",
+      "additional_examples": [
+        {
+          "file": "expired.py",
+          "scenarios": [
+            "reading an expired budget does not cancel the coroutine"
+          ],
+          "expected_stdout": "budget expired True\ncoroutine still running\nskip new work\n"
+        }
+      ],
+      "normalize_clock_seconds": true
     }
   ]
 }
