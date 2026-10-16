@@ -144,6 +144,23 @@ class LessonAPIFrequencyTests(unittest.TestCase):
                          '23–25、33–41')
         self.assertEqual(self.module.format_lesson_ranges([1, 3, 4]), '01、03–04')
 
+    def test_completed_future_unit_links_to_its_first_part(self):
+        rendered = self.module.render()
+        self.assertIn('01–22、25–38 已整理', rendered)
+        self.assertNotIn('35 单元已整理', rendered)
+        table = self.rendered_table()
+        label = next(cell for cell in table.groups[35][0] if 'api-frequency-lesson' in cell['classes'])
+        self.assertNotIn('部分完成', label['text'])
+        self.assertIn('href="/projects/python-async-concurrency/35-future-results/"', rendered)
+
+    def test_completed_loop_unit_links_to_its_first_part(self):
+        rendered = self.module.render()
+        self.assertNotIn('36 单元已整理', rendered)
+        self.assertIn('href="/projects/python-async-concurrency/36-manual-event-loop/"', rendered)
+        table = self.rendered_table()
+        label = next(cell for cell in table.groups[36][0] if 'api-frequency-lesson' in cell['classes'])
+        self.assertNotIn('部分完成', label['text'])
+
     def test_lesson_usage_combines_all_knowledge_points_in_the_lesson(self):
         self.assertTrue(hasattr(self.module, 'lesson_usage'))
         rows = self.module.build_rows()
@@ -272,6 +289,41 @@ async def main():
         self.assertIn('同类占比 ≥ 1%', markdown)
         self.assertIn('单库次数 ≥ 10', markdown)
         self.assertIn('低频不等于不重要', markdown)
+
+    def test_slime_threshold_excludes_four_and_includes_five(self):
+        below = self.module.frequency_marks(dict.fromkeys(self.module.REPOS, 4), 1899)
+        self.assertEqual(below['repo_high'], set())
+        above = self.module.frequency_marks(dict.fromkeys(self.module.REPOS, 5), 1899)
+        self.assertEqual(above['repo_high'], {'slime'})
+        unchanged = self.module.frequency_marks(dict.fromkeys(self.module.REPOS, 10), 1899)
+        self.assertEqual(unchanged['repo_high'], set(self.module.REPOS))
+        self.assertIn('Slime 次数 ≥ 5', self.module.render())
+
+    def test_every_slime_api_and_syntax_count_at_least_five_is_red(self):
+        expected = {row['api']: row for row in self.module.build_rows()}
+        found = set()
+        for rows in self.rendered_table().groups.values():
+            for cells in rows:
+                name_cell = next(c for c in cells if 'api-frequency-api' in c['classes'])
+                name = name_cell['text']
+                repo_cells = [c for c in cells if 'api-frequency-repo' in c['classes']]
+                slime = repo_cells[self.module.REPOS.index('slime')]
+                count = expected[name]['counts']['slime']
+                marked = 'api-frequency-mark--slime' in slime['classes']
+                self.assertEqual(marked, count is not None and count >= 5, name)
+                self.assertEqual(name_cell['attrs'].get('data-slime-high') == 'true', marked, name)
+                self.assertNotIn('api-frequency-mark--repo', slime['classes'], name)
+                for index, cell in enumerate(repo_cells):
+                    if index != self.module.REPOS.index('slime'):
+                        self.assertNotIn('api-frequency-mark--slime', cell['classes'], name)
+                if marked:
+                    found.add(name)
+        self.assertIn('async with', found)
+        self.assertIn('asyncio.run_coroutine_threadsafe', found)
+        self.assertIn('asyncio.wait', found)
+        self.assertIn('contextvars.ContextVar.get', found)
+        self.assertNotIn('contextvars.ContextVar', found)
+        self.assertIn('红色标注', self.module.render())
 
 
 if __name__ == '__main__':

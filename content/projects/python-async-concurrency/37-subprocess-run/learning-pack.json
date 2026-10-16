@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/misc.py",
+      "line": 83,
+      "endLine": 97,
+      "symbol": "exec_command",
+      "text": "        result = subprocess.run(\n            [\"bash\", \"-c\", cmd],\n            shell=False,\n            check=True,\n            capture_output=capture_output,\n            **(dict(text=True) if capture_output else {}),\n        )\n    except subprocess.CalledProcessError as e:\n        if capture_output:\n            print(f\"{e.stdout=} {e.stderr=}\")\n        raise\n\n    if capture_output:\n        print(f\"Captured stdout={result.stdout} stderr={result.stderr}\")\n        return result.stdout",
+      "blobSha256": "6678a7028bc57e9e9191c3657e0ff6b3f5975ab7f720990016d4194578133c6d"
+    }
+  }
+}

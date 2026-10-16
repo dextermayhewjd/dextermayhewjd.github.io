@@ -6,9 +6,17 @@
 {{- $allPaths := slice -}}
 <li><strong class="project-nav__group-label">按学习路线</strong></li>
 {{- range $plan.lessons -}}
-  {{- if eq .status "existing" -}}
+  {{- if in (slice "existing" "partial") .status -}}
     {{- $slugs := first 1 .source_lessons -}}
     {{- if .parts -}}{{- $slugs = .source_lessons -}}{{- end -}}
+    {{- if eq .status "partial" -}}
+      {{- $slugs = slice -}}
+      {{- range .parts -}}
+        {{- if eq .status "existing" -}}
+          {{- range .source_lessons -}}{{- $slugs = $slugs | append . -}}{{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
     {{- $pages := slice -}}
     {{- $groupActive := false -}}
     {{- range $slug := $slugs -}}

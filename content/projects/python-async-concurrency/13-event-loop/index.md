@@ -8,6 +8,8 @@ hideMeta: true
 hideInOverview: true
 ---
 
+当前按小节阅读：[35.1 · asyncio Future 的状态与结果](../35-future-results/)、[35.2 · 创建 Future 并提供结果](../35-future-completion/)、[35.3 · Task 完成回调](../35-task-callbacks/)、[36.1 · 手动管理事件循环](../36-manual-event-loop/)、[36.2 · 跨线程提交协程](../36-threadsafe-submit/)。本页保留旧版综合参考，创建结果、回调和循环管理继续按课程规划拆开。
+
 <span id="future-basics"></span>
 ## await future 到底在等谁
 

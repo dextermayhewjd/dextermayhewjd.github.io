@@ -42,6 +42,12 @@ def validate_plan(curriculum, scope):
                 raise ValueError(f"Empty {field} in lesson {number}")
         if "parts" in row:
             parts = row["parts"]
+            if row["status"] == "partial":
+                states = {part.get("status") for part in parts}
+                if states != {"existing", "planned"}:
+                    raise ValueError(f"Partial unit needs existing and planned sublessons: {number}")
+                if any(part["status"] == "existing" and not part["source_lessons"] for part in parts):
+                    raise ValueError(f"Existing sublesson needs a source page: {number}")
             labels = [f"{number}.{index}" for index in range(1, len(parts) + 1)]
             if len(parts) < 2 or [part["label"] for part in parts] != labels:
                 raise ValueError(f"Invalid sublesson order in lesson {number}")
@@ -100,8 +106,9 @@ def render_body(curriculum, manifest, web=False):
     # Active units use the current curriculum title everywhere in this table.
     titles.update({
         row['source_lessons'][0]: f"{row['label']} · {row['title']}"
-        for unit in curriculum['lessons'] if unit['status'] == 'existing'
+        for unit in curriculum['lessons']
         for row in display_lessons(unit)
+        if row['status'] == 'existing' and row['source_lessons']
     })
     lessons = {row["number"]: row for row in curriculum["lessons"]}
     lines = [

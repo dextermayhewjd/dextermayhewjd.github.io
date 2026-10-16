@@ -48,9 +48,9 @@
 | [跨进程生产消费与结束协议](/projects/python-async-concurrency/18-process-lifecycle/#process-queue) | `multiprocessing.Queue`, `queue.Empty`, `multiprocessing.Queue.put`, `multiprocessing.Queue.get`, `multiprocessing.Queue.empty`, `multiprocessing.Queue.qsize` | 3 |
 | [等待、终止、回收与队列关闭](/projects/python-async-concurrency/18-process-lifecycle/#process-join) | `multiprocessing.Process.join`, `multiprocessing.Process.terminate`, `multiprocessing.Process.kill`, `multiprocessing.Process.close`, `multiprocessing.Queue.close`, `multiprocessing.Queue.join_thread` | 0 |
 | [进程池分派与退出](/projects/python-async-concurrency/18-process-lifecycle/#process-pool) | `multiprocessing.Pool`, `multiprocessing.context.BaseContext.Pool`, `multiprocessing.Pool.starmap`, `multiprocessing.Pool.close`, `multiprocessing.Pool.terminate`, `multiprocessing.Pool.join`, `multiprocessing.Pool.__enter__`, `multiprocessing.Pool.__exit__` | 0 |
-| [子进程通信、超时与回收](/projects/python-async-concurrency/18-process-lifecycle/#subprocess-communicate) | `subprocess.Popen`, `subprocess.TimeoutExpired`, `subprocess`, `subprocess.Popen.communicate`, `subprocess.Popen.poll`, `subprocess.Popen.wait`, `subprocess.Popen.kill`, `subprocess.Popen.terminate` | 52 |
+| [子进程通信、超时与回收](/projects/python-async-concurrency/18-process-lifecycle/#subprocess-communicate) | `subprocess.TimeoutExpired`, `subprocess`, `subprocess.Popen.poll`, `subprocess.Popen.wait`, `subprocess.Popen.kill`, `subprocess.Popen.terminate` | 37 |
 | [捕获、合并与丢弃输出](/projects/python-async-concurrency/18-process-lifecycle/#subprocess-output) | `subprocess.PIPE`, `subprocess.STDOUT`, `subprocess.DEVNULL` | 16 |
-| [同步命令检查与失败状态](/projects/python-async-concurrency/18-process-lifecycle/#subprocess-failure) | `subprocess.run`, `subprocess.check_call`, `subprocess.check_output`, `subprocess.CalledProcessError` | 22 |
+| [同步命令检查与失败状态](/projects/python-async-concurrency/18-process-lifecycle/#subprocess-failure) | `subprocess.check_call`, `subprocess.check_output`, `subprocess.CalledProcessError` | 7 |
 | [跨进程文件锁与目录所有权](/projects/python-async-concurrency/19-signals-locks/#lock-readiness) | `fcntl.flock`, `fcntl.LOCK_EX`, `fcntl.LOCK_NB`, `fcntl.LOCK_SH` | 9 |
 | [管道可读等待与就绪协议](/projects/python-async-concurrency/19-signals-locks/#lock-readiness) | `select.select` | 2 |
 | [进程退出与解锁](/projects/python-async-concurrency/19-signals-locks/#lock-release) | `fcntl.LOCK_UN` | 1 |
@@ -60,26 +60,35 @@
 | [同步工作闹钟与恢复边界](/projects/python-async-concurrency/19-signals-locks/#signal-alarm) | `signal.alarm`, `signal.SIGALRM` | 3 |
 | [同步 shell 调用与退出状态](/projects/python-async-concurrency/19-signals-locks/#shell-boundary) | `os.system` | 4 |
 | [Task、线程、进程和进程组的不同停止责任](/projects/python-async-concurrency/19-signals-locks/#cancellation-boundary) | 源码类型与第三方边界 | 0 |
-| [Future：待完成结果与所属 loop](/projects/python-async-concurrency/13-event-loop/#future-basics) | `asyncio.Future`, `asyncio.InvalidStateError`, `asyncio.AbstractEventLoop.create_future`, `asyncio.Future.result` | 3 |
-| [Future 完成、取消与分批回调](/projects/python-async-concurrency/13-event-loop/#pacer-callbacks) | `asyncio.AbstractEventLoop.call_soon`, `asyncio.AbstractEventLoop.call_later`, `asyncio.Future.done`, `asyncio.Future.set_result`, `asyncio.Future.set_exception`, `asyncio.Future.cancel`, `asyncio.Future.cancelled`, `asyncio.Future.add_done_callback` | 4 |
-| [创建、登记、运行与跨线程提交](/projects/python-async-concurrency/13-event-loop/#event-loop-lifecycle) | `asyncio.AbstractEventLoop`, `asyncio.new_event_loop`, `asyncio.set_event_loop`, `asyncio.run_coroutine_threadsafe`, `asyncio.wrap_future`, `asyncio.AbstractEventLoop.run_forever`, `asyncio.AbstractEventLoop.run_until_complete`, `concurrent.futures.Future.result` | 23 |
-| [事件循环停止、executor 排空与关闭](/projects/python-async-concurrency/13-event-loop/#loop-shutdown) | `asyncio.AbstractEventLoop.call_soon_threadsafe`, `asyncio.AbstractEventLoop.is_running`, `asyncio.AbstractEventLoop.stop`, `asyncio.AbstractEventLoop.close`, `asyncio.AbstractEventLoop.shutdown_default_executor` | 2 |
+| [Future：待完成结果与所属 loop](/projects/python-async-concurrency/13-event-loop/#future-basics) | `asyncio.Future`, `asyncio.InvalidStateError` | 0 |
+| [Future 完成、取消与分批回调](/projects/python-async-concurrency/13-event-loop/#pacer-callbacks) | `asyncio.AbstractEventLoop.call_soon`, `asyncio.AbstractEventLoop.call_later`, `asyncio.Future.cancel`, `asyncio.Future.cancelled`, `asyncio.Future.add_done_callback` | 2 |
+| [创建、登记、运行与跨线程提交](/projects/python-async-concurrency/13-event-loop/#event-loop-lifecycle) | `asyncio.AbstractEventLoop`, `concurrent.futures.Future.result` | 1 |
+| [事件循环停止、executor 排空与关闭](/projects/python-async-concurrency/13-event-loop/#loop-shutdown) | `asyncio.AbstractEventLoop.is_running`, `asyncio.AbstractEventLoop.shutdown_default_executor` | 1 |
 | [Task 的状态、返回值与异常](/projects/python-async-concurrency/07-task-results/#task-results) | `asyncio.Task.done`, `asyncio.Task.result`, `asyncio.Task.exception` | 7 |
-| [Task 身份、归属与完成读取](/projects/python-async-concurrency/13-event-loop/#task-inspection) | `asyncio.current_task`, `asyncio.all_tasks`, `asyncio.Task`, `asyncio.Task.cancelled`, `asyncio.Task.get_loop`, `asyncio.Task.add_done_callback` | 5 |
+| [Task 身份、归属与完成读取](/projects/python-async-concurrency/13-event-loop/#task-inspection) | `asyncio.current_task`, `asyncio.all_tasks`, `asyncio.Task`, `asyncio.Task.cancelled`, `asyncio.Task.get_loop` | 4 |
 | [手动 loop 的异步生成器兜底清理](/projects/python-async-concurrency/13-event-loop/#lifecycle-lab) | `asyncio.AbstractEventLoop.shutdown_asyncgens` | 0 |
 | [创建本地监听与流式连接](/projects/python-async-concurrency/20-async-streams/#start-server) | `asyncio.start_server`, `asyncio.open_connection`, `asyncio.Server`, `asyncio.StreamReader`, `asyncio.StreamWriter` | 1 |
 | [流式读取与协议分帧](/projects/python-async-concurrency/20-async-streams/#stream-reader) | `asyncio.LimitOverrunError`, `asyncio.StreamReader.read`, `asyncio.StreamReader.readline`, `asyncio.StreamReader.readuntil`, `asyncio.StreamReader.readexactly` | 0 |
 | [提前 EOF 的部分数据与期待长度](/projects/python-async-concurrency/20-async-streams/#incomplete-read) | `asyncio.IncompleteReadError` | 1 |
 | [写入流量控制与连接关闭](/projects/python-async-concurrency/20-async-streams/#stream-writer) | `asyncio.StreamWriter.write`, `asyncio.StreamWriter.drain`, `asyncio.StreamWriter.close`, `asyncio.StreamWriter.wait_closed` | 0 |
 | [监听器与连接任务的独立收尾](/projects/python-async-concurrency/20-async-streams/#server-lifecycle) | `asyncio.Server.is_serving`, `asyncio.Server.serve_forever`, `asyncio.Server.close`, `asyncio.Server.wait_closed` | 0 |
-| [调用后检查返回对象能否 await](/projects/python-async-concurrency/21-async-inspection/#isawaitable) | `inspect.isawaitable` | 3 |
-| [装饰时判断协程函数并选择 wrapper](/projects/python-async-concurrency/21-async-inspection/#iscoroutinefunction) | `inspect.iscoroutinefunction` | 1 |
+| [调用后检查返回对象能否 await](/projects/python-async-concurrency/25-inspect-awaitable/#isawaitable) | `inspect.isawaitable` | 3 |
+| [装饰时判断协程函数并选择 wrapper](/projects/python-async-concurrency/25-inspect-awaitable/#iscoroutinefunction) | `inspect.iscoroutinefunction` | 1 |
 | [Awaitable 和 AsyncIterator 注解契约](/projects/python-async-concurrency/21-async-inspection/#async-type-annotations) | `collections.abc.Awaitable`, `collections.abc.AsyncIterator` | 7 |
 | [上下文与迭代的异步协议入口](/projects/python-async-concurrency/21-async-inspection/#async-protocol-methods) | `builtins.StopAsyncIteration`, `contextlib.AbstractAsyncContextManager.__aenter__`, `contextlib.AbstractAsyncContextManager.__aexit__`, `collections.abc.AsyncIterable.__aiter__`, `collections.abc.AsyncIterator.__anext__`, `async_protocol_def` | 0 |
 | [提前退出异步生成器时显式关闭](/projects/python-async-concurrency/21-async-inspection/#async-generator-cleanup) | `contextlib.aclosing`, `collections.abc.AsyncGenerator.aclose` | 0 |
 | [同名方法与原生接收者证据边界](/projects/python-async-concurrency/21-async-inspection/#object-method-boundaries) | `dict.get`, `str.join`, `queue.Queue.get`, `queue.Queue.join`, `asyncio.Queue.get`, `asyncio.Queue.join`, `threading.Thread.join` | 670 |
-| [从协程提交到指定线程池并等待结果](/projects/python-async-concurrency/33-run-in-executor/#executor-await) | `asyncio.get_running_loop`, `asyncio.AbstractEventLoop.run_in_executor` | 11 |
+| [从协程提交到指定线程池并等待结果](/projects/python-async-concurrency/33-run-in-executor/#executor-await) | `asyncio.AbstractEventLoop.run_in_executor` | 1 |
 | [用事件循环时钟计算剩余预算](/projects/python-async-concurrency/33-loop-time/#loop-time-budget) | `asyncio.AbstractEventLoop.time` | 0 |
+| [取得正在使用的事件循环](/projects/python-async-concurrency/33-current-loop/#running-loop) | `asyncio.get_running_loop` | 10 |
+| [将已有执行器 Future 接入协程等待](/projects/python-async-concurrency/34-wrap-future/#wrap-future) | `asyncio.wrap_future` | 5 |
+| [运行外部程序并等待退出结果](/projects/python-async-concurrency/37-subprocess-run/#subprocess-run) | `subprocess.run` | 15 |
+| [启动子进程后收集输出并等待退出](/projects/python-async-concurrency/38-popen-communicate/#popen-communicate) | `subprocess.Popen`, `subprocess.Popen.communicate` | 15 |
+| [读取 asyncio Future 的状态、结果与异常](/projects/python-async-concurrency/35-future-results/#asyncio-future-results) | `asyncio.Future.done`, `asyncio.Future.result`, `asyncio.Future.exception` | 0 |
+| [创建 asyncio Future 并写入结果或异常](/projects/python-async-concurrency/35-future-completion/#future-completion) | `asyncio.AbstractEventLoop.create_future`, `asyncio.Future.set_result`, `asyncio.Future.set_exception` | 5 |
+| [Task 完成后调用函数处理结果](/projects/python-async-concurrency/35-task-callbacks/#task-done-callback) | `asyncio.Task.add_done_callback` | 1 |
+| [创建、关联、运行和关闭事件循环](/projects/python-async-concurrency/36-manual-event-loop/#manual-event-loop) | `asyncio.new_event_loop`, `asyncio.set_event_loop`, `asyncio.AbstractEventLoop.run_until_complete`, `asyncio.AbstractEventLoop.close`, `asyncio.AbstractEventLoop.run_forever`, `asyncio.AbstractEventLoop.stop` | 8 |
+| [从另一线程向循环提交协程或回调](/projects/python-async-concurrency/36-threadsafe-submit/#threadsafe-submit) | `asyncio.run_coroutine_threadsafe`, `asyncio.AbstractEventLoop.call_soon_threadsafe` | 10 |
 
 ## 原始记录
 

@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/async_utils.py",
+      "line": 46,
+      "endLine": 54,
+      "symbol": "AsyncLoopThread",
+      "text": "class AsyncLoopThread:\n    def __init__(self):\n        self.loop = asyncio.new_event_loop()\n        self._thread = threading.Thread(target=self._start_loop, daemon=True)\n        self._thread.start()\n\n    def _start_loop(self):\n        asyncio.set_event_loop(self.loop)\n        self.loop.run_forever()",
+      "blobSha256": "09a9e7c89b78f66758a9dc23a9ce9523f06a73b1956ab6341522cafe1725f159"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/agent/aiohttp_threaded.py",
+      "line": 65,
+      "endLine": 72,
+      "symbol": "run_app_in_thread._run",
+      "text": "    def _run() -> None:\n        loop = asyncio.new_event_loop()\n        asyncio.set_event_loop(loop)\n        try:\n            runner = web.AppRunner(app, **(runner_kwargs or {}))\n            loop.run_until_complete(runner.setup())\n            site = web.TCPSite(runner, host, port)\n            loop.run_until_complete(site.start())",
+      "blobSha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268"
+    }
+  }
+}

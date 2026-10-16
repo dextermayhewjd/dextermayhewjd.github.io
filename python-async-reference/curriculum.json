@@ -4,7 +4,7 @@
   "status": "curriculum-plan",
   "target_api_count": 97,
   "notes": [
-    "01–22、26–33 已整理为独立阅读内容；23–25、34–41 继续按规划补写，不表示全课已完成。",
+    "01–22、25–35、37–38 已整理；36 单元已完成 36.1，36.2 待编写；23–24、39–41 继续按规划补写，不表示全课已完成。",
     "现行编号按确认后的概念依赖排序；10、11、21、23、31、33、35、36 使用独立子课逐步展开。既有页面 URL 和旧版 23 页目录的历史编号保留，不能按 URL 数字推断新课号。",
     "每个 API 有一个正式引入单元；后面的复用与回访不重复计数。",
     "完成整套课程时覆盖全部 97 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。原 82 项作为历史基线保留，清单外内容仍按需。"
@@ -914,21 +914,20 @@
         "inspect.iscoroutinefunction"
       ],
       "depends_on": [
-        2,
-        22
+        2
       ],
       "takeaway": "函数形状与返回对象是不同证据；isawaitable 检查对象，不执行它。",
       "check": "对比 async def、普通值和普通函数返回协程三种情况。",
       "source_lessons": [
-        "21-async-inspection"
+        "25-inspect-awaitable"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
       "prerequisite_notes": [
-        "Awaitable/AsyncIterator 注解仅按需说明，注解不会执行或验证对象。"
+        "先区分函数、函数调用产生的对象和 await 后取得的值；类型注解、异步协议与装饰器实现留在各自单元。"
       ],
-      "status": "planned"
+      "status": "existing"
     },
     {
       "number": 26,
@@ -1176,34 +1175,62 @@
         "asyncio.AbstractEventLoop.time"
       ],
       "depends_on": [
+        3,
+        9,
         14,
         26,
+        29,
         31
       ],
-      "takeaway": "先用 run_in_executor 提交同步工作并 await 结果，再用同一循环的 time 读数计算截止位置与剩余预算。",
+      "takeaway": "依次取出已有循环、提交并 await 指定线程池工作、验证等待时的协程切换，再用循环时钟计算剩余预算。",
       "check": "分别完成各子课的预测与责任检查，不把多个新关系合并成一个例子。",
       "source_lessons": [
+        "33-current-loop",
         "33-run-in-executor",
+        "33-await-handoff",
         "33-loop-time"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
-      "prerequisite_notes": [],
+      "prerequisite_notes": [
+        "复用前 31 课已讲过的协程、调度、线程池、Future 与通知。33.1 只认识循环对象；Event 实验独立放在 33.3；时钟计算在 33.4 回接第 14 课。"
+      ],
       "status": "existing",
       "parts": [
         {
-          "title": "get_running_loop / run_in_executor：从协程使用指定线程池",
-          "question": "已经选定线程池，怎样提交并用 await 等结果？",
-          "takeaway": "从当前运行循环提交执行器工作，得到可 await 的 asyncio Future。",
-          "check": "标出同步函数运行位置和等待者恢复位置。",
+          "label": "33.1",
+          "title": "get_running_loop：取出正在使用的事件循环",
+          "question": "已经在协程里面，怎样取得第 03 课已经认识的当前事件循环？",
+          "takeaway": "get_running_loop 取得当前正在运行的循环对象，不创建新循环或线程。",
+          "check": "说明 run 与 get_running_loop 的职责，预测两次取循环是否得到同一对象。",
           "introduces": [
-            "asyncio.get_running_loop",
+            "asyncio.get_running_loop"
+          ],
+          "depends_on": [
+            3
+          ],
+          "source_lessons": [
+            "33-current-loop"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": []
+        },
+        {
+          "label": "33.2",
+          "title": "run_in_executor / await：提交到指定线程池并等待结果",
+          "question": "已经选定线程池，怎样让协程用 await 等待同步函数的结果？",
+          "takeaway": "run_in_executor 调用时提交同步函数，返回 asyncio Future；await 等待并取得同一次调用的结果。",
+          "check": "指出 reader、loop、同步函数、协程与 Future 各自的职责和执行位置。",
+          "introduces": [
             "asyncio.AbstractEventLoop.run_in_executor"
           ],
           "depends_on": [
             26,
-            31
+            31,
+            "33.1"
           ],
           "source_lessons": [
             "33-run-in-executor"
@@ -1211,16 +1238,35 @@
           "syntax": [],
           "exception_types": [],
           "revisits": [],
-          "prerequisite_notes": [
-            "主例子回接 26 与 31.1；独立的调度实验复用第 29 课 Event，不把通知对象当作提交工作的必要条件。"
-          ],
-          "label": "33.1"
+          "prerequisite_notes": []
         },
         {
+          "label": "33.3",
+          "title": "await / Event：等待线程时，让其他协程继续",
+          "question": "取样本尚未完成时，怎样让同一事件循环中的另一份协程继续运行，并验证这一点？",
+          "takeaway": "工作线程等 Event 通知，get_samples_async 等函数结果；await 未完成结果时可以让其他就绪协程运行。",
+          "check": "区分通知、工作线程返回、等待者恢复，并说明只有一个工作线程为什么仍能运行通知协程。",
+          "introduces": [],
+          "depends_on": [
+            3,
+            9,
+            29,
+            "33.2"
+          ],
+          "source_lessons": [
+            "33-await-handoff"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": []
+        },
+        {
+          "label": "33.4",
           "title": "loop.time：用事件循环时钟计算剩余预算",
-          "question": "预算直接交给事件循环接口时，应使用哪一个时钟？",
-          "takeaway": "loop.time 提供当前循环的单调时钟读数；在同一时钟上计算截止时间与剩余预算。",
-          "check": "计算 deadline 和剩余预算，指出不能直接用墙钟时间替代的原因。",
+          "question": "怎样把第 14 课的截止读数与剩余预算计算用到当前循环时钟上？",
+          "takeaway": "loop.time 提供当前循环的单调时钟读数；同一预算使用同一时钟，读时间不会自动取消任务。",
+          "check": "计算 deadline 和 remaining，区分时钟读数与等待时限。",
           "introduces": [
             "asyncio.AbstractEventLoop.time"
           ],
@@ -1234,8 +1280,7 @@
           "syntax": [],
           "exception_types": [],
           "revisits": [],
-          "prerequisite_notes": [],
-          "label": "33.2"
+          "prerequisite_notes": []
         }
       ],
       "navigation_group": "run_in_executor / time：使用当前事件循环"
@@ -1254,18 +1299,20 @@
       "takeaway": "wrap_future 将执行器 Future 衔接为当前循环可等待的 Future，不重新提交工作。",
       "check": "证明被包装的工作只提交一次，并区分两类 Future。",
       "source_lessons": [
-        "13-event-loop"
+        "34-wrap-future"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
-      "prerequisite_notes": [],
-      "status": "planned"
+      "prerequisite_notes": [
+        "复用第 31 课的 submit 和第 33 课的 await 等待；本节只连接两类 Future，不提前展开手动写入结果与回调。"
+      ],
+      "status": "existing"
     },
     {
       "number": 35,
       "title": "asyncio.Future / Task.add_done_callback：读取、完成与响应结果",
-      "question": "协程接口给回一个 Future 时，怎样判断与读取？；结果将由别处提供，怎样先让协程等待，再写入成功值或异常？；后台任务结束时，怎样清理任务集合或检查异常而不逐个等待？",
+      "question": "协程接口给回一个 Future 时，怎样判断与读取？；读取结果之前，怎样创建 Future 并写入成功值或失败异常？；Task 结束后，怎样自动调用一个函数处理结果？",
       "introduces": [
         "asyncio.Future.done",
         "asyncio.Future.result",
@@ -1280,10 +1327,12 @@
         33,
         34
       ],
-      "takeaway": "按子课依次掌握：asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。；create_future 创建绑定当前循环的等待结果对象；set_result 或 set_exception 完成它，Future 本身不执行协程。；add_done_callback 注册完成后由循环安排的普通回调；回调接收 Task，并应处理其成功、失败或取消状态。",
+      "takeaway": "按子课依次掌握：asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。；create_future 创建尚未完成的 Future；set_result 或 set_exception 完成它，已完成的 Future 在 await 时直接给出结果或抛出异常。；add_done_callback 注册完成后由循环安排的普通回调；回调接收 Task，并应处理其成功、失败或取消状态。",
       "check": "分别完成各子课的预测与责任检查，不把多个新关系合并成一个例子。",
       "source_lessons": [
-        "13-event-loop"
+        "35-future-results",
+        "35-future-completion",
+        "35-task-callbacks"
       ],
       "syntax": [],
       "exception_types": [
@@ -1291,7 +1340,7 @@
       ],
       "revisits": [],
       "prerequisite_notes": [],
-      "status": "planned",
+      "status": "existing",
       "parts": [
         {
           "title": "Future.done() / result() / exception()：读取 asyncio Future 的结果",
@@ -1309,57 +1358,71 @@
             34
           ],
           "source_lessons": [
-            "13-event-loop"
+            "35-future-results"
           ],
           "syntax": [],
           "exception_types": [],
           "revisits": [],
           "prerequisite_notes": [],
-          "label": "35.1"
+          "label": "35.1",
+          "status": "existing"
         },
         {
-          "title": "loop.create_future / Future.set_result / set_exception：创建并完成一个等待结果",
-          "question": "结果将由别处提供，怎样先让协程等待，再写入成功值或异常？",
-          "takeaway": "create_future 创建绑定当前循环的等待结果对象；set_result 或 set_exception 完成它，Future 本身不执行协程。",
-          "check": "分别让等待者收到值与异常，并解释重复完成为何出错。",
+          "title": "loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果",
+          "question": "读取结果之前，怎样创建 Future 并写入成功值或失败异常？",
+          "takeaway": "create_future 创建尚未完成的 Future；set_result 或 set_exception 完成它，已完成的 Future 在 await 时直接给出结果或抛出异常。",
+          "check": "说明创建、写入和读取是怎样操作同一个 Future 的；解释本例的 await 为什么不挂起，以及为何不能重复完成。",
           "introduces": [
             "asyncio.AbstractEventLoop.create_future",
             "asyncio.Future.set_result",
             "asyncio.Future.set_exception"
           ],
           "depends_on": [
+            33,
             "35.1"
           ],
-          "source_lessons": [],
+          "source_lessons": [
+            "35-future-completion"
+          ],
           "syntax": [],
           "exception_types": [
             "asyncio.InvalidStateError"
           ],
           "revisits": [],
-          "prerequisite_notes": [],
-          "label": "35.2"
+          "prerequisite_notes": [
+            "先用顺序例子认识 Future 自身，不同时引入提供者 Task；等待未完成 Future 与另一处写入的交接留到后续回调和源码串联。"
+          ],
+          "label": "35.2",
+          "status": "existing"
         },
         {
           "title": "Task.add_done_callback：任务完成后安排回调",
-          "question": "后台任务结束时，怎样清理任务集合或检查异常而不逐个等待？",
+          "question": "Task 结束后，怎样自动调用一个函数处理结果？",
           "takeaway": "add_done_callback 注册完成后由循环安排的普通回调；回调接收 Task，并应处理其成功、失败或取消状态。",
           "check": "区分回调注册、任务完成、回调执行三个时刻；检查回调能否直接使用 async def。",
           "introduces": [
             "asyncio.Task.add_done_callback"
           ],
           "depends_on": [
+            3,
             8,
             9,
             "35.2"
           ],
-          "source_lessons": [],
+          "source_lessons": [
+            "35-task-callbacks"
+          ],
           "syntax": [],
           "exception_types": [],
           "revisits": [],
-          "prerequisite_notes": [],
-          "label": "35.3"
+          "prerequisite_notes": [
+            "只新增完成回调这一关系；主例子保持一个 Task 和一个普通回调，失败与取消复用第 08、09 课。"
+          ],
+          "label": "35.3",
+          "status": "existing"
         }
-      ]
+      ],
+      "navigation_group": "Future / Task：结果与完成回调"
     },
     {
       "number": 36,
@@ -1379,18 +1442,19 @@
         33,
         35
       ],
-      "takeaway": "按子课依次掌握：创建循环、设置线程关联、驱动协程和关闭循环是不同操作；关闭前需等完自己创建的工作。；跨线程提交返回执行器 Future；事件循环线程不能阻塞等待自己才能完成的工作。",
+      "takeaway": "按子课依次掌握：创建循环、设置线程关联、驱动协程和关闭循环是不同操作；关闭前需等完自己创建的工作。；跨线程提交返回 concurrent.futures.Future；事件循环线程不能阻塞等待自己才能完成的工作。",
       "check": "分别完成各子课的预测与责任检查，不把多个新关系合并成一个例子。",
       "source_lessons": [
-        "13-event-loop"
+        "36-manual-event-loop",
+        "36-threadsafe-submit"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
       "prerequisite_notes": [
-        "36.1 正式引入循环的创建、线程关联、一次运行与关闭；36.2 再解释跨线程提交。run_forever、stop 和循环策略仍留在清单外。"
+        "36.1 正式引入循环的创建、线程关联、一次运行与关闭；36.2 再解释跨线程提交。Slime 相关的 run_forever、stop、call_soon_threadsafe 作为配套短补，仍不计入原 97 项正式 API，不扩展循环策略。"
       ],
-      "status": "planned",
+      "status": "existing",
       "parts": [
         {
           "title": "new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环",
@@ -1404,44 +1468,51 @@
             "asyncio.AbstractEventLoop.close"
           ],
           "depends_on": [
-            27,
-            29,
-            31,
-            33,
-            35
+            1,
+            2,
+            9,
+            33
           ],
-          "source_lessons": [],
+          "source_lessons": [
+            "36-manual-event-loop"
+          ],
           "syntax": [],
           "exception_types": [],
           "revisits": [],
           "prerequisite_notes": [
-            "只展开一次 run_until_complete 与关闭的最小生命周期；run_forever、stop 和循环策略仍不自动扩入清单。"
+            "先用一次 run_until_complete 与关闭的最小生命周期；随后对照 Slime 的 AsyncLoopThread 短补 run_forever / stop，分清运行一次与保持循环运行。"
           ],
-          "label": "36.1"
+          "label": "36.1",
+          "status": "existing"
         },
         {
           "title": "asyncio.run_coroutine_threadsafe：从另一个线程提交协程",
           "question": "同步线程怎样把协程交给正在运行的事件循环？",
-          "takeaway": "跨线程提交返回执行器 Future；事件循环线程不能阻塞等待自己才能完成的工作。",
+          "takeaway": "跨线程提交返回 concurrent.futures.Future；事件循环线程不能阻塞等待自己才能完成的工作。",
           "check": "画出提交线程、循环线程与结果返回的方向，排除循环等待。",
           "introduces": [
             "asyncio.run_coroutine_threadsafe"
           ],
           "depends_on": [
+            26,
+            31,
+            33,
             "36.1"
           ],
           "source_lessons": [
-            "13-event-loop"
+            "36-threadsafe-submit"
           ],
           "syntax": [],
           "exception_types": [],
           "revisits": [],
           "prerequisite_notes": [
-            "先用 asyncio.run 持有目标循环，复用上一子课中循环与线程关联的认识；不额外引入常驻循环的新生命周期。"
+            "先用 asyncio.run 持有目标循环，复用上一子课的线程关联；再对照 Slime 的常驻循环与 call_soon_threadsafe 停止通知。"
           ],
-          "label": "36.2"
+          "label": "36.2",
+          "status": "existing"
         }
-      ]
+      ],
+      "navigation_group": "事件循环：运行与跨线程提交"
     },
     {
       "number": 37,
@@ -1457,14 +1528,15 @@
       "takeaway": "run 等待外部程序结束；它是同步接口，需要注意调用线程。",
       "check": "指出外部进程与当前 Python 线程的不同，并读取退出结果。",
       "source_lessons": [
-        "12-processes",
-        "18-process-lifecycle"
+        "37-subprocess-run"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
-      "prerequisite_notes": [],
-      "status": "planned"
+      "prerequisite_notes": [
+        "复用第 27 课的启动与等待区别；第 32 课尚未展开时，只短补“启动不等于结束，需要等待收尾”，不提前要求学习线程池取消。"
+      ],
+      "status": "existing"
     },
     {
       "number": 38,
@@ -1480,13 +1552,15 @@
       "takeaway": "Popen 创建进程后返回句柄，communicate 处理管道通信并等待结束。",
       "check": "说明为什么带管道时不能只等退出而不消费输出。",
       "source_lessons": [
-        "18-process-lifecycle"
+        "38-popen-communicate"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
-      "prerequisite_notes": [],
-      "status": "planned"
+      "prerequisite_notes": [
+        "沿用第 37 课的同一子程序，只拆开启动和收集；先认识管道，再说明 communicate 的同步等待。"
+      ],
+      "status": "existing"
     },
     {
       "number": 39,

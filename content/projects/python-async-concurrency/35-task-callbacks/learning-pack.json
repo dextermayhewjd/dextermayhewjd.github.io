@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 217,
+      "endLine": 218,
+      "symbol": "AsyncRolloutWorker._loop",
+      "text": "                        task.add_done_callback(self._make_done_cb(gid))\n                        active_tasks.add(task)",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 241,
+      "endLine": 249,
+      "symbol": "AsyncRolloutWorker._make_done_cb",
+      "text": "    def _make_done_cb(self, gid: int):\n        def _cb(done_task: asyncio.Task) -> None:\n            try:\n                result = done_task.result()\n            except asyncio.CancelledError:\n                return\n            except Exception as error:\n                self.error = error\n                return",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    }
+  }
+}

@@ -161,7 +161,9 @@ class PythonAsyncCurriculum(unittest.TestCase):
             'contextlib.AsyncExitStack': '23.2',
             'contextlib.AsyncExitStack.pop_all': '23.3',
             'concurrent.futures.Executor.map': '31.2',
-            'asyncio.AbstractEventLoop.time': '33.2',
+            'asyncio.get_running_loop': '33.1',
+            'asyncio.AbstractEventLoop.run_in_executor': '33.2',
+            'asyncio.AbstractEventLoop.time': '33.4',
             'asyncio.AbstractEventLoop.create_future': '35.2',
             'asyncio.Future.set_result': '35.2',
             'asyncio.Future.set_exception': '35.2',
@@ -175,9 +177,41 @@ class PythonAsyncCurriculum(unittest.TestCase):
                   for part in CURRICULUM.display_lessons(unit) for api in part['introduces']}
         for api, label in expected.items():
             self.assertEqual(owners.get(api), label, api)
-        ready = set(range(1, 23)) | set(range(26, 34))
+        ready = set(range(1, 23)) | set(range(25, 39))
         for unit in self.plan['lessons']:
-            self.assertEqual(unit['status'], 'existing' if unit['number'] in ready else 'planned')
+            expected_status = 'existing' if unit['number'] in ready else 'planned'
+            self.assertEqual(unit['status'], expected_status)
+
+    def test_future_unit_keeps_three_published_sublessons(self):
+        unit = self.plan['lessons'][34]
+        parts = CURRICULUM.display_lessons(unit)
+        slugs = ['35-future-results', '35-future-completion', '35-task-callbacks']
+        self.assertEqual(unit['status'], 'existing')
+        self.assertEqual([part['status'] for part in parts], ['existing'] * 3)
+        self.assertEqual([part['source_lessons'] for part in parts], [[slug] for slug in slugs])
+        self.assertEqual(unit['source_lessons'], slugs)
+
+    def test_loop_unit_keeps_two_published_sublessons(self):
+        unit = self.plan['lessons'][35]
+        parts = CURRICULUM.display_lessons(unit)
+        slugs = ['36-manual-event-loop', '36-threadsafe-submit']
+        self.assertEqual(unit['status'], 'existing')
+        self.assertEqual([p['status'] for p in parts], ['existing', 'existing'])
+        self.assertEqual([p['source_lessons'] for p in parts], [[slug] for slug in slugs])
+        self.assertEqual(unit['source_lessons'], slugs)
+
+    def test_partial_unit_requires_existing_and_planned_sublessons(self):
+        plan = deepcopy(self.plan)
+        unit = plan['lessons'][34]
+        unit['status'] = 'partial'
+        unit['parts'][2]['status'] = 'planned'
+        unit['parts'][2]['source_lessons'] = []
+        unit['source_lessons'] = unit['source_lessons'][:2]
+        CURRICULUM.validate_plan(plan, self.scope)
+        for part in unit['parts']:
+            part['status'] = 'planned'
+        with self.assertRaisesRegex(ValueError, 'Partial unit'):
+            CURRICULUM.validate_plan(plan, self.scope)
 
     def test_sublesson_api_ownership_must_be_complete_and_unique(self):
         plan = deepcopy(self.plan)

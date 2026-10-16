@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sample_hooks.py",
+      "line": 40,
+      "endLine": 42,
+      "symbol": "_apply_to_sample",
+      "text": "        result = hook(args, sample, **_accepted_kwargs(hook, kwargs))\n        if inspect.isawaitable(result):\n            result = await result",
+      "blobSha256": "9c50150facc91013e45335e360cff8e27d4a9987fa80094b9c0eaddd2b9f6bfb"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/observability/trace_utils.py",
+      "line": 460,
+      "endLine": 463,
+      "symbol": "trace_function",
+      "text": "        if inspect.iscoroutinefunction(fn):\n\n            @functools.wraps(fn)\n            async def async_wrapper(*args, **kwargs):",
+      "blobSha256": "c626d3f57829db2f65befe6af8fb82ffd94aaa17090a0c6a2e443e3a3814a3ed"
+    }
+  }
+}

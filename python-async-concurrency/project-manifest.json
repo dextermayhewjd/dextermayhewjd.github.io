@@ -705,6 +705,14 @@
       ]
     },
     {
+      "number": 25,
+      "slug": "25-inspect-awaitable",
+      "title": "25 · inspect.isawaitable / inspect.iscoroutinefunction：辨认函数与可等待对象",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "sync function False\nsync awaitable False\nsync samples [0, 1, 2]\nasync function True\nasync awaitable True\nasync samples [0, 1, 2]\nlater function False\nlater awaitable True\nlater samples [0, 1, 2]\n"
+    },
+    {
       "number": 26,
       "slug": "26-to-thread",
       "title": "26 · asyncio.to_thread：把阻塞函数交给线程",
@@ -803,25 +811,32 @@
     },
     {
       "number": "33.1",
-      "slug": "33-run-in-executor",
-      "title": "33.1 · get_running_loop / run_in_executor：从协程使用指定线程池",
+      "slug": "33-current-loop",
+      "title": "33.1 · get_running_loop：取出正在使用的事件循环",
       "example": true,
-      "source_count": 1,
-      "expected_stdout": "before submit\nwork submitted\nsamples [0, 1, 2]\npool closed\n",
-      "additional_examples": [
-        {
-          "file": "responsive.py",
-          "scenarios": [
-            "await leaves the event loop available to notify the waiting worker"
-          ],
-          "expected_stdout": "before await\nother coroutine ran\nsamples [0, 1, 2]\npool closed\n"
-        }
-      ]
+      "source_count": 0,
+      "expected_stdout": "before run\ninside coroutine\nsame loop True\nafter run\n"
     },
     {
       "number": "33.2",
+      "slug": "33-run-in-executor",
+      "title": "33.2 · run_in_executor / await：提交到指定线程池并等待结果",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "work submitted\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "33.3",
+      "slug": "33-await-handoff",
+      "title": "33.3 · await / Event：等待线程时，让其他协程继续",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nother coroutine ran\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "33.4",
       "slug": "33-loop-time",
-      "title": "33.2 · loop.time：用事件循环时钟计算剩余预算",
+      "title": "33.4 · loop.time：用事件循环时钟计算剩余预算",
       "example": true,
       "source_count": 0,
       "expected_stdout": "start\ndeadline\nnow\nremaining\n",
@@ -835,6 +850,70 @@
         }
       ],
       "normalize_clock_seconds": true
+    },
+    {
+      "number": 34,
+      "slug": "34-wrap-future",
+      "title": "34 · asyncio.wrap_future：等待已有的执行器 Future",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "get_samples called\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "35.1",
+      "slug": "35-future-results",
+      "title": "35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before False\nnot ready\nafter True\nresult [7]\nexception None\n"
+    },
+    {
+      "number": "35.2",
+      "slug": "35-future-completion",
+      "title": "35.2 · loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "created False\ncompleted True\nresult 7\nawait 7\n"
+    },
+    {
+      "number": "35.3",
+      "slug": "35-task-callbacks",
+      "title": "35.3 · Task.add_done_callback：任务完成后安排回调",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "registered False\ncallback 7\n"
+    },
+    {
+      "number": "36.1",
+      "slug": "36-manual-event-loop",
+      "title": "36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "before run\ngenerate start\nresult 7\nclosed\n"
+    },
+    {
+      "number": "36.2",
+      "slug": "36-threadsafe-submit",
+      "title": "36.2 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "main: wait worker\nloop: generate\nworker: received 7\nmain: received 7\n"
+    },
+    {
+      "number": 37,
+      "slug": "37-subprocess-run",
+      "title": "37 · subprocess.run：运行并等待外部命令",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before run\nafter run\nreturncode 0\nstdout [0, 1, 2]\nstdout type str\n"
+    },
+    {
+      "number": 38,
+      "slug": "38-popen-communicate",
+      "title": "38 · subprocess.Popen / communicate：启动命令并收集管道输出",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before Popen\nparent can continue\nbefore communicate\nafter communicate\nreturncode 0\nstdout [0, 1, 2]\nstderr ''\n"
     }
   ]
 }

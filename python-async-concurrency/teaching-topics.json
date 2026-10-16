@@ -611,12 +611,10 @@
       "lesson": "18-process-lifecycle",
       "anchor": "subprocess-communicate",
       "apis": [
-        "subprocess.Popen",
         "subprocess.TimeoutExpired",
         "subprocess"
       ],
       "methods": [
-        "subprocess.Popen.communicate",
         "subprocess.Popen.poll",
         "subprocess.Popen.wait",
         "subprocess.Popen.kill",
@@ -647,7 +645,6 @@
       "lesson": "18-process-lifecycle",
       "anchor": "subprocess-failure",
       "apis": [
-        "subprocess.run",
         "subprocess.check_call",
         "subprocess.check_output",
         "subprocess.CalledProcessError"
@@ -791,10 +788,7 @@
         "asyncio.Future",
         "asyncio.InvalidStateError"
       ],
-      "methods": [
-        "asyncio.AbstractEventLoop.create_future",
-        "asyncio.Future.result"
-      ],
+      "methods": [],
       "syntax": [],
       "imports": []
     },
@@ -807,9 +801,6 @@
       "methods": [
         "asyncio.AbstractEventLoop.call_soon",
         "asyncio.AbstractEventLoop.call_later",
-        "asyncio.Future.done",
-        "asyncio.Future.set_result",
-        "asyncio.Future.set_exception",
         "asyncio.Future.cancel",
         "asyncio.Future.cancelled",
         "asyncio.Future.add_done_callback"
@@ -823,15 +814,9 @@
       "lesson": "13-event-loop",
       "anchor": "event-loop-lifecycle",
       "apis": [
-        "asyncio.AbstractEventLoop",
-        "asyncio.new_event_loop",
-        "asyncio.set_event_loop",
-        "asyncio.run_coroutine_threadsafe",
-        "asyncio.wrap_future"
+        "asyncio.AbstractEventLoop"
       ],
       "methods": [
-        "asyncio.AbstractEventLoop.run_forever",
-        "asyncio.AbstractEventLoop.run_until_complete",
         "concurrent.futures.Future.result"
       ],
       "syntax": [],
@@ -844,10 +829,7 @@
       "anchor": "loop-shutdown",
       "apis": [],
       "methods": [
-        "asyncio.AbstractEventLoop.call_soon_threadsafe",
         "asyncio.AbstractEventLoop.is_running",
-        "asyncio.AbstractEventLoop.stop",
-        "asyncio.AbstractEventLoop.close",
         "asyncio.AbstractEventLoop.shutdown_default_executor"
       ],
       "syntax": [],
@@ -879,8 +861,7 @@
       ],
       "methods": [
         "asyncio.Task.cancelled",
-        "asyncio.Task.get_loop",
-        "asyncio.Task.add_done_callback"
+        "asyncio.Task.get_loop"
       ],
       "syntax": [],
       "imports": []
@@ -975,7 +956,7 @@
     {
       "id": "inspect-awaitable",
       "title": "调用后检查返回对象能否 await",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "isawaitable",
       "apis": [
         "inspect.isawaitable"
@@ -989,7 +970,7 @@
     {
       "id": "inspect-coroutine-function",
       "title": "装饰时判断协程函数并选择 wrapper",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "iscoroutinefunction",
       "apis": [
         "inspect.iscoroutinefunction"
@@ -1067,9 +1048,7 @@
       "title": "从协程提交到指定线程池并等待结果",
       "lesson": "33-run-in-executor",
       "anchor": "executor-await",
-      "apis": [
-        "asyncio.get_running_loop"
-      ],
+      "apis": [],
       "methods": [
         "asyncio.AbstractEventLoop.run_in_executor"
       ],
@@ -1084,6 +1063,128 @@
       "apis": [],
       "methods": [
         "asyncio.AbstractEventLoop.time"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "running-loop",
+      "title": "取得正在使用的事件循环",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
+      "apis": [
+        "asyncio.get_running_loop"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "wrap-future",
+      "title": "将已有执行器 Future 接入协程等待",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
+      "apis": [
+        "asyncio.wrap_future"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "subprocess-run",
+      "title": "运行外部程序并等待退出结果",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
+      "apis": [
+        "subprocess.run"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "popen-communicate",
+      "title": "启动子进程后收集输出并等待退出",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
+      "apis": [
+        "subprocess.Popen"
+      ],
+      "methods": [
+        "subprocess.Popen.communicate"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "asyncio-future-results",
+      "title": "读取 asyncio Future 的状态、结果与异常",
+      "lesson": "35-future-results",
+      "anchor": "asyncio-future-results",
+      "apis": [],
+      "methods": [
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "asyncio-future-completion",
+      "title": "创建 asyncio Future 并写入结果或异常",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.Future.set_result",
+        "asyncio.Future.set_exception"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "task-done-callback",
+      "title": "Task 完成后调用函数处理结果",
+      "lesson": "35-task-callbacks",
+      "anchor": "task-done-callback",
+      "apis": [],
+      "methods": [
+        "asyncio.Task.add_done_callback"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "manual-event-loop",
+      "title": "创建、关联、运行和关闭事件循环",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
+      "apis": [
+        "asyncio.new_event_loop",
+        "asyncio.set_event_loop"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.run_until_complete",
+        "asyncio.AbstractEventLoop.close",
+        "asyncio.AbstractEventLoop.run_forever",
+        "asyncio.AbstractEventLoop.stop"
+      ],
+      "syntax": [],
+      "imports": []
+    },
+    {
+      "id": "threadsafe-submit",
+      "title": "从另一线程向循环提交协程或回调",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
+      "apis": [
+        "asyncio.run_coroutine_threadsafe"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.call_soon_threadsafe"
       ],
       "syntax": [],
       "imports": []

@@ -12,35 +12,42 @@ hideSummary: true
 
 全课分成 **8 个模块、41 个编号单元**，最终包含已选定的 **97 项 API/方法**，以及理解它们必需的语法和异常类型。第 10、11、21、23、31、33、35、36 单元按问题拆成子课，01–41 主编号保持不变。
 
-**01–22、26–33 已整理完成；23–25、34–41 仍按规划补写。** 这是正文编写状态，实际阅读进度与本轮优先内容见下面的续学表。旧 URL 保留，不能用网址数字推断新课号。
+**01–22、25–38 已整理完成；23–24、39–41 仍按规划补写。** 这是正文编写状态，实际阅读进度与本轮优先内容见下面的续学表。旧 URL 保留，不能用网址数字推断新课号。
 
 本专题只讲 Python 原生异步与并发。每个单元只增加当前必要的关系；源码与完整位置清单放在各页末尾按需展开。
 
 <span id="priority-reading"></span>
 
-### 现在从哪里继续：只列未读的蓝黄重点
+### 现在从哪里继续：先补样本生成需要的基础
 
-按本轮对话，01–22、26–29 已经讨论过，先从续学列表中移出；其余内容里只把[统计表](../api-frequency/)出现蓝色或黄橙色的课程列为本轮重点。完整课程与已有正文继续保留，暂缓不等于删除或已经学完。
+当前目标是先补齐 Slime 样本生成主线需要的基础，再进入真实调用链。高频的 async def、await、async with，以及任务创建、限流、收集和取消已经讨论过；现在补 Future 与事件循环的关键交接。
 
-侧边的当前学习导航保留已讨论及正在学习的章节。31.1、31.2 归在同一个第 31 课目录组内；现在进入的 33.1、33.2 同样归在第 33 课下，阅读任一小节时自动展开所在组。第 30、32 课继续隐藏。下表保留重点阅读入口，便于按当前侧重推进。
+| 顺序 | 学习单元 | 当前状态 |
+| --- | --- | --- |
+| 1 | [35.1 · Future.done / result / exception：读取 asyncio Future 的结果](../35-future-results/) | 已讨论；区分检查、读取和等待 |
+| 2 | [35.2 · loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果](../35-future-completion/) | 已讨论；创建、写入、读取同一个 Future |
+| 3 | [35.3 · Task.add_done_callback：任务完成后安排回调](../35-task-callbacks/) | 已讨论；任务结束后的 post hook |
+| 4 | [36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环](../36-manual-event-loop/) | 已讨论；分清创建、关联、运行和关闭 |
+| 5 | [36.2 · run_coroutine_threadsafe：跨线程提交协程](../36-threadsafe-submit/) | 当前阅读；分清提交线程、循环线程和结果返回 |
 
-蓝色表示单项 API 的四库合计占同类总量至少 1%；黄橙色表示某个仓库至少出现 10 次。下面都属于调用位置，百分比的分母统一为 **1899**，是被标注 API 的占比，不是整节课的合计占比。
+**现在读 36.2，之后沿源码短补回调调度与当前任务的识别。** 不用等全部 41 单元学完才开始普通样本生成链。
 
-<div class="async-api-reference">
-
-| 本轮顺序与课程 | 统计表中的标注依据 |
+| 基础与后续补充 | 在 Slime 中解决什么 |
 | --- | --- |
-| **1. [31 · ThreadPoolExecutor：提交并收集线程池工作](../31-threadpool-submit/)**，先看已有的 31.1 | `ThreadPoolExecutor`：<span class="api-frequency-mark api-frequency-mark--total">31 次 / 1.63%</span>；<span class="api-frequency-mark api-frequency-mark--repo">AReaL 13 次</span>、<span class="api-frequency-mark api-frequency-mark--repo">verl 10 次</span> |
-| **2. [33 · get_running_loop / run_in_executor：使用当前事件循环](../33-run-in-executor/)**，先读 33.1 | `get_running_loop`：<span class="api-frequency-mark api-frequency-mark--total">42 次 / 2.21%</span>；<span class="api-frequency-mark api-frequency-mark--repo">AReaL 19 次</span> |
-| **3. [34 · asyncio.wrap_future：等待已有的执行器 Future](#curriculum-stage-bridges)** | `wrap_future`：<span class="api-frequency-mark api-frequency-mark--total">21 次 / 1.11%</span>；<span class="api-frequency-mark api-frequency-mark--repo">verl 12 次</span> |
-| **4. [25 · inspect：辨认函数与可等待对象](#curriculum-stage-protocols)** | `iscoroutinefunction`：<span class="api-frequency-mark api-frequency-mark--total">23 次 / 1.21%</span>；<span class="api-frequency-mark api-frequency-mark--repo">verl 12 次</span>、<span class="api-frequency-mark api-frequency-mark--repo">Miles 10 次</span> |
-| **5. [37 · subprocess.run：运行并等待外部命令](#curriculum-stage-processes)** | `subprocess.run`：<span class="api-frequency-mark api-frequency-mark--total">26 次 / 1.37%</span> |
+| 已讨论 36.1：创建、运行、关闭事件循环；配套 run_forever / stop | AsyncLoopThread 让后台线程的循环持续处理工作 |
+| 当前 36.2：run_coroutine_threadsafe；配套 call_soon_threadsafe | 从另一线程提交协程，或通知循环停止 |
+| call_soon / call_later | AsyncPacer 安排本批、下一批等待者继续，接上已经学过的 Future 完成 |
+| current_task；Agent 分支再补 Task.get_loop | 找到当前请求对应的任务，或把清理工作交回任务所属的循环 |
 
-</div>
+这些是具体源码需要的补充，97 项正式 API 的统计范围不变。遇到 dp_rank_context 的 @contextmanager 时，再与 21.4 的异步版本作同步对照。普通批次生成里的 create_task、Semaphore、gather、wait、result、to_thread、取消与收尾已经有对应课程。
 
-**现在从 [33.1 · get_running_loop / run_in_executor](../33-run-in-executor/) 继续。** 先沿“工作线程 → 线程池 → 接回协程等待”学习 31、33、34，再补 25 的对象辨认，最后进入 37 的外部命令。31、33 已有独立正文；其余表内课程目前链接到规划，后续按此顺序补写。
+如果进一步读持续生成的 fully-async 分支，再补第 30 课的线程队列与 threading.Condition；不把这一分支的全部基础提前塞进普通生成路径。核对基于已保存的 Slime 22a89f9 快照，未将已编写课程当作整套框架掌握度。
 
-第 30 课本轮暂缓；31、33 中未标色的配套内容只展开理解重点所需的部分。第 37 课按当前规划还需要第 32 课的退出与收尾概念，到那里时单独短补，不能把它冒称为高频。23、24、35、36、38–41 也先放到后续；完整的 97 项 API 目标与课程编号不变。
+已经学过的 [34 · wrap_future](../34-wrap-future/)和 [25 · inspect](../25-inspect-awaitable/)可用于回顾对象身份。[37 · subprocess.run](../37-subprocess-run/)与新写的 [38 · Popen / communicate](../38-popen-communicate/)保留，进程线先停在这里。
+
+[统计表](../api-frequency/)当前按以下规则标色：单项 API 的四库同类占比至少 1% 标蓝；Slime 列的 API 或语法次数大于等于 5 单独标红，其余三库仍按至少 10 次标橙。这是静态位置数，不是运行时频率或学习完成度。此次补课按主链实际依赖选择，不要求每项都有高频标色。
+
+侧边导航保留已讨论和当前阅读的内容。31、33、35、36 各自按小节分组，第 36 课显示已发布的 36.1、36.2。第 30、32 课继续隐藏；23、24、39–41 先留到对应场景，41 个主编号与原定 97 项 API 目标不变。
 
 每次按这个顺序学习：
 

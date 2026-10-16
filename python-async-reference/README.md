@@ -16,6 +16,7 @@
 5. [语言语法统计](SYNTAX-USAGE.md)：async def、await、async with、async for 等。
 6. [待核实的方法](UNRESOLVED.md) / [未匹配到本次文档条目的 API](UNMAPPED.md)。
 7. [统计与匹配规则](METHOD.md) / [机器可读汇总](report.json) / [验证记录](VALIDATION.md)。
+8. [关联地图资料目录](relationship-map/README.md)：单独保存概念之间的关系，供后续绘制思维导图使用。
 
 ### Miles 补充对照
 

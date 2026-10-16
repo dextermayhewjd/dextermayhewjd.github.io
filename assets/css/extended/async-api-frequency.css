@@ -100,6 +100,13 @@
   border-color: #d6a45b;
 }
 
+.api-frequency-mark--slime,
+.api-frequency-api[data-slime-high="true"] code {
+  color: #b91c1c;
+  background: #fee2e2;
+  border-color: #e98a8a;
+}
+
 [data-theme="dark"] .api-frequency-mark--total {
   color: #b7dcff;
   background: #18334b;
@@ -110,4 +117,11 @@
   color: #ffdda5;
   background: #47351e;
   border-color: #a98045;
+}
+
+[data-theme="dark"] .api-frequency-mark--slime,
+[data-theme="dark"] .api-frequency-api[data-slime-high="true"] code {
+  color: #fecaca;
+  background: #4c1d24;
+  border-color: #d36a76;
 }

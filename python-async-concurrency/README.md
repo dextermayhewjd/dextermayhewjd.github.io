@@ -6,7 +6,7 @@
 
 网站学习入口：[Python 异步与并发项目](https://dextermayhewjd.github.io/projects/python-async-concurrency/)。按知识点阅读，与下方全量资料对应。
 
-当前课程安排见 [8 模块、41 单元的课程设置](../python-async-reference/curriculum.md)，网页入口为[学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md)。01–03 保留原课，新增 04 语法前置，原 04 起顺延，已整理 01–22 和 26–33，其余按规划拆分与补写，最终包含全部已选定的 97 项 API。本目录的旧页编号和全量索引保留用于复用与回查，不表示要同时学完。
+当前课程安排见 [8 模块、41 单元的课程设置](../python-async-reference/curriculum.md)，网页入口为[学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md)。01–03 保留原课，新增 04 语法前置，原 04 起顺延，已整理 01–22、25–38，第 35 单元的 35.1–35.3 分别讲读取、写入和回调；36.1、36.2 分别整理循环的手动生命周期与跨线程提交，其余单元按规划补写，最终包含全部已选定的 97 项 API。本目录的旧页编号和全量索引保留用于复用与回查，不表示要同时学完。
 
 旧版教程保留 **23 页**；当前路线另有语法前置与拆分后的独立课程。第 10 单元是 `15-gather-failures` 和 `15-gather-exceptions`，第 11 单元是 `11-taskgroup-failures` 和 `11-exception-groups`，各分两节。第 09 单元学习取消，12 单元学习 as_completed，13–16 学习超时和预算，17 单元在原 `06-semaphore` 地址学习许可与释放，18 单元在原 `07-queues` 地址学习异步数据交接，19 单元在 `19-async-lock` 学习共享状态的异步互斥，20 单元在 `20-async-event` 学习通知与标志，21 单元拆为 21.1–21.6：资源三阶段、yield、装饰器、正常进入退出、异常、取消；原 `21-async-contextmanager` 地址保留为 21.4，22 单元在 `22-async-iteration` 学习逐项异步产出与顺序消费；已有 URL 均保留。新 TaskGroup 失败实验核对 CPython v3.12.3 源码，常规 TaskGroup 页继续使用 AReaL 的固定快照，其余 Slime 统计版本不变。完整映射见 [teaching-coverage.md](teaching-coverage.md) 和 [teaching-coverage.json](teaching-coverage.json)，知识点定义以 [teaching-topics.json](teaching-topics.json) 为准。
 
@@ -87,4 +87,12 @@ python3 python-async-concurrency/tools/build_teaching_coverage.py --check
 
 源码或讲解入口变化后，先更新知识点对应关系，再去掉 `--check` 生成新的完整映射。未映射的 API、语法或已有接收者线索的方法会使校验失败。
 
-第 33 单元分为 33.1 `33-run-in-executor` 与 33.2 `33-loop-time`，分别讲指定线程池的异步等待和循环时钟；目录归在同一组。主例子与独立补充实验均已登记在 manifest 中。
+第 33 单元分为 33.1 `33-current-loop`、33.2 `33-run-in-executor`、33.3 `33-await-handoff`、33.4 `33-loop-time`，依次讲已有循环对象、指定线程池的异步等待、等待时的协程切换、循环时钟；目录归在同一组。主例子与独立补充实验均已登记在 manifest 中，原 URL 和下载保留。
+
+第 34 单元 `34-wrap-future` 只讲把已提交工作的执行器 Future 接入 await；不重复提交工作，状态读取、手动完成结果与回调仍留在第 35 单元分开讲解。
+
+第 25 单元 `25-inspect-awaitable` 独立辨认函数与调用返回的对象；原 `21-async-inspection` 页面保留作多主题参考，正式入口与源码映射转到新课。
+
+第 37 单元在 `37-subprocess-run` 单独讲解 subprocess.run，以本地 Python 子程序验证启动、同步等待、退出码和捕获的输出。旧进程综合页面保留，subprocess.run 的教学覆盖入口迁到新课。
+
+第 38 单元在 `38-popen-communicate` 承接第 37 课，同一子程序配合 Popen 与 communicate 演示启动后继续执行、稍后收集输出与等待。两节之间的子程序保持一致。

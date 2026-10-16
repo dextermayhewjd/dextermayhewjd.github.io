@@ -28,7 +28,9 @@ hideMeta: true
 
 **第 31 课 · ThreadPoolExecutor：提交并收集线程池工作**：先读 [31.1 · ThreadPoolExecutor / submit：提交工作并取结果](31-threadpool-submit/)，再读 [31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果](31-threadpool-map/)。两个小节归在同一目录组内。
 
-现在进入**第 33 课 · run_in_executor / time：使用当前事件循环**，同样分组阅读：[33.1 · get_running_loop / run_in_executor：从协程使用指定线程池](33-run-in-executor/) → [33.2 · loop.time：用事件循环时钟计算剩余预算](33-loop-time/)。第 30、32 课继续暂缓；之后按[蓝黄重点续学表](learning-route/#priority-reading)推进。
+**第 33 课 · 使用当前事件循环**的四个小节放在同一组：[33.1 · get_running_loop：取出正在使用的事件循环](33-current-loop/) → [33.2 · run_in_executor / await：提交到指定线程池并等待结果](33-run-in-executor/) → [33.3 · await / Event：等待线程时，让其他协程继续](33-await-handoff/) → [33.4 · loop.time：用事件循环时钟计算剩余预算](33-loop-time/)。
+
+[34 · asyncio.wrap_future](34-wrap-future/)补上了“工作已经提交，怎样接入 await”的关系。[25 · inspect](25-inspect-awaitable/)已经分清检查函数与检查调用结果。[37 · subprocess.run](37-subprocess-run/)已经区分启动子进程、等待退出和读取输出。[38 · Popen / communicate](38-popen-communicate/)已写好。[35.1 · asyncio Future 的状态与结果](35-future-results/)已讨论，[35.2 · 创建 Future 并提供结果](35-future-completion/)也已讨论，[35.3 · Task 完成回调](35-task-callbacks/)也已讨论，[36.1 · 手动管理事件循环](36-manual-event-loop/)已讨论，现在继续 [36.2 · 跨线程提交协程](36-threadsafe-submit/)，为 Slime 样本生成里的 Future 与循环交接做准备。第 30、32 课继续暂缓；之后按[蓝黄重点续学表](learning-route/#priority-reading)推进。
 
 ## 已整理的学习主线
 

@@ -1,7 +1,7 @@
 ---
-title: "33.2 · loop.time：用事件循环时钟计算剩余预算"
+title: "33.4 · loop.time：用事件循环时钟计算剩余预算"
 description: "取得当前事件循环后，怎样用同一套时钟读数建立截止位置并计算剩余时间？"
-weight: 332
+weight: 334
 ShowToc: false
 ShowPostNavLinks: false
 hideMeta: true
@@ -10,9 +10,13 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [第 14 课](../11-time-budget/#remaining-budget)已经用固定截止读数计算剩余预算；[33.1](../33-run-in-executor/)学会取得正在运行的 `loop`。
+> **复用的旧知识：** [第 14 课](../11-time-budget/#remaining-budget)已经用固定截止读数计算剩余预算；[33.1](../33-current-loop/)学会取得正在运行的 `loop`。
 >
-> **本课新增的问题：** 当时间来自事件循环时，怎样继续用同一时钟计算截止位置和剩余时间？这节不增加新的任务调度方式。
+> **本节新增的需求：** 在使用当前事件循环的代码中，继续计算一段工作的总时间预算，以及后续步骤还剩多少时间。
+>
+> **本节的解决方式：** 用 `loop.time()` 读取时间，起点加预算得到固定的 `deadline`，再用 `deadline` 减去当前读数得到 `remaining`。
+
+第 14 课的方法已经能计算时间预算；本节只补充怎样从 `loop` 取得时钟读数，继续沿用“截止读数 − 当前读数 = 剩余预算”的计算关系。
 
 <span id="loop-time-budget"></span>
 
@@ -166,4 +170,4 @@ CPython 3.12.3 的默认 `BaseEventLoop.time()` 调用 `time.monotonic()`。这�
 
 ---
 
-[上一节：33.1 · run_in_executor](../33-run-in-executor/) · [下一重点：34 · asyncio.wrap_future（待编写）](../learning-route/#curriculum-stage-bridges) · [重点续学路线](../learning-route/#priority-reading)
+[上一节：33.3 · await / Event](../33-await-handoff/) · [下一重点：34 · asyncio.wrap_future](../34-wrap-future/) · [重点续学路线](../learning-route/#priority-reading)

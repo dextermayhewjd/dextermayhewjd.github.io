@@ -415,7 +415,7 @@ class PythonAsyncMaterial(unittest.TestCase):
                 page = (path.parent / 'index.md').read_text()
                 self.assertIn('```python\n' + path.read_text().rstrip() + '\n```', page)
                 examples += 1
-        self.assertEqual(examples, 53)
+        self.assertEqual(examples, 64)
 
     def test_loop_clock_keeps_one_deadline_and_consistent_units(self):
         path = CONTENT / '33-loop-time/example.py'
@@ -559,7 +559,7 @@ class PythonAsyncPublished(unittest.TestCase):
                     self.assertEqual(parser.project_nav_hrefs.count(
                         f'/projects/python-async-concurrency/{lesson}/'), 2)
         route = (self.project / 'learning-route/index.html').read_text()
-        self.assertIn('../31-threadpool-submit/', route)
+        self.assertIn('../25-inspect-awaitable/', route)
         for slug in hidden:
             self.assertTrue((self.project / slug / 'index.html').is_file())
 
@@ -657,8 +657,8 @@ class PythonAsyncPublished(unittest.TestCase):
                     self.assertEqual(group['active'],
                                      [f'/projects/python-async-concurrency/{slug}/'] if slug in slugs else [])
 
-    def test_event_loop_navigation_groups_both_parts(self):
-        slugs = ['33-run-in-executor', '33-loop-time']
+    def test_event_loop_navigation_groups_all_four_parts(self):
+        slugs = ['33-current-loop', '33-run-in-executor', '33-await-handoff', '33-loop-time']
         expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
         for slug in ['31-threadpool-map', *slugs, 'learning-route']:
             with self.subTest(page=slug):
@@ -671,10 +671,117 @@ class PythonAsyncPublished(unittest.TestCase):
                     self.assertEqual(group['open'], slug in slugs)
                     self.assertEqual(group['active'],
                                      [f'/projects/python-async-concurrency/{slug}/'] if slug in slugs else [])
-        first = (self.project / slugs[0] / 'index.html').read_text()
-        second = (self.project / slugs[1] / 'index.html').read_text()
-        self.assertIn(f'href="../{slugs[1]}/"', first)
-        self.assertIn(f'href="../{slugs[0]}/"', second)
+        for index, slug in enumerate(slugs):
+            page = (self.project / slug / 'index.html').read_text()
+            if index:
+                self.assertIn(f'href="../{slugs[index - 1]}/"', page)
+            if index + 1 < len(slugs):
+                self.assertIn(f'href="../{slugs[index + 1]}/"', page)
+
+    def test_wrap_future_is_reached_from_loop_lessons_and_priority_route(self):
+        target = '/projects/python-async-concurrency/34-wrap-future/'
+        for slug in ['33-run-in-executor', '33-loop-time', '34-wrap-future', 'learning-route']:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertIn(target, parser.project_nav_hrefs)
+                if slug in ['33-run-in-executor', '33-loop-time', 'learning-route']:
+                    self.assertIn('../34-wrap-future/', parser.hrefs)
+        page = (self.project / '34-wrap-future/index.html').read_text()
+        self.assertIn('34 · asyncio.wrap_future：等待已有的执行器 Future', page)
+        self.assertIn('id="wrap-future"', page)
+        self.assertIn('source-source-1', page)
+
+    def test_inspect_has_an_independent_lesson_and_priority_entry(self):
+        target = '/projects/python-async-concurrency/25-inspect-awaitable/'
+        for slug in ['25-inspect-awaitable', '34-wrap-future', 'learning-route']:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertIn(target, parser.project_nav_hrefs)
+                if slug != '25-inspect-awaitable':
+                    self.assertIn('../25-inspect-awaitable/', parser.hrefs)
+        page = (self.project / '25-inspect-awaitable/index.html').read_text()
+        self.assertIn('id="isawaitable"', page)
+        self.assertIn('id="iscoroutinefunction"', page)
+        self.assertIn('source-source-1', page)
+        self.assertIn('source-source-2', page)
+
+    def test_subprocess_run_has_a_lesson_and_current_priority_entry(self):
+        target = '/projects/python-async-concurrency/37-subprocess-run/'
+        for slug in ['25-inspect-awaitable', '37-subprocess-run', 'learning-route']:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertIn(target, parser.project_nav_hrefs)
+                if slug != '37-subprocess-run':
+                    self.assertIn('../37-subprocess-run/', parser.hrefs)
+        page = (self.project / '37-subprocess-run/index.html').read_text()
+        self.assertIn('id="subprocess-run"', page)
+        self.assertIn('source-source-1', page)
+        self.assertIn('href="worker.py"', page)
+        self.assertTrue((self.project / '37-subprocess-run/worker.py').is_file())
+
+    def test_popen_communicate_continues_the_same_child_program(self):
+        target = '/projects/python-async-concurrency/38-popen-communicate/'
+        for slug in ['37-subprocess-run', '38-popen-communicate', 'learning-route']:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertIn(target, parser.project_nav_hrefs)
+                if slug != '38-popen-communicate':
+                    self.assertIn('../38-popen-communicate/', parser.hrefs)
+        page = (self.project / '38-popen-communicate/index.html').read_text()
+        self.assertIn('id="popen-communicate"', page)
+        self.assertIn('href="worker.py"', page)
+        self.assertIn('source-source-1', page)
+        self.assertEqual(
+            (CONTENT / '37-subprocess-run/worker.py').read_text(),
+            (CONTENT / '38-popen-communicate/worker.py').read_text(),
+        )
+
+    def test_future_unit_keeps_three_parts_together(self):
+        target = '/projects/python-async-concurrency/35-future-results/'
+        completion = '/projects/python-async-concurrency/35-future-completion/'
+        callbacks = '/projects/python-async-concurrency/35-task-callbacks/'
+        for slug in ['35-future-results', '35-future-completion', '35-task-callbacks', 'learning-route', '34-wrap-future']:
+            with self.subTest(page=slug):
+                parser = Links()
+                parser.feed((self.project / slug / 'index.html').read_text())
+                self.assertIn(target, parser.project_nav_hrefs)
+                future_links = [href for href in parser.project_nav_hrefs if '/35-' in href]
+                self.assertCountEqual(future_links, [target, completion, callbacks] * 2)
+        page = (self.project / '35-future-results/index.html').read_text()
+        self.assertIn('data-lesson-group="35"', page)
+        self.assertIn('35.1 · Future.done()', page)
+        self.assertIn('id="asyncio-future-results"', page)
+        completion_page = (self.project / '35-future-completion/index.html').read_text()
+        self.assertIn('35.2 · loop.create_future', completion_page)
+        self.assertIn('id="future-completion"', completion_page)
+        callback_page = (self.project / '35-task-callbacks/index.html').read_text()
+        self.assertIn('35.3 · Task.add_done_callback', callback_page)
+        self.assertIn('id="task-done-callback"', callback_page)
+        self.assertIn('href="example.py"', callback_page)
+        self.assertIn('href="example.py"', completion_page)
+
+    def test_loop_sublessons_publish_in_one_group(self):
+        targets = ['/projects/python-async-concurrency/' + slug + '/'
+                   for slug in ['36-manual-event-loop', '36-threadsafe-submit']]
+        for slug in ['36-manual-event-loop', '36-threadsafe-submit', '35-task-callbacks', 'learning-route']:
+            parser = Links()
+            parser.feed((self.project / slug / 'index.html').read_text())
+            loop_links = [href for href in parser.project_nav_hrefs if '/36-' in href]
+            self.assertEqual(loop_links, targets * 2)
+        page = (self.project / '36-manual-event-loop/index.html').read_text()
+        self.assertIn('36.1 · new_event_loop', page)
+        self.assertIn('id="manual-event-loop"', page)
+        self.assertIn('data-lesson-group="36"', page)
+        self.assertIn('href="example.py"', page)
+        submitted = (self.project / '36-threadsafe-submit/index.html').read_text()
+        self.assertIn('36.2 · asyncio.run_coroutine_threadsafe', submitted)
+        self.assertIn('id="threadsafe-submit"', submitted)
+        self.assertIn('id="threadsafe-flow"', submitted)
+        self.assertIn('href="example.py"', submitted)
 
     def test_async_iteration_is_current_unit_22_after_contextmanager(self):
         html = (self.project / '22-async-iteration/index.html').read_text()

@@ -241,3 +241,65 @@
 ### 2026-10-15：第 33 单元接入协程等待与循环时钟
 
 沿用已确认的 31 → 33 → 34 路线，将 33.1、33.2 写为同一目录组下的两个独立页面。33.1 承接 26 与 31，先分清 loop、reader、asyncio Future，再用单独的 Event 实验验证等待时事件循环仍可运行其他协程；33.2 承接 14 与 33.1，沿同一个截止读数计算剩余预算，明确读时钟不会自动取消工作。正式 API 归属、41 单元与 97 项总量不变；30、32 继续按用户要求从当前导航隐藏。
+
+
+### 2026-10-16：按前 31 课的知识关系拆细第 33 单元
+
+先回接第 03 课的调度、第 26 课的执行位置、第 31 课的线程池与 Future；33.1 只取得已有 loop，33.2 提交到指定池并 await，33.3 独立验证等待时另一协程仍可通知工作线程，33.4 回接第 14 课计算预算。四小节放在同一组，保留原页面 URL 和下载，API 正式引入位置分开登记，97 项总量与 41 个主编号不变。
+
+## 2026-10-16：第 34 单元只连接两类 Future
+
+沿用已确认的 31 → 33 → 34 → 25 → 37 顺序。第 34 单元在 `34-wrap-future` 正式引入 asyncio.wrap_future，以同一个 get_samples 例子说明 submit 已经提交工作、wrap_future 只接回已有 Future、await 取得同一次结果。开头分开说明已学知识、新增需求和具体做法；第 35 单元的状态读取、手动写入与回调仍按原规划分开，当前不要求整章通读。
+
+## 2026-10-16：第 25 单元独立辨认函数与可等待对象
+
+沿用 34 → 25 → 37 的重点顺序，把 inspect.iscoroutinefunction 与 inspect.isawaitable 从旧多主题页面独立到 `25-inspect-awaitable`。主例子只比较普通函数、协程函数和普通函数返回协程三种情况；前置精确回接第 02 课，不把原第 22 课的异步迭代当作必需。类型注解与协议、线程调度和装饰器实现不在本课展开。
+
+## 2026-10-16：第 37 单元独立运行外部命令
+
+沿用 34 → 25 → 37 的重点顺序，新增 `37-subprocess-run`。主例子由调用方 example.py 和子程序 worker.py 组成，分别标明启动命令、同步等待和输出传递；CompletedProcess 是结束后的记录，捕获的 stdout 是文字。开头只短补第 32 课与等待收尾有关的前置，不恢复第 30、32 课的当前导航。Popen、终止与超时留在第 38–39 课，97 项 API 与静态调用统计口径不变。
+
+## 2026-10-16：第 38 单元拆开启动与收集
+
+用户理解第 37 课的进程关系后继续学习，新增 `38-popen-communicate`。保留同一份 worker.py，只把父进程改为 Popen 后继续执行、稍后 communicate；明确启动后的交错顺序不固定，communicate 仍为同步等待。PIPE 的容量与读取责任随例子说明，超时、终止及最终回收在第 39 课展开。此前蓝黄重点已读到 37，本次是沿概念继续衔接，不重新标成高频；30、32 的隐藏状态不变。
+
+## 2026-10-16：样本生成之前补 Future 与循环交接
+
+用户要求把 Slime 样本生成所需的基础补齐再阅读。35.1 用 gather 和一个短例子区分检查、等待与读取，其他状态用表格说明。35.2 先用一个顺序例子认识 Future 自身：create_future 创建、set_result 写入、result 和 await 读取；明确已完成的 Future 在 await 时不会挂起。移除提供者协程和额外 Task，避免误解为把 Task 放进 Future。set_exception 与重复完成的边界简短说明，真正先等待再由另一处完成的交接留到后续回调和源码串联。35.3 以一个 Task 和一个普通 on_done 回调演示登记、任务完成与回调执行；异常和取消只复用已学规则，不把额外 Future 或线程混入主例子。35.1–35.3 均已整理，第 35 单元标为 existing。接下来沿原规划补 36.1、36.2，并在相关小节短补 call_soon/call_later、常驻循环与任务归属，不扩大到整个训练或 Agent 系统。
+
+
+## 2026-10-16：35.3 后复核 Slime 样本生成所需基础
+
+用户已用“任务结束后的 post hook”复述 35.3，正文、代码注释和结论采用这一说法；回调仍在成功、失败或取消使任务结束后，由事件循环安排执行。
+
+本次已确认路径 `/home/fredkeira/projects/slime` 在当前环境中不可用。分析使用 `repositories/slime/source_snapshot/` 保存的 `22a89f96835969a47055a659c588f46151f8b07a`，核心四文件的 SHA-256 与 inventory 一致；没有把 `python-async-concurrency/source_snapshot/` 的 2f231 教学快照当作当前阅读版本。
+
+2026-10-16 直接查询官方 main 得到 `4ac368bbb196bdb7637c8f36e2be91b56277b335`，比阅读快照领先 7 次提交。相关比较中 sglang_rollout.py 与 fully_async_rollout.py 无文本行增删，async_utils.py 和 aiohttp_threaded.py 未列为变更；adapters/common.py 有实现变更，当前文件的直接 asyncio 调用比快照新增 sleep，未新增本次缺口之外的原生 asyncio 接口。本轮不更新固定快照或全库统计，也不宣称已审完上游全部变更。
+
+继续保留 36.1 → 36.2 的顺序，配套关系如下：
+
+| 内容 | 源码证据 | 安排 |
+| --- | --- | --- |
+| new_event_loop / set_event_loop / run_until_complete / close | [async_utils.py](repositories/slime/source_snapshot/slime/utils/async_utils.py.txt) 的 AsyncLoopThread；[aiohttp_threaded.py](repositories/slime/source_snapshot/slime/agent/aiohttp_threaded.py.txt) 的 run_app_in_thread | 36.1；短补 run_forever / stop，分清常驻循环与运行一次 |
+| run_coroutine_threadsafe / call_soon_threadsafe | AsyncLoopThread.run、AppHandle.stop | 36.2；区分把协程交给另一线程的循环与通知循环停止 |
+| call_soon / call_later | AsyncPacer.wait / _release | 衔接 35.2 的 Future 写入；解释谁安排释放、何时运行，不另扩事件循环策略 |
+| current_task / Task.get_loop | [sglang_rollout.py](repositories/slime/source_snapshot/slime/rollout/sglang_rollout.py.txt) 的 _run_request_abortable_generate；[adapters/common.py](repositories/slime/source_snapshot/slime/agent/adapters/common.py.txt) 的 shutdown_session | current_task 在请求取消处分清身份；get_loop 在 Agent 清理分支短补 |
+
+先读普通主线：generate_rollout → utils.async_utils.run → generate_rollout_async → submit_generate_tasks → generate_and_rm_group → generate_and_rm → generate / 自定义生成函数 → 收集与 abort。原生 create_task、Semaphore、gather、wait、result、to_thread、CancelledError 与 finally 已有课程，剩余重点是把它们串到具体调用位置；@contextmanager 对照 21.4 的异步版本短补即可。
+
+持续生成 AsyncRolloutWorker 另需线程队列（第 30 课曾按用户要求暂缓）与 threading.Condition。它们只在进入 fully-async 分支时补，不作为普通批次生成的提前门槛。23–24、39–41 等剩余正式单元仍保留全课目标，但不要求先学完再读这一条样本生成链；第三方 HTTP、Ray 和推理服务行为在对应源码处另行解释，不冒充已被原生 API 课程覆盖。
+
+
+## 2026-10-16：Slime 频率标色调整为至少 5 次
+
+用户最终确认：在原 API 调用表中，把 Slime 核心包次数大于等于 5 的 API 和语法名称及对应次数单独标红，包含恰好 5 次。沿用既有快照、首次引入位置、计数与百分比分母；其他三库仍按至少 10 次标橙色，四库同类占比至少 1% 的蓝色规则不变。当前满足条件的是 19 项（15 项 API、4 项语法）。
+
+
+## 2026-10-16：第 36.1 单独讲清循环的四个步骤
+
+沿用 35.3 → 36.1 → 36.2 的续学顺序。36.1 在 `36-manual-event-loop` 用一个协程、一个主例子区分 new_event_loop 创建、set_event_loop 关联当前线程、run_until_complete 运行到给定工作完成以及 finally 中解除关联和 close。创建与关联不启动循环，运行方法在当前线程驱动协程，返回不等于关闭；不加入工作线程或跨线程交接。run_forever / stop 用短表对照，实际跨线程提交仍在 36.2 展开。第 36 单元标为 partial，只把 36.1 标成已有正文；原 97 项 API 和红色统计口径不变。
+
+
+## 2026-10-16：第 36.2 只增加跨线程提交的关系
+
+用户理解 36.1 后继续进入 36.2。主例子复用 asyncio.run 持有运行中的循环、to_thread 启动同步函数和 concurrent.futures.Future.result 等待结果；仅新增 run_coroutine_threadsafe 把协程交回该循环。用一份例子和两条泳道区分工作线程的阻塞等待、主协程的挂起与循环继续调度；不把两线程中 result 开始等待的时刻写成固定先后。Slime 的反向线程布置放入源码回查，call_soon_threadsafe 仅配套说明普通回调。36.1、36.2 均为已有正文，原 97 项正式 API 及四库计数、标色不变。

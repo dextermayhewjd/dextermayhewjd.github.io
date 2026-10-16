@@ -664,12 +664,10 @@
       "lesson": "18-process-lifecycle",
       "anchor": "subprocess-communicate",
       "apis": [
-        "subprocess.Popen",
         "subprocess.TimeoutExpired",
         "subprocess"
       ],
       "methods": [
-        "subprocess.Popen.communicate",
         "subprocess.Popen.poll",
         "subprocess.Popen.wait",
         "subprocess.Popen.kill",
@@ -679,7 +677,7 @@
       "imports": [
         "subprocess"
       ],
-      "source_positions": 52
+      "source_positions": 37
     },
     {
       "id": "subprocess-output",
@@ -702,7 +700,6 @@
       "lesson": "18-process-lifecycle",
       "anchor": "subprocess-failure",
       "apis": [
-        "subprocess.run",
         "subprocess.check_call",
         "subprocess.check_output",
         "subprocess.CalledProcessError"
@@ -710,7 +707,7 @@
       "methods": [],
       "syntax": [],
       "imports": [],
-      "source_positions": 22
+      "source_positions": 7
     },
     {
       "id": "file-lock-ownership",
@@ -856,13 +853,10 @@
         "asyncio.Future",
         "asyncio.InvalidStateError"
       ],
-      "methods": [
-        "asyncio.AbstractEventLoop.create_future",
-        "asyncio.Future.result"
-      ],
+      "methods": [],
       "syntax": [],
       "imports": [],
-      "source_positions": 3
+      "source_positions": 0
     },
     {
       "id": "future-callbacks",
@@ -873,16 +867,13 @@
       "methods": [
         "asyncio.AbstractEventLoop.call_soon",
         "asyncio.AbstractEventLoop.call_later",
-        "asyncio.Future.done",
-        "asyncio.Future.set_result",
-        "asyncio.Future.set_exception",
         "asyncio.Future.cancel",
         "asyncio.Future.cancelled",
         "asyncio.Future.add_done_callback"
       ],
       "syntax": [],
       "imports": [],
-      "source_positions": 4
+      "source_positions": 2
     },
     {
       "id": "event-loop-lifecycle",
@@ -890,20 +881,14 @@
       "lesson": "13-event-loop",
       "anchor": "event-loop-lifecycle",
       "apis": [
-        "asyncio.AbstractEventLoop",
-        "asyncio.new_event_loop",
-        "asyncio.set_event_loop",
-        "asyncio.run_coroutine_threadsafe",
-        "asyncio.wrap_future"
+        "asyncio.AbstractEventLoop"
       ],
       "methods": [
-        "asyncio.AbstractEventLoop.run_forever",
-        "asyncio.AbstractEventLoop.run_until_complete",
         "concurrent.futures.Future.result"
       ],
       "syntax": [],
       "imports": [],
-      "source_positions": 23
+      "source_positions": 1
     },
     {
       "id": "loop-shutdown",
@@ -912,15 +897,12 @@
       "anchor": "loop-shutdown",
       "apis": [],
       "methods": [
-        "asyncio.AbstractEventLoop.call_soon_threadsafe",
         "asyncio.AbstractEventLoop.is_running",
-        "asyncio.AbstractEventLoop.stop",
-        "asyncio.AbstractEventLoop.close",
         "asyncio.AbstractEventLoop.shutdown_default_executor"
       ],
       "syntax": [],
       "imports": [],
-      "source_positions": 2
+      "source_positions": 1
     },
     {
       "id": "task-results",
@@ -949,12 +931,11 @@
       ],
       "methods": [
         "asyncio.Task.cancelled",
-        "asyncio.Task.get_loop",
-        "asyncio.Task.add_done_callback"
+        "asyncio.Task.get_loop"
       ],
       "syntax": [],
       "imports": [],
-      "source_positions": 5
+      "source_positions": 4
     },
     {
       "id": "manual-loop-cleanup",
@@ -1052,7 +1033,7 @@
     {
       "id": "inspect-awaitable",
       "title": "调用后检查返回对象能否 await",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "isawaitable",
       "apis": [
         "inspect.isawaitable"
@@ -1067,7 +1048,7 @@
     {
       "id": "inspect-coroutine-function",
       "title": "装饰时判断协程函数并选择 wrapper",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "iscoroutinefunction",
       "apis": [
         "inspect.iscoroutinefunction"
@@ -1150,15 +1131,13 @@
       "title": "从协程提交到指定线程池并等待结果",
       "lesson": "33-run-in-executor",
       "anchor": "executor-await",
-      "apis": [
-        "asyncio.get_running_loop"
-      ],
+      "apis": [],
       "methods": [
         "asyncio.AbstractEventLoop.run_in_executor"
       ],
       "syntax": [],
       "imports": [],
-      "source_positions": 11
+      "source_positions": 1
     },
     {
       "id": "loop-time-budget",
@@ -1172,6 +1151,137 @@
       "syntax": [],
       "imports": [],
       "source_positions": 0
+    },
+    {
+      "id": "running-loop",
+      "title": "取得正在使用的事件循环",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
+      "apis": [
+        "asyncio.get_running_loop"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 10
+    },
+    {
+      "id": "wrap-future",
+      "title": "将已有执行器 Future 接入协程等待",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
+      "apis": [
+        "asyncio.wrap_future"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 5
+    },
+    {
+      "id": "subprocess-run",
+      "title": "运行外部程序并等待退出结果",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
+      "apis": [
+        "subprocess.run"
+      ],
+      "methods": [],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 15
+    },
+    {
+      "id": "popen-communicate",
+      "title": "启动子进程后收集输出并等待退出",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
+      "apis": [
+        "subprocess.Popen"
+      ],
+      "methods": [
+        "subprocess.Popen.communicate"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 15
+    },
+    {
+      "id": "asyncio-future-results",
+      "title": "读取 asyncio Future 的状态、结果与异常",
+      "lesson": "35-future-results",
+      "anchor": "asyncio-future-results",
+      "apis": [],
+      "methods": [
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 0
+    },
+    {
+      "id": "asyncio-future-completion",
+      "title": "创建 asyncio Future 并写入结果或异常",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
+      "apis": [],
+      "methods": [
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.Future.set_result",
+        "asyncio.Future.set_exception"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 5
+    },
+    {
+      "id": "task-done-callback",
+      "title": "Task 完成后调用函数处理结果",
+      "lesson": "35-task-callbacks",
+      "anchor": "task-done-callback",
+      "apis": [],
+      "methods": [
+        "asyncio.Task.add_done_callback"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 1
+    },
+    {
+      "id": "manual-event-loop",
+      "title": "创建、关联、运行和关闭事件循环",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
+      "apis": [
+        "asyncio.new_event_loop",
+        "asyncio.set_event_loop"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.run_until_complete",
+        "asyncio.AbstractEventLoop.close",
+        "asyncio.AbstractEventLoop.run_forever",
+        "asyncio.AbstractEventLoop.stop"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 8
+    },
+    {
+      "id": "threadsafe-submit",
+      "title": "从另一线程向循环提交协程或回调",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
+      "apis": [
+        "asyncio.run_coroutine_threadsafe"
+      ],
+      "methods": [
+        "asyncio.AbstractEventLoop.call_soon_threadsafe"
+      ],
+      "syntax": [],
+      "imports": [],
+      "source_positions": 10
     }
   ],
   "occurrences": [
@@ -4948,9 +5058,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/retool/tool_sandbox.py#L267",
       "snapshot": "source_snapshot/examples/retool/tool_sandbox.py.txt",
       "symbol": "PythonSandbox.execute_code",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -5002,9 +5112,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/retool/tool_sandbox.py#L278",
       "snapshot": "source_snapshot/examples/retool/tool_sandbox.py.txt",
       "symbol": "PythonSandbox.execute_code",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "inferred",
       "receiver_type": "subprocess.Popen",
       "receiver": "process"
@@ -6136,9 +6246,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/strands_sglang/subprocess_interpreter.py#L228",
       "snapshot": "source_snapshot/examples/strands_sglang/subprocess_interpreter.py.txt",
       "symbol": "SubprocessInterpreter.run_file",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -6190,9 +6300,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/strands_sglang/subprocess_interpreter.py#L237",
       "snapshot": "source_snapshot/examples/strands_sglang/subprocess_interpreter.py.txt",
       "symbol": "SubprocessInterpreter.run_file",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "inferred",
       "receiver_type": "subprocess.Popen",
       "receiver": "proc"
@@ -6244,9 +6354,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/strands_sglang/subprocess_interpreter.py#L241",
       "snapshot": "source_snapshot/examples/strands_sglang/subprocess_interpreter.py.txt",
       "symbol": "SubprocessInterpreter.run_file",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "inferred",
       "receiver_type": "subprocess.Popen",
       "receiver": "proc"
@@ -6370,9 +6480,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/strands_sglang/subprocess_interpreter.py#L467",
       "snapshot": "source_snapshot/examples/strands_sglang/subprocess_interpreter.py.txt",
       "symbol": "SubprocessInterpreter.execute_command",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -6424,9 +6534,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/strands_sglang/subprocess_interpreter.py#L476",
       "snapshot": "source_snapshot/examples/strands_sglang/subprocess_interpreter.py.txt",
       "symbol": "SubprocessInterpreter.execute_command",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "inferred",
       "receiver_type": "subprocess.Popen",
       "receiver": "proc"
@@ -7900,9 +8010,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L241",
       "snapshot": "source_snapshot/slime/agent/adapters/common.py.txt",
       "symbol": "BaseAdapter.shutdown_session",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "wrap-future",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -7918,9 +8028,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L241",
       "snapshot": "source_snapshot/slime/agent/adapters/common.py.txt",
       "symbol": "BaseAdapter.shutdown_session",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -9682,9 +9792,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L38",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "AppHandle.stop",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -9772,9 +9882,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L66",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "run_app_in_thread._run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -9790,9 +9900,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L67",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "run_app_in_thread._run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -9808,9 +9918,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L70",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "run_app_in_thread._run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "loop"
@@ -9826,9 +9936,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L72",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "run_app_in_thread._run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "loop"
@@ -9880,9 +9990,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/aiohttp_threaded.py#L81",
       "snapshot": "source_snapshot/slime/agent/aiohttp_threaded.py.txt",
       "symbol": "run_app_in_thread._run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "loop"
@@ -12202,9 +12312,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/backends/megatron_utils/server/megatron_server.py#L464",
       "snapshot": "source_snapshot/slime/backends/megatron_utils/server/megatron_server.py.txt",
       "symbol": "_build_http_app.update_from_disk",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -12220,9 +12330,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/backends/megatron_utils/server/megatron_server.py#L464",
       "snapshot": "source_snapshot/slime/backends/megatron_utils/server/megatron_server.py.txt",
       "symbol": "_build_http_app.update_from_disk",
-      "topic_id": "future-basics",
-      "lesson": "13-event-loop",
-      "anchor": "future-basics",
+      "topic_id": "asyncio-future-completion",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "asyncio.get_running_loop()"
@@ -12418,9 +12528,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/backends/megatron_utils/server/megatron_server.py#L506",
       "snapshot": "source_snapshot/slime/backends/megatron_utils/server/megatron_server.py.txt",
       "symbol": "_build_http_app.update_from_disk",
-      "topic_id": "future-callbacks",
-      "lesson": "13-event-loop",
-      "anchor": "pacer-callbacks",
+      "topic_id": "asyncio-future-completion",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
       "status": "inferred",
       "receiver_type": "asyncio.Future",
       "receiver": "update_future"
@@ -12436,9 +12546,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/backends/megatron_utils/server/megatron_server.py#L508",
       "snapshot": "source_snapshot/slime/backends/megatron_utils/server/megatron_server.py.txt",
       "symbol": "_build_http_app.update_from_disk",
-      "topic_id": "future-callbacks",
-      "lesson": "13-event-loop",
-      "anchor": "pacer-callbacks",
+      "topic_id": "asyncio-future-completion",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
       "status": "inferred",
       "receiver_type": "asyncio.Future",
       "receiver": "update_future"
@@ -13786,9 +13896,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/backends/sglang_utils/server_control.py#L176",
       "snapshot": "source_snapshot/slime/backends/sglang_utils/server_control.py.txt",
       "symbol": "abort_server_until_idle",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -15748,9 +15858,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/queue_data_source.py#L1115",
       "snapshot": "source_snapshot/slime/data/queue_data_source.py.txt",
       "symbol": "QueueReader.get_samples_async",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -16198,9 +16308,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/data/transport.py#L372",
       "snapshot": "source_snapshot/slime/data/transport.py.txt",
       "symbol": "run_rollout_io",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -16595,7 +16705,7 @@
       "snapshot": "source_snapshot/slime/observability/trace_utils.py.txt",
       "symbol": "<module>",
       "topic_id": "inspect-awaitable",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "isawaitable",
       "status": "explained",
       "receiver_type": null,
@@ -17081,7 +17191,7 @@
       "snapshot": "source_snapshot/slime/observability/trace_utils.py.txt",
       "symbol": "trace_function.decorator",
       "topic_id": "inspect-coroutine-function",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "iscoroutinefunction",
       "status": "explained",
       "receiver_type": null,
@@ -18016,9 +18126,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L280",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.start",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -18052,9 +18162,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L281",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.start",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "wrap-future",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -18178,9 +18288,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L295",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.pause",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -18214,9 +18324,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L296",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.pause",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "wrap-future",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -18268,9 +18378,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L302",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.next",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -18304,9 +18414,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L303",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.next",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "wrap-future",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -19042,9 +19152,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L401",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor._rebuffer",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -19060,9 +19170,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L401",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor._rebuffer",
-      "topic_id": "future-basics",
-      "lesson": "13-event-loop",
-      "anchor": "future-basics",
+      "topic_id": "asyncio-future-completion",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "asyncio.get_running_loop()"
@@ -19312,9 +19422,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L435",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.close",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -19348,9 +19458,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L436",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor.close",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "wrap-future",
+      "lesson": "34-wrap-future",
+      "anchor": "wrap-future",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -19474,9 +19584,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_distributed.py#L447",
       "snapshot": "source_snapshot/slime/rollout/fully_async_distributed.py.txt",
       "symbol": "_GenerationActor._close",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -20086,9 +20196,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/fully_async_rollout.py#L217",
       "snapshot": "source_snapshot/slime/rollout/fully_async_rollout.py.txt",
       "symbol": "AsyncRolloutWorker._loop",
-      "topic_id": "task-inspection",
-      "lesson": "13-event-loop",
-      "anchor": "task-inspection",
+      "topic_id": "task-done-callback",
+      "lesson": "35-task-callbacks",
+      "anchor": "task-done-callback",
       "status": "inferred",
       "receiver_type": "asyncio.Task",
       "receiver": "task"
@@ -20824,9 +20934,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/rm_hub/ifbench.py#L27",
       "snapshot": "source_snapshot/slime/rollout/rm_hub/ifbench.py.txt",
       "symbol": "_ensure_ifbench_repo",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -20842,9 +20952,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/rollout/rm_hub/ifbench.py#L62",
       "snapshot": "source_snapshot/slime/rollout/rm_hub/ifbench.py.txt",
       "symbol": "_ensure_ifbench_dependencies",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -21023,7 +21133,7 @@
       "snapshot": "source_snapshot/slime/rollout/sample_hooks.py.txt",
       "symbol": "<module>",
       "topic_id": "inspect-awaitable",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "isawaitable",
       "status": "explained",
       "receiver_type": null,
@@ -21131,7 +21241,7 @@
       "snapshot": "source_snapshot/slime/rollout/sample_hooks.py.txt",
       "symbol": "_apply_to_sample",
       "topic_id": "inspect-awaitable",
-      "lesson": "21-async-inspection",
+      "lesson": "25-inspect-awaitable",
       "anchor": "isawaitable",
       "status": "explained",
       "receiver_type": null,
@@ -22750,9 +22860,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L25",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncPacer.wait",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -22768,9 +22878,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L26",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncPacer.wait",
-      "topic_id": "future-basics",
-      "lesson": "13-event-loop",
-      "anchor": "future-basics",
+      "topic_id": "asyncio-future-completion",
+      "lesson": "35-future-completion",
+      "anchor": "future-completion",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "loop"
@@ -22858,9 +22968,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L40",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncPacer._release",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -22894,9 +23004,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L48",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncLoopThread.__init__",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -22948,9 +23058,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L53",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncLoopThread._start_loop",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -22966,9 +23076,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L54",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncLoopThread._start_loop",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "manual-event-loop",
+      "lesson": "36-manual-event-loop",
+      "anchor": "manual-event-loop",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "self.loop"
@@ -22984,9 +23094,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/async_utils.py#L58",
       "snapshot": "source_snapshot/slime/utils/async_utils.py.txt",
       "symbol": "AsyncLoopThread.run",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -23038,9 +23148,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/external_utils/command_utils.py#L117",
       "snapshot": "source_snapshot/slime/utils/external_utils/command_utils.py.txt",
       "symbol": "execute_train",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -24082,9 +24192,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/utils/misc.py#L83",
       "snapshot": "source_snapshot/slime/utils/misc.py.txt",
       "symbol": "exec_command",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -25792,9 +25902,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/ci/gpu_lock_exec.py#L43",
       "snapshot": "source_snapshot/tests/ci/gpu_lock_exec.py.txt",
       "symbol": "_run_command",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -31228,9 +31338,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_distributed_rollout.py#L647",
       "snapshot": "source_snapshot/tests/test_distributed_rollout.py.txt",
       "symbol": "scheduler_factory.remote.<lambda>",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -31552,9 +31662,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_distributed_rollout.py#L737",
       "snapshot": "source_snapshot/tests/test_distributed_rollout.py.txt",
       "symbol": "scheduler_factory",
-      "topic_id": "event-loop-lifecycle",
-      "lesson": "13-event-loop",
-      "anchor": "event-loop-lifecycle",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34432,9 +34542,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L72",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_iface_ipv4",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34450,9 +34560,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L124",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_skip_reason",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34468,9 +34578,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L132",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_skip_reason",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34486,9 +34596,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L153",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_download_ci_asset",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34522,9 +34632,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L398",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_run",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34540,9 +34650,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_glm52_6layer_deterministic_e2e.py#L402",
       "snapshot": "source_snapshot/tests/test_glm52_6layer_deterministic_e2e.py.txt",
       "symbol": "_run",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34666,9 +34776,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_optional_straw.py#L144",
       "snapshot": "source_snapshot/tests/test_optional_straw.py.txt",
       "symbol": "test_default_rollout_and_training_work_without_straw",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -34918,9 +35028,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen2.5_0.5B_opd_sglang.py#L39",
       "snapshot": "source_snapshot/tests/test_qwen2.5_0.5B_opd_sglang.py.txt",
       "symbol": "_launch_teacher_server",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35080,9 +35190,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen2.5_0.5B_rollout_health.py#L82",
       "snapshot": "source_snapshot/tests/test_qwen2.5_0.5B_rollout_health.py.txt",
       "symbol": "execute",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35170,9 +35280,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen2.5_0.5B_training_recovery.py#L169",
       "snapshot": "source_snapshot/tests/test_qwen2.5_0.5B_training_recovery.py.txt",
       "symbol": "execute",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35278,9 +35388,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen2.5_0.5B_training_recovery.py#L374",
       "snapshot": "source_snapshot/tests/test_qwen2.5_0.5B_training_recovery.py.txt",
       "symbol": "execute",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35404,9 +35514,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen3_4B_external_pd.py#L157",
       "snapshot": "source_snapshot/tests/test_qwen3_4B_external_pd.py.txt",
       "symbol": "<module>",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35440,9 +35550,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen3_4B_external_pd.py#L190",
       "snapshot": "source_snapshot/tests/test_qwen3_4B_external_pd.py.txt",
       "symbol": "_launch_sglang_server",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -35530,9 +35640,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_qwen3_4B_external_pd.py#L222",
       "snapshot": "source_snapshot/tests/test_qwen3_4B_external_pd.py.txt",
       "symbol": "execute",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -36250,9 +36360,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L102",
       "snapshot": "source_snapshot/tests/test_rollout_straw_transport.py.txt",
       "symbol": "test_cpu_rollout_imports_do_not_require_sglang",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -36268,9 +36378,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L261",
       "snapshot": "source_snapshot/tests/test_rollout_straw_transport.py.txt",
       "symbol": "test_payload_reference_is_small_and_readable_by_independent_process",
-      "topic_id": "subprocess-checked-results",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-failure",
+      "topic_id": "subprocess-run",
+      "lesson": "37-subprocess-run",
+      "anchor": "subprocess-run",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -36376,9 +36486,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L377",
       "snapshot": "source_snapshot/tests/test_rollout_straw_transport.py.txt",
       "symbol": "test_synchronous_rollout_stores_during_generation_and_preserves_legacy_hook.exercise",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -36466,9 +36576,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L392",
       "snapshot": "source_snapshot/tests/test_rollout_straw_transport.py.txt",
       "symbol": "test_synchronous_rollout_stores_during_generation_and_preserves_legacy_hook.exercise.pack",
-      "topic_id": "loop-shutdown",
-      "lesson": "13-event-loop",
-      "anchor": "loop-shutdown",
+      "topic_id": "threadsafe-submit",
+      "lesson": "36-threadsafe-submit",
+      "anchor": "threadsafe-submit",
       "status": "inferred",
       "receiver_type": "asyncio.AbstractEventLoop",
       "receiver": "loop"
@@ -36664,9 +36774,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_rollout_straw_transport.py#L1418",
       "snapshot": "source_snapshot/tests/test_rollout_straw_transport.py.txt",
       "symbol": "test_checkpoint_lock_released_when_controller_process_is_killed",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -38698,9 +38808,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_straw_fully_async_recovery.py#L257",
       "snapshot": "source_snapshot/tests/test_straw_fully_async_recovery.py.txt",
       "symbol": "test_fully_async_sigkill_and_restart_preserves_results_and_prefixes",
-      "topic_id": "subprocess-communication",
-      "lesson": "18-process-lifecycle",
-      "anchor": "subprocess-communicate",
+      "topic_id": "popen-communicate",
+      "lesson": "38-popen-communicate",
+      "anchor": "popen-communicate",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -40624,9 +40734,9 @@
       "source_url": "https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_streaming_rollout.py#L541",
       "snapshot": "source_snapshot/tests/test_streaming_rollout.py.txt",
       "symbol": "test_generation_pacing_preserves_concurrency_cancellation_and_reuse.exercise",
-      "topic_id": "executor-await",
-      "lesson": "33-run-in-executor",
-      "anchor": "executor-await",
+      "topic_id": "running-loop",
+      "lesson": "33-current-loop",
+      "anchor": "running-loop",
       "status": "explained",
       "receiver_type": null,
       "receiver": null
@@ -42399,7 +42509,7 @@
       "name": "call_soon_threadsafe",
       "count": 2,
       "related_topic_ids": [
-        "loop-shutdown"
+        "threadsafe-submit"
       ]
     },
     {
@@ -42426,9 +42536,9 @@
       "related_topic_ids": [
         "process-reaping",
         "process-pool-lifecycle",
-        "loop-shutdown",
         "stream-writer",
-        "server-lifecycle"
+        "server-lifecycle",
+        "manual-event-loop"
       ]
     },
     {
@@ -42436,8 +42546,8 @@
       "count": 8,
       "related_topic_ids": [
         "future-result-state",
-        "future-callbacks",
-        "task-results"
+        "task-results",
+        "asyncio-future-results"
       ]
     },
     {
@@ -42452,7 +42562,8 @@
       "count": 6,
       "related_topic_ids": [
         "future-result-state",
-        "task-results"
+        "task-results",
+        "asyncio-future-results"
       ]
     },
     {
@@ -42579,9 +42690,9 @@
       "count": 21,
       "related_topic_ids": [
         "future-result-state",
-        "future-basics",
         "event-loop-lifecycle",
-        "task-results"
+        "task-results",
+        "asyncio-future-results"
       ]
     },
     {
@@ -42598,7 +42709,7 @@
       "count": 1,
       "related_topic_ids": [
         "future-test-double",
-        "future-callbacks"
+        "asyncio-future-completion"
       ]
     },
     {
@@ -42606,7 +42717,7 @@
       "count": 2,
       "related_topic_ids": [
         "future-test-double",
-        "future-callbacks"
+        "asyncio-future-completion"
       ]
     },
     {
@@ -42629,7 +42740,7 @@
       "name": "stop",
       "count": 4,
       "related_topic_ids": [
-        "loop-shutdown"
+        "manual-event-loop"
       ]
     },
     {

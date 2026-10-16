@@ -3,30 +3,25 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 def get_samples(num_samples):
-    # 线程池中的工作线程执行这个同步函数，返回样本列表。
+    # 工作线程：提交后被 reader 安排执行，不必等主协程执行 await。
     return list(range(num_samples))
 
 
 async def get_samples_async(reader, num_samples):
-    # 取得当前协程正在使用的事件循环；不创建新的循环。
+    # 主协程 1：取得当前事件循环；这一步还没有提交 get_samples。
     loop = asyncio.get_running_loop()
-    # 现在就提交 get_samples(num_samples)，返回可 await 的 asyncio Future。
+    # 主协程 2：现在提交 get_samples(num_samples)；工作线程就可以开始执行。
     future = loop.run_in_executor(reader, get_samples, num_samples)
-    print("work submitted")
-    # 结果未就绪时挂起当前协程；工作线程返回后，取得同一次调用的结果。
-    return await future
-
-
-async def exercise(reader):
-    print("before submit")
-    # 沿当前协程的调用链等待，不会额外创建一个 Task。
-    samples = await get_samples_async(reader, 3)
-    print("samples", samples)
+    print("work submitted")  # 主协程 3：提交已返回；不表示取数刚开始或已经结束。
+    # 主协程 4：等这次结果；Future 未就绪时挂起，就绪时取得列表。
+    samples = await future
+    print("samples", samples)  # 主协程 5：已取得 get_samples 返回的列表。
+    return samples
 
 
 if __name__ == "__main__":
-    # 在事件循环外管理自选线程池；离开 with 时等待并关闭池。
+    # reader 是本例的线程池变量名，对应第 31 课的 executor。
     with ThreadPoolExecutor(max_workers=1) as reader:
-        # 在主线程运行事件循环，把同一个 reader 交给协程使用。
-        asyncio.run(exercise(reader))
+        # 主线程运行这一个协程；reader 中的工作线程运行同步取数函数。
+        asyncio.run(get_samples_async(reader, 3))
     print("pool closed")

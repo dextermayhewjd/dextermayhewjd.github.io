@@ -8,6 +8,8 @@ hideMeta: true
 hideInOverview: true
 ---
 
+函数与返回对象的检查已独立为[第 25 课：inspect.isawaitable / inspect.iscoroutinefunction](../25-inspect-awaitable/)。本页保留原来的多主题参考及下载。
+
 <span id="inspection-route"></span>
 ## 从一个 hook 调用走到返回结果
 

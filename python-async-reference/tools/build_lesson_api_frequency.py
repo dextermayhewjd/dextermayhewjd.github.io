@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / 'lesson-api-frequency.md'
 TOTAL_SHARE_PERCENT = 1
 REPO_COUNT_THRESHOLD = 10
+REPO_COUNT_THRESHOLDS = dict.fromkeys(REPOS, REPO_COUNT_THRESHOLD)
+REPO_COUNT_THRESHOLDS['slime'] = 5
 
 
 def read_json(path):
@@ -28,7 +30,7 @@ def frequency_marks(counts, denominator):
         'total_high': bool(denominator and combined is not None
                            and combined * 100 >= denominator * TOTAL_SHARE_PERCENT),
         'repo_high': {repo for repo, value in counts.items()
-                      if value is not None and value >= REPO_COUNT_THRESHOLD},
+                      if value is not None and value >= REPO_COUNT_THRESHOLDS[repo]},
     }
 
 
@@ -143,7 +145,8 @@ def format_counts(counts, denominator):
     marks = frequency_marks(counts, denominator)
     values = [
         '—' if counts[repo] is None else
-        highlighted(counts[repo], 'repo', f'{LABELS[repo]}：{counts[repo]} 次，单库次数 ≥ {REPO_COUNT_THRESHOLD}')
+        highlighted(counts[repo], 'slime' if repo == 'slime' else 'repo',
+                    f'{LABELS[repo]}：{counts[repo]} 次，单库次数 ≥ {REPO_COUNT_THRESHOLDS[repo]}')
         if repo in marks['repo_high'] else str(counts[repo])
         for repo in REPOS
     ]
@@ -173,7 +176,14 @@ def render():
     syntax_count = len({syntax for lesson in lessons.values() for syntax in lesson['syntax']})
     ready = [number for number, lesson in lessons.items() if lesson['status'] == 'existing']
     planned = [number for number, lesson in lessons.items() if lesson['status'] == 'planned']
+    partial = [lesson for lesson in lessons.values() if lesson['status'] == 'partial']
     progress = f'**{format_lesson_ranges(ready)} 已整理；{format_lesson_ranges(planned)} 待编写。**' if planned else '**全部课程均已整理。**'
+    if partial:
+        progress += ' 部分完成：' + '；'.join(
+            f'{lesson["number"]} 单元已整理 '
+            + '、'.join(part['label'] for part in lesson['parts'] if part.get('status') == 'existing')
+            + '，其余小节待编写' for lesson in partial
+        ) + '。'
     rows = build_rows()
     selected = {api for lesson in lessons.values() for api in lesson['introduces']}
     stats = call_statistics(registry, inventories, selected)
@@ -205,8 +215,8 @@ def render():
         '“本课占比”与单项“占同类总量”的分母不同：前者看本课组合占整体统计范围的比例，后者保留各类明细的原口径。同一行代码涉及多个知识点时分别计数；因此它不是去重代码行覆盖率，也不是运行时执行频率。课程尚未包含所有已识别接口，各课占比不需要加到 100%。复习旧 API 不再次计数，纯复习课标为“复用前课”。',
         '',
         '颜色图例：' + highlighted(f'同类占比 ≥ {TOTAL_SHARE_PERCENT}%', 'total', '蓝色标注：四库合计占同类总量至少 1%')
-        + ' 标蓝色合计与占比；' + highlighted(f'单库次数 ≥ {REPO_COUNT_THRESHOLD}', 'repo', '橙色标注：单个仓库的次数至少 10')
-        + ' 标橙色单库数字。右侧“本课占比”达到 1% 时同样标蓝，但使用课程份额的分母；该列用底色和分隔线区分。',
+        + ' 标蓝色合计与占比；' + highlighted('Slime 次数 ≥ 5', 'slime', '红色标注：Slime 核心包次数至少 5，API 与语法均适用')
+        + ' 单独标红色 Slime 数字及对应 API / 语法名称；其他三库仍按单库次数 ≥ 10 标橙色。右侧“本课占比”达到 1% 时同样标蓝，但使用课程份额的分母；该列用底色和分隔线区分。',
         '',
         '**学习提示：** 课程占比帮助判断哪些知识点整体更常出现，适合增加练习和源码对照；低频不等于不重要，取消、清理、异常与必要前置仍按课程顺序学习。',
         '',
@@ -226,7 +236,7 @@ def render():
     for number, grouped_rows in groupby(rows, key=lambda row: row['lesson']):
         lesson_rows = list(grouped_rows)
         lesson = lessons[number]
-        if lesson['status'] == 'existing':
+        if lesson['status'] in ('existing', 'partial'):
             target = f'/projects/python-async-concurrency/{lesson["source_lessons"][0]}/'
             title = f'{number:02d}'
         else:
@@ -235,6 +245,8 @@ def render():
         lesson_label = escape(title)
         if lesson['status'] == 'planned':
             lesson_label += '<span class="api-frequency-status">待编写</span>'
+        elif lesson['status'] == 'partial':
+            lesson_label += '<span class="api-frequency-status">部分完成</span>'
         lines.append(f'<tbody data-lesson="{number}">')
         for index, row in enumerate(lesson_rows):
             cells = ['<tr>']
@@ -244,7 +256,9 @@ def render():
             name = escape(row['api'])
             if row['kind'] != '无新增 API':
                 name = f'<code>{name}</code>'
-            cells.append(f'<td class="api-frequency-api">{name}</td>')
+            slime_count = row['counts']['slime']
+            emphasis = ' data-slime-high="true"' if slime_count is not None and slime_count >= REPO_COUNT_THRESHOLDS['slime'] else ''
+            cells.append(f'<td class="api-frequency-api"{emphasis}>{name}</td>')
             cells.append(f'<td class="api-frequency-kind">{row["kind"]}</td>')
             values, combined, share = format_counts(row['counts'], denominators.get(row['kind']))
             cells.extend(f'<td class="api-frequency-repo">{value}</td>' for value in values)

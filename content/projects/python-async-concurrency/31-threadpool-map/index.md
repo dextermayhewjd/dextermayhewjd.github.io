@@ -142,4 +142,4 @@ iteration raised failed 11
 
 ---
 
-[上一节：31.1 · ThreadPoolExecutor / submit](../31-threadpool-submit/) · [下一重点：33.1 · run_in_executor](../33-run-in-executor/) · [重点续学路线](../learning-route/#priority-reading)
+[上一节：31.1 · ThreadPoolExecutor / submit](../31-threadpool-submit/) · [下一重点：33.1 · get_running_loop](../33-current-loop/) · [重点续学路线](../learning-route/#priority-reading)

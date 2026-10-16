@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "run-in-executor-and-wrap-future",
+  "title": "run_in_executor 与 wrap_future 的关系",
+  "recorded_on": "2026-10-16",
+  "nodes": [
+    {
+      "id": "run-in-executor",
+      "api": "asyncio.AbstractEventLoop.run_in_executor",
+      "input": "执行器、同步函数和参数",
+      "action": "提交工作并接好可 await 的结果对象",
+      "output": "asyncio.Future",
+      "lesson": "33-run-in-executor"
+    },
+    {
+      "id": "wrap-future",
+      "api": "asyncio.wrap_future",
+      "input": "已经取得的 concurrent.futures.Future",
+      "action": "包装已有结果对象，不再次提交工作",
+      "output": "asyncio.Future",
+      "lesson": "34-wrap-future"
+    }
+  ],
+  "relations": [
+    {
+      "from": "run-in-executor",
+      "to": "wrap-future",
+      "label": "提交后包装结果",
+      "explanation": "CPython 3.12.3 中，显式传入执行器时，run_in_executor 先调用 executor.submit，再调用 wrap_future。",
+      "version": "CPython 3.12.3",
+      "source": "Lib/asyncio/base_events.py:BaseEventLoop.run_in_executor"
+    }
+  ],
+  "selection_rule": "未提交的函数和参数用 run_in_executor；已经取得的执行器 Future 用 wrap_future。"
+}
