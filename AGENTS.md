@@ -65,10 +65,16 @@ Use lowercase, hyphenated content paths and descriptive asset names. Use `_index
 - 数据从 [资料总入口](python-async-reference/README.md) 查找；重点使用 [核心包 API 统计](python-async-reference/CORE-API-USAGE.md)、[官方文档目录](python-async-reference/OFFICIAL-DOCS.md) 和 `python-async-reference/repositories/<repo>/inventory.json`。调用、引用、语法和不确定候选遵循各自统计口径。
 - `learning-plan.md` 中每库至少 3 处的高频筛选线是本轮工作口径，可根据讨论调整；必要前置与低频衔接接口要单独说明，不能冒称都是高频。具体讲解继续遵循 `.agents/skills/python-syntax-learning/SKILL.md`。
 - 三库各约 70%–80% 的调用位置覆盖是阶段性选题核算，保留在学习规划第 4.2 节及 [覆盖与缺口核算](python-async-reference/learning-coverage.md)。显式 API 清单在 `python-async-reference/learning-scope.json`，用 `python3 python-async-reference/tools/build_learning_coverage.py --check` 核对；它不是完整岗位路线的覆盖分母。允许必要的仓库特有生命周期操作，不得把调用位置比例描述成实际场景覆盖率或学习完成度。
-- 当前具体 API 以 [97 项 API 清单](python-async-reference/current-api-plan.md) 和 `current-api-plan.json` 为准：原 82 项加六组 11 项与 4 项必要配套。原 82 项保留在 `api-plan-82.json`，53 项保留作历史基线。四库核心包总调用量加权覆盖为 1609/1899（84.7%），不是 API 种类比例或各库覆盖率平均。用 `python3 python-async-reference/tools/build_current_api_plan.py --check` 复核；语法与异常引用不混入调用数。
-- 用户要求全课结束时包含全部 97 项 API。正式课程唯一数据为 `python-async-reference/curriculum.json`，逐项映射见 [curriculum.md](python-async-reference/curriculum.md)：8 模块、41 个主编号单元，01–22、25–38 已整理，23–24、39–41 待编写。10、11、21、23、31、33、35、36 用 `parts` 拆成子课，每个 API 恰有一个正式引入位置。21.1–21.6 已拆成独立正文，依次为资源三阶段、yield、装饰器、正常进入退出、异常、取消；`contextlib.asynccontextmanager` 正式引入在 21.4，保留原 21-async-contextmanager URL。第 35 单元的 35.1–35.3 均已整理，分别讲结果读取、手动写入和完成回调；第 36 单元的 36.1、36.2 均已整理，分别讲循环生命周期与跨线程提交；23–24、39–41 仍是规划；25–38 已按用户要求优先完成，31.1、31.2 与 33.1–33.4 分别在各自单元下分组阅读；第 33 单元先取出已有循环，再提交并等待，独立观察协程切换，最后学习循环时钟。既有 URL 和主编号保留，不能按 URL 的历史数字推断现行单元号。改动后运行 `python3 python-async-reference/tools/build_curriculum.py --check`。
+- 当前具体 API 以 [98 项 API 清单](python-async-reference/current-api-plan.md) 和 `current-api-plan.json` 为准：原 82 项加六组 11 项与 4 项必要配套，再按 2026-10-18 用户确认补入 threading.RLock 一项。原 82 项保留在 `api-plan-82.json`，53 项保留作历史基线。四库核心包总调用量加权覆盖为 1614/1899（85.0%），不是 API 种类比例或各库覆盖率平均。用 `python3 python-async-reference/tools/build_current_api_plan.py --check` 复核；语法与异常引用不混入调用数。
+- 用户要求全课结束时包含全部 98 项 API。正式课程唯一数据为 `python-async-reference/curriculum.json`，逐项映射见 [curriculum.md](python-async-reference/curriculum.md)：8 模块、41 个主编号单元；01–22、24–38 已整理，23、39–41 待编写。10、11、20、21、23、24、28、31、33、35、36 用 `parts` 拆成子课，每个 API 恰有一个正式引入位置。21.1–21.6 保留资源三阶段、yield、装饰器、正常进入退出、异常和取消的顺序，`contextlib.asynccontextmanager` 正式引入在 21.4。2026-10-16 用户确认整合两版：Future 基础正式放在 20.2–20.5，承接 20.1 的 Event 通知，依次讲当前循环、结果对象、等待交付、状态与异常；第 33 单元保留远端 33.1–33.4 的当前循环复习、指定线程池、并发交接实验、循环时钟；35.1–35.2 保留为复习与源码应用，35.3 正式引入完成回调。第 24 单元拆为 24.1 的 ContextVar.set/get 与 24.2 的 token/reset，原 11-contextvars URL 和下载保留；当前继续 24.2，24.1 只记录为初步理解。第 36 单元的 36.1、36.2 均已整理。本轮先补 20.2–20.5，再回到第 33 单元。既有 URL 和主编号保留，不按 URL 历史数字推断现行单元号。改动后运行 `python3 python-async-reference/tools/build_curriculum.py --check`。
 - 主线包括原生任务与结果、取消与超时、同步与队列、线程与执行器、进程、异步协议与上下文。测试、日志和诊断工具只辅助验证当前并发机制，不另设通用必学模块。01–06 继续保持最小递进，后续每次只引入一个新关系；公开入口见 `content/projects/python-async-concurrency/learning-route/index.md`。
 - 保存规划不等于已经改写现有章节。后续改动应先核对规划、源码版本和 Python 文档版本；学习表格保存在独立文件中，刷新自动生成的统计报告时应保留它。
+- 用户在 localhost 章节学习中追问的关键澄清，应同步补入对应教学正文，并提供本地页面锚点；不要只在聊天中解释后让网页内容停留在前一个问题。
+- 当前学习记录：用户明确表示 36.2 `run_coroutine_threadsafe` 尚未读懂，要求暂时跳过，不计为已掌握。当前短补同一线程中的回调调度，完整教学分别在 `content/projects/python-async-concurrency/loop-call-soon/` 与 `loop-call-later/`；2026-10-17 用户表示已大致理解第 24 单元 ContextVar 的任务上下文与 set/get，当前继续 token/reset；整课尚未标为掌握；ContextVar 教学现已按第 24 单元加入主导航，教材 existing 状态不代表学习完成。待以后回访跨线程提交的动机与结果方向。当前阅读位置以学习记录为准，不因已有正文或 `existing` 状态推断掌握，也不自动跳回 20 或 31。
+
+- 2026-10-17 用户澄清两个层级：补充教学负责问题、完整例子、输出和逐步解释，放在专题根目录，侧栏在第 38 课后直接显示且不编号；`content/projects/python-async-concurrency/comparisons/` 只保存函数关系摘要，供复习和以后画思维导图，写共同点、差别、选择条件与关系句，不复制长篇教学或完整可运行例子。关系摘要在侧栏中显示为独立、可展开的文件夹，教学页保持在该文件夹外；两个层级互相链接。当前摘要是 create_task 与 call_soon、call_soon 与 call_later；41 个主编号与 97 项正式 API 归属不变。
+
+- 2026-10-18 用户确认把第 28 单元拆成 28.1 Lock 与 28.2 RLock，原 Lock URL 保留；RLock 正式加入范围，总数为 98 项。侧栏分组、课程表、频率表与 comparisons/lock-vs-rlock 同步。Slime ≥5 次（包含恰好 5 次）为当前重点；本轮先看 RLock，尚未确认掌握。此前日期记录中的 97 项保留历史语境。
 
 ### 本专题的 Reference 入口
 
@@ -76,10 +82,10 @@ Use lowercase, hyphenated content paths and descriptive asset names. Use `_index
 | --- | --- |
 | 完整课程安排：8 模块、41 单元、前置、原子结论、自查和 API 对应 | [python-async-reference/curriculum.md](python-async-reference/curriculum.md) |
 | 修改课程结构的唯一数据源 | [python-async-reference/curriculum.json](python-async-reference/curriculum.json) |
-| 97 项 API、Python 官网入口、四库调用次数和覆盖比例 | [python-async-reference/current-api-plan.md](python-async-reference/current-api-plan.md) |
+| 98 项 API、Python 官网入口、四库调用次数和覆盖比例 | [python-async-reference/current-api-plan.md](python-async-reference/current-api-plan.md) |
 | 学习边界、选题依据与历史讨论结论 | [python-async-reference/learning-plan.md](python-async-reference/learning-plan.md) |
 
-调整课程结构时修改 `curriculum.json`，运行 `python3 python-async-reference/tools/build_curriculum.py` 同步生成 Markdown 和网页课程表，再运行同一命令加 `--check` 核对 97 项 API、语法、异常和前置顺序。不要单独修改生成的 `curriculum.md` 或 `curriculum-web.md`。
+调整课程结构时修改 `curriculum.json`，运行 `python3 python-async-reference/tools/build_curriculum.py` 同步生成 Markdown 和网页课程表，再运行同一命令加 `--check` 核对 98 项 API、语法、异常和前置顺序。不要单独修改生成的 `curriculum.md` 或 `curriculum-web.md`。
 
 ## Testing Guidelines
 

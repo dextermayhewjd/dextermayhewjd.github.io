@@ -8,8 +8,8 @@
 
 ## 1. 从这里进入
 
-1. [完整课程设置](curriculum.md)：8 模块、41 个编号单元（复杂单元分成独立子课），安排全部 97 项 API；[学习范围与顺序](learning-plan.md)保存选题依据，[当前 API 表](current-api-plan.md)保存官网入口和覆盖统计。
-   [01–41 课全部 API 与语法出现次数](lesson-api-frequency.md)按首次引入的课号列出完整规划中的 97 项接口及配套语法，展示四库核心包的统计并标注待编写课程；最右侧“本课占比”将同课各项的四库使用次数相加，以四库全部已识别调用、引用与七类语法的统计总量为分母，包含尚未选入课程的接口。每课合并显示一次，单项占比不变，复习旧 API 不重复计数。用 `python3 python-async-reference/tools/build_lesson_api_frequency.py` 重新生成，加 `--check` 可核对。
+1. [完整课程设置](curriculum.md)：8 模块、41 个编号单元（复杂单元分成独立子课），安排全部 98 项 API；[学习范围与顺序](learning-plan.md)保存选题依据，[当前 API 表](current-api-plan.md)保存官网入口和覆盖统计。
+   [01–41 课全部 API 与语法出现次数](lesson-api-frequency.md)按首次引入的课号列出完整规划中的 98 项接口及配套语法，展示四库核心包的统计并标注待编写课程；最右侧“本课占比”将同课各项的四库使用次数相加，以四库全部已识别调用、引用与七类语法的统计总量为分母，包含尚未选入课程的接口。每课合并显示一次，单项占比不变，复习旧 API 不重复计数。用 `python3 python-async-reference/tools/build_lesson_api_frequency.py` 重新生成，加 `--check` 可核对。
 2. [官方网址与本地副本](OFFICIAL-DOCS.md)：含用户指定的 12 页和补充理由；[纯网址清单](official/urls.txt)。
 3. [按官方页面统计](TOPIC-USAGE.md)：先决定哪些主题值得学习，再进入逐页明细。
 4. [核心包 API 矩阵](CORE-API-USAGE.md) / [含测试与示例的完整矩阵](API-USAGE.md) / [TSV](api-usage.tsv)。
@@ -23,7 +23,7 @@
 本地 Miles 使用 `/home/hongshi/projects/miles`，本次固定为 `cf91d625b3074f480b31ddcfd6604298407899f3`。核心包为 `miles/`；完整扫描保留入口脚本、插件、测试和示例的独立范围。原三库快照与固定覆盖基线继续保留。
 
 - [Miles 扫描清单](repositories/miles/inventory.json)与[API 计数](repositories/miles/api-counts.json)，来源行和相应文件快照保存在同一目录。
-- 当前范围由原 82 项扩充为 97 项；[四库加权核算](current-api-plan.md)保留扩充前后对比，[原 82 项](api-plan-82.json)保留作历史基线。
+- 当前范围由原 82 项扩充为 98 项；[四库加权核算](current-api-plan.md)保留扩充前后对比，[原 82 项](api-plan-82.json)保留作历史基线。
 - [四库课程对照表](lesson-api-frequency.md)已增加 Miles 列；[源码用法说明](../content/projects/python-async-concurrency/miles-async-usage/index.md)连接任务创建、结果收集、缓冲与清理。
 - 更新命令：
 

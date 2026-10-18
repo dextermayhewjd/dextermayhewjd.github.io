@@ -41,7 +41,7 @@
 
 数据入口：[核心包 API 矩阵](CORE-API-USAGE.md)、[统计规则](METHOD.md)、[官方文档目录](OFFICIAL-DOCS.md)、[机器汇总](report.json)。语法的核心包计数从下表所列 `inventory.json` 中按 `scope=core` 筛选；[SYNTAX-USAGE.md](SYNTAX-USAGE.md) 则包含全部扫描文件，两者范围不同。
 
-当前具体要学的调用与方法以 [97 项 API 清单与四库加权核算](current-api-plan.md) 为准，机器清单为 [current-api-plan.json](current-api-plan.json)。在原 82 项基础上纳入六组 11 项接口，并补充运行/关闭事件循环和完成 Future 的 4 项必要操作；主编号保持 01–41，新关系拆成子课。四库总调用位置覆盖从 **1528/1899（80.5%）** 提高到 **1609/1899（84.7%）**。这是将各库调用次数相加后计算的比例，不是 API 种类占比或各库百分比平均。原 82 项保留在 [api-plan-82.json](api-plan-82.json)，第 4.2 节的 53 项核算仍为历史基线。
+当前具体要学的调用与方法以 [98 项 API 清单与四库加权核算](current-api-plan.md) 为准，机器清单为 [current-api-plan.json](current-api-plan.json)。在原 82 项基础上纳入六组 11 项接口、运行/关闭事件循环和完成 Future 的 4 项必要操作，2026-10-18 再补入 threading.RLock；主编号保持 01–41，新关系拆成子课。四库总调用位置覆盖为 **1614/1899（85.0%）**，这是各库调用次数相加后计算的比例，不是 API 种类占比或各库百分比平均。原 82 项保留在 [api-plan-82.json](api-plan-82.json)，第 4.2 节的 53 项核算仍为历史基线。
 
 | 仓库 | 核心包 | 固定源码版本与逐条记录 |
 | --- | --- | --- |
@@ -144,9 +144,9 @@
 
 ### 4.3 机制分组与旧材料索引
 
-**必学**表示需要能解释并实现一个最小例子；**查阅**用于清单外内容。表中一行是机制分组，不是一课；按“旧方法能做什么 → 新增要求 → 新机制”继续拆分。97 项内的复杂接口可以后学，但在整套课程结束前都有正式单元覆盖。
+**必学**表示需要能解释并实现一个最小例子；**查阅**用于清单外内容。表中一行是机制分组，不是一课；按“旧方法能做什么 → 新增要求 → 新机制”继续拆分。98 项内的复杂接口可以后学，但在整套课程结束前都有正式单元覆盖。
 
-用户要求全课结束时包含当前清单中的全部 97 项 API。正式课程安排以 [8 模块、41 单元的课程设置](curriculum.md)及其 [curriculum.json](curriculum.json) 为准；下面的编号与链接保留为机制分组及旧材料索引，不能当作新单元编号。97 项内的内容全部安排正式单元，不再无限期放在选读中；只有清单外内容继续按需。
+用户要求全课结束时包含当前清单中的全部 98 项 API。正式课程安排以 [8 模块、41 单元的课程设置](curriculum.md)及其 [curriculum.json](curriculum.json) 为准；下面的编号与链接保留为机制分组及旧材料索引，不能当作新单元编号。98 项内的内容全部安排正式单元，不再无限期放在选读中；只有清单外内容继续按需。
 
 下表负责学习顺序与深度；[当前 API 表](current-api-plan.md)负责完整列出具体方法、官网页面和调用次数。当前范围足以服务至少 70%、约 80% 的静态调用覆盖目标，不继续把所有剩余低频 API 加进主线，也不据此声称覆盖了等比例的实际运行场景。
 
@@ -156,7 +156,7 @@
 | 2. 结果与失败 · 必学 | 一项先完成或失败后，剩余工作由谁继续等待或结束？ | `wait`、Task 的 `done/result/exception`；随后比较 `gather` 的异常传播与 TaskGroup 的失败收尾；最小 `ExceptionGroup`/`except*`；[等待](https://docs.python.org/3.16/library/asyncio-task.html#waiting-primitives)、[任务组](https://docs.python.org/3.16/library/asyncio-task.html#task-groups) | 06 先讲完成集合；07 讲清取消后，再回访 04/05 的异常分支。`as_completed` 保留短例或源码补学。 |
 | 3. 取消与时间预算 · 必学 | 超时后到底停止了谁？清理执行完了吗？ | `Task.cancel`、`CancelledError`、`try/finally`、`wait_for`；再补 `asyncio.timeout` 的作用域预算；`shield` 连同任务引用和后续收尾作为源码补学；[取消](https://docs.python.org/3.16/library/asyncio-task.html#task-cancellation)、[超时](https://docs.python.org/3.16/library/asyncio-task.html#timeouts) | 07 当前同时包含多种机制，后续拆成取消请求、等待清理、单次超时、作用域预算。不在一页一次讲完。 |
 | 4. 负载与共享状态 · 必学 | 慢服务和快生产者一起运行时，怎样控制在途工作与积压？ | `Semaphore`；有界 `asyncio.Queue` 的 `put/get`；`asyncio.Lock`；`Event.set/wait/clear`；[同步原语](https://docs.python.org/3.16/library/asyncio-sync.html)、[队列](https://docs.python.org/3.16/library/asyncio-queue.html) | 08 → 09 → 17。许可数、排队容量、共享状态、条件通知分别讲。Semaphore 与 Event 即使不是三库共用，也因工程责任进入必学。`task_done/join` 只在采用计数完成协议时补，不与结束标记强行混用。 |
-| 5. 阻塞工作与线程 · 必学 | 同步工具会阻塞谁？取消等待后，线程是否仍在执行？ | `to_thread` → `ThreadPoolExecutor.submit` 与执行器 Future → `run_in_executor`；线程的 `start/join`、`Lock`、`Event`、`queue.Queue`；[线程执行](https://docs.python.org/3.16/library/asyncio-task.html#running-in-threads)、[执行器](https://docs.python.org/3.16/library/concurrent.futures.html)、[线程](https://docs.python.org/3.16/library/threading.html)、[同步队列](https://docs.python.org/3.16/library/queue.html) | 10 → 11 → 19 的相关部分。明确 asyncio Future 与执行器 Future 的区别；线程停止依靠合作协议，超时不强杀运行中的线程。 |
+| 5. 阻塞工作与线程 · 必学 | 同步工具会阻塞谁？取消等待后，线程是否仍在执行？ | `to_thread` → `ThreadPoolExecutor.submit` 与执行器 Future → `run_in_executor`；线程的 `start/join`、`Lock/RLock`、`Event`、`queue.Queue`；[线程执行](https://docs.python.org/3.16/library/asyncio-task.html#running-in-threads)、[执行器](https://docs.python.org/3.16/library/concurrent.futures.html)、[线程](https://docs.python.org/3.16/library/threading.html)、[同步队列](https://docs.python.org/3.16/library/queue.html) | 10 → 11 → 19 的相关部分。明确 asyncio Future 与执行器 Future 的区别；线程停止依靠合作协议，超时不强杀运行中的线程。 |
 | 6. 资源与任务上下文 · 必学 | 退出时谁关闭资源？并发任务怎样保留自己的请求与 Trace 信息？ | `async with`、`asynccontextmanager`、`ContextVar.set/get/reset`；任务创建与 `to_thread` 的上下文传播；[异步资源](https://docs.python.org/3.16/library/contextlib.html#contextlib.asynccontextmanager)、[上下文](https://docs.python.org/3.16/library/contextvars.html) | 12 的资源部分 → 13。先理解普通 `with`/`yield` 前置，再学异步进入退出；分别测试成功、失败与取消时的恢复。可变对象的引用不会自动深拷贝。 |
 | 7. 可等待对象与异步迭代 · 必学 | 怎样辨认可等待对象？怎样逐项等待并关闭异步生成器？ | `inspect.isawaitable`、`iscoroutinefunction` 的边界，`Awaitable`/`AsyncIterator` 注解，`async for`、异步生成器与提前关闭；[检查对象](https://docs.python.org/3.16/library/inspect.html)、[异步语法](https://docs.python.org/3.16/reference/compound_stmts.html#the-async-for-statement)、[aclosing](https://docs.python.org/3.16/library/contextlib.html#contextlib.aclosing) | 12 的迭代部分与 23 的对象检查部分拆开使用。返回值可 await 不代表调用该同步函数不会阻塞。 |
 | 8. 进程与工具退出 · 基础必学，细节补学 | Python 子进程或外部命令超时以后，怎样确认已退出并收回资源？ | `subprocess.run/Popen/communicate/wait` 与 `TimeoutExpired`；`multiprocessing.Process.start/is_alive/join/terminate/kill`；[外部命令](https://docs.python.org/3.16/library/subprocess.html)、[Python 子进程](https://docs.python.org/3.16/library/multiprocessing.html#process-and-exceptions) | 14、20 中先选工具执行和生命周期部分；退出请求与等待退出分开验证。进程池、启动方式、序列化在 CPU 工作需求出现时补。 |
@@ -165,7 +165,7 @@
 
 最初六个单元之后，按当前规划的 **07–12 任务状态、取消、整组失败与完成顺序 → 13–16 超时与时间预算 → 17–20 协程协调 → 21–25 资源、迭代与上下文 → 26–32 线程与执行器 → 33–36 协程和线程交接 → 37–41 进程与命令** 推进。旧页保留作材料入口，不能要求读者为了一个新问题先读完整个旧页。
 
-`run_coroutine_threadsafe` 安排在新单元 36，完成全课必须覆盖；旧页 15 的手动 loop 生命周期、旧页 18 的 `Condition/RLock`、旧页 21 的信号/进程组/文件锁，以及进程池属于清单外按需内容。
+`run_coroutine_threadsafe` 安排在新单元 36，完成全课必须覆盖；旧页 15 的手动 loop 生命周期、旧页 18 的 `Condition/Timer`、旧页 21 的信号/进程组/文件锁，以及进程池属于清单外按需内容。
 
 按需查阅：22 的原始 Streams、低层 Transport/Protocol、选择器、任务调用图及新版本特有调度选项。`asyncio.create_subprocess_exec` 是异步管理外部命令的可选方案，在实现异步工具执行器时补；不因官方有整页就要求先学完。对线程、协程和进程的选型，应结合阻塞 I/O、CPU 运算、GIL 和扩展库实际行为，不许诺线程能让所有计算多核加速。
 
@@ -196,7 +196,7 @@
 
 ## 5. 与现有教程的衔接
 
-最新课程设置见 [curriculum.md](curriculum.md)：8 模块、41 个主编号，复杂单元使用独立子课。01–22 已整理，其中 21.1–21.6 已拆为独立正文；23–41 及其新增子课为后续规划。机器检查覆盖 97/97 项 API、7 项语法和 8 类异常；运行 `python3 python-async-reference/tools/build_curriculum.py --check` 复核。网页 [学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md) 从同一数据生成。
+最新课程设置见 [curriculum.md](curriculum.md)：8 模块、41 个主编号，复杂单元使用独立子课。01–22、24–38 已整理，其中 21.1–21.6、28.1–28.2 等复杂单元已拆为独立正文；23、39–41 为后续规划。机器检查覆盖 97/98 项 API、7 项语法和 8 类异常；运行 `python3 python-async-reference/tools/build_curriculum.py --check` 复核。网页 [学习路线与完成标准](../content/projects/python-async-concurrency/learning-route/index.md) 从同一数据生成。
 
 2026-10-13 落地：新增 [05 gather](../content/projects/python-async-concurrency/05-gather/index.md)，原第 05 课及之后显示编号顺延，页面地址保留。此前已新增 [04 TaskGroup](../content/projects/python-async-concurrency/04-taskgroup/index.md)，只讲正常退出作用域时等待组内任务；沿用 03 的生成函数和两份任务。已有章节显示编号顺延，旧网页地址保留。异常组和完整取消机制在后续展开。
 
@@ -303,3 +303,89 @@
 ## 2026-10-16：第 36.2 只增加跨线程提交的关系
 
 用户理解 36.1 后继续进入 36.2。主例子复用 asyncio.run 持有运行中的循环、to_thread 启动同步函数和 concurrent.futures.Future.result 等待结果；仅新增 run_coroutine_threadsafe 把协程交回该循环。用一份例子和两条泳道区分工作线程的阻塞等待、主协程的挂起与循环继续调度；不把两线程中 result 开始等待的时刻写成固定先后。Slime 的反向线程布置放入源码回查，call_soon_threadsafe 仅配套说明普通回调。36.1、36.2 均为已有正文，原 97 项正式 API 及四库计数、标色不变。
+
+### 2026-10-16：整合 Future 基础与线程交接两版讲解
+
+用户比较本地保存版与远端版后确认：恢复本地 20.2–20.5 的小步基础，保留远端 33.1–33.4 的四节拆分；35.1–35.2 改为复习与源码应用，35.3 继续正式讲解完成回调。
+
+1. Event 之后依次认识当前循环、保存结果、等待别处交付、状态与异常；先在不涉及线程的例子中分清提供者、Future 与等待者。
+2. 第 31 单元再对比执行器 Future；第 33 单元保留指定线程池、并发交接实验和循环时钟，33.1 复习第 20 单元的 get_running_loop。
+3. Future 的创建、写入和读取 API 全部正式归属第 20 单元；第 35 单元前两页保留原 URL、取消状态表和源码对照，标明复习，不再重复计为首次引入。
+4. 远端新增的 25、34–38 课继续保留。当前先补 20.2–20.5，再回到第 33 单元；41 个主编号和 97 项 API 范围不变。
+
+### 2026-10-16：36.2 未读懂，暂时跳过
+
+用户明确反馈 36.2 仍看不懂，要求标记并继续下一项。本节的学习状态是**尚未读懂、暂时跳过**，不是已掌握；正文已经编写与学习完成分开记录。
+
+待回访：`to_thread` 与 `run_coroutine_threadsafe` 的使用动机，协程对象在调用线程创建、函数体在目标循环线程执行的区别，以及结果返回提交线程后再次返回原调用方的路径。
+
+下一项先短补 `loop.call_soon`，用同一线程中的普通回调观察“登记”与“执行”；之后再看 `call_later`。现有入口为旧综合页的 `#loop-call-soon`，一次只读对应部分，不要求通读旧页或重新解释跨线程往返。课程的 41 个主编号、97 项 API 归属和教材编写状态不变。
+
+### 2026-10-16：call_soon 的独立最小例子
+
+用户希望将 call_soon 单独放入 Python 异步与并发区域，澄清它是否在“真正调用前”额外执行内容。新增 `loop-call-soon/index.md` 与可下载 `example.py`，同一个普通 report 函数分别直接调用和登记调用，输出明确区分登记、当前代码继续执行、循环执行回调三个时刻。call_soon 登记的就是后续要执行的函数，不给任意下一次函数调用安装前置钩子。
+
+当前先读这一页，之后再按理解情况进入 call_later；36.2 保持尚未读懂、暂时跳过，不据页面完成推断已经掌握。该页是既定范围外的源码配套短补，不改变 41 个主编号与 97 项 API 的正式归属。
+
+### 2026-10-16：在 call_soon 页直接对比 create_task
+
+用户要求在页面中直接体现 call_soon 与 create_task 的差别。主例子改为同一循环先安排协程、再登记普通回调：Task 开始后在 sleep(0) 处暂停，普通回调连续执行完，随后 Task 恢复并把 7 返回给等待者。页面并排说明普通函数与协程对象、Handle 与 Task、一次调用与可暂停执行的关系。原“直接调用与登记调用”例子保存在 direct-call.py，原页面 URL 保留。尚未记录用户已经掌握，36.2 继续暂缓。
+
+### 2026-10-16：补充 Handle 的用途与回调实际动作
+
+用户要求把 Handle 的取消用途、普通回调返回值被忽略的区别写进 call_soon 页，并询问它是否主要类似 logger。页面补充：Handle 代表一次登记，可以在执行前取消，不保存回调返回的 7，也不能撤销已经产生的副作用。新增 cancel.py，以修改列表代替回调里的打印，一份登记取消、一份保留，直接观察动作是否发生。
+
+call_soon 调度的是短小的普通函数调用，可用于通知、更新状态、完成 Future 或日志；它本身不是日志功能，也不会自动把阻塞工作移到其他线程。当前仍在理解这一页，不更新为已经掌握。
+
+### 2026-10-16：建立不编号的函数对比目录
+
+用户要求把函数对比作为学习路线的一部分，单独保存到 comparisons/ 文件夹，不占用主课编号。首组为 create_task 与 loop.call_soon，比较传入对象、执行和暂停、结果与取消，并保留可运行的主例子、直接调用例子和 Handle 取消例子。
+
+目录位于 content/projects/python-async-concurrency/comparisons/，左侧与学习路线均有入口。首组正文移动到 call-soon-vs-create-task/，网页仍使用原 /loop-call-soon/ 地址以保留已分享链接及下载路径。41 个主编号、97 项 API 归属与 36.2 尚未读懂的状态不变。后续根据实际混淆点增补对比，不把目录存在视为已熟练掌握。
+
+### 2026-10-17：call_soon / call_later 与 Slime 分批放行
+
+用户确认关注定时到期与实际执行的区别，并要求若 Slime 使用则建立例子。新增 comparisons/call-soon-vs-call-later：独立例子先登记定时回调，再登记就绪回调；Slime 例子直接裁取本地 HEAD 22a89f96835969a47055a659c588f46151f8b07a 的 AsyncPacer，保留 64 个一批与 0.001 秒延迟，只加三处观察输出和 65 个等待者的驱动。源码已与 Git blob 核对，教材不改变 Slime 仓库。
+
+左侧“函数对比”此前是折叠目录，用户在第 38 课之后找不到具体条目；现在在第 38 课后直接展开列出两个对比，不添加课号。学习路线、专题入口和第 38 课后续链接同步指向新页。当前学习是该组比较，36.2 仍未读懂、暂缓；没有据材料建立推断已经掌握。
+
+### 2026-10-17：区分完整教学与函数关系摘要
+
+用户澄清两个抽象层级：教学负责一步步理解机制，函数对比负责记住两个接口的关系，供复习与思维导图使用。完整教学及例子移至专题根目录 loop-call-soon/、loop-call-later/；第 38 课后直接列出两个不编号的补充教学入口。
+
+comparisons/ 保留两份精简关系摘要，只写共同点、核心差异、选择条件与关系句，并链接完整教学；教学反向链接摘要。loop-call-soon 原网页与下载地址保留；call_later 原比较路径现在显示摘要，原两份 Python 下载仍从唯一教学源同步发布。36.2 仍未读懂、暂缓，课程结构与 97 项正式 API 不变。
+
+### 2026-10-17：关系摘要在侧栏中使用独立文件夹
+
+用户再次明确函数对比关系摘要应单独放在 folder 中。磁盘继续沿用 comparisons/ 及其摘要子目录；侧栏由平铺展开列表改成可展开的“函数对比（关系摘要）”文件夹。进入任意摘要页时自动展开；call_soon、call_later 完整教学继续独立显示在外层。
+
+### 2026-10-17：开始 ContextVar
+
+用户要求继续 Slime 至少 5 次的重点清单，并开始 ContextVar 及对应章节。现行归属为第 24 单元，现有 11-contextvars 页面仍是旧编号的参考材料。先理解普通全局值被交错任务覆盖的问题，再观察同一个 ContextVar 在各 Task 上下文中的 set/get；随后学习 token/reset 和 Slime 的 rollout_context。当前为开始学习，不记录为已掌握，也不以一次讲解将第 24 单元标为整理完成。36.2 仍未读懂、暂时跳过。
+
+### 2026-10-17：ContextVar 页先加入 set/get 最小例子
+
+用户要求把刚才的基础解释直接写入对应页面。11-contextvars 正文开头增加普通全局值被覆盖的交接过程、basic.py 与 [10, 11] / None 输出，先区分同一 ContextVar 对象与各任务上下文中的绑定；原来的 rollout_context、token/reset 和固定 Slime 源码继续放在后面。basic.py 登记为附加可运行例子。当前仍是开始理解，不据此标记已掌握或将第 24 单元的完整整理状态改为完成。
+
+### 2026-10-17：ContextVar 澄清同步到网页
+
+用户希望在 localhost 正文中看到对“全局变量是否被修改”的解释。第 3 节补充 contextvar-object-binding 锚点，区分全局名字指向的 ContextVar 对象与当前任务上下文中的值；set 改变后者，而不替换前者。补充不同 Task 与同一 Task 内直接 await 的协程之间的边界。后续关键澄清同步到教学正文，不只保留聊天说明；仍不据此标记用户已经掌握。
+
+### 2026-10-17：ContextVar 按第 24 单元正式显示
+
+用户指出 ContextVar 应出现在第 24 部分。现将已有基础例子、上下文绑定澄清和 token/reset 正文纳入第 24 单元，页面标题、权重、主导航与生成课程表一致；原 11-contextvars URL 及旧目录历史编号保留。教材状态更新为 existing，当前学习状态仍为开始理解、尚未确认掌握，36.2 继续暂缓。
+
+### 2026-10-17：ContextVar 基础初步理解，继续 token/reset
+
+用户表示差不多理解 ContextVar 的基础后要求继续。将其记录为 set/get 与任务上下文初步理解，不将整课标为掌握。正文第 4 节新增 token-reset.py：同一任务原值 10，临时改成 20，在 finally 用 token 恢复成 10。先说明恢复凭据与原绑定，再接回 Slime 的 rollout_context；当前阅读入口指向 #contextvar-token。
+
+### 2026-10-17：第 24 单元拆为 24.1 与 24.2
+
+用户要求按 24.1、24.2 区分学习步骤。24.1 保留 `11-contextvars` URL，正式引入 ContextVar 与 set/get，只展开各 Task 的绑定隔离；24.2 使用 `24-contextvar-reset`，正式引入 reset，沿同一任务的 10 → 20 → 10 实验解释 token 与恢复。完整 Slime 示例、固定快照及原下载地址保留在 24.1 的可选源码区，24.2 链接回查；旧 token 锚点提供新课入口。课程表、API 次数表和侧边导航同步拆分，41 个主编号与 97 项 API 不变。24.1 仍只记初步理解，当前继续 24.2；36.2 仍未读懂、暂缓。
+
+
+### 2026-10-18：将线程锁拆为 28.1 Lock 与 28.2 RLock
+
+用户确认按概念依赖拆开第 28 单元：28.1 保留 `28-thread-lock` URL 与原下载，28.2 使用 `28-thread-rlock`，先用同一线程的两层 with 观察重入，再用不阻塞的两次 acquire 对照 Lock/RLock。Slime 的 `_SELECTION_LOCK` 与 `get_accelerator → _register_builtin_backends → register_accelerator` 作为源码回查。旧 Condition/RLock/Timer 材料及其下载保留，关系摘要单独放入 comparisons/lock-vs-rlock。
+
+当前正式范围新增 `threading.RLock` 一项，从 97 增至 98；41 个主编号保留，既有 API 的职责不变。固定 Slime 核心包的 RLock 有 5 处构造，纳入 ≥5 的重点；四库调用覆盖增加 5 处，成为 1614/1899（85.0%），Slime 为 201/229（87.8%）。前文带日期的 97 项与六组统计保留为历史记录。该拆分仅表示教材整理，未据此将 RLock、ContextVar 或 36.2 标为已掌握；本轮用户先看 RLock。
