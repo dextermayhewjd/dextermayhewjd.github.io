@@ -8,7 +8,7 @@
 {{- if $page.IsSection -}}
   {{- $children = where (union $page.Sections $page.RegularPages) "Params.hideinprojectnav" "ne" true -}}
 {{- end -}}
-<li>
+<li{{ with .itemClass }} class="{{ . }}"{{ end }}>
   {{- if gt (len $children) 0 -}}
   <details class="project-nav__branch"{{ if or $active ($page.IsAncestor $current) }} open{{ end }}>
     <summary>

@@ -50,6 +50,14 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
+{{- range sort (where $section.RegularPages "Params.learningsupplement" true) "Params.weight" -}}
+  {{- $allPaths = $allPaths | append .RelPermalink -}}
+  {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}
+{{- end -}}
+{{- with $section.GetPage "comparisons" -}}
+  {{- $allPaths = $allPaths | append .RelPermalink -}}
+  {{- partial "project-nav-branch.html" (dict "page" . "current" $current "itemClass" "project-nav__comparisons") -}}
+{{- end -}}
 {{- with $section.GetPage "knowledge-map" -}}
   {{- $allPaths = $allPaths | append .RelPermalink -}}
   {{- partial "project-nav-branch.html" (dict "page" . "current" $current) -}}

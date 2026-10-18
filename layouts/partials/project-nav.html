@@ -8,7 +8,7 @@
   {{- end -}}
 {{- end -}}
 {{- if and $section (in (slice "courses" "projects") $section.Section) -}}
-<aside class="project-nav" aria-label="{{ $section.Title }} 导航">
+<aside class="project-nav" data-project-nav="{{ $section.RelPermalink }}" aria-label="{{ $section.Title }} 导航">
   <div class="project-nav__heading">{{ $section.Title }}</div>
   <details class="project-nav__mobile">
     <summary>展开本方向导航</summary>
@@ -20,4 +20,6 @@
     {{ partial "project-nav-items.html" (dict "section" $section "current" .) }}
   </nav>
 </aside>
+{{- $navJS := resources.Get "js/project-nav.js" | minify | fingerprint }}
+<script defer src="{{ $navJS.RelPermalink }}" integrity="{{ $navJS.Data.Integrity }}"></script>
 {{- end -}}

@@ -91,5 +91,10 @@
   .project-nav__desktop { display: none; }
   .project-nav__mobile { display: block; }
   .project-nav__mobile summary { cursor: pointer; color: var(--secondary); }
-  .project-nav__mobile-content { margin-top: 10px; }
+  .project-nav__mobile-content {
+    margin-top: 10px;
+    max-height: min(60vh, 480px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
 }
