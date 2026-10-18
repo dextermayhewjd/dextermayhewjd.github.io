@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date": "2026-10-15",
+  "date": "2026-10-18",
   "scope": "Python 原生异步与并发；按四库核心包总调用量加权筛选，概念依赖决定顺序；语法与异常引用另列。",
   "api_groups": [
     {
@@ -117,6 +117,7 @@
         "threading.Lock",
         "threading.Lock.acquire",
         "threading.Lock.release",
+        "threading.RLock",
         "threading.Event",
         "threading.Event.set",
         "threading.Event.wait",
@@ -239,11 +240,11 @@
     "builtins.ExceptionGroup"
   ],
   "learning_depth": [
-    "97 项是完整写出的调用/方法名，不是 97 课。41 个主编号保留，新增关系使用子课逐步展开。",
+    "98 项是完整写出的调用/方法名，不是 98 课。41 个主编号保留，新增关系使用子课逐步展开。",
     "run_coroutine_threadsafe、as_completed、shield 均有正式教学单元，按前置分期展开；完成全课时必须覆盖，具体单元见 curriculum.json。",
     "Lock/Semaphore 的 acquire/release 用来解释 async with 或 with 的进入退出，不要求所有主例子手动配对调用。",
     "CancelledError 等异常按类型和异常传播学习；只出现于 except 或注解的引用不计入调用覆盖。ExceptionGroup 此处只要求读取和捕获，不据此覆盖显式构造调用。",
-    "六组加权筛选新增 11 项，另加 run_until_complete、close、set_result、set_exception 四项必要配套；原 82 项范围保留为可复算基线。",
+    "六组加权筛选新增 11 项，另加 run_until_complete、close、set_result、set_exception 四项必要配套；原 82 项范围保留为可复算基线。 另按 Slime 核心包 5 处构造补入 threading.RLock。",
     "AsyncExitStack.pop_all 使用继承方法的真实名字，文档对应 ExitStack.pop_all；不因原报告缺少该映射而漏掉清理责任的转移。"
   ],
   "expansion": {
@@ -301,6 +302,13 @@
         "apis": [
           "asyncio.AbstractEventLoop.time"
         ]
+      },
+      {
+        "id": "thread-rlock",
+        "title": "同一线程嵌套加锁",
+        "apis": [
+          "threading.RLock"
+        ]
       }
     ],
     "required_companions": [
@@ -309,6 +317,6 @@
       "asyncio.Future.set_result",
       "asyncio.Future.set_exception"
     ],
-    "reason": "用户确认纳入四库调用量加权筛选的六组接口；运行和关闭事件循环、完成 Future 的结果或异常为必要配套。"
+    "reason": "用户确认纳入四库调用量加权筛选的六组接口；运行和关闭事件循环、完成 Future 的结果或异常为必要配套。 2026-10-18 按 Slime 核心包至少 5 次的重点补入 RLock，在 28.2 正式讲解。"
   }
 }

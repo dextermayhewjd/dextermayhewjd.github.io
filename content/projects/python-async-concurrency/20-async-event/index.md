@@ -1,12 +1,16 @@
 ---
-title: "20 · asyncio.Event：让任务等待一个通知"
+title: "20.1 · asyncio.Event：让任务等待一个通知"
 description: "用一个共享标志控制任务何时继续，分清 set、wait、clear，以及唤醒、执行、完成之间的关系。"
-weight: 200
+weight: 201
 ShowToc: false
 ShowPostNavLinks: false
 hideMeta: true
 hideInOverview: true
 ---
+
+> **一句话理解：** Event 像一个初始关闭的共享开关：`set()` 打开，`clear()` 关闭，`await wait()` 等待它打开。
+
+`wait()` 只负责等待，不改变开关状态，也不会在通过后自动关闭开关。
 
 ## 1. asyncio.Event：任务已经启动，怎样等到允许后才继续？
 
@@ -262,7 +266,7 @@ B cleanup
 
 </details>
 
-下一课会从通知回到资源的使用与退出：**怎样把异步资源的准备、使用和清理组织成一个可复用的作用域？** 先从[21.1 · try/finally：分清准备、使用和关闭](../21-resource-lifecycle/)开始。
+下一步增加一个要求：**等待完成时，还要取得这一次操作的结果或异常。** Event 配合外部变量也能表达这种交接，接下来用 Future 将完成状态与结果放在一起。先在[20.2 · get_running_loop](../20-running-loop/)取得创建 Future 所需的当前循环，再逐步学习创建、等待和失败交付。
 
 {{< python-async-slime title="按需阅读：Slime 如何用两个 Event 固定取样与暂停的顺序" >}}
 
@@ -295,4 +299,4 @@ B cleanup
 
 ---
 
-[上一课：19 · asyncio.Lock](../19-async-lock/) · [下一节：21.1 · try/finally](../21-resource-lifecycle/) · [返回学习路线](../learning-route/)
+[上一课：19 · asyncio.Lock](../19-async-lock/) · [下一节：20.2 · get_running_loop](../20-running-loop/) · [返回学习路线](../learning-route/)

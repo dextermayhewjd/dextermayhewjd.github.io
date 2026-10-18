@@ -8,9 +8,13 @@ hideMeta: true
 hideInOverview: true
 ---
 
-当前按小节阅读：[35.1 · asyncio Future 的状态与结果](../35-future-results/)、[35.2 · 创建 Future 并提供结果](../35-future-completion/)、[35.3 · Task 完成回调](../35-task-callbacks/)、[36.1 · 手动管理事件循环](../36-manual-event-loop/)、[36.2 · 跨线程提交协程](../36-threadsafe-submit/)。本页保留旧版综合参考，创建结果、回调和循环管理继续按课程规划拆开。
+当前先按小节建立基础：[20.2 · 当前事件循环](../20-running-loop/)、[20.3 · 保存结果](../20-future-result/)、[20.4 · 等待交付](../20-await-future/)、[20.5 · 状态与异常](../20-future-state/)。[35.1](../35-future-results/)与 [35.2](../35-future-completion/)保留复习和源码应用，之后进入 [35.3 · Task 完成回调](../35-task-callbacks/)、[36.1 · 手动管理事件循环](../36-manual-event-loop/)与 [36.2 · 跨线程提交协程](../36-threadsafe-submit/)。本页保留旧版综合参考。
+
+当前 `call_soon` 的独立最小例子见：[补充 · loop.call_soon：先登记，后执行](../loop-call-soon/)。
 
 <span id="future-basics"></span>
+<span id="loop-call-soon"></span>
+
 ## await future 到底在等谁
 
 前面已经用 Task 管理协程；这一节向下一层看 Future。Future 保存一个尚未完成的结果，回调或其他生产者把结果写进去，等待者才能继续。它本身不会启动一个 worker。

@@ -227,4 +227,4 @@ while not stop.wait(timeout=0.1):
 
 ---
 
-[上一节：28 · threading.Lock：保护线程共享状态](../28-thread-lock/) · [下一重点：31.1 · ThreadPoolExecutor / submit](../31-threadpool-submit/) · [本轮优先路线](../learning-route/#priority-reading)
+[上一节：28.2 · threading.RLock：允许同一线程嵌套加锁](../28-thread-rlock/) · [下一重点：31.1 · ThreadPoolExecutor / submit](../31-threadpool-submit/) · [本轮优先路线](../learning-route/#priority-reading)

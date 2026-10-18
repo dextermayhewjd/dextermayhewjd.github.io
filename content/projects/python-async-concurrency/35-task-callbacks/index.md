@@ -10,7 +10,7 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [第 03 课](../03-tasks/)已经用 create_task 安排协程；[第 08 课](../07-task-results/)已经用 result() 读取完成后的 Task。[35.2](../35-future-completion/) 则说明了结果可以被保存下来，再由其他代码读取。
+> **复用的旧知识：** [第 03 课](../03-tasks/)用 create_task 安排协程；[第 08 课](../07-task-results/)读取 Task 的结果；[20.4–20.5](../20-await-future/)区分执行任务、保存结果与等待交付。[35.2](../35-future-completion/)另有结果交付的源码回顾，可按需阅读。
 >
 > **本节新增的需求：** Task 结束时，希望自动调用一个函数来处理结果，不用每次都手动在 await 后面调用它。
 >

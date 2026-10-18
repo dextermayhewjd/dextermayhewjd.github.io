@@ -225,3 +225,5 @@ communicate 会处理两条输出管道的读取，并等待退出，所以本�
 ---
 
 [上一节：37 · subprocess.run](../37-subprocess-run/) · [下一规划：39 · Popen.wait / terminate / kill](../learning-route/#curriculum-stage-processes) · [当前续学路线](../learning-route/#priority-reading)
+
+[当前短补：call_later 教学](../loop-call-later/) · [函数对比目录](../comparisons/)

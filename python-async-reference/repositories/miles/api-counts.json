@@ -15942,7 +15942,7 @@
   ],
   "unresolved_candidate_count": 7147,
   "curriculum_coverage": {
-    "selected_api_count": 97,
+    "selected_api_count": 98,
     "covered_core_call_positions": 445,
     "all_core_call_positions": 537
   }

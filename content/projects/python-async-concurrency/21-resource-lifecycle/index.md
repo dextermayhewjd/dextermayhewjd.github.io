@@ -91,4 +91,4 @@ outside False
 
 ---
 
-[上一节：20 · asyncio.Event](../20-async-event/) · [下一节：21.2 · yield：交出一个值，并暂停在原处](../21-yield-pause/) · [返回学习路线](../learning-route/)
+[上一节：20.5 · Future 的状态与异常](../20-future-state/) · [下一节：21.2 · yield：交出一个值，并暂停在原处](../21-yield-pause/) · [返回学习路线](../learning-route/)

@@ -21,7 +21,7 @@ class PythonAsyncCurriculum(unittest.TestCase):
 
     def test_all_apis_have_one_formal_introduction(self):
         owners = CURRICULUM.validate_plan(self.plan, self.scope)
-        self.assertEqual(len(owners), 97)
+        self.assertEqual(len(owners), 98)
         self.assertEqual(owners["asyncio.run"], 1)
         self.assertEqual(owners["asyncio.wait"], 7)
         self.assertEqual(owners["multiprocessing.Process.kill"], 41)
@@ -57,7 +57,7 @@ class PythonAsyncCurriculum(unittest.TestCase):
         self.assertEqual(self.plan['lessons'][10]['number'], 11)
         self.assertIn(10, self.plan['lessons'][10]['depends_on'])
         owners = CURRICULUM.validate_plan(self.plan, self.scope)
-        self.assertEqual(len(owners), 97)
+        self.assertEqual(len(owners), 98)
         self.assertEqual(owners['asyncio.gather'], 6)
         manifest = json.loads((ROOT / 'python-async-concurrency/project-manifest.json').read_text())
         rendered = CURRICULUM.render_body(self.plan, manifest, web=True)
@@ -161,12 +161,12 @@ class PythonAsyncCurriculum(unittest.TestCase):
             'contextlib.AsyncExitStack': '23.2',
             'contextlib.AsyncExitStack.pop_all': '23.3',
             'concurrent.futures.Executor.map': '31.2',
-            'asyncio.get_running_loop': '33.1',
+            'asyncio.get_running_loop': '20.2',
             'asyncio.AbstractEventLoop.run_in_executor': '33.2',
             'asyncio.AbstractEventLoop.time': '33.4',
-            'asyncio.AbstractEventLoop.create_future': '35.2',
-            'asyncio.Future.set_result': '35.2',
-            'asyncio.Future.set_exception': '35.2',
+            'asyncio.AbstractEventLoop.create_future': '20.3',
+            'asyncio.Future.set_result': '20.3',
+            'asyncio.Future.set_exception': '20.5',
             'asyncio.Task.add_done_callback': '35.3',
             'asyncio.new_event_loop': '36.1',
             'asyncio.set_event_loop': '36.1',
@@ -177,12 +177,71 @@ class PythonAsyncCurriculum(unittest.TestCase):
                   for part in CURRICULUM.display_lessons(unit) for api in part['introduces']}
         for api, label in expected.items():
             self.assertEqual(owners.get(api), label, api)
-        ready = set(range(1, 23)) | set(range(25, 39))
+        ready = set(range(1, 23)) | set(range(24, 39))
         for unit in self.plan['lessons']:
             expected_status = 'existing' if unit['number'] in ready else 'planned'
             self.assertEqual(unit['status'], expected_status)
 
-    def test_future_unit_keeps_three_published_sublessons(self):
+    def test_thread_lock_parts_keep_rlock_after_lock_and_before_event(self):
+        unit = self.plan['lessons'][27]
+        parts = CURRICULUM.display_lessons(unit)
+        self.assertEqual([part['label'] for part in parts], ['28.1', '28.2'])
+        self.assertEqual(parts[0]['source_lessons'], ['28-thread-lock'])
+        self.assertEqual(parts[1]['source_lessons'], ['28-thread-rlock'])
+        self.assertEqual(parts[1]['introduces'], ['threading.RLock'])
+        self.assertIn('28.1', parts[1]['depends_on'])
+        self.assertTrue(unit['navigation_group'])
+        owners = CURRICULUM.validate_plan(self.plan, self.scope)
+        self.assertEqual(owners['threading.RLock'], 28)
+        self.assertEqual(self.plan['lessons'][28]['number'], 29)
+        manifest = json.loads((ROOT / 'python-async-concurrency/project-manifest.json').read_text())
+        rendered = CURRICULUM.render_body(self.plan, manifest, web=True)
+        self.assertIn('/projects/python-async-concurrency/28-thread-rlock/', rendered)
+
+    def test_contextvar_is_split_into_bindings_then_restoration(self):
+        unit = self.plan['lessons'][23]
+        parts = CURRICULUM.display_lessons(unit)
+        self.assertEqual([part['label'] for part in parts], ['24.1', '24.2'])
+        self.assertEqual(unit['source_lessons'], ['11-contextvars', '24-contextvar-reset'])
+        self.assertEqual(set(parts[0]['introduces']), {
+            'contextvars.ContextVar', 'contextvars.ContextVar.get',
+            'contextvars.ContextVar.set',
+        })
+        self.assertEqual(parts[1]['introduces'], ['contextvars.ContextVar.reset'])
+        self.assertIn('24.1', parts[1]['depends_on'])
+        self.assertEqual([part['status'] for part in parts], ['existing', 'existing'])
+        self.assertTrue(unit['navigation_group'])
+        self.assertEqual(len(CURRICULUM.validate_plan(self.plan, self.scope)), 98)
+        self.assertEqual(self.plan['lessons'][24]['number'], 25)
+
+    def test_future_basics_precede_executor_bridges_and_reviews(self):
+        basics = self.plan['lessons'][19]
+        self.assertEqual(basics['source_lessons'], [
+            '20-async-event', '20-running-loop', '20-future-result',
+            '20-await-future', '20-future-state',
+        ])
+        self.assertEqual([part['label'] for part in basics['parts']],
+                         ['20.1', '20.2', '20.3', '20.4', '20.5'])
+        owners = CURRICULUM.validate_plan(self.plan, self.scope)
+        for api in ('asyncio.get_running_loop', 'asyncio.Future.done',
+                    'asyncio.Future.result', 'asyncio.Future.exception',
+                    'asyncio.AbstractEventLoop.create_future',
+                    'asyncio.Future.set_result', 'asyncio.Future.set_exception'):
+            self.assertEqual(owners[api], 20, api)
+        bridge = self.plan['lessons'][32]
+        self.assertEqual([part['label'] for part in bridge['parts']],
+                         ['33.1', '33.2', '33.3', '33.4'])
+        self.assertIn('asyncio.get_running_loop', bridge['parts'][0]['revisits'])
+        self.assertEqual(bridge['parts'][0]['introduces'], [])
+        for part in self.plan['lessons'][34]['parts'][:2]:
+            self.assertEqual(part['introduces'], [])
+            self.assertTrue(part['revisits'])
+        callbacks = self.plan['lessons'][34]['parts'][2]
+        self.assertIn(20, callbacks['depends_on'])
+        self.assertNotIn('35.2', callbacks['depends_on'],
+                         'Optional review must not block the callback lesson')
+
+    def test_future_unit_keeps_reviews_and_callback_at_published_urls(self):
         unit = self.plan['lessons'][34]
         parts = CURRICULUM.display_lessons(unit)
         slugs = ['35-future-results', '35-future-completion', '35-task-callbacks']

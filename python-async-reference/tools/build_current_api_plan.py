@@ -50,6 +50,9 @@ def render():
     total = sum(len(core[repo]) for repo in REPOS)
     covered = sum(len(counts[repo]) for repo in REPOS)
     old_covered = sum(len(old_counts[repo]) for repo in REPOS)
+    selected_additions = [name for group in expansion['selected_groups'] for name in group['apis']]
+    selected_positions = sum(len(matching(repo, selected_additions)) for repo in REPOS)
+    companion_positions = sum(len(matching(repo, expansion['required_companions'])) for repo in REPOS)
     headers = ' | '.join(LABELS[repo] for repo in REPOS)
 
     lines = [
@@ -59,7 +62,7 @@ def render():
         "",
         "## 1. 结论与统计范围",
         "",
-        f"当前清单为 **{len(names)} 项调用/方法**：保留原 {len(old_names)} 项，纳入六组共 11 项接口，以及 4 项必要配套操作。语法和异常类型另列。",
+        f"当前清单为 **{len(names)} 项调用/方法**：保留原 {len(old_names)} 项，纳入 {len(expansion['selected_groups'])} 组共 {len(selected_additions)} 项接口，以及 {len(expansion['required_companions'])} 项必要配套操作。语法和异常类型另列。",
         "",
         f"**四库按调用量加权：{fraction(covered, total)}**；扩充前为 {fraction(old_covered, total)}。先把四库的调用位置数相加再相除，不取四个覆盖率的算术平均，也不按 API 种类数计算。",
         "",
@@ -81,7 +84,7 @@ def render():
         "3. 这是静态调用位置覆盖，不是运行频率、实际场景覆盖率、全仓代码覆盖率或已经掌握的比例。四个框架的第三方 API 不在分母中。",
         "4. 下表的零调用不表示不学：`async with` 的隐式获取/释放、装饰器引用等不算显式调用，必要配套仍列入。",
         "",
-        "## 2. 本次纳入的六组与必要配套",
+        "## 2. 新增接口组与必要配套",
         "",
         "按四库使用次数筛选范围，按概念依赖安排顺序；必要操作不因零调用而隐藏。这里是课程规划，不表示新增子课已经写完。",
         "",
@@ -94,7 +97,7 @@ def render():
         lines.append(f'| {group["title"]} | {apis} | ' + ' | '.join(map(str, totals)) + f' | {sum(totals)} | {sum(totals) / total:.2%} |')
     lines += [
         "",
-        "六组覆盖 74 个新增调用位置；4 项必要配套再覆盖 7 个，共新增 81 个。`AsyncExitStack.pop_all` 继承的接口说明位于 [ExitStack.pop_all](https://docs.python.org/3.16/library/contextlib.html#contextlib.ExitStack.pop_all)；从原始清单补回该映射，不改变原三库报告和四库调用总数。",
+        f"{len(expansion['selected_groups'])} 组覆盖 {selected_positions} 个新增调用位置；{len(expansion['required_companions'])} 项必要配套再覆盖 {companion_positions} 个，共新增 {covered - old_covered} 个。`AsyncExitStack.pop_all` 继承的接口说明位于 [ExitStack.pop_all](https://docs.python.org/3.16/library/contextlib.html#contextlib.ExitStack.pop_all)；从原始清单补回该映射，不改变原三库报告和四库调用总数。",
         "",
         "## 3. 按概念依赖学习的完整调用/方法表",
         "",
@@ -140,7 +143,7 @@ def render():
         lines.append(f"| {LABELS[repo]} | {len(remaining)} | {description} |")
     lines += [
         "",
-        "主要按需范围：Condition/RLock、进程间队列、进程池、信号/进程组、文件锁与更低层 I/O。`os.getpid` 等辅助调用仍在原分母中，不为了增加分子单独开课。",
+        "主要按需范围：Condition、进程间队列、进程池、信号/进程组、文件锁与更低层 I/O。RLock 已在 28.2 正式引入。`os.getpid` 等辅助调用仍在原分母中，不为了增加分子单独开课。",
         "",
         f"当前 {len(names)} 项不声称列完标准库的每个 API。原 82 项范围保留在 [api-plan-82.json](api-plan-82.json)，原 53 项核算保留在 [learning-coverage.md](learning-coverage.md)。",
         "",

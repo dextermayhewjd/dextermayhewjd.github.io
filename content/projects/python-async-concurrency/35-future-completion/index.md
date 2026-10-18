@@ -1,6 +1,6 @@
 ---
-title: "35.2 · loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果"
-description: "只看一个 Future：创建、写入 7，再读出 7。"
+title: "35.2 · loop.create_future / Future.set_result / set_exception：复习结果交付与源码用法"
+description: "复用第 20 单元的结果交付，理解源码中 set_result(None) 的放行作用。"
 weight: 352
 ShowToc: false
 ShowPostNavLinks: false
@@ -10,21 +10,11 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [35.1](../35-future-results/)已经学习用 done() 检查、用 result() 或 await 取结果；[33.1](../33-current-loop/)已经取得当前事件循环。
+> [20.3](../20-future-result/)讲过创建与保存结果，[20.4](../20-await-future/)已经让等待者和提供者分别执行，[20.5](../20-future-state/)补上失败交付。
 >
-> **本节新增的需求：** 前面读到的结果，是怎样写进 Future 的？
->
-> **本节的解决方式：** 用 create_future() 创建尚未完成的 Future，再用 set_result(7) 写入结果。整节先沿着同一个对象往下看。
+> **本节是复习与源码应用：** 用短例子唤回同一对象的状态变化，再看源码为什么用 `set_result(None)` 放行等待者。创建、等待与完成仍沿用第 20 单元的规则。
 
-## 1. Future：先只看创建、写入和读取
-
-**本节只增加“自己创建 Future，并给它一个结果”这件事。**
-
-创建时，Future 尚未完成；调用 set_result(7) 后，它保存结果 7，并变成已完成。这里没有把函数或任务放进去，写入的就是数值 7。
-
-## 2. create_future / set_result：用一个顺序例子看清楚
-
-这是独立的标准库实验，所有操作从上往下执行。asyncio.run 和 exercise 只是沿用已学的协程运行入口。
+## 1. create_future / set_result：用短例子复习同一个对象
 
 [下载 example.py](example.py)，运行 `python3 -W error example.py`。
 
@@ -59,56 +49,31 @@ result 7
 await 7
 ```
 
-按三个动作读：
-
-1. **创建：** create_future() 返回一个新的 Future，done() 是 False。
-2. **写入：** set_result(7) 操作刚才那个 Future，把结果设为 7，done() 变成 True。
-3. **读取：** result() 和 await future 都取得已有的 7，不会重新执行工作。
-
-**本例在 await 之前已经写入结果，所以这一次 await 不会挂起。** 如果 Future 尚未完成，await 才需要等其他代码完成它；await 自己不会产生结果。先把“结果写在哪里”看清，再学习另一处代码怎样来写。
-
-## 3. set_exception：把完成结果换成失败
+`set_result(7)` 完成刚创建的 Future，后面的读取取得同一个 7。这次在 `await` 前已有结果，所以不会挂起。需要回顾“先等、另一处再写”的完整交接，见 [20.4](../20-await-future/)。
 
 <span id="future-completion"></span>
 
-成功与失败是两种完成方式，选一种即可：
+## 2. set_result(None)：结果也可以只表达一次放行
 
-<div class="async-api-reference">
+第 20 单元的例子交付样本列表；源码也可能交付 `None`。`None` 仍是正常结果，表示这次等待已经完成。等待者恢复后继续运行，不必从 Future 取得业务数据。
 
-| 写入操作 | Future 保存什么 | 后续 await / result() 会怎样 |
-| --- | --- | --- |
-| future.set_result(7)：标记成功完成 | 数值 7 | 得到 7 |
-| future.set_exception(ValueError("failed"))：标记失败完成 | 这个异常 | 抛出这个 ValueError |
+1. 等待方创建 Future，保存它，并 `await future`。
+2. 提供方取得同一个 Future，调用 `set_result(None)` 完成这次交付。
+3. 循环随后恢复等待方，`await future` 返回 None。
 
-</div>
+`set_result` 不会直接执行等待者。若源码要周期性放行多批等待，每次独立交付需要独立的 Future，不能反复改写已完成的对象。
 
-两个方法都不需要 await。set_exception 保存异常，等待或读取结果时才会抛出；35.1 的 exception() 则用于取出异常对象。
+失败交付仍使用 `set_exception(error)`：它保存异常，后续 `await` / `result()` 才抛出。成功、失败或取消后再次完成同一 Future 都会报 `InvalidStateError`；这些边界见 [20.5](../20-future-state/)。
 
-**同一个 Future 只能完成一次。** 成功、失败或取消后，再调用 set_result 或 set_exception 都会抛 InvalidStateError，不能用它反复覆盖结果。
-
-## 4. Future：带走三条结论
-
-1. create_future() 创建一个尚未完成的结果对象，不会启动工作。
-2. set_result(value) 写入成功值；set_exception(error) 写入失败异常。
-3. 写入后 Future 已经完成；await 可以直接取得结果，不是每次都会挂起。
-
-自查：在这个例子里，如果把 set_result(7) 移到 await future 后面，程序能走到写入那一行吗？
-
-<details><summary>查看解释</summary>
-
-不能。当前协程先等住了，后面的写入没有机会执行；本例又没有其他代码来完成这个 Future。真正需要“先等、后写”的场景，必须另外安排能执行写入的代码。
-
-</details>
-
-后面再把这个对象接回任务和回调：Future 保存结果，执行代码负责在合适的时候完成它。
+自查：把 `set_result(None)` 中的 None 换成 Task，是否会自动执行那个 Task？不会，这一参数是保存的结果值；Task 的执行由其自身调度管理。
 
 {{< python-async-slime title="按需阅读：源码对照与适用范围" >}}
 
-主例子用顺序操作帮助辨认对象，不是 Slime 业务函数的裁剪版，也没有演示等待中的协程恢复。Slime 固定教学快照 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 则把创建、等待与写入放在不同位置：
+主例子是第 20 单元机制的顺序复习，不是 Slime 业务函数的裁剪版。Slime 固定教学快照 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 则把创建、等待与写入放在不同位置：
 
 {{< source-reference id="source-1" >}}
 
-现在只认出 wait 中的 create_future 和 await future；队列与回调调度随后再串联。
+对照 20.4 的交接，认出 wait 中创建、保存和等待 Future 的位置；批次队列与定时调度按源码主线继续展开。
 
 {{< source-reference id="source-2" >}}
 
@@ -120,6 +85,7 @@ _release 取出之前保存的同一个 Future，确认尚未完成，再用 set
 
 {{< /python-async-slime >}}
 
+
 ---
 
-[上一节：35.1 · 读取 Future 的结果](../35-future-results/) · [下一节：35.3 · 完成回调](../35-task-callbacks/) · [当前补课顺序](../learning-route/#priority-reading)
+[上一节：35.1 · 复习结果读取](../35-future-results/) · [下一节：35.3 · 完成回调](../35-task-callbacks/) · [基础实验：20.4 · 等待交付](../20-await-future/)

@@ -83,7 +83,7 @@ class LessonAPIFrequencyTests(unittest.TestCase):
         api_rows = [row for row in rows if row['kind'] in ('调用位置', '装饰器引用')]
         scope = json.loads((ROOT / 'python-async-reference/current-api-plan.json').read_text())
         expected = {name for group in scope['api_groups'] for name in group['apis']}
-        self.assertEqual(len(api_rows), 97)
+        self.assertEqual(len(api_rows), 98)
         self.assertEqual({row['api'] for row in api_rows}, expected)
         self.assertEqual({row['lesson'] for row in rows}, set(range(1, 42)))
         for number in range(1, 42):
@@ -91,6 +91,14 @@ class LessonAPIFrequencyTests(unittest.TestCase):
             self.assertEqual(own, list(range(1, len(own) + 1)))
         for number in (10, 11):
             self.assertFalse(any(row['lesson'] == number for row in api_rows))
+
+    def test_rlock_appears_once_in_unit_28_and_marks_five_slime_calls(self):
+        rows = [row for row in self.module.build_rows() if row['api'] == 'threading.RLock']
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['lesson'], 28)
+        self.assertEqual(rows[0]['counts']['slime'], 5)
+        cells = self.api_cells()['threading.RLock']
+        self.assertEqual(cells['api-frequency-api']['attrs']['data-slime-high'], 'true')
 
     def test_syntax_is_numbered_at_its_first_introduction(self):
         rows = self.module.build_rows()
@@ -107,7 +115,7 @@ class LessonAPIFrequencyTests(unittest.TestCase):
         self.assertEqual([row['api'] for row in by_lesson(22)], ['async for', '异步生成器中的 yield'])
         self.assertEqual(lookup['async for']['counts'], {'verl': 18, 'areal': 10, 'slime': 1, 'miles': 9})
         self.assertEqual(lookup['异步生成器中的 yield']['counts'], {'verl': 26, 'areal': 42, 'slime': 0, 'miles': 11})
-        self.assertEqual(sum(row['index'] is not None for row in rows), 104)
+        self.assertEqual(sum(row['index'] is not None for row in rows), 105)
 
     def test_methods_and_references_are_not_conflated(self):
         rows = {row['api']: row for row in self.module.build_rows()}
@@ -122,7 +130,7 @@ class LessonAPIFrequencyTests(unittest.TestCase):
     def test_generated_table_only_labels_first_row_of_each_lesson(self):
         markdown = self.module.render()
         table = self.rendered_table()
-        self.assertEqual(sum(len(rows) for rows in table.groups.values()), 105)
+        self.assertEqual(sum(len(rows) for rows in table.groups.values()), 106)
         for rows in table.groups.values():
             lesson_cells = [cell for row in rows for cell in row
                             if 'api-frequency-lesson' in cell['classes']]
@@ -146,7 +154,7 @@ class LessonAPIFrequencyTests(unittest.TestCase):
 
     def test_completed_future_unit_links_to_its_first_part(self):
         rendered = self.module.render()
-        self.assertIn('01–22、25–38 已整理', rendered)
+        self.assertIn('01–22、24–38 已整理', rendered)
         self.assertNotIn('35 单元已整理', rendered)
         table = self.rendered_table()
         label = next(cell for cell in table.groups[35][0] if 'api-frequency-lesson' in cell['classes'])
@@ -176,7 +184,7 @@ class LessonAPIFrequencyTests(unittest.TestCase):
         self.assertEqual(sum(usage(21).values()), 20)
         self.assertEqual(usage(10), dict.fromkeys(self.module.REPOS))
         self.assertEqual(sum(value for number in range(1, 42) for value in usage(number).values()
-                             if value is not None), 5929)
+                             if value is not None), 5934)
 
     def test_api_call_coverage_stays_separate_from_combined_lesson_usage(self):
         plan, registry, inventories = self.module.sources()
@@ -218,8 +226,8 @@ class LessonAPIFrequencyTests(unittest.TestCase):
 
     def test_four_repository_coverage_is_weighted_by_call_positions(self):
         markdown = self.module.render()
-        self.assertIn('1609/1899', markdown)
-        self.assertIn('84.7%', markdown)
+        self.assertIn('1614/1899', markdown)
+        self.assertIn('85.0%', markdown)
         self.assertIn('1528/1899', markdown)
         rows = {row['api']: row for row in self.module.build_rows()}
         self.assertEqual(rows['contextlib.AsyncExitStack.pop_all']['counts'],

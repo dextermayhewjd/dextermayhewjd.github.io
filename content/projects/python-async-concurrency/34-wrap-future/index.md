@@ -168,6 +168,6 @@ Slime 固定教学快照 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 中，下面
 
 ---
 
-[补齐结果读取：35.1 · asyncio Future](../35-future-results/)
+[复习结果读取：35.1 · asyncio Future](../35-future-results/)
 
 [上一节：33.4 · loop.time](../33-loop-time/) · [下一重点：25 · inspect：辨认函数与可等待对象](../25-inspect-awaitable/) · [重点续学路线](../learning-route/#priority-reading)

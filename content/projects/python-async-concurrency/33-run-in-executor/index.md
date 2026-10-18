@@ -10,7 +10,7 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [第 26 课](../26-to-thread/)已经用 await 等线程工作；[31.1](../31-threadpool-submit/)已经会创建自己的线程池；[33.1](../33-current-loop/)取得了当前事件循环。
+> **复用的旧知识：** [20.3–20.5](../20-future-result/)已经分清 Future、结果提供者与等待者；[第 26 课](../26-to-thread/)用 await 等线程工作；[31.1](../31-threadpool-submit/)创建自己的线程池；[33.1](../33-current-loop/)回顾当前事件循环。
 >
 > **本节新增的问题：** 使用自己选定的线程池时，怎样让协程也能用 await 等待结果？
 
@@ -121,7 +121,7 @@ future = loop.run_in_executor(reader, get_samples, num_samples)  # 提交给 rea
 samples = await future  # 结果未完成时挂起当前协程；取得列表后才继续。
 ```
 
-`future` 代表尚待取得的结果，`samples` 才是 `[0, 1, 2]`。await 等的是刚才提交的同一次调用，不会重新调用函数。
+沿用 [20.4](../20-await-future/)的分工：`future` 是结果对象，`samples` 才是 `[0, 1, 2]`。这次由标准库接回工作线程的结果，不用调用方自己 `set_result`。await 等的是刚才提交的同一次调用，不会重新调用函数。
 
 工作线程执行 `get_samples`；主线程中的协程在 await 处等待。结果就绪后，协程取得列表，继续打印 `samples`。
 

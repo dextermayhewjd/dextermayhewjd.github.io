@@ -1,0 +1,5 @@
+{{- $target := strings.TrimPrefix "/" (.Get "path") -}}
+{{- range .Page.Resources.Match "*.py" -}}
+  {{- $alias := resources.Copy (path.Join $target .Name) . -}}
+  {{- $alias.Publish -}}
+{{- end -}}

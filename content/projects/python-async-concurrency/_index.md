@@ -8,7 +8,7 @@ hideMeta: true
 
 ## 先学清楚一份任务怎么完成
 
-[先看完整 01–41 课 API 与语法出现次数](api-frequency/)：按首次引入的课程逐项排列，列出全部 97 项接口及配套语法在 verl、AReaL、Slime、Miles 中的统计；同课只显示一次课号，待编写课程另作标注。
+[先看完整 01–41 课 API 与语法出现次数](api-frequency/)：按首次引入的课程逐项排列，列出全部 98 项接口及配套语法在 verl、AReaL、Slime、Miles 中的统计；同课只显示一次课号，待编写课程另作标注。
 
 这份专题只讲 Python 原生异步与并发。目标是说明工作何时开始、谁在等待、多少份可以同时推进，以及失败或退出时怎样清理。Slime、AReaL、verl 的真实用法帮助选择学习重点，框架业务与通用工程化不在本专题展开。
 
@@ -22,19 +22,25 @@ hideMeta: true
 
 忘了前面学过什么，或不确定几个 API 的关系时，打开[知识地图与回忆练习](knowledge-map/)：从问题找概念，先回忆、再核对，用短代码检查理解，并留下自己的错因。
 
-## 当前学习：线程基础与线程池
+## 函数对比：关系摘要
 
-[26 · asyncio.to_thread](26-to-thread/) → [27 · Thread](27-thread-lifecycle/) → [28 · Lock](28-thread-lock/) → [29 · Event](29-thread-event/)。
+[不编号的函数对比目录](comparisons/)用精简的关系摘要帮助复习，并为思维导图保留关系。当前有 [create_task 与 loop.call_soon](comparisons/call-soon-vs-create-task/)、[call_soon 与 call_later](comparisons/call-soon-vs-call-later/)和 [Lock 与 RLock](comparisons/lock-vs-rlock/)。完整代码、输出和逐步解释放在对应教学页。
+
+## 当前学习：RLock 的同线程重入
+
+第 28 单元分为 [28.1 · Lock：保护线程共享状态](28-thread-lock/)与 [28.2 · RLock：允许同一线程嵌套加锁](28-thread-rlock/)，本轮先读 28.2。此前 [24.1 · ContextVar.set/get](11-contextvars/)记录为初步理解，[24.2 · token/reset](24-contextvar-reset/)继续保留待回访；36.2 跨线程提交仍保留“尚未读懂，暂时跳过”的记录。已有正文不代表已经掌握。
+
+[26 · asyncio.to_thread](26-to-thread/) → [27 · Thread](27-thread-lifecycle/) → [28.1 · Lock](28-thread-lock/) → [28.2 · RLock](28-thread-rlock/) → [29 · Event](29-thread-event/)。
 
 **第 31 课 · ThreadPoolExecutor：提交并收集线程池工作**：先读 [31.1 · ThreadPoolExecutor / submit：提交工作并取结果](31-threadpool-submit/)，再读 [31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果](31-threadpool-map/)。两个小节归在同一目录组内。
 
 **第 33 课 · 使用当前事件循环**的四个小节放在同一组：[33.1 · get_running_loop：取出正在使用的事件循环](33-current-loop/) → [33.2 · run_in_executor / await：提交到指定线程池并等待结果](33-run-in-executor/) → [33.3 · await / Event：等待线程时，让其他协程继续](33-await-handoff/) → [33.4 · loop.time：用事件循环时钟计算剩余预算](33-loop-time/)。
 
-[34 · asyncio.wrap_future](34-wrap-future/)补上了“工作已经提交，怎样接入 await”的关系。[25 · inspect](25-inspect-awaitable/)已经分清检查函数与检查调用结果。[37 · subprocess.run](37-subprocess-run/)已经区分启动子进程、等待退出和读取输出。[38 · Popen / communicate](38-popen-communicate/)已写好。[35.1 · asyncio Future 的状态与结果](35-future-results/)已讨论，[35.2 · 创建 Future 并提供结果](35-future-completion/)也已讨论，[35.3 · Task 完成回调](35-task-callbacks/)也已讨论，[36.1 · 手动管理事件循环](36-manual-event-loop/)已讨论，现在继续 [36.2 · 跨线程提交协程](36-threadsafe-submit/)，为 Slime 样本生成里的 Future 与循环交接做准备。第 30、32 课继续暂缓；之后按[蓝黄重点续学表](learning-route/#priority-reading)推进。
+先从 [20.2 · 当前循环](20-running-loop/) → [20.3 · 保存结果](20-future-result/) → [20.4 · 等待交付](20-await-future/) → [20.5 · 状态与异常](20-future-state/)补齐 Future 基础，再读第 33 单元的线程池交接。[34 · wrap_future](34-wrap-future/)接回已有工作；[35.1](35-future-results/)和 [35.2](35-future-completion/)保留状态、取消与源码用法的复习；[35.3 · 完成回调](35-task-callbacks/)继续新增回调关系。已编写的 [25 · inspect](25-inspect-awaitable/)、[36.1 · 手动循环](36-manual-event-loop/)、[36.2 · 跨线程提交](36-threadsafe-submit/)、[37 · subprocess.run](37-subprocess-run/)与 [38 · Popen / communicate](38-popen-communicate/)继续保留；第 30、32 课暂缓。具体按[当前续学表](learning-route/#priority-reading)推进。
 
 ## 已整理的学习主线
 
-[07 · wait：先取得任务的完成情况](04-results/) → [08 · done、result、exception：读取 Task 的状态与结果](07-task-results/) → [09 · Task.cancel：请求取消并等待收尾](09-task-cancellation/) → [10.1 · asyncio.gather：收集报错，任务仍可继续](15-gather-failures/) → [10.2 · return_exceptions=True：收齐结果与异常](15-gather-exceptions/) → [11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾](11-taskgroup-failures/) → [11.2 · ExceptionGroup / except*：读取任务组的错误](11-exception-groups/) → [12 · asyncio.as_completed：按完成顺序取结果](08-as-completed/) → [13 · asyncio.wait_for：限制一次等待的时长](10-wait-for/) → [14 · time.monotonic / time.perf_counter：计量经过时间与预算](11-time-budget/) → [15 · asyncio.timeout：给一段异步代码共享时间预算](12-timeout-scope/) → [16 · asyncio.shield：区分取消等待者与内部工作](13-shield/) → [17 · asyncio.Semaphore：限制同时进入的工作](06-semaphore/) → [18 · asyncio.Queue：让生产者与消费者交接数据](07-queues/) → [19 · asyncio.Lock：保护跨 await 的共享状态](19-async-lock/) → [20 · asyncio.Event：让任务等待一个通知](20-async-event/) → [21.1 · try/finally：分清准备、使用和关闭](21-resource-lifecycle/) → [21.2 · yield：交出一个值，并暂停在原处](21-yield-pause/) → [21.3 · @ 装饰器：把函数交给另一个函数处理](21-decorators/) → [21.4 · asynccontextmanager：把准备和关闭接到 async with](21-async-contextmanager/) → [21.5 · finally：使用区报错后怎样关闭](21-context-errors/) → [21.6 · Task.cancel：使用区被取消后怎样关闭](21-context-cancellation/) → [22 · async for / 异步生成器：逐项等待异步产出](22-async-iteration/)。先读取消与整组失败，再学习按完成顺序取结果，再进入超时和时间预算，随后学习协程间的协调。10、11 各分为两个子课；21 分为六个小节。
+[07 · wait：先取得任务的完成情况](04-results/) → [08 · done、result、exception：读取 Task 的状态与结果](07-task-results/) → [09 · Task.cancel：请求取消并等待收尾](09-task-cancellation/) → [10.1 · asyncio.gather：收集报错，任务仍可继续](15-gather-failures/) → [10.2 · return_exceptions=True：收齐结果与异常](15-gather-exceptions/) → [11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾](11-taskgroup-failures/) → [11.2 · ExceptionGroup / except*：读取任务组的错误](11-exception-groups/) → [12 · asyncio.as_completed：按完成顺序取结果](08-as-completed/) → [13 · asyncio.wait_for：限制一次等待的时长](10-wait-for/) → [14 · time.monotonic / time.perf_counter：计量经过时间与预算](11-time-budget/) → [15 · asyncio.timeout：给一段异步代码共享时间预算](12-timeout-scope/) → [16 · asyncio.shield：区分取消等待者与内部工作](13-shield/) → [17 · asyncio.Semaphore：限制同时进入的工作](06-semaphore/) → [18 · asyncio.Queue：让生产者与消费者交接数据](07-queues/) → [19 · asyncio.Lock：保护跨 await 的共享状态](19-async-lock/) → [20.1 · asyncio.Event：让任务等待一个通知](20-async-event/) → [20.2 · get_running_loop：取得当前循环](20-running-loop/) → [20.3 · create_future / set_result：保存结果](20-future-result/) → [20.4 · await Future：等待交付](20-await-future/) → [20.5 · Future 的状态与异常](20-future-state/) → [21.1 · try/finally：分清准备、使用和关闭](21-resource-lifecycle/) → [21.2 · yield：交出一个值，并暂停在原处](21-yield-pause/) → [21.3 · @ 装饰器：把函数交给另一个函数处理](21-decorators/) → [21.4 · asynccontextmanager：把准备和关闭接到 async with](21-async-contextmanager/) → [21.5 · finally：使用区报错后怎样关闭](21-context-errors/) → [21.6 · Task.cancel：使用区被取消后怎样关闭](21-context-cancellation/) → [22 · async for / 异步生成器：逐项等待异步产出](22-async-iteration/)。先读取消与整组失败，再学习按完成顺序取结果，再进入超时和时间预算，随后学习协程间的协调。10、11 各分为两个子课；20 分为通知与 Future 的五个小节；21 分为六个小节。
 
 ## 课程目录
 

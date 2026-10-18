@@ -66,6 +66,8 @@ with condition:
 
 ## RLock 处理同一线程的嵌套加锁
 
+首次学习请先读[28.1 · Lock](../28-thread-lock/)与[28.2 · RLock](../28-thread-rlock/)。本页保留 Condition、RLock、Timer 的旧版综合实验与原下载。
+
 普通 Lock 已由当前线程占有时，再去 acquire 同一把 Lock 也会等待。`threading.RLock()` 记录拥有它的线程和重入层数；同一线程可以再次取得，但每取得一次都必须释放一次。最外层释放之前，其他线程仍然进不来。通常写嵌套 `with lock`，由上下文管理器配对 acquire/release。[RLock 文档](https://docs.python.org/3.12/library/threading.html#rlock-objects)
 
 

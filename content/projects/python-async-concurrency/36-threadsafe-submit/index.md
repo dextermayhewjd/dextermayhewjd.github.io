@@ -8,6 +8,8 @@ hideMeta: true
 hideInOverview: true
 ---
 
+> **学习记录（2026-10-16）：尚未读懂，暂时跳过。** 保留本节供以后回访；下一项先看 [loop.call_soon：登记稍后执行的普通回调](../loop-call-soon/)。
+
 > **与已学内容的连接**
 >
 > **复用的旧知识：** [第 26 课](../26-to-thread/)用 to_thread 把普通函数交给工作线程；[第 31 课](../31-threadpool-submit/)用 Future.result() 等待线程工作的结果；[36.1](../36-manual-event-loop/)分清循环的创建与运行。

@@ -2,12 +2,12 @@
   "schema_version": 1,
   "api_scope": "current-api-plan.json",
   "status": "curriculum-plan",
-  "target_api_count": 97,
+  "target_api_count": 98,
   "notes": [
-    "01–22、25–35、37–38 已整理；36 单元已完成 36.1，36.2 待编写；23–24、39–41 继续按规划补写，不表示全课已完成。",
-    "现行编号按确认后的概念依赖排序；10、11、21、23、31、33、35、36 使用独立子课逐步展开。既有页面 URL 和旧版 23 页目录的历史编号保留，不能按 URL 数字推断新课号。",
+    "01–22、24–38 已整理；23、39–41 继续按规划补写，不表示全课已完成。",
+    "现行编号按概念依赖排序；10、11、20、21、23、24、28、31、33、35、36 使用独立子课逐步展开。Future 基础在 20.2–20.5 正式引入，33.1 与 35.1–35.2 复习已有接口；既有 URL 和主编号保留。",
     "每个 API 有一个正式引入单元；后面的复用与回访不重复计数。",
-    "完成整套课程时覆盖全部 97 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。原 82 项作为历史基线保留，清单外内容仍按需。"
+    "完成整套课程时覆盖全部 98 项；按单元逐步学习，不要求一次学完，也不把清单内内容无限期留作选读。原 82 项作为历史基线保留，清单外内容仍按需。"
   ],
   "stages": [
     {
@@ -583,28 +583,166 @@
     },
     {
       "number": 20,
-      "title": "asyncio.Event：让任务等待一个通知",
-      "question": "没有数据要传，只需要通知其他任务继续，怎么办？",
+      "title": "asyncio.Event / Future：通知与交付结果",
+      "question": "从布尔通知到一次结果交付，谁等待、谁完成，失败怎样传回？",
       "introduces": [
         "asyncio.Event",
         "asyncio.Event.set",
         "asyncio.Event.wait",
-        "asyncio.Event.clear"
+        "asyncio.Event.clear",
+        "asyncio.get_running_loop",
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.Future.set_result",
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception",
+        "asyncio.Future.set_exception"
       ],
       "depends_on": [
+        3,
+        8,
+        9,
         18,
         19
       ],
-      "takeaway": "Event 保存一个可设置和清除的标志，wait 等待标志为真；它不是计数队列。",
-      "check": "预测 set、wait、clear 对后续等待者的影响。",
+      "takeaway": "Event 通知标志变化；Future 保存一次结果交付；事件循环安排等待与恢复。",
+      "check": "分清通知对象、结果对象、提供者与等待者，再比较 Future 和 Task。",
       "source_lessons": [
-        "20-async-event"
+        "20-async-event",
+        "20-running-loop",
+        "20-future-result",
+        "20-await-future",
+        "20-future-state"
       ],
       "syntax": [],
-      "exception_types": [],
+      "exception_types": [
+        "asyncio.InvalidStateError"
+      ],
       "revisits": [],
       "prerequisite_notes": [],
-      "status": "existing"
+      "status": "existing",
+      "parts": [
+        {
+          "label": "20.1",
+          "title": "asyncio.Event：让任务等待一个通知",
+          "question": "没有数据要传，只需要通知其他任务继续，怎么办？",
+          "takeaway": "Event 保存一个可设置和清除的标志，wait 等待标志为真；它不是计数队列。",
+          "check": "预测 set、wait、clear 对后续等待者的影响。",
+          "introduces": [
+            "asyncio.Event",
+            "asyncio.Event.set",
+            "asyncio.Event.wait",
+            "asyncio.Event.clear"
+          ],
+          "depends_on": [
+            18,
+            19
+          ],
+          "source_lessons": [
+            "20-async-event"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing"
+        },
+        {
+          "label": "20.2",
+          "title": "get_running_loop：取得正在运行的事件循环",
+          "question": "需要调用当前循环的方法时，怎样取得正在运行的循环对象？",
+          "takeaway": "asyncio.run 管理本例的运行入口；get_running_loop 只取得当前线程正在运行的循环。",
+          "check": "解释重复查询为何取得同一对象，以及 run 返回后为何查询失败。",
+          "introduces": [
+            "asyncio.get_running_loop"
+          ],
+          "depends_on": [
+            3,
+            "20.1"
+          ],
+          "source_lessons": [
+            "20-running-loop"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing"
+        },
+        {
+          "label": "20.3",
+          "title": "create_future / set_result：保存一次完成的结果",
+          "question": "除了通知已就绪，怎样把一次操作的完成状态与结果值放在一起？",
+          "takeaway": "Future 保存一次结果交付；create_future 不启动工作，set_result 保存值并完成它。",
+          "check": "区分 loop、future 和结果值，解释重复 await 为何不会重新运行工作。",
+          "introduces": [
+            "asyncio.AbstractEventLoop.create_future",
+            "asyncio.Future.set_result"
+          ],
+          "depends_on": [
+            "20.2"
+          ],
+          "source_lessons": [
+            "20-future-result"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [
+            "承接 Event 的布尔通知：外部变量加 Event 也能交付结果，Future 将完成状态与结果封装在一起。"
+          ],
+          "status": "existing"
+        },
+        {
+          "label": "20.4",
+          "title": "await Future：等待别处交付结果",
+          "question": "结果尚未到时，谁等待、谁提供，什么时候恢复？",
+          "takeaway": "等待者 await 未完成的 Future 时挂起；提供者完成它后，等待者才可以恢复。",
+          "check": "指出提供者 Task、结果 Future 与等待者；解释 set_result 不直接执行等待者。",
+          "introduces": [],
+          "depends_on": [
+            3,
+            "20.3"
+          ],
+          "source_lessons": [
+            "20-await-future"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing"
+        },
+        {
+          "label": "20.5",
+          "title": "Future 的状态与异常：分清等待、读取和完成",
+          "question": "结果提供者报告失败时，怎样读取状态和异常，并与 Task 区分？",
+          "takeaway": "done 只查完成；result/exception 不等待；set_exception 记录失败。Task 还负责驱动协程。",
+          "check": "区分读取过早、操作失败与重复完成，说明 Task 与普通 Future 的完成责任。",
+          "introduces": [
+            "asyncio.Future.done",
+            "asyncio.Future.result",
+            "asyncio.Future.exception",
+            "asyncio.Future.set_exception"
+          ],
+          "depends_on": [
+            8,
+            9,
+            "20.4"
+          ],
+          "source_lessons": [
+            "20-future-state"
+          ],
+          "syntax": [],
+          "exception_types": [
+            "asyncio.InvalidStateError"
+          ],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing"
+        }
+      ],
+      "navigation_group": "Event / Future：通知与交付结果"
     },
     {
       "number": 21,
@@ -897,13 +1035,69 @@
       "takeaway": "ContextVar 保存上下文中的绑定，set 的 token 用于恢复先前状态。",
       "check": "验证两个任务与嵌套作用域的值，并区分绑定隔离与共享可变对象。",
       "source_lessons": [
-        "11-contextvars"
+        "11-contextvars",
+        "24-contextvar-reset"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
       "prerequisite_notes": [],
-      "status": "planned"
+      "status": "existing",
+      "parts": [
+        {
+          "label": "24.1",
+          "title": "ContextVar.set / get：保存每份任务自己的值",
+          "question": "多个任务共用一个 ContextVar 对象时，怎样各自保存和读取自己的值？",
+          "introduces": [
+            "contextvars.ContextVar",
+            "contextvars.ContextVar.get",
+            "contextvars.ContextVar.set"
+          ],
+          "depends_on": [
+            3,
+            6
+          ],
+          "takeaway": "ContextVar 对象可以共用；set/get 操作当前上下文中的绑定，不同 Task 的绑定变化相互隔离。",
+          "check": "预测两个 Task 的读取结果，再解释同一 Task 内直接 await 为何共享改动。",
+          "source_lessons": [
+            "11-contextvars"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing"
+        },
+        {
+          "label": "24.2",
+          "title": "ContextVar.reset：用 token 恢复修改前的值",
+          "question": "同一个任务临时改变上下文中的值后，怎样恢复进入前的状态？",
+          "introduces": [
+            "contextvars.ContextVar.reset"
+          ],
+          "depends_on": [
+            "24.1",
+            9,
+            21
+          ],
+          "takeaway": "set 返回的 token 记录这次修改的恢复信息；reset 恢复旧绑定，finally 保证退出时执行恢复。",
+          "check": "把原值从 10 改成 30，预测 reset 后的值，并解释为什么 set(None) 不能替代恢复。",
+          "source_lessons": [
+            "24-contextvar-reset"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [
+            "contextvars.ContextVar.set",
+            "contextvars.ContextVar.get"
+          ],
+          "prerequisite_notes": [
+            "Slime 的 contextmanager 应用按需回查第 21 单元；主实验只增加 token 与恢复的关系。"
+          ],
+          "status": "existing"
+        }
+      ],
+      "navigation_group": "ContextVar：任务的值与恢复"
     },
     {
       "number": 25,
@@ -980,27 +1174,83 @@
     },
     {
       "number": 28,
-      "title": "threading.Lock：保护线程共享状态",
-      "question": "多个线程同时修改共享数据时怎样互斥？",
+      "title": "Lock / RLock：保护共享状态与同线程重入",
+      "question": "线程怎样互斥，以及同一线程需要嵌套取得同一把锁时怎么办？",
       "introduces": [
         "threading.Lock",
         "threading.Lock.acquire",
-        "threading.Lock.release"
+        "threading.Lock.release",
+        "threading.RLock"
       ],
       "depends_on": [
         19,
         27
       ],
-      "takeaway": "线程 Lock 在获取失败时阻塞调用线程，配对释放保护共享操作。",
-      "check": "与 asyncio.Lock 比较等待位置，并验证共享计数。",
+      "takeaway": "Lock 保护共享状态，RLock 增加同一拥有线程的重复获取与配对释放。",
+      "check": "区分普通互斥与同线程重入，说明何时完成最后一次释放。",
       "source_lessons": [
-        "28-thread-lock"
+        "28-thread-lock",
+        "28-thread-rlock"
       ],
       "syntax": [],
       "exception_types": [],
       "revisits": [],
       "prerequisite_notes": [],
-      "status": "existing"
+      "status": "existing",
+      "navigation_group": "Lock / RLock：线程互斥与重入",
+      "parts": [
+        {
+          "title": "threading.Lock：保护线程共享状态",
+          "question": "多个线程同时修改共享数据时怎样互斥？",
+          "introduces": [
+            "threading.Lock",
+            "threading.Lock.acquire",
+            "threading.Lock.release"
+          ],
+          "depends_on": [
+            19,
+            27
+          ],
+          "takeaway": "线程 Lock 在获取失败时阻塞调用线程，配对释放保护共享操作。",
+          "check": "与 asyncio.Lock 比较等待位置，并验证共享计数。",
+          "source_lessons": [
+            "28-thread-lock"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [],
+          "prerequisite_notes": [],
+          "status": "existing",
+          "label": "28.1"
+        },
+        {
+          "label": "28.2",
+          "title": "threading.RLock：允许同一线程嵌套加锁",
+          "question": "外层已经持锁，调用的内层函数也要获取同一把锁时怎么办？",
+          "introduces": [
+            "threading.RLock"
+          ],
+          "depends_on": [
+            "28.1"
+          ],
+          "takeaway": "RLock 允许拥有锁的同一线程重复获取；每次成功获取都要配对释放，最后一次释放后其他线程才能取得。",
+          "check": "预测内层 with 退出后其他线程能否取得锁，并沿 Slime 的设备登记调用链指出两次获取的位置。",
+          "source_lessons": [
+            "28-thread-rlock"
+          ],
+          "syntax": [],
+          "exception_types": [],
+          "revisits": [
+            "threading.Lock",
+            "threading.Lock.acquire",
+            "threading.Lock.release"
+          ],
+          "prerequisite_notes": [
+            "重入按线程判断；同一事件循环中的多个 Task 应使用 asyncio.Lock 进行任务互斥。"
+          ],
+          "status": "existing"
+        }
+      ]
     },
     {
       "number": 29,
@@ -1071,6 +1321,7 @@
       ],
       "depends_on": [
         8,
+        20,
         27,
         29
       ],
@@ -1102,6 +1353,7 @@
           ],
           "depends_on": [
             8,
+            20,
             27,
             29
           ],
@@ -1113,7 +1365,9 @@
             "concurrent.futures.TimeoutError"
           ],
           "revisits": [],
-          "prerequisite_notes": [],
+          "prerequisite_notes": [
+            "复用 20.2–20.5 的 asyncio Future 基础；本课引入 concurrent.futures.Future，比较相似的结果接口和不同的等待方式。"
+          ],
           "label": "31.1"
         },
         {
@@ -1170,7 +1424,6 @@
       "title": "get_running_loop / run_in_executor / time：使用当前事件循环",
       "question": "怎样从协程使用指定线程池，并用当前循环的时钟计算剩余预算？",
       "introduces": [
-        "asyncio.get_running_loop",
         "asyncio.AbstractEventLoop.run_in_executor",
         "asyncio.AbstractEventLoop.time"
       ],
@@ -1178,6 +1431,7 @@
         3,
         9,
         14,
+        20,
         26,
         29,
         31
@@ -1192,7 +1446,9 @@
       ],
       "syntax": [],
       "exception_types": [],
-      "revisits": [],
+      "revisits": [
+        "asyncio.get_running_loop"
+      ],
       "prerequisite_notes": [
         "复用前 31 课已讲过的协程、调度、线程池、Future 与通知。33.1 只认识循环对象；Event 实验独立放在 33.3；时钟计算在 33.4 回接第 14 课。"
       ],
@@ -1204,19 +1460,22 @@
           "question": "已经在协程里面，怎样取得第 03 课已经认识的当前事件循环？",
           "takeaway": "get_running_loop 取得当前正在运行的循环对象，不创建新循环或线程。",
           "check": "说明 run 与 get_running_loop 的职责，预测两次取循环是否得到同一对象。",
-          "introduces": [
-            "asyncio.get_running_loop"
-          ],
+          "introduces": [],
           "depends_on": [
-            3
+            3,
+            20
           ],
           "source_lessons": [
             "33-current-loop"
           ],
           "syntax": [],
           "exception_types": [],
-          "revisits": [],
-          "prerequisite_notes": []
+          "revisits": [
+            "asyncio.get_running_loop"
+          ],
+          "prerequisite_notes": [
+            "20.2 已正式介绍 get_running_loop；本节从线程池回到协程，复习循环对象和执行线程的关系。"
+          ]
         },
         {
           "label": "33.2",
@@ -1228,6 +1487,7 @@
             "asyncio.AbstractEventLoop.run_in_executor"
           ],
           "depends_on": [
+            20,
             26,
             31,
             "33.1"
@@ -1238,7 +1498,9 @@
           "syntax": [],
           "exception_types": [],
           "revisits": [],
-          "prerequisite_notes": []
+          "prerequisite_notes": [
+            "复用 20.3–20.5 的结果交付语义；这里新增指定线程池的提交入口，下一节再观察并发交接。"
+          ]
         },
         {
           "label": "33.3",
@@ -1311,49 +1573,47 @@
     },
     {
       "number": 35,
-      "title": "asyncio.Future / Task.add_done_callback：读取、完成与响应结果",
-      "question": "协程接口给回一个 Future 时，怎样判断与读取？；读取结果之前，怎样创建 Future 并写入成功值或失败异常？；Task 结束后，怎样自动调用一个函数处理结果？",
+      "title": "Future / Task：复习结果交付并学习完成回调",
+      "question": "复习 Future 的状态与源码交付后，怎样让 Task 完成时自动调用一个函数？",
       "introduces": [
-        "asyncio.Future.done",
-        "asyncio.Future.result",
-        "asyncio.Future.exception",
-        "asyncio.AbstractEventLoop.create_future",
-        "asyncio.Future.set_result",
-        "asyncio.Future.set_exception",
         "asyncio.Task.add_done_callback"
       ],
       "depends_on": [
         8,
+        20,
         33,
         34
       ],
-      "takeaway": "按子课依次掌握：asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。；create_future 创建尚未完成的 Future；set_result 或 set_exception 完成它，已完成的 Future 在 await 时直接给出结果或抛出异常。；add_done_callback 注册完成后由循环安排的普通回调；回调接收 Task，并应处理其成功、失败或取消状态。",
-      "check": "分别完成各子课的预测与责任检查，不把多个新关系合并成一个例子。",
+      "takeaway": "Future 的创建、等待与完成复用第 20 单元；本单元正式新增 Task.add_done_callback，区分登记、完成和回调执行。",
+      "check": "辨认旧的结果接口与新增的回调关系，并说明回调接收的是完成的 Task。",
       "source_lessons": [
         "35-future-results",
         "35-future-completion",
         "35-task-callbacks"
       ],
       "syntax": [],
-      "exception_types": [
-        "asyncio.InvalidStateError"
+      "exception_types": [],
+      "revisits": [
+        "asyncio.Future.done",
+        "asyncio.Future.result",
+        "asyncio.Future.exception",
+        "asyncio.AbstractEventLoop.create_future",
+        "asyncio.Future.set_result",
+        "asyncio.Future.set_exception"
       ],
-      "revisits": [],
       "prerequisite_notes": [],
       "status": "existing",
       "parts": [
         {
-          "title": "Future.done() / result() / exception()：读取 asyncio Future 的结果",
-          "question": "协程接口给回一个 Future 时，怎样判断与读取？",
+          "title": "Future.done() / result() / exception()：复习结果读取与取消",
+          "question": "已经学过 Future 和线程交接后，怎样复查等待、读取及取消的边界？",
           "takeaway": "asyncio Future 的结果读取不阻塞等待，未完成时读取会失败。",
           "check": "对比 asyncio Future 与执行器 Future 的 result 行为。",
-          "introduces": [
-            "asyncio.Future.done",
-            "asyncio.Future.result",
-            "asyncio.Future.exception"
-          ],
+          "introduces": [],
           "depends_on": [
             8,
+            9,
+            20,
             33,
             34
           ],
@@ -1362,22 +1622,25 @@
           ],
           "syntax": [],
           "exception_types": [],
-          "revisits": [],
-          "prerequisite_notes": [],
+          "revisits": [
+            "asyncio.Future.done",
+            "asyncio.Future.result",
+            "asyncio.Future.exception"
+          ],
+          "prerequisite_notes": [
+            "基础正式在 20.5 讲解；此页用 gather 返回的 Future 复习，并保留 AsyncPacer 的源码检查入口。"
+          ],
           "label": "35.1",
           "status": "existing"
         },
         {
-          "title": "loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果",
-          "question": "读取结果之前，怎样创建 Future 并写入成功值或失败异常？",
-          "takeaway": "create_future 创建尚未完成的 Future；set_result 或 set_exception 完成它，已完成的 Future 在 await 时直接给出结果或抛出异常。",
-          "check": "说明创建、写入和读取是怎样操作同一个 Future 的；解释本例的 await 为什么不挂起，以及为何不能重复完成。",
-          "introduces": [
-            "asyncio.AbstractEventLoop.create_future",
-            "asyncio.Future.set_result",
-            "asyncio.Future.set_exception"
-          ],
+          "title": "loop.create_future / Future.set_result / set_exception：复习结果交付与源码用法",
+          "question": "已经学会一次结果交付后，怎样读懂源码中 set_result(None) 的放行用途？",
+          "takeaway": "create_future、set_result 和 set_exception 复用 20.3–20.5；结果为 None 仍是一份完成结果，等待者恢复还需要循环调度。",
+          "check": "对照 20.4 的提供者与等待者，指出 AsyncPacer 在哪里创建、保存、等待和完成同一个 Future。",
+          "introduces": [],
           "depends_on": [
+            20,
             33,
             "35.1"
           ],
@@ -1385,12 +1648,14 @@
             "35-future-completion"
           ],
           "syntax": [],
-          "exception_types": [
-            "asyncio.InvalidStateError"
+          "exception_types": [],
+          "revisits": [
+            "asyncio.AbstractEventLoop.create_future",
+            "asyncio.Future.set_result",
+            "asyncio.Future.set_exception"
           ],
-          "revisits": [],
           "prerequisite_notes": [
-            "先用顺序例子认识 Future 自身，不同时引入提供者 Task；等待未完成 Future 与另一处写入的交接留到后续回调和源码串联。"
+            "20.4 已用独立实验说明未完成 Future 的交付；此页保留简短复习和源码中的 None 结果，不重新引入对象。"
           ],
           "label": "35.2",
           "status": "existing"
@@ -1407,7 +1672,7 @@
             3,
             8,
             9,
-            "35.2"
+            20
           ],
           "source_lessons": [
             "35-task-callbacks"
@@ -1416,13 +1681,13 @@
           "exception_types": [],
           "revisits": [],
           "prerequisite_notes": [
-            "只新增完成回调这一关系；主例子保持一个 Task 和一个普通回调，失败与取消复用第 08、09 课。"
+            "20.4–20.5 的 Future 基础与第 03、08、09 课已经足够；35.1–35.2 是可选复习，不要求重复阅读。"
           ],
           "label": "35.3",
           "status": "existing"
         }
       ],
-      "navigation_group": "Future / Task：结果与完成回调"
+      "navigation_group": "Future / Task：结果复习与完成回调"
     },
     {
       "number": 36,

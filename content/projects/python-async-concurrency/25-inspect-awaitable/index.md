@@ -182,4 +182,4 @@ get_samples_later 是本课最关键的一行对比：它自身是普通函数�
 
 ---
 
-[上一已读课：34 · wrap_future](../34-wrap-future/) · [下一重点：37 · subprocess.run](../37-subprocess-run/) · [重点续学路线](../learning-route/#priority-reading)
+[上一课：24.2 · token/reset](../24-contextvar-reset/) · [前置回顾：34 · wrap_future](../34-wrap-future/) · [下一重点：37 · subprocess.run](../37-subprocess-run/) · [重点续学路线](../learning-route/#priority-reading)

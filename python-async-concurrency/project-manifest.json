@@ -203,7 +203,23 @@
       "title": "13 · ContextVar：让并发任务保留各自的上下文",
       "example": true,
       "expected_stdout": "task values [10, 11]\nouter value None\n",
-      "source_count": 2
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "basic.py",
+          "scenarios": [
+            "read separate ContextVar bindings in two tasks while the parent keeps its default"
+          ],
+          "expected_stdout": "[10, 11]\nNone\n"
+        },
+        {
+          "file": "token-reset.py",
+          "scenarios": [
+            "restore a preexisting ContextVar binding after a temporary change"
+          ],
+          "expected_stdout": "before 10\ntemporary 20\nrestored 10\n"
+        }
+      ]
     },
     {
       "number": 14,
@@ -357,7 +373,7 @@
       "source_count": 1
     },
     {
-      "number": 10,
+      "number": "10.1",
       "slug": "15-gather-failures",
       "title": "10.1 · asyncio.gather：收集报错，任务仍可继续",
       "example": true,
@@ -382,7 +398,7 @@
       "part": 1
     },
     {
-      "number": 10,
+      "number": "10.2",
       "part": 2,
       "slug": "15-gather-exceptions",
       "title": "10.2 · return_exceptions=True：收齐结果与异常",
@@ -391,7 +407,7 @@
       "expected_stdout": "start 10\nstart 11\ncleanup 11\nfinished 10\ncleanup 10\nresults [10, ValueError('generation 11 failed')]\nresult 10\nerror ValueError generation 11 failed\n"
     },
     {
-      "number": 11,
+      "number": "11.1",
       "part": 1,
       "slug": "11-taskgroup-failures",
       "title": "11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾",
@@ -403,7 +419,7 @@
       "source_snapshot_root": "python-async-reference/repositories/cpython/source_snapshot"
     },
     {
-      "number": 11,
+      "number": "11.2",
       "part": 2,
       "slug": "11-exception-groups",
       "title": "11.2 · ExceptionGroup / except*：读取任务组的错误",
@@ -562,9 +578,9 @@
       ]
     },
     {
-      "number": 20,
+      "number": "20.1",
       "slug": "20-async-event",
-      "title": "20 · asyncio.Event：让任务等待一个通知",
+      "title": "20.1 · asyncio.Event：让任务等待一个通知",
       "example": true,
       "source_count": 1,
       "expected_stdout": "fetch waiting\nmain set\nmain after set\nfetch resumed True\nreceived [['sample']]\n",
@@ -598,6 +614,38 @@
           "expected_stdout": "A waiting\nB waiting\nA cleanup\nA cancelled\nB still waiting True\nB continued\nB cleanup\n"
         }
       ]
+    },
+    {
+      "number": "20.2",
+      "slug": "20-running-loop",
+      "title": "20.2 · get_running_loop：取得正在运行的事件循环",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "same loop True\noutside run: no running loop\n"
+    },
+    {
+      "number": "20.3",
+      "slug": "20-future-result",
+      "title": "20.3 · create_future / set_result：保存一次完成的结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "future created\nresult stored\nreceived [0, 1, 2]\nsame value True\nagain [0, 1, 2]\n"
+    },
+    {
+      "number": "20.4",
+      "slug": "20-await-future",
+      "title": "20.4 · await Future：等待别处交付结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nprovider running\nprovider after set\nreceived [0, 1, 2]\n"
+    },
+    {
+      "number": "20.5",
+      "slug": "20-future-state",
+      "title": "20.5 · Future 的状态与异常：分清等待、读取和完成",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "pending done False\npending result InvalidStateError\nfailed done True\nstored error read failed\nawait raised read failed\nsecond completion InvalidStateError\n"
     },
     {
       "slug": "21-resource-lifecycle",
@@ -729,12 +777,36 @@
       "expected_stdout": "before start False\nworker 10\nafter join False\n"
     },
     {
-      "number": 28,
+      "number": "28.1",
       "slug": "28-thread-lock",
-      "title": "28 · threading.Lock：保护线程共享状态",
+      "title": "28.1 · threading.Lock：保护线程共享状态",
       "example": true,
       "source_count": 0,
       "expected_stdout": "count 2000\n"
+    },
+    {
+      "number": "28.2",
+      "slug": "28-thread-rlock",
+      "title": "28.2 · threading.RLock：允许同一线程嵌套加锁",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "outer acquired\ninner acquired\ninner released; outer still holds lock\nouter released\n",
+      "additional_examples": [
+        {
+          "file": "compare.py",
+          "scenarios": [
+            "Same-thread second acquisition distinguishes Lock from RLock without blocking."
+          ],
+          "expected_stdout": "Lock: first=True, second=False\nRLock: first=True, second=True\n"
+        },
+        {
+          "file": "scenario.py",
+          "scenarios": [
+            "A standalone cart operation is reused inside an atomic bundle operation on the same thread."
+          ],
+          "expected_stdout": "['keyboard', 'mouse']\n"
+        }
+      ]
     },
     {
       "number": 29,
@@ -862,7 +934,7 @@
     {
       "number": "35.1",
       "slug": "35-future-results",
-      "title": "35.1 · Future.done() / result() / exception()：读取 asyncio Future 的结果",
+      "title": "35.1 · Future.done() / result() / exception()：复习结果读取与取消",
       "example": true,
       "source_count": 1,
       "expected_stdout": "before False\nnot ready\nafter True\nresult [7]\nexception None\n"
@@ -870,7 +942,7 @@
     {
       "number": "35.2",
       "slug": "35-future-completion",
-      "title": "35.2 · loop.create_future / Future.set_result / set_exception：创建 Future 并写入结果",
+      "title": "35.2 · loop.create_future / Future.set_result / set_exception：复习结果交付与源码用法",
       "example": true,
       "source_count": 2,
       "expected_stdout": "created False\ncompleted True\nresult 7\nawait 7\n"
@@ -914,6 +986,14 @@
       "example": true,
       "source_count": 1,
       "expected_stdout": "before Popen\nparent can continue\nbefore communicate\nafter communicate\nreturncode 0\nstdout [0, 1, 2]\nstderr ''\n"
+    },
+    {
+      "number": "24.2",
+      "slug": "24-contextvar-reset",
+      "title": "24.2 · ContextVar.reset：用 token 恢复修改前的值",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before 10\ntemporary 20\nrestored 10\n"
     }
   ]
 }

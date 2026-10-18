@@ -4,25 +4,25 @@
 
 ## 1. 结论与统计范围
 
-当前清单为 **97 项调用/方法**：保留原 82 项，纳入六组共 11 项接口，以及 4 项必要配套操作。语法和异常类型另列。
+当前清单为 **98 项调用/方法**：保留原 82 项，纳入 7 组共 12 项接口，以及 4 项必要配套操作。语法和异常类型另列。
 
-**四库按调用量加权：1609/1899（84.7%）**；扩充前为 1528/1899（80.5%）。先把四库的调用位置数相加再相除，不取四个覆盖率的算术平均，也不按 API 种类数计算。
+**四库按调用量加权：1614/1899（85.0%）**；扩充前为 1528/1899（80.5%）。先把四库的调用位置数相加再相除，不取四个覆盖率的算术平均，也不按 API 种类数计算。
 
-| 仓库 | 原 82 项覆盖 / 全部相关调用 | 当前 97 项覆盖 / 全部相关调用 | 新覆盖位置 |
+| 仓库 | 原 82 项覆盖 / 全部相关调用 | 当前 98 项覆盖 / 全部相关调用 | 新覆盖位置 |
 | --- | ---: | ---: | ---: |
 | verl | 295/377（78.2%） | 306/377（81.2%） | 11 |
 | AReaL | 632/756（83.6%） | 662/756（87.6%） | 30 |
-| Slime | 182/229（79.5%） | 196/229（85.6%） | 14 |
+| Slime | 182/229（79.5%） | 201/229（87.8%） | 19 |
 | Miles | 419/537（78.0%） | 445/537（82.9%） | 26 |
 
-四库合计新增 81 个调用位置。70%–80% 是原先的选题目标，不是删去必要操作来维持的上限。
+四库合计新增 86 个调用位置。70%–80% 是原先的选题目标，不是删去必要操作来维持的上限。
 
 1. 分母沿用原统计：核心包中已识别的原生异步/并发及其配套标准库调用，含有类型线索的方法推断。测试、示例、导入、语法节点、单纯引用与未知类型候选不计入。
 2. 分子以显式调用/方法名匹配 `report.json` 的 occurrence ID，与分母取交集并去重。类构造与各方法分开列出；继承方法沿用官方文档映射。
 3. 这是静态调用位置覆盖，不是运行频率、实际场景覆盖率、全仓代码覆盖率或已经掌握的比例。四个框架的第三方 API 不在分母中。
 4. 下表的零调用不表示不学：`async with` 的隐式获取/释放、装饰器引用等不算显式调用，必要配套仍列入。
 
-## 2. 本次纳入的六组与必要配套
+## 2. 新增接口组与必要配套
 
 按四库使用次数筛选范围，按概念依赖安排顺序；必要操作不因零调用而隐藏。这里是课程规划，不表示新增子课已经写完。
 
@@ -34,9 +34,10 @@
 | 创建等待结果的 Future | `asyncio.AbstractEventLoop.create_future` | 0 | 5 | 3 | 1 | 9 | 0.47% |
 | 在线程池中批量提交与取结果 | `concurrent.futures.Executor.map` | 0 | 7 | 0 | 2 | 9 | 0.47% |
 | 读取循环的单调时钟 | `asyncio.AbstractEventLoop.time` | 0 | 2 | 4 | 2 | 8 | 0.42% |
+| 同一线程嵌套加锁 | `threading.RLock` | 0 | 0 | 5 | 0 | 5 | 0.26% |
 | 必要配套：运行、关闭循环与完成 Future | `asyncio.AbstractEventLoop.run_until_complete`、`asyncio.AbstractEventLoop.close`、`asyncio.Future.set_result`、`asyncio.Future.set_exception` | 2 | 3 | 2 | 0 | 7 | 0.37% |
 
-六组覆盖 74 个新增调用位置；4 项必要配套再覆盖 7 个，共新增 81 个。`AsyncExitStack.pop_all` 继承的接口说明位于 [ExitStack.pop_all](https://docs.python.org/3.16/library/contextlib.html#contextlib.ExitStack.pop_all)；从原始清单补回该映射，不改变原三库报告和四库调用总数。
+7 组覆盖 79 个新增调用位置；4 项必要配套再覆盖 7 个，共新增 86 个。`AsyncExitStack.pop_all` 继承的接口说明位于 [ExitStack.pop_all](https://docs.python.org/3.16/library/contextlib.html#contextlib.ExitStack.pop_all)；从原始清单补回该映射，不改变原三库报告和四库调用总数。
 
 ## 3. 按概念依赖学习的完整调用/方法表
 
@@ -50,18 +51,18 @@
 | 超时与取消边界 | `asyncio.wait_for`、`asyncio.timeout`、`asyncio.shield`、`builtins.TimeoutError` | 10 | 42 | 13 | 35 | [文档 1](https://docs.python.org/3.16/library/asyncio-task.html#timeouts)、[文档 2](https://docs.python.org/3.16/library/asyncio-exceptions.html) |
 | 协程限流、同步与队列 | `asyncio.Semaphore`、`asyncio.Semaphore.acquire`、`asyncio.Semaphore.release`、`asyncio.Queue`、`asyncio.Queue.put`、`asyncio.Queue.get`、`asyncio.Lock`、`asyncio.Lock.acquire`、`asyncio.Lock.release`、`asyncio.Event`、`asyncio.Event.set`、`asyncio.Event.wait`、`asyncio.Event.clear` | 15 | 23 | 4 | 22 | [文档 1](https://docs.python.org/3.16/library/asyncio-sync.html)、[文档 2](https://docs.python.org/3.16/library/asyncio-queue.html) |
 | 线程池与执行器 Future | `asyncio.to_thread`、`concurrent.futures.ThreadPoolExecutor`、`concurrent.futures.Executor.submit`、`concurrent.futures.Executor.shutdown`、`concurrent.futures.Future.result`、`concurrent.futures.Future.done`、`concurrent.futures.Future.exception`、`concurrent.futures.Future.cancel`、`concurrent.futures.Executor.map` | 26 | 40 | 20 | 15 | [文档 1](https://docs.python.org/3.16/library/asyncio-task.html#running-in-threads)、[文档 2](https://docs.python.org/3.16/library/concurrent.futures.html) |
-| 线程生命周期、同步与交接 | `threading.Thread`、`threading.Thread.start`、`threading.Thread.join`、`threading.Thread.is_alive`、`threading.Lock`、`threading.Lock.acquire`、`threading.Lock.release`、`threading.Event`、`threading.Event.set`、`threading.Event.wait`、`threading.Event.clear`、`queue.Queue`、`queue.Queue.put`、`queue.Queue.get`、`queue.Queue.get_nowait` | 12 | 135 | 34 | 63 | [文档 1](https://docs.python.org/3.16/library/threading.html)、[文档 2](https://docs.python.org/3.16/library/queue.html) |
+| 线程生命周期、同步与交接 | `threading.Thread`、`threading.Thread.start`、`threading.Thread.join`、`threading.Thread.is_alive`、`threading.Lock`、`threading.Lock.acquire`、`threading.Lock.release`、`threading.RLock`、`threading.Event`、`threading.Event.set`、`threading.Event.wait`、`threading.Event.clear`、`queue.Queue`、`queue.Queue.put`、`queue.Queue.get`、`queue.Queue.get_nowait` | 12 | 135 | 39 | 63 | [文档 1](https://docs.python.org/3.16/library/threading.html)、[文档 2](https://docs.python.org/3.16/library/queue.html) |
 | 任务上下文 | `contextvars.ContextVar`、`contextvars.ContextVar.get`、`contextvars.ContextVar.set`、`contextvars.ContextVar.reset` | 16 | 11 | 14 | 3 | [文档 1](https://docs.python.org/3.16/library/contextvars.html) |
 | 异步资源、迭代与对象检查 | `contextlib.asynccontextmanager`、`contextlib.aclosing`、`inspect.isawaitable`、`inspect.iscoroutinefunction`、`contextlib.AsyncExitStack`、`contextlib.AsyncExitStack.enter_async_context`、`contextlib.AsyncExitStack.push_async_callback`、`contextlib.AsyncExitStack.aclose`、`contextlib.AsyncExitStack.pop_all` | 12 | 10 | 2 | 22 | [文档 1](https://docs.python.org/3.16/library/contextlib.html)、[文档 2](https://docs.python.org/3.16/library/inspect.html) |
 | 事件循环与线程交接 | `asyncio.get_running_loop`、`asyncio.AbstractEventLoop.run_in_executor`、`asyncio.wrap_future`、`asyncio.run_coroutine_threadsafe`、`asyncio.new_event_loop`、`asyncio.set_event_loop`、`asyncio.AbstractEventLoop.run_until_complete`、`asyncio.AbstractEventLoop.close`、`asyncio.AbstractEventLoop.create_future`、`asyncio.AbstractEventLoop.time` | 34 | 44 | 34 | 21 | [文档 1](https://docs.python.org/3.16/library/asyncio-eventloop.html)、[文档 2](https://docs.python.org/3.16/library/asyncio-task.html#scheduling-from-other-threads)、[文档 3](https://docs.python.org/3.16/library/asyncio-future.html) |
 | Python 子进程与外部命令 | `multiprocessing.Process`、`multiprocessing.Process.start`、`multiprocessing.Process.is_alive`、`multiprocessing.Process.join`、`multiprocessing.Process.terminate`、`multiprocessing.Process.kill`、`subprocess.run`、`subprocess.Popen`、`subprocess.Popen.communicate`、`subprocess.Popen.wait`、`subprocess.Popen.terminate`、`subprocess.Popen.kill` | 31 | 17 | 10 | 21 | [文档 1](https://docs.python.org/3.16/library/multiprocessing.html#process-and-exceptions)、[文档 2](https://docs.python.org/3.16/library/subprocess.html) |
 | 阻塞等待与经过时间 | `time.sleep`、`time.monotonic`、`time.perf_counter` | 24 | 194 | 16 | 87 | [文档 1](https://docs.python.org/3.16/library/time.html) |
 
-1. 97 项是完整写出的调用/方法名，不是 97 课。41 个主编号保留，新增关系使用子课逐步展开。
+1. 98 项是完整写出的调用/方法名，不是 98 课。41 个主编号保留，新增关系使用子课逐步展开。
 2. run_coroutine_threadsafe、as_completed、shield 均有正式教学单元，按前置分期展开；完成全课时必须覆盖，具体单元见 curriculum.json。
 3. Lock/Semaphore 的 acquire/release 用来解释 async with 或 with 的进入退出，不要求所有主例子手动配对调用。
 4. CancelledError 等异常按类型和异常传播学习；只出现于 except 或注解的引用不计入调用覆盖。ExceptionGroup 此处只要求读取和捕获，不据此覆盖显式构造调用。
-5. 六组加权筛选新增 11 项，另加 run_until_complete、close、set_result、set_exception 四项必要配套；原 82 项范围保留为可复算基线。
+5. 六组加权筛选新增 11 项，另加 run_until_complete、close、set_result、set_exception 四项必要配套；原 82 项范围保留为可复算基线。 另按 Slime 核心包 5 处构造补入 threading.RLock。
 6. AsyncExitStack.pop_all 使用继承方法的真实名字，文档对应 ExitStack.pop_all；不因原报告缺少该映射而漏掉清理责任的转移。
 
 ## 4. 语法和异常类型另列
@@ -128,6 +129,7 @@
 | `threading.Lock` | 4 | 59 | 4 | 10 |
 | `threading.Lock.acquire` | 0 | 0 | 0 | 0 |
 | `threading.Lock.release` | 0 | 0 | 0 | 0 |
+| `threading.RLock` | 0 | 0 | 5 | 0 |
 | `threading.Event` | 2 | 18 | 5 | 6 |
 | `threading.Event.set` | 1 | 4 | 3 | 1 |
 | `threading.Event.wait` | 1 | 2 | 1 | 2 |
@@ -183,12 +185,12 @@
 | --- | ---: | --- |
 | verl | 71 | `signal.alarm`（17）、`os.getpid`（10）、`signal.setitimer`（4）、`signal.signal`（4）、`concurrent.futures.as_completed`（3）、`multiprocessing.Queue.put`（3）、`multiprocessing.shared_memory.SharedMemory`（3）、`concurrent.futures.ProcessPoolExecutor`（2） |
 | AReaL | 94 | `os.getpid`（12）、`signal.signal`（10）、`concurrent.futures.Future`（8）、`subprocess.check_output`（8）、`fcntl.flock`（5）、`time.perf_counter_ns`（5）、`asyncio.iscoroutinefunction`（4）、`concurrent.futures.Future.set_result`（4） |
-| Slime | 33 | `os.getpid`（12）、`threading.RLock`（5）、`asyncio.current_task`（2）、`multiprocessing.active_children`（2）、`signal.alarm`（2）、`threading.Condition`（2）、`asyncio.AbstractEventLoop.call_later`（1）、`asyncio.AbstractEventLoop.call_soon`（1） |
+| Slime | 28 | `os.getpid`（12）、`asyncio.current_task`（2）、`multiprocessing.active_children`（2）、`signal.alarm`（2）、`threading.Condition`（2）、`asyncio.AbstractEventLoop.call_later`（1）、`asyncio.AbstractEventLoop.call_soon`（1）、`asyncio.AbstractEventLoop.run_forever`（1） |
 | Miles | 92 | `os.getpid`（22）、`os._exit`（16）、`signal.signal`（6）、`asyncio.Task.cancelled`（5）、`asyncio.current_task`（5）、`asyncio.ensure_future`（4）、`fcntl.flock`（3）、`os.getppid`（3） |
 
-主要按需范围：Condition/RLock、进程间队列、进程池、信号/进程组、文件锁与更低层 I/O。`os.getpid` 等辅助调用仍在原分母中，不为了增加分子单独开课。
+主要按需范围：Condition、进程间队列、进程池、信号/进程组、文件锁与更低层 I/O。RLock 已在 28.2 正式引入。`os.getpid` 等辅助调用仍在原分母中，不为了增加分子单独开课。
 
-当前 97 项不声称列完标准库的每个 API。原 82 项范围保留在 [api-plan-82.json](api-plan-82.json)，原 53 项核算保留在 [learning-coverage.md](learning-coverage.md)。
+当前 98 项不声称列完标准库的每个 API。原 82 项范围保留在 [api-plan-82.json](api-plan-82.json)，原 53 项核算保留在 [learning-coverage.md](learning-coverage.md)。
 
 ## 6. 固定来源与复算
 

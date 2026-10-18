@@ -10,7 +10,7 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [第 27 课](../27-thread-lifecycle/)用 `Thread` 启动工作、用 `join()` 等线程结束；[第 08 课](../07-task-results/)区分任务完成、返回值与异常。补充实验会复用[第 29 课](../29-thread-event/)的通知标志。
+> **复用的旧知识：** [20.3–20.5](../20-future-result/)已经区分结果 Future、实际工作与等待者；[第 27 课](../27-thread-lifecycle/)用 `Thread` 启动工作、用 `join()` 等线程结束；[第 08 课](../07-task-results/)区分任务完成、返回值与异常。补充实验会复用[第 29 课](../29-thread-event/)的通知标志。
 >
 > **本课新增的问题：** 不为每次工作手动创建线程，怎样提交多份调用并取得各自的结果？
 
@@ -20,7 +20,7 @@ hideInOverview: true
 
 第 27 课已经能通过 `Thread` 安排工作。这次希望把线程的创建、复用和退出交给统一的管理者，并让每次提交的工作都有一个地方保存结果；`join()` 本身只等待线程结束，不会返回工作函数的值。
 
-本课从标准库模块 `concurrent.futures` 导入 `ThreadPoolExecutor`。它使用的仍然是工作线程。先分清三个角色：
+本课从标准库模块 `concurrent.futures` 导入 `ThreadPoolExecutor`。它使用的仍然是工作线程。返回的是 **concurrent.futures.Future**，与第 20 课的 asyncio Future 是不同的类：都保存完成状态和结果，但这里的 `.result()` 可以阻塞线程，而且不能直接 `await`。先分清三个角色：
 
 <div class="async-api-reference">
 
@@ -161,7 +161,7 @@ stored exception ValueError
 
 </div>
 
-这里的 Future 是 `concurrent.futures.Future`。它的阻塞式读取与 asyncio Task 不同；协程中的接入留给第 33–34 课。
+这里的 Future 是 `concurrent.futures.Future`。它的阻塞式读取与第 20 课的 asyncio Future 不同；第 33–34 课再把线程池结果接回已学的异步等待。
 
 <details><summary>按需阅读：项目对照与标准库依据</summary>
 

@@ -10,9 +10,9 @@ hideInOverview: true
 
 > **与已学内容的连接**
 >
-> **复用的旧知识：** [第 01–02 课](../02-await/)用 `asyncio.run()` 从脚本运行协程；[第 03 课](../03-tasks/#4-用事件循环解释等待与结果读取)用事件循环解释任务怎样轮流执行。
+> **复用的旧知识：** [20.2](../20-running-loop/)已经区分 `asyncio.run()` 与 `get_running_loop()`；[第 31 课](../31-threadpool-submit/)又使用了线程池。本节把当前循环与工作线程的职责重新对齐。
 >
-> **本节新增的问题：** 已经在协程里面，后面想调用这个事件循环的方法，怎样先取得它？
+> **本节要串起的关系：** 线程池已有自己的工作线程，当前协程使用的循环又在哪里？本节复习取得循环，下一节用它提交线程池工作。
 
 <span id="running-loop"></span>
 
@@ -81,7 +81,7 @@ after run
 3. 协程内部两次调用 `get_running_loop()`，都取得正在运行自己的循环对象。
 4. `exercise` 结束，`asyncio.run()` 返回，脚本才打印 `after run`。
 
-`asyncio.run()` 是已学的运行入口；`get_running_loop()` 是这次新增的取对象接口。后者不负责启动、等待或提交任务。
+`asyncio.run()` 是已学的运行入口；`get_running_loop()` 复用 20.2 的取对象接口。后者不负责启动、等待或提交任务。
 
 ## 4. get_running_loop：带走两条结论
 

@@ -15,6 +15,8 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 MATERIAL = ROOT / 'python-async-concurrency'
 CONTENT = ROOT / 'content/projects/python-async-concurrency'
+CALL_SOON_LESSON = CONTENT / 'loop-call-soon'
+CALL_LATER_LESSON = CONTENT / 'loop-call-later'
 
 
 def documented_stdout(stdout, experiment):
@@ -109,6 +111,82 @@ class PythonAsyncMaterial(unittest.TestCase):
     def setUpClass(cls):
         cls.manifest = json.loads((MATERIAL / 'project-manifest.json').read_text())
         cls.lessons = cls.manifest['lessons'] + cls.manifest.get('curriculum_lessons', [])
+
+    def test_contextvar_basic_example_isolates_task_values_and_keeps_parent_default(self):
+        path = CONTENT / '11-contextvars/basic.py'
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), ['[10, 11]', 'None'])
+
+    def test_contextvar_token_restores_the_value_before_the_temporary_change(self):
+        path = CONTENT / '24-contextvar-reset/example.py'
+        self.assertEqual(path.read_bytes(), (CONTENT / '11-contextvars/token-reset.py').read_bytes())
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'before 10', 'temporary 20', 'restored 10',
+        ])
+
+    def test_call_soon_runs_the_registered_function_after_current_code(self):
+        path = CALL_SOON_LESSON / 'direct-call.py'
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'direct: before', 'report runs', 'direct: after',
+            'scheduled: before', 'scheduled: after', 'report runs',
+            'scheduled: resumed',
+        ])
+
+    def test_call_soon_and_create_task_compare_callback_and_coroutine_execution(self):
+        path = CALL_SOON_LESSON / 'example.py'
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'main: both scheduled', 'task: start',
+            'callback: start', 'callback: end',
+            'task: end', 'main: task result 7',
+        ])
+
+    def test_call_soon_handle_can_cancel_a_pending_state_change(self):
+        path = CALL_SOON_LESSON / 'cancel.py'
+        result = subprocess.run([sys.executable, '-W', 'error', str(path)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'before []', "after ['kept']", 'cancelled True',
+        ])
+
+    def test_call_later_registers_now_and_runs_after_the_ready_callback(self):
+        result = subprocess.run(
+            [sys.executable, '-W', 'error', str(CALL_LATER_LESSON / 'example.py')],
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'both registered', 'soon', 'later', 'finished',
+        ])
+
+    def test_slime_pacer_uses_call_later_for_the_remaining_waiters(self):
+        result = subprocess.run(
+            [sys.executable, '-W', 'error', str(CALL_LATER_LESSON / 'slime-pacer.py')],
+            capture_output=True, text=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stderr, '')
+        self.assertEqual(result.stdout.splitlines(), [
+            'schedule call_soon', 'release 64', 'schedule call_later',
+            'release 1', 'finished 65',
+        ])
 
     def test_async_queue_hands_off_items_before_processing_finishes(self):
         path = CONTENT / '07-queues/example.py'
@@ -415,7 +493,7 @@ class PythonAsyncMaterial(unittest.TestCase):
                 page = (path.parent / 'index.md').read_text()
                 self.assertIn('```python\n' + path.read_text().rstrip() + '\n```', page)
                 examples += 1
-        self.assertEqual(examples, 64)
+        self.assertEqual(examples, 70)
 
     def test_loop_clock_keeps_one_deadline_and_consistent_units(self):
         path = CONTENT / '33-loop-time/example.py'
@@ -543,6 +621,160 @@ class PythonAsyncPublished(unittest.TestCase):
         cls.lessons = cls.manifest['lessons'] + cls.manifest.get('curriculum_lessons', [])
         cls.project = cls.output / 'projects/python-async-concurrency'
 
+    def test_thread_lock_navigation_preserves_both_pages_and_downloads(self):
+        slugs = ['28-thread-lock', '28-thread-rlock']
+        expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
+        for number, slug in enumerate(slugs, 1):
+            page = (self.project / slug / 'index.html').read_text()
+            self.assertIn(f'28.{number} · threading.', page)
+            groups = LessonGroups()
+            groups.feed(page)
+            lock_groups = [group for group in groups.groups if group['number'] == '28']
+            self.assertEqual(len(lock_groups), 2)
+            for group in lock_groups:
+                self.assertEqual(group['links'], expected)
+                self.assertTrue(group['open'])
+                self.assertEqual(group['active'], [expected[number - 1]])
+            self.assertEqual((self.project / slug / 'example.py').read_bytes(),
+                             (CONTENT / slug / 'example.py').read_bytes())
+        rlock_page = (self.project / slugs[1] / 'index.html').read_text()
+        self.assertIn('href="compare.py"', rlock_page)
+        comparison = self.project / 'comparisons/lock-vs-rlock/index.html'
+        self.assertTrue(comparison.is_file())
+        self.assertIn('href="../28-thread-rlock/"',
+                      (self.project / '16-thread-coordination/index.html').read_text())
+
+    def test_contextvar_basics_and_reset_have_separate_pages(self):
+        page = (self.project / '11-contextvars/index.html').read_text()
+        self.assertIn('24.1 · ContextVar.set / get：保存每份任务自己的值', page)
+        parser = SourceReading()
+        parser.feed(page)
+        visible = ''.join(parser.visible_code)
+        basic = (CONTENT / '11-contextvars/basic.py').read_text().strip()
+        self.assertIn(basic, visible)
+        self.assertNotIn('@contextmanager', visible)
+        self.assertNotIn('current_id.reset(token)', visible)
+        self.assertIn('href="basic.py"', page)
+        self.assertIn('id="contextvar-basic"', page)
+        for anchor in ('contextvar-object-binding', 'contextvar-token', 'task-context'):
+            self.assertIn(f'id="{anchor}"', page)
+        self.assertIn('href="../24-contextvar-reset/"', page)
+        self.assertIn('href="token-reset.py"', page)
+
+        reset_page = (self.project / '24-contextvar-reset/index.html').read_text()
+        self.assertIn('24.2 · ContextVar.reset：用 token 恢复修改前的值', reset_page)
+        reset_parser = SourceReading()
+        reset_parser.feed(reset_page)
+        token_example = (CONTENT / '24-contextvar-reset/example.py').read_text().strip()
+        self.assertIn(token_example, ''.join(reset_parser.visible_code))
+        self.assertIn('href="example.py"', reset_page)
+        self.assertIn('id="contextvar-token"', reset_page)
+        self.assertIn('href="../11-contextvars/"', reset_page)
+        self.assertIn('href="../25-inspect-awaitable/"', reset_page)
+        expected = ['/projects/python-async-concurrency/11-contextvars/',
+                    '/projects/python-async-concurrency/24-contextvar-reset/']
+        for html, active in ((page, expected[0]), (reset_page, expected[1])):
+            groups = LessonGroups()
+            groups.feed(html)
+            context_groups = [group for group in groups.groups if group['number'] == '24']
+            self.assertEqual(len(context_groups), 2)
+            for group in context_groups:
+                self.assertTrue(group['open'])
+                self.assertEqual(group['links'], expected)
+                self.assertEqual(group['active'], [active])
+        plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
+        self.assertEqual(plan['lessons'][23]['status'], 'existing')
+
+    def test_call_soon_supplement_is_linked_and_matches_its_download(self):
+        target = '/projects/python-async-concurrency/loop-call-soon/'
+        page = (self.project / 'loop-call-soon/index.html').read_text()
+        parsed = SourceReading()
+        parsed.feed(page)
+        code = (CALL_SOON_LESSON / 'example.py').read_text().strip()
+        self.assertIn(code, ''.join(parsed.visible_code))
+        self.assertIn('href="example.py"', page)
+        self.assertIn('href="direct-call.py"', page)
+        self.assertIn('href="cancel.py"', page)
+        self.assertIn('id="call-soon-handle"', page)
+        self.assertIn('id="call-soon-actions"', page)
+        cancellation = (CALL_SOON_LESSON / 'cancel.py').read_text().strip()
+        self.assertIn(cancellation, ''.join(parsed.visible_code))
+        self.assertIn('id="call-soon-vs-task"', page)
+        self.assertIn('create_task', page)
+        links = Links()
+        links.feed(page)
+        self.assertIn(target, links.project_nav_hrefs)
+        self.assertIn('call_soon：登记回调', page)
+        for slug in ['learning-route', '36-threadsafe-submit', '13-event-loop', 'api-frequency']:
+            linked = Links()
+            linked.feed((self.project / slug / 'index.html').read_text())
+            self.assertTrue('../loop-call-soon/' in linked.hrefs,
+                            f'{slug} must link to the independent call_soon example')
+        skipped = (self.project / '36-threadsafe-submit/index.html').read_text()
+        self.assertIn('尚未读懂，暂时跳过', skipped)
+
+    def test_function_comparisons_have_an_unnumbered_folder_in_the_learning_route(self):
+        folder = '/projects/python-async-concurrency/comparisons/'
+        comparison = '/projects/python-async-concurrency/comparisons/call-soon-vs-create-task/'
+        self.assertTrue((CONTENT / 'comparisons/_index.md').exists())
+        self.assertTrue((CONTENT / 'comparisons/call-soon-vs-create-task/index.md').exists())
+        for slug in ['comparisons', 'loop-call-soon', 'learning-route']:
+            parser = Links()
+            parser.feed((self.project / slug / 'index.html').read_text())
+            self.assertEqual(parser.project_nav_hrefs.count(folder), 2, slug)
+            self.assertEqual(parser.project_nav_hrefs.count(comparison), 2, slug)
+            self.assertLess(parser.project_nav_hrefs.index(folder),
+                            parser.project_nav_hrefs.index(comparison))
+        route = (self.project / 'learning-route/index.html').read_text()
+        self.assertIn('href="../comparisons/"', route)
+        catalog = (self.project / 'comparisons/index.html').read_text()
+        self.assertIn('函数对比', catalog)
+        catalog_links = Links()
+        catalog_links.feed(catalog)
+        self.assertIn('call-soon-vs-create-task/', catalog_links.hrefs)
+
+    def test_call_later_comparison_is_available_after_unit_38(self):
+        target = '/projects/python-async-concurrency/loop-call-later/'
+        for slug in ['38-popen-communicate', 'comparisons', 'learning-route']:
+            html = (self.project / slug / 'index.html').read_text()
+            parser = Links()
+            parser.feed(html)
+            self.assertEqual(parser.project_nav_hrefs.count(target), 2, slug)
+            self.assertLess(
+                parser.project_nav_hrefs.index('/projects/python-async-concurrency/38-popen-communicate/'),
+                parser.project_nav_hrefs.index(target),
+            )
+            self.assertLess(parser.project_nav_hrefs.index(target),
+                            parser.project_nav_hrefs.index('/projects/python-async-concurrency/comparisons/'))
+        page = (self.project / 'loop-call-later/index.html').read_text()
+        source = SourceReading()
+        source.feed(page)
+        self.assertIn((CALL_LATER_LESSON / 'example.py').read_text().strip(),
+                      ''.join(source.visible_code))
+        self.assertIn('href="slime-pacer.py"', page)
+        self.assertIn('AsyncPacer', page)
+
+    def test_comparisons_are_short_relationship_summaries_linked_to_teaching(self):
+        for slug, lesson in [('call-soon-vs-create-task', 'loop-call-soon'),
+                             ('call-soon-vs-call-later', 'loop-call-later')]:
+            source = (CONTENT / 'comparisons' / slug / 'index.md').read_text()
+            self.assertNotIn('```python', source, 'Full runnable lessons belong in the teaching page')
+            self.assertIn('关系摘要', source)
+            page = (self.project / 'comparisons' / slug / 'index.html').read_text()
+            links = Links()
+            links.feed(page)
+            self.assertIn('../../' + lesson + '/', links.hrefs)
+            teaching = (self.project / lesson / 'index.html').read_text()
+            teaching_links = Links()
+            teaching_links.feed(teaching)
+            self.assertIn('../comparisons/' + slug + '/', teaching_links.hrefs)
+
+    def test_moved_call_later_example_downloads_remain_available(self):
+        for name in ['example.py', 'slime-pacer.py']:
+            legacy = self.project / 'comparisons/call-soon-vs-call-later' / name
+            canonical = self.project / 'loop-call-later' / name
+            self.assertEqual(legacy.read_bytes(), canonical.read_bytes())
+
     def test_unread_thread_lessons_stay_out_of_learning_navigation(self):
         hidden = ['30-thread-queue', '32-threadpool-shutdown']
         current = ['31-threadpool-submit', '31-threadpool-map']
@@ -583,7 +815,7 @@ class PythonAsyncPublished(unittest.TestCase):
 
     def test_async_event_is_current_unit_20_after_lock(self):
         html = (self.project / '20-async-event/index.html').read_text()
-        self.assertIn('20 · asyncio.Event：让任务等待一个通知', html)
+        self.assertIn('20.1 · asyncio.Event：让任务等待一个通知', html)
         self.assertIn('href="../19-async-lock/"', html)
         previous = (self.project / '19-async-lock/index.html').read_text()
         self.assertIn('href="../20-async-event/"', previous)
@@ -598,13 +830,41 @@ class PythonAsyncPublished(unittest.TestCase):
                       ''.join(parser.visible_code))
         plan = json.loads((ROOT / 'python-async-reference/curriculum.json').read_text())
         self.assertEqual(plan['lessons'][19]['status'], 'existing')
-        self.assertEqual(plan['lessons'][19]['source_lessons'], ['20-async-event'])
+        self.assertEqual(plan['lessons'][19]['source_lessons'][0], '20-async-event')
+
+    def test_future_basics_form_a_continuous_reading_chain_and_nav_group(self):
+        slugs = ['20-async-event', '20-running-loop', '20-future-result',
+                 '20-await-future', '20-future-state']
+        chain = [*slugs, '21-resource-lifecycle']
+        expected = [f'/projects/python-async-concurrency/{slug}/' for slug in slugs]
+        for index, slug in enumerate(slugs):
+            page = (self.project / slug / 'index.html').read_text()
+            self.assertIn(f'20.{index + 1} · ', page)
+            self.assertIn(f'href="../{chain[index + 1]}/"', page)
+            if index:
+                self.assertIn(f'href="../{chain[index - 1]}/"', page)
+            parser = LessonGroups()
+            parser.feed(page)
+            groups = [group for group in parser.groups if group['number'] == '20']
+            self.assertEqual(len(groups), 2)
+            for group in groups:
+                self.assertEqual(group['links'], expected)
+                self.assertTrue(group['open'])
+        for slug in ['35-future-results', '35-future-completion', '35-task-callbacks']:
+            page = (self.project / slug / 'index.html').read_text()
+            self.assertIn('../20-', page)
+        homepage = (self.project / 'index.html').read_text()
+        main_route = homepage.split('id="已整理的学习主线"', 1)[1].split('id="课程目录"', 1)[0]
+        route = Links()
+        route.feed(main_route)
+        positions = [route.hrefs.index(slug + '/') for slug in chain]
+        self.assertEqual(positions, sorted(positions))
 
     def test_async_contextmanager_is_current_unit_21_after_event(self):
         html = (self.project / '21-async-contextmanager/index.html').read_text()
         self.assertIn('21.4 · asynccontextmanager：把准备和关闭接到 async with', html)
         self.assertIn('href="../21-decorators/"', html)
-        previous = (self.project / '20-async-event/index.html').read_text()
+        previous = (self.project / '20-future-state/index.html').read_text()
         self.assertIn('href="../21-resource-lifecycle/"', previous)
         links = Links()
         links.feed(html)
@@ -619,7 +879,7 @@ class PythonAsyncPublished(unittest.TestCase):
         slugs = plan['lessons'][20]['source_lessons']
         self.assertEqual(slugs, ['21-resource-lifecycle', '21-yield-pause', '21-decorators',
                                  '21-async-contextmanager', '21-context-errors', '21-context-cancellation'])
-        chain = ['20-async-event', *slugs, '22-async-iteration']
+        chain = ['20-future-state', *slugs, '22-async-iteration']
         for index, slug in enumerate(slugs, 1):
             page = (self.project / slug / 'index.html').read_text()
             self.assertIn(f'21.{index} · ', page)
@@ -754,9 +1014,11 @@ class PythonAsyncPublished(unittest.TestCase):
         page = (self.project / '35-future-results/index.html').read_text()
         self.assertIn('data-lesson-group="35"', page)
         self.assertIn('35.1 · Future.done()', page)
+        self.assertIn('复习', page)
         self.assertIn('id="asyncio-future-results"', page)
         completion_page = (self.project / '35-future-completion/index.html').read_text()
         self.assertIn('35.2 · loop.create_future', completion_page)
+        self.assertIn('复习', completion_page)
         self.assertIn('id="future-completion"', completion_page)
         callback_page = (self.project / '35-task-callbacks/index.html').read_text()
         self.assertIn('35.3 · Task.add_done_callback', callback_page)

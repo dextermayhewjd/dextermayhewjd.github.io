@@ -134,4 +134,4 @@ after join False
 
 ---
 
-[上一节：26 · asyncio.to_thread：把阻塞函数交给线程](../26-to-thread/) · [下一节：28 · threading.Lock：保护线程共享状态](../28-thread-lock/) · [返回学习路线](../learning-route/)
+[上一节：26 · asyncio.to_thread：把阻塞函数交给线程](../26-to-thread/) · [下一节：28.1 · threading.Lock：保护线程共享状态](../28-thread-lock/) · [返回学习路线](../learning-route/)

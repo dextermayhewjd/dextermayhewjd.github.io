@@ -1,7 +1,7 @@
 ---
-title: "28 · threading.Lock：保护线程共享状态"
+title: "28.1 · threading.Lock：保护线程共享状态"
 description: "当两个线程都修改同一个计数，怎样让一次完整更新不与另一次交错？"
-weight: 280
+weight: 281
 ShowToc: false
 ShowPostNavLinks: false
 hideMeta: true
@@ -107,4 +107,6 @@ finally:
 
 ---
 
-[上一节：27 · threading.Thread：创建、启动并等待线程](../27-thread-lifecycle/) · [下一节：29 · threading.Event：通知线程合作退出](../29-thread-event/) · [返回学习路线](../learning-route/)
+[Lock ↔ RLock：关系摘要](../comparisons/lock-vs-rlock/)
+
+[上一节：27 · threading.Thread：创建、启动并等待线程](../27-thread-lifecycle/) · [下一节：28.2 · threading.RLock：允许同一线程嵌套加锁](../28-thread-rlock/) · [返回学习路线](../learning-route/)
