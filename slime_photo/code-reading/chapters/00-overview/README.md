@@ -4,11 +4,13 @@
 
 **目录 ID：** `00-overview`
 **产物状态：** ready
-**学习状态：** 未开始
+**学习状态：** 统一见[阅读路线的当前接续](../../repo-reading-route.md#当前接续)。
 
 **问题：** 一次任务、一次模型请求和一次训练迭代，分别由哪些模块组织？
 
 **前置：** 无；从这里开始。
+
+**连续正文：** [本地 00 全景 Walkthrough](http://localhost:1313/projects/slime/framework-walkthrough/) 直接渲染本目录的 [walkthrough.md](walkthrough.md)，不另存一份博客正文。从基本工作流建立整体模型，每步继承并展开一个关系；遇到已读任务时短回顾。认知步骤在[根目录的 Slime 记录](../../../../00-repo-reading/repositories/slime/README.md)。
 
 **图文对照：** 1.1、4、7.1。
 
@@ -21,11 +23,11 @@
 
 **章内顺序：**
 
-1. 先读本章 walkthrough 的职责表，按“任务服务、模型服务、执行环境、训练”定位模块。
-2. 扫 Sample 的主要字段；一份输入样本可以经 Agent 任务分成多个训练片段，任务数、请求数与训练样本数不能混用。
-3. 看 generate() 的 prepare → Harness → diff → evaluation → finish_session → finally 骨架。
-4. 扫 train.main() 与 train()，认出生成、训练、checkpoint 和权重更新；第一遍不钻损失公式。
+1. 从本章 walkthrough 的基本工作流建立最小整体模型，先分清任务数据、生成评分、样本批次、训练和权重返回。
+2. 以“谁启动并进入循环”为第一个展开问题，沿 train.main() 的真实交接定位服务准备与 train()；每步保留整体轮廓，第一遍不钻损失公式。
+3. 到生成数据的交接再看 Sample 的主要字段；区分任务、请求和训练样本，具体字段按问题展开。
+4. 主线进入具体 Agent 任务时，再定位 generate() 的 prepare → Harness → diff → evaluation → finish_session → finally；已读部分短提醒后返回调用方。
 
 **验收问题：** 解释 agent/、rollout/、data/、ray/、backends/ 的职责，并指出工具循环、Kubernetes 和 tokenizer 实现的外部边界。
 
-**证据状态：** 文件与符号已静态定位；建议的行为验证尚未执行，学习状态尚未由用户复述确认。
+**证据状态：** 文件与符号已静态定位；建议的行为验证尚未执行，阅读反馈与运行证据统一见[当前接续](../../repo-reading-route.md#当前接续)。

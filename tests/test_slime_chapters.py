@@ -92,6 +92,38 @@ class SlimeChapters(unittest.TestCase):
     def page(self, url):
         return Page((self.output / unquote(urlsplit(url).path).lstrip('/') / 'index.html').read_text())
 
+    def test_framework_walkthrough_publishes_authored_body_and_resources(self):
+        url = '/projects/slime/framework-walkthrough/'
+        self.assertEqual(self.navigation.get('00 · 全景 Walkthrough'), url)
+        reading = self.page('/projects/slime/code-reading/')
+        self.assertTrue(any(link['href'] == url for link in reading.links))
+
+        page = self.page(url)
+        source = ROOT / 'slime_photo/code-reading/chapters/00-overview'
+        self.assertTrue(page.images, 'The framework map must be visible in the walkthrough')
+        map_urls = [item['src'] for item in page.images
+                    if unquote(urlsplit(item['src']).path).endswith('/framework-map.svg')]
+        self.assertEqual(len(map_urls), 1)
+        rendered_map = self.output / unquote(urlsplit(map_urls[0]).path).lstrip('/')
+        self.assertEqual(rendered_map.read_bytes(), (source / 'framework-map.svg').read_bytes())
+        self.assertFalse(any(link['href'].startswith('../') for link in page.links))
+        self.assertTrue(any(link['href'] == '/projects/slime/code-reading/' for link in page.links))
+        self.assertTrue(any('/task-walkthrough/' in link['href'] for link in page.links))
+
+        for filename in ('walkthrough.md', 'SOURCE-CHECK.md'):
+            downloads = [link['href'] for link in page.links
+                         if 'download' in link
+                         and unquote(urlsplit(link['href']).path).endswith('/' + filename)]
+            self.assertTrue(downloads, filename + ' has no local download')
+            target = self.output / unquote(urlsplit(downloads[0]).path).lstrip('/')
+            self.assertEqual(target.read_bytes(), (source / filename).read_bytes())
+
+        # Both the new learning narrative and the retained reference headings
+        # come from the authored document, rather than a second copied page.
+        authored_headings = re.findall(r'^## (.+)$', (source / 'walkthrough.md').read_text(), re.M)
+        rendered_headings = {heading.rstrip('#').rstrip() for heading in page.headings}
+        self.assertTrue(set(authored_headings).issubset(rendered_headings))
+
     def test_trajectory_management_note_has_local_page_and_downloads(self):
         chapter = '/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/'
         note_url = chapter + 'trajectory-management/'

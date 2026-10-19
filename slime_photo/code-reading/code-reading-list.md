@@ -4,13 +4,13 @@
 
 [阅读目录](README.md) · [唯一阅读路线](repo-reading-route.md#最终代码阅读清单) · [需求对照](job-alignment.md)
 
-这是基于本轮确认源码的文件/函数顺序，依附原有 00–07 单元；学习状态仍只在各章合同中维护。路径均相对于 `/home/fredkeira/projects/slime`，链接固定在 `22a89f96835969a47055a659c588f46151f8b07a`。
+这是既有文件/函数索引，依附原有 00–07 单元；当前接续与学习状态只在[唯一阅读路线](repo-reading-route.md#当前接续)维护。路径相对于 Slime 仓库根目录，源码链接保留 `22a89f96835969a47055a659c588f46151f8b07a` 的固定来源，不冒充当前 checkout。
 
-**当前先用 4.1 连续导览走通一份任务，再用 01–26 条目回查和扩展；各条目先看职责、输入输出与停止点，随后按问题深入。** Trace 与契约测试的意识从第一条任务链就开始使用，配套测试先看 fixture/断言，不把源码阅读当作运行通过。
+**01–26 条目用于回查职责、输入输出、停止点与配套验证，接续位置以上方路线为准。** Trace 与契约测试从当前主线配合使用，配套测试先看 fixture/断言，不把源码阅读当作运行通过。
 
-起步：扫 README 架构段与 train.main 的角色，再从 01 的 Sample 字段和 02 的 generate 骨架进入。当前 4.1 连续导览先选 Claude/Anthropic，沿用现有图文；下表中的 Codex/OpenAI 是同一职责的实现对照，完整链读通后再比较，避免同时展开两套协议。
+全局入口为 README 架构段与 `train.main`；4.1 连续导览提供单任务内部调用链，沿用 Claude/Anthropic 图文，Codex/OpenAI 保留为同一职责的实现对照。已读调用链先短提醒职责与关键交接，再按本轮问题回查，不默认重讲全链。
 
-已确认的第 2 章深入入口：[Trajectory Management 专题](<../4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Trajectory Management/README.md>)。沿 `record_turn()` 的历史接续、assistant 改写，再进入 `get_trajectory()` 的 token 对齐与训练片段导出；保留原有 26 项清单和学习状态。
+第 2 章的深入材料：[Trajectory Management 专题](<../4.Slime Core Components and Orchestration/4.1.Agent Rollout Adapters and Harnesses/Trajectory Management/README.md>)。沿 `record_turn()` 的历史接续、assistant 改写，再进入 `get_trajectory()` 的 token 对齐与训练片段导出；保留原有 26 项清单，当前接续仍见唯一阅读路线。
 
 ### 00 全局职责
 

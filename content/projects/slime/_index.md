@@ -1,11 +1,13 @@
 ---
 title: "Slime：架构与实践目录"
-description: "先从一个 Agent 样本的任务生命周期建立整体认识，再进入架构图与各动作的阅读材料。"
+description: "先建立基本工作流，再逐步展开框架职责、Agent 任务与具体代码，持续记录理解过程。"
 weight: 20
 ShowToc: false
 ---
 
 <span id="agent-lifecycle"></span>
+
+[00 · 全景 Walkthrough](/projects/slime/framework-walkthrough/) 从任务数据、生成与评分、样本、训练和权重返回建立基本框架；每一步继承整体模型，再展开相应目录、文件和函数，保留理解过程中的关键澄清。下方单任务生命周期作为其中一个模块的展开资料。
 
 ## 先看一个 Agent 样本的任务生命周期
 

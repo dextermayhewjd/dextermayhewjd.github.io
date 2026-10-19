@@ -1,5 +1,19 @@
 # Repository Guidelines
 
+## 通用仓库阅读与认知记录
+
+- 对任何源码仓库开展讲解、学习规划或阅读记录时，先读 [方法入口](00-repo-reading/README.md) 和 [工作流](00-repo-reading/workflow.md)，再接续 `00-repo-reading/repositories/<repo>/` 下的项目入口、最近步骤及该项目的唯一进度记录。此约定同时适用于聊天带读和文件修改。
+- 创建、整理或继承源码阅读中的个人心智模型时，使用 [repo-reading-memory skill](.agents/skills/repo-reading-memory/SKILL.md)。该 skill 规定短期与长期记忆的格式、来源、留白和继承；不替代各项目的阅读路线，也不自动将普通代码问答扩展为记录工作。
+- 全景从该项目的阅读目标与最小端到端职责建立；读过哪些函数属于历史记录，只影响回顾深度，不预设整体框架已理解。每次进入新模块都接回已有整体模型。
+- 每个实质性阅读步骤记录前一步模型、当前问题、目录/文件/函数与版本、真实调用和输入输出、理解形成或修正、本步之后的整体模型及下一问。新问题实际展开时才创建下一份步骤，追问和纠正补在相关步骤；不预生成完成记录。
+- 2026-10-19 确认的现行结构：每步包含 `01-scope.md`、`02-short-term-memory/`、`03-long-term-memory/` 和 `04-flow.md`。下一步的 `03` 合并前一步 `03` 与 `02`，新认识写入新的 `02`；保留完整模型、来源与未知。新模板已同步，旧步骤保留当时目录与快照，不因此重写学习历史。
+- 两层 memory 遵循[统一格式](00-repo-reading/memory-format.md)：`overview.md` 保存整体模型与函数索引，`functions/<源码相对路径>/<完整函数名>.md` 保留源码定位、首次接触和最近认识更新；当前采用用户明确认可的样例顺序：原话、简短场景与调用代码、一组输入输出、LLM 补充模型、未知、来源。校对从原讨论回查，个人原话不作为技术结论证据，使用 skill 中独立的短期、长期 reference 模板。整份记录和来源一起继承；只继承、补源码证据或改格式不算个人认识更新。
+- Step 01 的 `01-scope.md` 按为什么读、核心问题、入口条件、源码范围、阅读边界五项组织；`04-flow.md` 按实际问题连接用户表述、源码材料、助手提示和后续修正。依据是用户已确认的[职责规范](00-repo-reading/discussions/2026-10-19-step-folder-format.md#scope-flow-conventions)。形成的认识写入 `02`，目录和模板调整留在格式讨论；不将讨论顺序当作函数执行顺序。
+- 用户已要求持续保存认知构建过程。将实际问题与明确反馈、助手解释、静态源码证据、真实运行证据区分；不替用户虚构理解状态，不让用户反复提醒目标或保存讲解。
+- 个人认知由用户表达，助手先定位本步再提问、核对和整理。两层 memory 将个人已说清的关系、明确未知，与助手核对的场景代码、输入输出和 LLM 模型分开；“知道做什么、尚不清楚怎么做”是有效状态。扩展讲解放 `references/`，源码解释不能预填个人理解。此分工针对个人学习记录，完整教材仍按原出版约定维护。
+- 带读需要助手主动选观察点、给局部材料并邀请用户解释，再核对和推进；不要退化成被动记录，也不要给完答案后机械要求复述。每次优先解决当前表述中的一个关键区别，机制细节可继续留白。
+- 通用方法不另造课程顺序，不覆盖各专题已确认的学习边界。当前进度保持单一来源，Hugo 正文与步骤记录明确分工或引用同一正文；跨仓库使用须在目标仓库显式接入规则。
+
 ## Project Structure & Module Organization
 
 This repository is a Chinese-language learning website built with Hugo and the PaperMod theme.
@@ -33,7 +47,7 @@ Use Hugo Extended **0.166.0**.
 ## 源码仓库选择
 
 - 先读取用户已经确认的仓库记录。仓库一旦确定，后续任务与阅读章节持续沿用，不再逐章或逐轮重复询问；只有用户要求更换、尚无已确认仓库或存在多个有歧义的候选时才确认。
-- Slime 已由用户确认使用 `/home/fredkeira/projects/slime`，核心包是其中的 `slime/`。2026-10-10 用户明确要求将这一选择持续保留，后续 Slime 阅读直接沿用，直到用户更改。
+- Slime 的仓库选择持续沿用。2026-10-19 核对本机实际 checkout 为 `/home/hongshi/projects/slime`，核心包是其中的 `slime/`；历史记录中的 `/home/fredkeira/projects/slime` 在本机不存在。路径迁移不表示更换学习项目，旧材料的提交和源码证据仍保留原版本归属，不批量改成当前 HEAD。
 - 用户明确给出新路径时采用该路径；多个候选无法从上下文确定时询问。分析其他仓库时，不把已确认的 Slime 路径误用于其他项目。
 - 路径尚未确定时，可以启动预览或整理已有材料。路径确定后核对 Git 根目录、HEAD 和工作区差异，绑定源码证据；版本核对本身不需要再请求用户确认路径。
 
@@ -101,4 +115,11 @@ Keep generated `public/`, `resources/_gen/`, and Hugo lock files out of commits.
 
 ## Slime Source Reading
 
-For Slime source reading, route maintenance, or related learning notes, read `slime_photo/code-reading/AGENTS.md` and use `slime_photo/code-reading/repo-reading-route.md` as the current route. Keep published content focused on technical responsibilities and source evidence.
+For any Slime explanation, study planning, source reading, or route maintenance, first read `slime_photo/code-reading/AGENTS.md`, the “当前接续” section of `slime_photo/code-reading/repo-reading-route.md`, and the current priorities in `slime_photo/code-reading/job-alignment.md`. This applies to chat-only teaching as well as file edits.
+
+- Slime 学习按用户提供的腾讯混元 Agent 强化学习框架工程师 JD 决定投入重点；岗位对照保存能力与预算，阅读路线保存唯一进度，不把官网目录顺序当成平均投入要求。
+- Slime 的认知步骤入口在 `00-repo-reading/repositories/slime/README.md`。全景从基本工作流开始，`generate()` 的已读历史仅用于按需提醒；本目录的步骤快照不另存一套实时进度。
+- 阅读进度和当前入口只以路线的“当前接续”为准。保留用户已读事实，首次重遇时先短提醒职责、关键输入输出与主线位置；不假定已读内容仍能随时回忆，也不因需要提醒而清零进度或默认重讲内部全链。
+- 带读同时交代全局位置与局部调用：框架中的当前位置 → 本轮源码与输入输出 → 回到调用方及下一次交接。具体协议与接续更新规则见 Slime 专属 `AGENTS.md`。
+- 用户已要求在 Hugo 持续保存完整 Walkthrough：技术问题、关系如何建立、源码依据、解释与修正同步补入对应正文；有明确反馈才写成用户自己的理解，不替用户虚构心智状态。正文从一个维护来源渲染。
+- 本专题规则不改写独立 Python 异步课程的范围和学习进度。公开内容聚焦技术问题、理解过程与源码证据；JD、时间预算、个人履历和进度状态保留在本地阅读记录中。

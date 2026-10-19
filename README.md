@@ -6,6 +6,7 @@
 
 ## 从这里开始
 
+- **[00 · 仓库阅读与认知构建](00-repo-reading/README.md)**：适用于任意源码仓库。从阅读目标建立基本框架，每一步记录问题、目录/文件/函数和理解变化，下一步继承上一步的整体模型。
 - **[Learn Claude Code](https://dextermayhewjd.github.io/projects/learn-claude-code/)**：目前的主要学习系列。从 S01 到 S17，逐步理解 Agent Loop、工具、Skills、上下文、Memory、任务系统、Workflow 与 Goal Loop。
 - **[项目](https://dextermayhewjd.github.io/projects/)**：以项目为线索，记录系统结构、设计选择和实现过程。
 - **[课程](https://dextermayhewjd.github.io/courses/)**：按课程组织学习内容，目前先保留课程目录和章节结构示例。
@@ -43,6 +44,7 @@ cd dextermayhewjd.github.io
 
 | 目录 | 用途 |
 |---|---|
+| `00-repo-reading/` | 通用源码阅读工作流、单步模板与各仓库的认知构建记录 |
 | `content/` | 文章、项目章节与课程笔记 |
 | `assets/`、`layouts/` | 页面样式、导航和图形交互 |
 | `examples/`、`static/` | 示例源码与可下载资源 |

@@ -1,22 +1,26 @@
 # 源码阅读目录
 
+通用阅读方法在仓库根目录的 [00-repo-reading](../../00-repo-reading/README.md)；Slime 的逐步认知记录从[项目入口](../../00-repo-reading/repositories/slime/README.md)接续。它们保存“怎样理解”，当前读到哪里仍以本目录的唯一路线为准。
+
 ## 每次开始前：确认源码与官方最新版本
 
-1. 读取已确认的仓库记录：Slime 持续使用 `/home/fredkeira/projects/slime`，核心包是其中的 `slime/`。后续章节不再反复询问；只有用户更换路径、尚未确认仓库或候选有歧义时才确认。
+1. 先读[当前接续](repo-reading-route.md#当前接续)和[岗位投入安排](job-alignment.md#当前学习条件与投入安排)。本机持续使用 `/home/hongshi/projects/slime`，历史 `/home/fredkeira/projects/slime` 在本机不可用；核心包是 `slime/`。不重复询问已确定的仓库和学习起点。
 2. 启动或确认本地 Hugo 预览，打开 [源码阅读顺序](http://localhost:1313/projects/slime/code-reading/)，供用户边读边看。
 3. 检查本地分支、工作区与 HEAD，并直接查询 **THUDM/slime 官方 main**。本地 `origin` 可能是 fork，不能仅凭“与 origin/main 一致”判断是否官方最新。
 
 ```bash
-git -C /home/fredkeira/projects/slime status --short --branch
-git -C /home/fredkeira/projects/slime remote -v
-git -C /home/fredkeira/projects/slime rev-parse HEAD
+git -C /home/hongshi/projects/slime status --short --branch
+git -C /home/hongshi/projects/slime remote -v
+git -C /home/hongshi/projects/slime rev-parse HEAD
 git ls-remote https://github.com/THUDM/slime.git HEAD refs/heads/main
 ```
 
 4. 对比本地 SHA 和官方 `refs/heads/main` SHA：相同说明本地提交与核对时的官方 main 一致；还需检查工作区改动。不同则用官方比较页面或接口核对领先/落后、分叉和改动范围；网络查询失败时记录“未核实”，不能用缓存的远端引用宣称最新。
 5. 记录核对时间、官方 SHA、本地 SHA 与差异。检查版本不会自动更新本地源码；需要更新时保留用户改动与阅读记录，并在更新后重新核对函数、行号和路线。正式阅读绑定一个明确的提交。
 
-## 本次实际核对结果
+## 历史版本核对（2026-10-10）
+
+以下保留既有固定材料的历史核对，不表示当前本机路径或 HEAD；当前记录统一见[阅读路线](repo-reading-route.md#当前源码与已有材料的版本边界)。
 
 核对时间：2026-10-10 UTC。详情与数据来源见 [upstream-check.json](upstream-check.json)。
 
@@ -37,15 +41,15 @@ git ls-remote https://github.com/THUDM/slime.git HEAD refs/heads/main
 
 每章先定位“正在跟随哪一层调用”，再打开所需源码。共用划分见 [4.1 各章语境与源码入口](action-contexts.md)，逐章文件/符号清单维护在 [action-contexts.json](action-contexts.json)；网页在各章的默认折叠入口中展示。
 
-**当前先完成 4.1。** 直接打开[沿 generate 完成一次任务](chapters/01-task-execution/walkthrough.md)，沿主线进入各职责组件，讲完返回外层任务，把启动、模型请求循环、结果与清理连起来。阅读目标见[唯一路线中的当前主线](repo-reading-route.md#当前优先沿-generate-读完-41)。
+**当前从[唯一阅读路线的接续记录](repo-reading-route.md#当前接续)进入。** [00 全局职责](chapters/00-overview/README.md)用于定位框架，[4.1 单任务导览](chapters/01-task-execution/walkthrough.md)用于回查局部；不因导航材料存在而重复带读已读内容。
 
 Pre-4 的完整章节存档见 [Pre-4.启动前准备/README.md](../../slime_photo/4.Slime%20Core%20Components%20and%20Orchestration/4.1.Agent%20Rollout%20Adapters%20and%20Harnesses/Pre-4.启动前准备/README.md)，包括 SVG、源码入口与来源说明。
 
-本轮接续阅读：[Harness.run 主线](http://localhost:1313/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/harness-run/) → [动作5 Sandbox 的环境能力](http://localhost:1313/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/)，每次下钻后回到对应调用位置。
+任务内部的回查材料：[Harness.run 主线](http://localhost:1313/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/harness-run/) → [动作5 Sandbox 的环境能力](http://localhost:1313/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/)，每次下钻后回到对应调用位置。
 
 进入 Launch Agent 前，先读 [Pre-4：启动前准备](chapters/01-task-execution/pre-4-preparation.md)。它在页面目录中位于 3.5 后、4 前，解释进入 run 前的条件；实际执行顺序按完整任务主线理解。
 
-完整任务读通后，用[代码阅读顺序名单](code-reading-list.md)继续定位和扩展：26 个条目列出真实文件/函数、阅读停止点与配套测试材料。该名单是[唯一阅读路线中的清单](repo-reading-route.md#最终代码阅读清单)的派生视图。
+用[代码阅读顺序名单](code-reading-list.md)按当前问题定位和扩展：26 个条目列出真实文件/函数、阅读停止点与配套测试材料。该名单是[唯一阅读路线中的清单](repo-reading-route.md#最终代码阅读清单)的派生视图。
 
 按[阅读路线](repo-reading-route.md)逐章推进。
 各章 README 是范围与入口；walkthrough 和 review 在实际阅读该单元后生成。

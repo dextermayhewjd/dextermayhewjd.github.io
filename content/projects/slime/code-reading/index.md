@@ -10,9 +10,11 @@ ShowToc: true
 
 先弄清每个部分做什么、输入输出是什么、需求应该接在哪里，再按问题深入实现。以一个 Coding Agent 任务为例，把模型调用、工具与环境、上下文、轨迹、评测和训练的交接串起来。
 
-**当前先完成 4.1：[沿 generate 走完一次 Agent 任务](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough/)。** 以完整任务为主线，进入组件读清职责后返回调用处，再继续下一步。
+**连续带读正文：[00 · 全景 Walkthrough](/projects/slime/framework-walkthrough/)。** 先建立基本工作流，每一步继承整体模型，再按新增问题展开相应目录、文件和函数；关键疑问、解释和修正持续补入同一份正文。通用方法与步骤模板保存在仓库根目录 `00-repo-reading/`，供其他源码仓库复用。
 
-**第 2 章的深入阅读已设立专用入口：[Trajectory Management 专题笔记](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/trajectory-management/)。** 读过 `generate()`／`_run_turn()` 后，按“历史接续与分叉 → assistant 改写 → token 对齐和 Sample 导出”继续。它属于现有第 2 章，不新增执行阶段，也不表示已完成学习。
+**全局入口与单份任务相互对照。** 先用职责表定位框架，再从 `train.py::main()` 看启动、资源准备与上层 rollout 调度；调用到 `generate()` 时，用[单任务导览](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough/)回查局部流程，随后返回外层看样本如何交给训练。
+
+**第 2 章深入材料：[Trajectory Management 专题笔记](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/trajectory-management/)。** 展开历史接续与分叉、assistant 改写、token 对齐和 Sample 导出，作为任务与模型调用主线的实现回查入口。
 
 ## 第一遍：认识每个部分
 
@@ -27,23 +29,23 @@ ShowToc: true
 | 06 | 模型服务、Ray 资源与容器边界 | 4.3、4.4、2.1；Kubernetes 为独立实践 | 掌握运行位置、服务生命周期和资源治理，能定位 Kubernetes 需要补充的适配。 | [slime/ray/placement_group.py · create_placement_groups](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/ray/placement_group.py#L123) |
 | 07 | 训练交接、策略版本与权重更新 | 4.2、5.1、7.8；7.9 与 SFT 作为第二遍 | 掌握生成与训练的工程合同、基本 RL/SFT 区别、checkpoint 与策略版本边界。 | [train.py · train](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/train.py#L13) |
 
-本轮源码固定在 `22a89f96835969a47055a659c588f46151f8b07a`。核心包是 `slime/`，任务组装和策略示例还在 `examples/`，训练入口在 `train.py`，验证材料在 `tests/`。现有 4.1 动作讲解使用早期固定版本，辅助定位时需核对当前源码。
+下方既有清单的源码链接保留 `22a89f96835969a47055a659c588f46151f8b07a` 的固定来源；实际阅读需核对所用 checkout，不把材料快照视为当前最新版本。核心包是 `slime/`，任务组装和策略示例还在 `examples/`，训练入口在 `train.py`，验证材料在 `tests/`。现有 4.1 动作讲解使用早期固定版本，辅助定位时需核对当前源码。
 
-## 第二遍：优先读通三个单元
+## 按问题展开职责与实现
 
 1. **完整任务与环境：** `generate()` → Harness → Sandbox → CLI 启动与等待 → API 回连 → diff 与独立评估 → 清理。对应 4.1 的动作 4、5、6、7 和 7.1。
 2. **模型与上下文：** `_run_turn()` → 协议转换 → 模型输入 → SGLang 生成 → 响应与轨迹 → `finish_session()` → `Sample`。对应动作 2、3、3.5。
 3. **策略与评测接入：** `generate_and_rm()` → 自定义生成/评分 → 样本 hook/过滤 → 评测配置 → 批次结果合同。对应 4.5 和 3.1–3.4。
 
-随后结合 Trace 与行为测试深入并发、恢复、资源和训练交接。每个单元读完应能说明调用者、输入输出、可替换接口，以及失败后由谁处理和清理。
+Trace、行为测试、并发、恢复、资源和训练交接提供相应职责的扩展入口。每次进入一个组件，都交代框架中的位置、调用者、输入输出与清理责任；讲完返回调用方，接上下一次数据或控制权交接。
 
 ## 最终代码阅读清单
 
 这是基于本轮确认源码的文件/函数顺序，依附原有 00–07 单元；路径均相对于源码仓库根目录，链接固定在 `22a89f96835969a47055a659c588f46151f8b07a`。
 
-**当前先用 4.1 连续导览走通一份任务，再用 01–26 条目回查和扩展；各条目先看职责、输入输出与停止点，随后按问题深入。** Trace 与契约测试的意识从第一条任务链就开始使用，配套测试先看 fixture/断言，不把源码阅读当作运行通过。
+**01–26 条目用于回查职责、输入输出、停止点与配套验证。** Trace 与契约测试配合主线使用，配套测试先看 fixture/断言，不把源码阅读当作运行通过。
 
-起步：扫 README 架构段与 train.main 的角色，再从 01 的 Sample 字段和 02 的 generate 骨架进入。当前 4.1 连续导览先选 Claude/Anthropic，沿用现有图文；下表中的 Codex/OpenAI 是同一职责的实现对照，完整链读通后再比较，避免同时展开两套协议。
+全局入口为 README 架构段与 `train.main`；4.1 连续导览提供单任务内部调用链，沿用 Claude/Anthropic 图文。Codex/OpenAI 保留为同一职责的实现对照；已读调用链先短回顾职责与输入输出，再接到上层调度和训练交接。
 
 ### 00 全局职责
 

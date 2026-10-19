@@ -1,0 +1,25 @@
+{{- $directory := "slime-photo/code-reading/chapters/00-overview" -}}
+{{- $document := resources.Get (path.Join $directory "walkthrough.md") -}}
+{{- $evidence := resources.Get (path.Join $directory "SOURCE-CHECK.md") -}}
+{{- $diagram := resources.Get (path.Join $directory "framework-map.svg") -}}
+{{- $sourceMap := resources.Get "slime-photo/code-reading/source-map.json" -}}
+{{- $route := .Site.GetPage "/projects/slime/code-reading" -}}
+{{- $task := .Site.GetPage "/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough" -}}
+{{- if not (and $document $evidence $diagram $sourceMap $route $task) -}}
+  {{- errorf "Slime framework walkthrough or linked resource missing" -}}
+{{- else -}}
+  {{- $body := replaceRE `^# [^\n]+\n+` "" $document.Content -}}
+  {{- $body = replace $body "(README.md)" (printf "(%s#00-全局职责)" $route.RelPermalink) -}}
+  {{- $body = replace $body "(../../repo-reading-route.md)" (printf "(%s)" $route.RelPermalink) -}}
+  {{- $body = replace $body "(../../source-map.json)" (printf "(<%s>)" $sourceMap.RelPermalink) -}}
+  {{- $body = replace $body "(../01-task-execution/README.md)" (printf "(%s)" $task.RelPermalink) -}}
+  {{- $body = replace $body "(../01-task-execution/walkthrough.md)" (printf "(%s)" $task.RelPermalink) -}}
+  {{- $body = replace $body "(SOURCE-CHECK.md)" (printf "(<%s>)" $evidence.RelPermalink) -}}
+  {{- $body = replace $body "(framework-map.svg)" (printf "(<%s>)" $diagram.RelPermalink) -}}
+  {{- .Page.RenderString (dict "display" "block") $body -}}
+  <p class="reading-downloads">
+    <a href="{{ $document.RelPermalink }}" download>下载完整 Walkthrough</a>
+    · <a href="{{ $evidence.RelPermalink }}" download>下载源码核对记录</a>
+    · <a href="{{ $diagram.RelPermalink }}" download>下载全景图</a>
+  </p>
+{{- end -}}
