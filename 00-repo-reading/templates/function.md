@@ -2,7 +2,7 @@
 
 按记忆类型选择独立的 reference 模板：
 
-- [短期记忆模板](../../.agents/skills/repo-reading-memory/references/short-term-memory-template.md)：本步新形成或修正的理解。
+- [短期记忆模板](../../.agents/skills/repo-reading-memory/references/short-term-memory-template.md)：本步新形成或修正的理解，按[短期 memory skill](../../.agents/skills/repo-reading-short-term-memory/SKILL.md)整理。
 - [长期记忆模板](../../.agents/skills/repo-reading-memory/references/long-term-memory-template.md)：进入本步前继承的累计理解。
 - [已填写的紧凑案例](../../.agents/skills/repo-reading-memory/references/translate-function-example.md)：`AnthropicAdapter._translate`。
 

@@ -2,6 +2,8 @@
 
 通用阅读方法在仓库根目录的 [00-repo-reading](../../00-repo-reading/README.md)；Slime 的逐步认知记录从[项目入口](../../00-repo-reading/repositories/slime/README.md)接续。它们保存“怎样理解”，当前读到哪里仍以本目录的唯一路线为准。
 
+使用[代码阅读指南](../../00-repo-reading/code-reading-guide.md)：第一条讲剪枝与正常路径，第二条讲阅读时记录什么；保留用户原文及当前 Slime 源码对应说明。
+
 ## 每次开始前：确认源码与官方最新版本
 
 1. 先读[当前接续](repo-reading-route.md#当前接续)和[岗位投入安排](job-alignment.md#当前学习条件与投入安排)。本机持续使用 `/home/hongshi/projects/slime`，历史 `/home/fredkeira/projects/slime` 在本机不可用；核心包是 `slime/`。不重复询问已确定的仓库和学习起点。

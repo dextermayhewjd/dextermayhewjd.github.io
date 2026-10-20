@@ -1,10 +1,10 @@
 # 讨论：每一步一个文件夹，继承完整记忆
 
-日期：2026-10-19。状态：原三部分格式及后续拆分的讨论过程保留在本页；Step 01 和通用模板现已采用短期与长期记忆分开的[统一格式](../memory-format.md)，旧步骤保留历史快照。当前工作流与模板见对应入口。
+日期：2026-10-19。状态：原三部分格式及后续拆分的讨论过程保留在本页；Step 01 和通用模板现已采用短期与长期记忆分开的[统一格式](../../00-repo-reading/memory-format.md)，旧步骤保留历史快照。当前工作流与模板见对应入口。
 
 最新职责修正：个人认知由学习者表达，助手先定位再提问和核对；只知道作用、实现留白是有效状态。下文较早的“完整解释”建议须按文末的职责修正理解，不再由助手预填个人模型。
 
-[方法入口](../README.md) · [现行工作流](../workflow.md)
+[方法入口](../../00-repo-reading/README.md) · [现行工作流](../../00-repo-reading/workflow.md)
 
 ## 用户这次提出的方案
 
@@ -158,7 +158,7 @@ repositories/<repo>/
 
 每一步包含本步范围、完整记忆、本步代码与输入输出；下一步完整复制上一步 `02-memory/` 再更新。以前的记忆保留为当时的版本，当前理解由最新步骤继续推进。
 
-正式文件：[工作流](../workflow.md)、[单步文件夹模板](../templates/step/README.md)、[函数模板](../templates/function.md)。Slime 已有的起点见 [step-000](../repositories/slime/steps/step-000-initial-model/README.md)，迁移格式不表示新的阅读进度或用户已理解新增解释。
+正式文件：[工作流](../../00-repo-reading/workflow.md)、[单步文件夹模板](../../00-repo-reading/templates/step/README.md)、[函数模板](../../00-repo-reading/templates/function.md)。Slime 已有的起点见 [step-000](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)，迁移格式不表示新的阅读进度或用户已理解新增解释。
 
 ## 用已讲过的 generate 检验这个工作流
 
@@ -329,7 +329,7 @@ step-N/
 
 ### 先在 Step 01 采用
 
-用户确认：“好的那么先把这里的step01的部分先替换了吧”。已将 [Step 01](step-01-translate-preview/README.md) 原有个人记忆完整移到 `02-short-term-memory/`，新增 `03-long-term-memory/overview.md`，原流程移到 `04-flow.md`，相关入口同步更新。
+用户确认：“好的那么先把这里的step01的部分先替换了吧”。已将 [Step 01](./step-01-translate-preview/README.md) 原有个人记忆完整移到 `02-short-term-memory/`，新增 `03-long-term-memory/overview.md`，原流程移到 `04-flow.md`，相关入口同步更新。
 
 该 Step 01 是独立格式试用，没有导入一个已完成的前序技术模型，因此 `03` 明确写为暂无继承；本步对 common 与两个 Adapter 的理解留在 `02`。已有原话、源码归属、实现留白与参考讲解均保留。其他步骤和通用模板保持原样。
 
@@ -390,8 +390,8 @@ flow 应保存已经实际发生的这条理解演进：
 
 ### Step 01 的采用结果
 
-- [01-scope.md](step-01-translate-preview/01-scope.md) 改为五项：为什么读、核心问题、入口条件、源码范围、读到哪里。开始时的表述与后来扩大的范围分开，已读历史不改写为未知。
-- [04-flow.md](step-01-translate-preview/04-flow.md) 按实际发生的三个问题组织：两份输出是什么、历史与工具定义的区别、共同约定与具体实现的分工。每段保留用户表述、必要源码材料、助手提示以及仍未确认的关系。
+- [01-scope.md](./step-01-translate-preview/01-scope.md) 改为五项：为什么读、核心问题、入口条件、源码范围、读到哪里。开始时的表述与后来扩大的范围分开，已读历史不改写为未知。
+- [04-flow.md](./step-01-translate-preview/04-flow.md) 按实际发生的三个问题组织：两份输出是什么、历史与工具定义的区别、共同约定与具体实现的分工。每段保留用户表述、必要源码材料、助手提示以及仍未确认的关系。
 - 原 flow 的记录方式调整集中留在本讨论文件：短期记忆在本步形成，进入下一步时与前序长期记忆合并；Step 01 的原 `03-flow.md` 已顺延为 `04-flow.md`，当前 `03` 暂无前序技术模型导入。这段是目录与工作流的历史，不当作源码运行过程。
 - Step 01 的 README 同步说明两份文件的职责。`02-short-term-memory/`、`03-long-term-memory/` 与参考讲解保留既有内容，本轮调整不增加用户掌握状态。
 
@@ -453,7 +453,7 @@ flow 应保存已经实际发生的这条理解演进：
 
 ### 统一为后续文件格式
 
-用户随后要求规定每份短期与长期 memory 应显示什么。现已将稳定规则整理为 [memory-format.md](../memory-format.md)，统一函数记录的六项内容，以及 overview 的整体模型、函数索引、未知和来源。两个函数实例保持既有心智模型，Step 01 的 overview 与通用模板按这一版式整理。
+用户随后要求规定每份短期与长期 memory 应显示什么。现已将稳定规则整理为 [memory-format.md](../../00-repo-reading/memory-format.md)，统一函数记录的六项内容，以及 overview 的整体模型、函数索引、未知和来源。两个函数实例保持既有心智模型，Step 01 的 overview 与通用模板按这一版式整理。
 
 新建步骤使用短期、长期分开的模板；旧步骤不因模板更新而改写。前文的旧目录与“模板尚未迁移”保留其讨论时的历史语境，不作为当前操作规则。
 
@@ -495,4 +495,4 @@ skill 存在本项目 `.agents/skills/` 中，内容不依赖本机路径或招�
 
 ### 后续接续：集中保存长短期记忆的要求
 
-用户随后要求先保存专属 Markdown，包含要求及相关讨论。现已将 [memory-format.md](../memory-format.md) 扩充为长短期记忆的专属要求与讨论文档；后续这一主题的新反馈与修改理由在该文档接续。本文件保留早期目录方案及以上讨论的历史，第一轮技术复述仍待进行。
+用户随后要求先保存专属 Markdown，包含要求及相关讨论。现已将 [memory-format.md](../../00-repo-reading/memory-format.md) 扩充为长短期记忆的专属要求与讨论文档；后续这一主题的新反馈与修改理由在该文档接续。本文件保留早期目录方案及以上讨论的历史，第一轮技术复述仍待进行。

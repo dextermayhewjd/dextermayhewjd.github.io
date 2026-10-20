@@ -50,7 +50,7 @@ tools_schema = None
 
 **来源**
 
-源码版本：`2f2318653f6f794dddd321eff7c9d4b7b174643f`，[调用处 common.py:341](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L341)，[实现 anthropic.py:58](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L58)。本例由[完整教学样本](translate-function-full-example.md)缩减，已做局部执行核对；[Step 01 实际讨论](../../../../00-repo-reading/discussions/step-01-translate-preview/04-flow.md)保留原话和澄清过程。
+源码版本：`2f2318653f6f794dddd321eff7c9d4b7b174643f`，[调用处 common.py:341](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L341)，[实现 anthropic.py:58](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L58)。本例由[完整教学样本](translate-function-full-example.md)缩减，已做局部执行核对；[Step 01 实际讨论](../../../../backlog/repo-reading/step-01-translate-preview/04-flow.md)保留原话和澄清过程。
 
 ---
 

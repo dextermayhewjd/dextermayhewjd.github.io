@@ -1,4 +1,4 @@
 interface:
-  display_name: "源码阅读记忆"
-  short_description: "记录源码阅读中的个人心智模型，保留步骤来源与未知，并继承短期和长期记忆"
-  default_prompt: "使用 $repo-reading-memory，根据我的实际表述整理本步短期记忆，并保留前序长期记忆、来源步骤和未理解的内容。"
+  display_name: "源码阅读记忆总入口"
+  short_description: "选择阅读记忆的处理入口，协调已有记录并保留长期继承的来源与未知"
+  default_prompt: "使用 $repo-reading-memory 确定本次记忆整理的入口；本步函数记录交给短期记忆 skill，长期继承保留完整内容、来源与未知。"

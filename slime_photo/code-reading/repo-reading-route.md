@@ -6,23 +6,23 @@
 
 ## 当前接续
 
-更新：2026-10-19，依据用户本轮明确反馈。这里是唯一的学习接续记录；下方章节合同、旧材料和源码索引不能覆盖它。
+更新：2026-10-20，依据用户关于“从 Coding Agent 部分开始”的纠正，以及本步 scope 的三项明确要求。这里是唯一的学习接续记录；下方章节合同、旧材料和源码索引不能覆盖它。
 
 - **目标与条件：** 按用户提供的腾讯混元 Agent 强化学习框架工程师 JD 决定详略。本地无 GPU，以读明白和模型 API 辅助验证为主；前置与初始时间预算见[岗位对照](job-alignment.md#当前学习条件与投入安排)。
-- **当前协作：** 用用户指定的 Action 2 页面推演工作流与 skill。助手先定位，由用户说自己的模块理解；只知道作用、尚不清楚实现时允许留白。用户已表达 `_translate` 返回对话历史与工具 schema、common 规定共同约定、两个 Adapter 提供具体实现，具体转换仍不清楚。助手详细讲解独立保留为参考。[Step 01](../../00-repo-reading/discussions/step-01-translate-preview/README.md) 的两个函数已采用[统一记忆格式](../../00-repo-reading/memory-format.md)；本步新认识放 `02`，`03` 暂无前序模型导入。通用模板现已同步，旧步骤保留原快照；格式规范不增加已完成或已掌握的学习范围。
-- **认知记录入口：** 使用根目录的[通用工作流](../../00-repo-reading/workflow.md)，本项目保留 [000 初始模型](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)作为起点记录。新步骤使用整体地图和镜像源码目录的逐函数记录，下一步 `03` 合并前一步的 `03` 与 `02`，新的 `02` 保存本步新认识。000 的旧目录保留，其技术模型仍待带读反馈，不是已掌握记录。
+- **当前协作：** 用户已明确提出 `HARNESS_CLS().run` 怎样接到 `BaseAdapter._run_turn`，进入 [Step 1 · 从 Harness 启动到 Adapter 收到请求](../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)。本轮只连通启动、外部 CLI 与 HTTP 路由，不把每个辅助调用拆成新步骤。
+- **认知记录入口：** 使用[通用工作流](../../00-repo-reading/workflow.md)与当前 [Coding Agent Step 1](../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)。[Step 0 的核心骨架](../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)作为前序步骤保留。此前从框架启动切入的 [000 初始模型](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)和[转换局部示范](../../backlog/repo-reading/step-00-translate-structure-preview/README.md)继续供回查；步骤仍按 `03` 继承前序 `03` 与 `02`、新认识写入 `02`。
 - **已读范围与记忆提醒：** 用户明确表示 `generate()` 的完整任务链已经走过，同时提醒走过不等于全部记住。保留已读事实；续读时先短回顾职责、输入输出与主线位置，根据具体问题补细节，不默认重讲全链，也不自行断言忘了哪些部分。
-- **当前问题：** 从阅读目标建立“任务数据与配置 → 生成和评分 → 样本/批次 → 训练 → 权重返回”的基本框架，再逐步看清启动与职责交接；不从已读 `generate()` 倒推全景的起点。
-- **固定下一步：** 从 [000 初始模型](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)和 [00 全景 Walkthrough](http://localhost:1313/projects/slime/framework-walkthrough/)的基本框架进入 `train.py::main()`，回答“谁启动工作，第一次怎样进入循环”；实际展开时创建下一份步骤，继承完整记忆。后续沿服务准备、train 和 rollout 的真实交接推进；重遇 `generate()` 才按需短回顾。
-- **本轮停止点：** 能把启动入口、资源/模型服务、批量调度、单份任务、训练数据消费者放在同一条调用与数据链上。后续深入扩展/评测、Trace/验证和并发/恢复；不因建立地图而平均展开所有训练和硬件细节。
+- **当前问题：** 用户先确认“函数调用的链条没有问题了”，追问 HTTP 服务与信息往返；最新反馈是整体链路讲解仍不清楚，希望讨论文档改法，以及“先看重要函数”的方法是否继续适用。保留前一轮对调用链的确认，不据此认定 HTTP 通信或各函数内部细节已掌握。
+- **当前入口与下一处：** 先看[重要函数与交接详略的改稿对照](../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#core-first-and-handoff-depth)。候选保留已读启动链供回查，当前请求小节围绕 `_run_turn` 接收的 `body`，回查地址、路由与必要监听代码；实际执行顺序仍为先准备服务和启动配置、后发生请求。[已有 HTTP 正文](chapters/01-task-execution/walkthrough.md#http-round-trip)保留供比较，未将候选当作已采用的阅读安排。
+- **本轮停止点：** 已保存文档重复点、具体修改对照和一次请求的短版候选，等待用户对组织方式的实际反馈。未重写已采用正文、修改函数记忆或新增步骤；本轮静态核对了相关源码并确认现有预览可访问，没有检查 CLI 内部发送函数或运行 CLI、沙箱与模型服务。
 - **资料用法：** 官方整体实验入门的 “The loop you are building” 用于概念对照；`agent.html` 用于查 Agent 接入点；本地 00 用于职责定位；实际调用以当前固定源码为证据。它们服务同一条阅读主线，不互相替代成新的课程顺序。
-- **心智模型与正文：** 用户要求此方法适用于任意 repo，统一保存在根目录 `00-repo-reading/`。每步保留自己的基本理解、源码位置及新增或修正关系；连续技术解释维护在 [00 walkthrough](chapters/00-overview/walkthrough.md)，由 Hugo 直接渲染。步骤保存模型快照与引用，不手工复制另一份全文；当前状态只在本节维护。
+- **心智模型与正文：** 通用方法在 `00-repo-reading/`。Step 1 的 `02` 保存 `BaseHarness.run` 的函数记录，个人职责表述尚缺；`03` 完整继承 Step 0 的 common 转换记录与 Anthropic 引用入口。memory 的 overview 只做索引，任务主线保存在步骤层，连续讲解从维护来源同步到 Hugo。当前状态只在本节维护。
 
 ### 阅读与验证记录
 
 | 范围 | 阅读反馈 | 理解与运行证据 |
 | --- | --- | --- |
-| 00 全局职责与启动主线 | 用户当前要求补全全景及更上游入口，已开始讨论 | 理解程度尚无明确反馈，不要求先复述才能继续 |
+| 00 全局职责与启动主线 | 保留框架背景材料；2026-10-20 用户明确本轮从 Coding Agent 开始 | 不作为当前起点；外层机制按需再展开 |
 | 01、02 中的 `generate()` 完整任务链 | 用户 2026-10-19 明确反馈已完整走过，并说明内容可能未全部记住、需要提醒 | 具体记忆缺口未逐项反馈；已读不等于全部分支验收，本轮没有真实 Agent、GPU 训练或集群运行证据 |
 | 02 的轨迹分叉、改写与 token 对齐专题 | 入口保留为深入材料 | 没有整章或专题完成反馈，不自动续读这些内部细节 |
 | 03–07 的独立深入单元 | 按当前主线与岗位优先级继续；本轮无逐单元完成反馈 | 不从 planned/ready 或测试材料存在推断已读、掌握或运行 |

@@ -4,7 +4,7 @@
 
 后续职责已修正：本稿中的完整示例属于助手参考，个人认知应由用户表达；具体实现允许留白。当前 Step 1 已据此区分用户记录与参考讲解。
 
-[方法入口](../README.md) · [此前的格式与步长讨论](2026-10-19-step-folder-format.md) · [现有章节 skill](../../skills/code-reading-chapter/SKILL.md)
+[方法入口](../../00-repo-reading/README.md) · [此前的格式与步长讨论](2026-10-19-step-folder-format.md) · [现有章节 skill](../../skills/code-reading-chapter/SKILL.md)
 
 ## 这轮为什么只改进一件事
 
@@ -95,7 +95,7 @@
 
 用户指定现有 Translate & Forward 页面作为参照，并明确目前只知道 `_translate` 将请求 body 变成 `translated` 与 `tools_schema`，其他环节仍不清楚。页面中的 generate 是定位条件，不要求从头读完整任务。
 
-据此，推演改为沿用原页面的同一份完整请求，不再默认缩成“一个用户消息和一个工具”的另一个案例。具体的 [scope 与 flow 填写示例](step-01-translate-preview/README.md)分别保存进入本步的认知边界，以及请求格式、转换路径和输出说明。
+据此，推演改为沿用原页面的同一份完整请求，不再默认缩成“一个用户消息和一个工具”的另一个案例。具体的 [scope 与 flow 填写示例](./step-01-translate-preview/README.md)分别保存进入本步的认知边界，以及请求格式、转换路径和输出说明。
 
 这次反馈说明候选规则还应区分“用户已理解”与“为了进入本步暂时接受的场景条件”。未知的上游允许作为边界保留，不能因出现在定位图上而自动记作已掌握。正式 skill 尚未据此修改。
 

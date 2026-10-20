@@ -1,0 +1,4 @@
+interface:
+  display_name: "源码阅读短期记忆"
+  short_description: "整理单函数短期记忆，保留原话、场景、输入输出、未知和共用记录引用"
+  default_prompt: "使用 $repo-reading-short-term-memory 整理当前已确认函数的短期记忆，保留用户原话、源码依据和未知；已有共同记录覆盖时直接引用。"

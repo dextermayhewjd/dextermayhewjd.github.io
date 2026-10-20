@@ -10,17 +10,19 @@ ShowToc: true
 
 先弄清每个部分做什么、输入输出是什么、需求应该接在哪里，再按问题深入实现。以一个 Coding Agent 任务为例，把模型调用、工具与环境、上下文、轨迹、评测和训练的交接串起来。
 
-**连续带读正文：[00 · 全景 Walkthrough](/projects/slime/framework-walkthrough/)。** 先建立基本工作流，每一步继承整体模型，再按新增问题展开相应目录、文件和函数；关键疑问、解释和修正持续补入同一份正文。通用方法与步骤模板保存在仓库根目录 `00-repo-reading/`，供其他源码仓库复用。
+**Coding Agent 资料入口：[单任务导览](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough/)。** 学习时先明确这一轮的问题及所需基础，再选择对应目录、文件和函数；已有完整导览供按需查阅，不规定每一轮都从同一个函数开始。
 
-**全局入口与单份任务相互对照。** 先用职责表定位框架，再从 `train.py::main()` 看启动、资源准备与上层 rollout 调度；调用到 `generate()` 时，用[单任务导览](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/task-walkthrough/)回查局部流程，随后返回外层看样本如何交给训练。
+**整体与局部相互对照。** 单任务导览可帮助定位正在阅读的模块，外层调度和训练启动留待相关问题出现时展开；[全景 Walkthrough](/projects/slime/framework-walkthrough/)保留为框架背景。通用方法与当前步骤记录在仓库的 `00-repo-reading/`。
 
 **第 2 章深入材料：[Trajectory Management 专题笔记](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/trajectory-management/)。** 展开历史接续与分叉、assistant 改写、token 对齐和 Sample 导出，作为任务与模型调用主线的实现回查入口。
 
-## 第一遍：认识每个部分
+## 职责索引：按当前问题选择材料
+
+以下编号用于定位资料，不规定每一轮必须阅读哪个函数。
 
 | 顺序 | 阅读单元 | 图文对照 | 第一遍的目标 | 首个源码入口 |
 | --- | --- | --- | --- | --- |
-| 00 | 全局职责与三种运行粒度 | 1.1、4、7.1 | 先认识各模块做什么、在哪里运行，以及任务、请求、训练的包含关系。 | [train.py · main](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/train.py#L103) |
+| 00 | 任务整体与运行层次 | 1.1、4、7.1 | 先从一次 Coding Agent 任务定位主要职责，以及任务内多次模型请求的关系。 | [examples/coding_agent_rl/generate.py · generate](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/generate.py#L182) |
 | 01 | 完整任务、Harness 与执行环境 | 4.1 的动作 4、5、6、7；7.1 | 掌握任务执行的责任划分、环境接口、成功和失败的清理位置。 | [examples/coding_agent_rl/generate.py · generate](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L182) |
 | 02 | 模型协议、上下文与训练轨迹 | 4.1 的动作 2、3、3.5；补读会话结束 | 掌握模型调用封装、工具消息处理、上下文变化和轨迹导出的接口。 | [slime/agent/adapters/common.py · BaseAdapter._run_turn](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L318) |
 | 03 | 策略接入、数据生成与评测合同 | 4.5、3.4、3.3、3.2、3.1；7.5/7.6/7.10 作为对照 | 掌握单样本生成、整批 rollout、评分、hook、过滤和评测配置的区别。 | [slime/rollout/sglang_rollout.py · generate_and_rm](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/rollout/sglang_rollout.py#L289) |
@@ -45,7 +47,7 @@ Trace、行为测试、并发、恢复、资源和训练交接提供相应职责
 
 **01–26 条目用于回查职责、输入输出、停止点与配套验证。** Trace 与契约测试配合主线使用，配套测试先看 fixture/断言，不把源码阅读当作运行通过。
 
-全局入口为 README 架构段与 `train.main`；4.1 连续导览提供单任务内部调用链，沿用 Claude/Anthropic 图文。Codex/OpenAI 保留为同一职责的实现对照；已读调用链先短回顾职责与输入输出，再接到上层调度和训练交接。
+4.1 连续导览提供任务内部调用链，沿用 Claude/Anthropic 图文；每轮阅读入口由选定的具体问题决定。Codex/OpenAI 保留为同一职责的实现对照；已读调用链先短回顾职责与输入输出，上层调度和训练交接按后续问题再展开。
 
 ### 00 全局职责
 

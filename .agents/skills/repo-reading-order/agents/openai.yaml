@@ -1,0 +1,4 @@
+interface:
+  display_name: "源码阅读顺序推荐"
+  short_description: "围绕当前问题选择核心入口，按需回查前置，说明推荐理由与本轮停止位置"
+  default_prompt: "使用 $repo-reading-order 根据当前阅读目标和已有骨架推荐下一处函数入口，说明理由、最小前置与停止位置，先给建议并保留逐轮确认。"

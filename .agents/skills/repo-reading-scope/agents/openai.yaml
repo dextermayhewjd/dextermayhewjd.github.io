@@ -1,0 +1,4 @@
+interface:
+  display_name: "源码阅读范围与核心骨架"
+  short_description: "确定本步阅读目标，定位指挥官函数，按五类过滤规则提取紧凑核心骨架"
+  default_prompt: "使用 $repo-reading-scope 整理当前阅读步骤的 scope：明确目标，核对指挥官函数，折叠五类辅助代码并省略参数，给出核心骨架和停止位置。"
