@@ -6,17 +6,79 @@
 
 ## 当前接续
 
-更新：2026-10-20，依据用户关于“从 Coding Agent 部分开始”的纠正，以及本步 scope 的三项明确要求。这里是唯一的学习接续记录；下方章节合同、旧材料和源码索引不能覆盖它。
+2026-10-22 当前：[Step 7](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/README.md) 继续研究 Harness 启动与跨组件通信；scope 保留完整骨架与第 4 项局部导航，`03` 从 Step 6 合并 38 份累计记录。[此前对运行信息和配置准备的复述](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/04-flow.md#write-cli-config)保留。本轮用户明确要求进入 `run:104` 的 `ClaudeCodeHarness.launch_and_wait`，已沿 `prompt → cmd`、`ctx → env`、`run_agent → 退出码` 展开，补充完整环境字典和本地操作记录器验证。[本轮讲解](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/04-flow.md#launch-and-wait)尚待反馈。`02` 仍为三张函数卡片和一张类卡片，没有预建下层记录；下一处接续候选为 `harness/common.py:107` 的 `run_agent`，没有新增远端运行证据。
+
+同日此前：用户追问准备完成后，信息怎样在本地调度、执行沙箱、Adapter 与 SGLang 之间传输。当时在 Step 6 补充的[跨组件通信参考，现迁至 Step 7](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/references/run-communication-path.md)，区分沙箱 SDK 启动、CLI 到 Adapter 的 HTTP 请求、Adapter 到 SGLang 的 HTTP 请求及两种完成时刻。旧 Step 1 已有折叠的上游说明，但不能据材料存在认定用户已建立整体关系。[原话与判断](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/04-flow.md#run-cross-process-communication)保留。那时尚未新建 step 或函数卡片，原 Step 6 尚未收束，没有新增远端运行证据。
+
+同日此前：用户在两个准备入口讲解后反馈“大概明白了”，并追问是否将 SWE 逻辑写入沙箱后交给下游。已在 [prepare_workspace 卡片](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/02-short-term-memory/functions/examples/coding_agent_rl/swe.py/prepare_workspace.md)澄清：题目命令在远端执行，Python 编排仍在本地；函数返回 `None`，`generate` 随后把同一个 `sb` 传给 Harness。下一处建议回到 194–198 行，看题目文本怎样写成 `PROBLEM_STATEMENT.md`。[原话与澄清](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#preparation-effects-and-sandbox-handoff)保留在 Step 6；尚未新建写文件卡片或结束本步，没有新增远端运行证据。
+
+同日此前：用户在统一 md 输入入口后，明确要求阅读 `apply_pre_commands`。已创建[本函数卡片](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/02-short-term-memory/functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md)，沿用真实题目的完整命令，解释“整理文本 → 写入远端脚本 → 进入工作目录执行”，并接回父函数 194 行。[本次原话、解释与验证](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#apply-pre-commands-function-card)保留在 Step 6。局部核对使用操作记录器，未执行 shell 或远端任务；当时机制解释尚待用户反馈，Step 6 未结束。
+
+同日此前：用户进一步明确先读清 `md` 中的启动资料，包括 `grading`、`swepro`、`pre_commands` 和 `problem_statement`，再依次看 `apply_before_repo_set_cmd`、`apply_pre_commands` 与最后的 `sb.write_file`。已在 Step 6 补充 [md 输入说明](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/references/metadata.md)，并按用户后续确认将独立 grading 文档并入其中、删除原文件；scope 导航仍从 md 开始，`ensure_agent_user` 沿用已处理状态。[顺序修正](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#metadata-before-preparation-functions)与[入口合并](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#merge-grading-into-metadata)保留在当前步骤。后续函数未因此视为读完，Step 6 未结束。
+
+同日此前：用户说明 `ensure_agent_user` 已处理完毕，要求结合刚才的真实题目重新确定 `prepare_workspace` 的阅读顺序和优先级。当时推荐为：简短核对 186–193 行配置分支 → 重点读 `apply_pre_commands` → 回到 194–198 行接清题目写入 → 收拢本函数与 Harness 的交接。[当时的顺序与理由](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#prepare-workspace-reading-order)保留。本例不触发 `apply_before_repo_set_cmd`，因此当时列为按需回顾；该安排现按上面的用户反馈修正。
+
+同日此前：用户明确表示仍不清楚 `prepare_workspace` 的整体职责，追问 `eval_cmd`、`f2p_script` 的来源并要求真实例子。已在当前父卡采用公开 Scale-SWE 的 `auth0_auth0-python_pr671` 字段，区分准备命令、题目文字与后续测试代码；[真实例子与来源](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/references/scaleswe-auth0-example.md)标注了输入映射、脚本退出码及镜像接入的限制。[当时的问题与修正](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#real-task-preparation-example)保留在 Step 6。局部验证使用假沙箱记录真实准备函数的调用，没有执行 shell 或远端评测；新解释尚待反馈，本步未结束。
+
+同日此前：用户对按题目配置执行提前准备的用途反馈“大概理解了”，类比 `pre_commands`，并明确希望先处理 `metadata` / `grading`。已在 Step 6 补充 [grading 输入参考（现已合入 md）](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/references/metadata.md#grading)，承接 Step 4 的 `md` 说明，区分原始 metadata、整理后的配置分组，以及准备命令与评测资料。[当时的反馈与解释](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#grading-input-context)保留在当前步骤；`apply_pre_commands` 尚未单独展开，没有远端运行，也未结束 Step 6。
+
+同日此前：在 [Step 6 · 准备任务工作区](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/README.md) 中，用户指定先展开 `agent_sandbox.ensure_agent_user`。从 `prepare_workspace:185` 进入 `sandbox.py:390–399`，已在当前 `02` 整理执行沙箱场景的卡片，解释账号、目录归属与 Git 准备，正常返回后接回父函数 186 行。[当时的问题与讲解](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#ensure-agent-user-entry)保留在当前步骤，Step 2 的已有复述继续保留。
+
+同日此前：用户确认开始阅读 `swe.prepare_workspace`，据此建立 Step 6。[scope](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/01-scope.md)继承完整骨架并聚焦第 3 项；[父函数卡片](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/02-short-term-memory/functions/examples/coding_agent_rl/swe.py/prepare_workspace.md)接清用户准备、可选初始化、题目写入及返回 Harness 的关系。`03` 完整继承前一步 35 份记录；[当时的确认与讲解](../../00-repo-reading/repositories/slime/steps/step-006-prepare-workspace/04-flow.md#prepare-workspace-entry)保留为形成过程。
+
+同日此前：用户表示已基本完成对 `boot_agent_sandbox` 的理解，并询问是否可以总结本步。对照原 scope，已将 Step 5 的“镜像输入 → 环境与 CLI 就绪 → 交出 sb → 调用方使用 → 退出回收”收拢为 [task flow](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/05-task-flow.md)。[本次反馈与收束依据](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#agent-sandbox-flow-closure)分别保留用户表述与助手判断；命令等待、并发和完整故障恢复仍为按需深入项，没有新增真实沙箱运行。下一候选为 `swe.prepare_workspace`，尚未确认开启新 step。
+
+同日此前：用户已复述本机材料上传后由远端命令完成安装，并将 for 理解为退出码与尝试次数的控制。已在 [install_npm_cli 主记录](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/02-short-term-memory/functions/slime/agent/harness/common.py/install_npm_cli.md)保存原话，进一步区分 Node 与 CLI 包的处理路径、零与非零退出码、最多三次的 CLI 命令重试；这些细分解释尚待反馈。[本次复述与澄清](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#install-restatement-and-retry-boundary)沿用 common 为主记录、Claude Code 为传参入口的分工，未运行安装或结束 Step 5。
+
+同日此前：用户已将已有远端沙箱与本机安装材料联系起来，追问究竟是发送包还是在沙箱中安装，并提出接着读公共安装函数。继续 Step 5，建立 [install_npm_cli 卡片](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/02-short-term-memory/functions/slime/agent/harness/common.py/install_npm_cli.md)，按源码区分 Node 准备、CLI 包上传、远端安装与检查。用户初步复述和助手补充解释分别保存在[本次讨论](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#upload-and-remote-install)；新解释尚待反馈，未运行安装，也未展开命令等待和重试的内部机制。
+
+同日此前：用户表示基本理解 `cand` 与 E2BSandbox，要求进入下一部分 `HARNESS_CLS().install_cli(cand)`。继续 Step 5，沿用 Claude Code 路径建立 [ClaudeCodeHarness.install_cli 卡片](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md)，先接清已有沙箱、两个本机安装包路径、检查命令与公共安装函数的交接。当时用户对对象模型的明确反馈已保存，安装交接尚无机制复述，下层安装、上传与命令等待仍待按需展开。[当时的问题与边界](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#install-cli-entry)保留原话和静态证据，不标记 Step 5 完成。
+
+同日此前：用户确认将 E2B 沙箱的共用对象模型整理成独立卡片。已在 Step 5 的 `02/classes/` 建立 [E2BSandbox 类卡片](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/02-short-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md)，保存构造与进入后的字段状态、本地客户端和远端环境的关系、五个操作入口；父函数保留编排并链接类卡，进入与退出复用既有记录。[当时的确认与整理](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#e2b-class-card)与后续阅读反馈分开保留。
+
+同日此前：用户表示大概理解 `boot_agent_sandbox`，已复述本地构造 `cand`、进入 `__aenter__` 时申请远端环境，继续追问服务地址、`_sb` 和后续通信。曾在 [Step 5 的函数卡片](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/02-short-term-memory/functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md)补充“Slime 本地封装 → SDK 本地客户端 → 网络请求 → 远端环境”的关系；[完整原话、解释与版本边界](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#sandbox-client-and-address)分别保留。该共用模型现由上面的类卡承接，补充解释仍待反馈。
+
+同日此前：用户明确要求分析 `boot_agent_sandbox` 并单独建立短期函数记录，已整理整体输入输出以及准备、交付和回收两段实现；进入与退出复用既有卡片。曾用原函数和替身核对四条局部路径，未运行真实沙箱或 CLI。建卡时尚无机制复述，完整问题与证据见[当时记录](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#boot-agent-sandbox-function-card)。
+
+同日此前：用户要求简单建立启动执行沙箱的步骤，并明确先弄清 scope、不提前填写具体函数。已创建 [Step 5](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/README.md)。用户随后指出 scope 仍有缺项；在 [scope](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/01-scope.md)的完整骨架下补出第 2 项 `boot_agent_sandbox` 的局部骨架、阅读导航和返回位置，见[本次修正](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#scope-local-skeleton-correction)。当时 `02` 尚无新函数卡片，`03` 完整继承前一步的 31 份记录；[最初范围确认](../../00-repo-reading/repositories/slime/steps/step-005-agent-sandbox/04-flow.md#scope-confirmed)及格式修正均不代表已经读懂新的实现。
+
+同日此前，用户询问下一处是否适合读 `boot_agent_sandbox`。助手推荐从 `generate.py:203` 的调用进入同文件 `96–134` 行，围绕“准备执行沙箱与 CLI → 交出 sb → 退出清理”收窄下一步范围；复用 Step 2 的沙箱进入与退出记录。[推荐理由与建议边界](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#boot-agent-sandbox-recommendation)保留为范围确认前的讨论。
+
+同日此前，用户提出结束 Step 4 并整理 task flow。本步“取得 Adapter → 取得执行编号 → 登记配置 → 后续取用”的阅读主线已收拢为 [任务总结](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/05-task-flow.md)。最新复述中的“题目基础信息都存入 store”已校正为“仅登记采样默认值与上下文长度，题目信息仍由 base_sample / md 承载”；[原话与本次收拢](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#session-registration-flow-closure)分别保留用户表述和助手解释。该字段边界的校正尚待反馈，收拢不等于全部实现已掌握。
+
+同日此前，用户从 Session 类卡回到 open_session，复述编号与两项配置保存在 Adapter 中、作为会话状态的关系。已在 [open_session 卡片](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md)保存原话，并校准“调用前由 _session_id 取得编号 → open_session 按编号登记配置”的职责边界。[当时的复述与校正](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#open-session-state-restatement)不自动算作完整编号规则或参数使用机制已掌握。
+
+同日此前，用户认可类卡片方向，要求生成 Session 卡片，并提出它是 per-session state 的理解。已将主体说明整理为 [Session 类卡片](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，沿用同一编号例子，区分类、实例、变量与 store 中的关联；源码中的 Session 只承载两项会话配置。原 reference 保留入口和语法依据。[当时的原话与解释](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#session-class-card)保留为形成过程；卡片详略与补充区别待反馈，未标记本步完成。
+
+同日此前，用户指出应区分真实定义的 class / dataclass 与场景变量。助手修正此前“不是函数就放入 reference”的分类理由，提出在正式记忆中增加类卡片；[具体方案](../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#class-memory-vs-reference)与[当时的问题](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#session-class-record-question)继续保留，现由上面的 Session 卡片试用承接。
+
+同日此前，用户初步复述 open_session 将编号与采样配置保存在 store 中，进一步追问 Session 是什么及其记录归属。已建立 [Session 对象参考](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/references/session.md)，区分根据两项配置创建对象与按 sid 将对象登记到字典；Session 自身没有 sid 字段。原 open_session 卡片保留完整函数模型并链接参考，对象与编号关系仍待后续反馈。[此前原话与说明](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#session-object-reference)继续保留。
+
+同日此前，用户要求沿用 `_session_id` 的例子，单独阅读 Adapter 的 `open_session`。已更新 [BaseAdapter.open_session 卡片](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md)，说明当前 AnthropicAdapter 继承该方法、`self` 对应 `state.adapter`，并用 `cagent-demo-1-0-0` 展示登记前后的 store。当时聚焦“编号 → Session 配置”的对应、返回 `None` 与后续按编号取用。[此前原话与解释](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#open-session-same-example)继续保留。
+
+同日此前，用户复述执行编号与题目、样本字段的关系，并要求保存在编号函数记忆中。已建立 [_session_id 卡片](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/functions/examples/coding_agent_rl/generate.py/_session_id.md)，校正为旧编号优先、索引齐全时拼接、索引缺失时使用随机串三种规则，并区分返回编号、调用方保存编号和 open_session 登记配置。`metadata`、`prompt` 不由该函数读取。上述校正未逐项确认，不据建卡标为全部掌握。[此前原话与校正](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#session-id-function-memory)、[此前 md 的初步理解与 Sample 示例](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#sample-definition-and-example)均保留。
+
+此前用户提出将几个名称保存在 reference 中，并要求参照 Step 003 分开解释。合并说明已改成[输入背景参考目录](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/references/generate-input-context.md)，分别进入 base_sample、protocol、md、instance_id 四份说明，session_id 的概念直接复用 Step 003。当前编号规则另由函数卡片承接，名称说明不替代函数实现与理解反馈。
+
+同日此前，用户首次复述 tokenizer、SGLang 地址和解析器集中到 Adapter，用于提前“把基础服务层先搭建好”。已在 [_AdapterService.__init__ 卡片](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md)保存原话，并补充对象、地址和解析器名称的区别，以及创建 Adapter 与启动其 HTTP 服务的先后。此次职责层面的理解不等于完整初始化、对象归属或服务机制已掌握；[原话与澄清](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#adapter-dependency-restatement)保留为形成过程，尚待后续反馈。
+
+同日此前的范围纠正：用户明确 [Step 004](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/README.md)只看 `adapter.open_session`，并要求沿用 Step 001–003 的 scope 构建方式。现已恢复完整骨架，只展开第 1 项会话配置登记；`boot_agent_sandbox` 与 `prepare_workspace` 留在骨架中定位，不属于本步范围。[本次范围纠正](../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/04-flow.md#scope-narrowed-to-open-session)保留了初始解释及用户反馈。27 份前序函数记录和已有 open_session 卡片保留；用户尚无新函数的独立机制复述，不能将格式反馈记成掌握。[Step 3 任务总结](../../00-repo-reading/repositories/slime/steps/step-003-trajectory-to-samples/05-task-flow.md)及其大致理解反馈保留，内部组装算法、改动提取与外层清理的未知继续保留。
+
+2026-10-22 此前的轨迹复述：用户明确提出回到 `manager.get_trajectory`，进一步复述取树、遍历叶子、取得 chain 并转换为 samples，追问不同叶子是否消除了重复。本轮区分共享历史与重复训练信号，建议先保留组装函数的输入输出和处理结果，具体算法后置。[当时的复述与澄清](../../00-repo-reading/repositories/slime/steps/step-003-trajectory-to-samples/04-flow.md#trajectory-leaves-and-shared-prefix)保留为形成过程；后续 rollout 方向仍仅为建议。
+
+2026-10-22 此前的收尾回补：拆开 sid 与 inflight 说明后，用户再次复述 shutdown_session，已初步将 sid 对应到某道题的一次会话，并说明关闭标记的目的。核对了四处区别：已有会话的关闭、仅取当前 sid 请求、先等再取消、提交协程与等待结果。[原话与校正](../../00-repo-reading/repositories/slime/steps/step-003-trajectory-to-samples/04-flow.md#shutdown-restatement-after-split)继续保留，未将后续整体反馈扩写成逐项机制确认。
+
+2026-10-21 的接续背景（当前状态以下方条目为准）：用户在 Step 3 已初步复述 `get_trajectory` 从 manager 的 routing tree 取得轨迹的外层职责，并明确拼接、分段与 mask 仍需深入。助手推荐继续组装后，用户指出尚需先理解 `shutdown_session` 与 `store.pop`，随后明确先处理 `shutdown_session`。已建立该函数卡片，核对关闭标记、等待、超时取消与跨循环交接；下一处返回 `finish_session:262–263` 接清配置取出与长度上限，轨迹内部组装后置。此前轨迹局部验证和初步复述保留，不升级为全部机制掌握；`finish_session` 尚无独立机制复述；`shutdown_session` 已有关闭入口与收尾目的的初步复述；用户最新明确 `sid`、`inflight` 的含义仍不清楚，当前先补状态背景，不推进下一函数。此前 `_run_turn`、评测与 Sandbox 的已读事实继续保留。Step 0–2 保留快照，Step 3 的 `03` 继承前序全部 24 份函数记录，旧 initial-model 继续归档。这里是唯一的学习接续记录；下方章节合同、旧材料和源码索引不能覆盖它。
 
 - **目标与条件：** 按用户提供的腾讯混元 Agent 强化学习框架工程师 JD 决定详略。本地无 GPU，以读明白和模型 API 辅助验证为主；前置与初始时间预算见[岗位对照](job-alignment.md#当前学习条件与投入安排)。
-- **当前协作：** 用户已明确提出 `HARNESS_CLS().run` 怎样接到 `BaseAdapter._run_turn`，进入 [Step 1 · 从 Harness 启动到 Adapter 收到请求](../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)。本轮只连通启动、外部 CLI 与 HTTP 路由，不把每个辅助调用拆成新步骤。
-- **认知记录入口：** 使用[通用工作流](../../00-repo-reading/workflow.md)与当前 [Coding Agent Step 1](../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)。[Step 0 的核心骨架](../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)作为前序步骤保留。此前从框架启动切入的 [000 初始模型](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)和[转换局部示范](../../backlog/repo-reading/step-00-translate-structure-preview/README.md)继续供回查；步骤仍按 `03` 继承前序 `03` 与 `02`、新认识写入 `02`。
+- **当前协作：** [Step 7](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/README.md) 已由用户确认独立研究本地启动、沙箱 CLI、Adapter 与 SGLang 的通信关系；Step 6 保留原准备函数与未收束项。
+- **认知记录入口：** 使用[通用工作流](../../00-repo-reading/workflow.md)与 [Step 7](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/README.md)。本步 `03` 合并 Step 6 的 35 份累计记录与 4 份本步记录，按符号合并为 38 份（36 个函数入口，含引用文件；2 份类记录）；同名 `ensure_agent_user` 的两种场景完整保留。`02` 保存 `BaseHarness.run`、`ClaudeCodeHarness.write_config`、`ClaudeCodeHarness.launch_and_wait` 及 `HarnessContext` 类卡片。前序卡片保留，形成过程链接回到真实来源。
 - **已读范围与记忆提醒：** 用户明确表示 `generate()` 的完整任务链已经走过，同时提醒走过不等于全部记住。保留已读事实；续读时先短回顾职责、输入输出与主线位置，根据具体问题补细节，不默认重讲全链，也不自行断言忘了哪些部分。
-- **当前问题：** 用户先确认“函数调用的链条没有问题了”，追问 HTTP 服务与信息往返；最新反馈是整体链路讲解仍不清楚，希望讨论文档改法，以及“先看重要函数”的方法是否继续适用。保留前一轮对调用链的确认，不据此认定 HTTP 通信或各函数内部细节已掌握。
-- **当前入口与下一处：** 先看[重要函数与交接详略的改稿对照](../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#core-first-and-handoff-depth)。候选保留已读启动链供回查，当前请求小节围绕 `_run_turn` 接收的 `body`，回查地址、路由与必要监听代码；实际执行顺序仍为先准备服务和启动配置、后发生请求。[已有 HTTP 正文](chapters/01-task-execution/walkthrough.md#http-round-trip)保留供比较，未将候选当作已采用的阅读安排。
-- **本轮停止点：** 已保存文档重复点、具体修改对照和一次请求的短版候选，等待用户对组织方式的实际反馈。未重写已采用正文、修改函数记忆或新增步骤；本轮静态核对了相关源码并确认现有预览可访问，没有检查 CLI 内部发送函数或运行 CLI、沙箱与模型服务。
+- **当前问题：** Harness 怎样把命令和环境送入沙箱；CLI 根据哪个地址请求 Adapter，Adapter 又怎样请求 SGLang；各自的响应回到谁。
+- **当前入口与下一处：** 当前沿 [Step 7 scope 的局部导航](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/01-scope.md#harness-local-navigation)展开 [ClaudeCodeHarness.launch_and_wait](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md) 的命令、环境变量和委派执行，尚待理解反馈。下一处候选是 71 行调用的 `run_agent`，看启动材料怎样交给实际执行与等待流程。需要全局位置时回查[通信参考](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/references/run-communication-path.md)。
+- **本轮停止点：** 已解释并用本地记录器核对 `launch_and_wait` 的参数组装和退出码传递；下层脚本、启动和等待标记仅定位，CLI 内部请求循环仍留白。用户此前的运行信息与配置准备复述保留，没有新增远端运行证据；Step 7 的 task flow 留待阅读后总结。
 - **资料用法：** 官方整体实验入门的 “The loop you are building” 用于概念对照；`agent.html` 用于查 Agent 接入点；本地 00 用于职责定位；实际调用以当前固定源码为证据。它们服务同一条阅读主线，不互相替代成新的课程顺序。
-- **心智模型与正文：** 通用方法在 `00-repo-reading/`。Step 1 的 `02` 保存 `BaseHarness.run` 的函数记录，个人职责表述尚缺；`03` 完整继承 Step 0 的 common 转换记录与 Anthropic 引用入口。memory 的 overview 只做索引，任务主线保存在步骤层，连续讲解从维护来源同步到 Hugo。当前状态只在本节维护。
+- **心智模型与正文：** 通用方法在 `00-repo-reading/`。Step 7 的 [02 索引](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/02-short-term-memory/overview.md)指向本步函数，[03](../../00-repo-reading/repositories/slime/steps/step-007-harness-communication/03-long-term-memory/overview.md)保存前序累计记忆。scope 负责导航，函数卡片解释单函数模型，04-flow 保存过程，通信参考连接运行位置和接口，task flow 在读通后总结。本轮继续写入本地 repo-reading，公开 walkthrough 保留既有内容，当前状态只在本节维护。
 
 ### 阅读与验证记录
 
@@ -24,6 +86,21 @@
 | --- | --- | --- |
 | 00 全局职责与启动主线 | 保留框架背景材料；2026-10-20 用户明确本轮从 Coding Agent 开始 | 不作为当前起点；外层机制按需再展开 |
 | 01、02 中的 `generate()` 完整任务链 | 用户 2026-10-19 明确反馈已完整走过，并说明内容可能未全部记住、需要提醒 | 具体记忆缺口未逐项反馈；已读不等于全部分支验收，本轮没有真实 Agent、GPU 训练或集群运行证据 |
+| Step 1 的 `call_sglang_generate` | 曾反馈内部黑盒感，已保存六段执行地图与 `sp` 合并示例；后续对生成 token 的 logprob 与全词表概率的区别反馈“大概理解了”并继续下游 | 原 `_sampling_params` 已局部验证；完整生成函数的字段与分支不据此全部计为掌握，旧讲解继续保留 |
+| Step 1 的 `_respond` | 用户提出将已有内容组织成可传输响应的理解，在结构示意后反馈“大概理解了” | 记录其总体理解；协议字段、流式行为及发送时机未逐项确认 |
+| Step 1 的 `TrajectoryManager.record_turn` | 用户提出逐轮存入树、复用已有部分的初步理解，并联想到按成功率剪枝；记录与搜索决策的区别已解释，尚待反馈 | 原类局部验证首次记录、历史复用、短回复改写及分叉对照；奖励和导出用途仅静态核对，不代表完整训练轨迹或模型运行 |
+| Step 1 的 `_run_turn` 整体交接与收尾 | 用户 2026-10-21 明确表示“当前这里run turn理解完了”，并开始询问面向 Coding RL 的下一处入口 | 本次函数整体阅读范围记为已理解；未逐项延伸为全部子函数和异常边界已掌握，没有新增端到端或取消测试 |
+| Step 2 的独立评测与奖励来源 | 用户 2026-10-21 确认开启；主读 `run_evaluation → _grade_scaleswe` 的 `eval_cmd` 分支，配套 `_apply_diff` 与 `_run_eval_cmd` | 已准备同场景函数卡片；用户已复述进入时按镜像配置申请远端沙箱，内部过程暂作黑箱。环境进入已有替身 SDK 的局部验证，不计为真实沙箱、测试或训练运行 |
+| Step 3 的会话轨迹到训练样本 | 2026-10-22 明确表示已大致理解 get_trajectory 与 finish_session 的整体内容，已整理任务总结；具体 mask、拼接和外层清理仍有后续阅读项 | 单轮、四组两轮和共享前缀分叉的构造数据核对导出字段、续接/拆分、共享 mask、遍历后移除与其他会话保留。本轮只静态复核，没有新增运行实验。没有真实 CLI 压缩、模型生成、HTTP 请求或训练；整体理解与完整算法、真实运行分开记录 |
+| Step 3 的 `shutdown_session` 请求收尾 | 2026-10-22 拆分说明后再次复述：sid 与单次会话已有对应；当前校正创建/关闭、当前 sid/全部请求、等待/取消及提交/等待结果的区别 | 沿用原方法的四组本地 Task 验证；本轮只静态核对与补充原话，没有新增实验，未验证真实远端取消、循环停止或异常收尾 |
+| Step 4 的 Adapter 服务准备 | 2026-10-22 首次复述将 tokenizer、SGLang 地址与解析器放入 Adapter，提前搭好服务层；已补充材料类型和服务启动边界，尚待进一步反馈 | 静态核对创建参数、保存属性及 HTTP 启动位置；未执行初始化或新增运行实验 |
+| Step 4 的输入背景 | 2026-10-22 自述大概理解 md，已联系题目字段、get_metadata 与取出 instance_id；继续追问 Sample 的定义和实例 | 静态核对 types.py 的相关字段及 CPU 测试中的构造示例；对象与字典的补充说明尚待反馈，未将完整元数据规则或编号算法计为掌握 |
+| Step 4 的执行编号 | 2026-10-22 复述题目编号与样本索引的组合，要求建立 `_session_id` 函数记忆；实际使用字段、旧编号优先与随机分支已校正，尚待反馈 | AST 提取原函数，以字段对象核对六组局部输入、返回格式及输入不变；未运行完整 Sample 加载、会话登记或远端任务 |
+| Step 4 的会话配置登记 | 2026-10-22 提出结束本步并整理 task flow；按已读交接收拢主线，最新“题目基础信息都存入 store”的表述已补充字段边界，尚待反馈 | 沿用此前登记、默认值、重复编号、同一编号连续交接与 Session 构造的局部验证；本轮仅静态核对，没有新增完整 Adapter 或远端运行 |
+| Step 4 的 Session 类卡片 | 2026-10-22 确认生成类卡，并提出 per-session state 的理解；实例与变量、配置与全部状态的区别已补充，尚待反馈 | 沿用上一轮字段与构造的局部验证；本轮静态核对源码、卡片和链接，没有新增完整运行实验 |
+| Step 5 的启动执行沙箱 | 2026-10-22 用户表示基本完成对 boot_agent_sandbox 的理解；已复述本地对象、远端申请、上传与安装，并按原 scope 收拢 task flow | 原函数配替身的四条局部路径验证保留；准备、交付、使用与回收已静态核对。底层等待和完整故障恢复尚未展开，没有真实远端沙箱、CLI 安装或 Agent 运行 |
+| Step 6 的任务工作区准备 | 2026-10-22 用户在两个准备入口讲解后反馈“大概明白了”，继续追问沙箱交接；已补充本地编排与远端效果的区别，末尾题目写入待继续 | 已用真实字段和操作记录器核对准备调用，以及 apply_pre_commands 的字符串、列表和非零结果情形；本轮静态核对下游交接，未执行 shell、沙箱或评测，原始评测脚本仍有退出码适配缺口 |
+| Step 7 的 Harness 启动与通信 | 2026-10-22 用户已概括三项运行信息和写 CLI 配置的职责；随后明确进入 launch_and_wait，命令与环境的解释待反馈 | 继承、静态调用、本地对象构造，以及 write_config、launch_and_wait 的操作记录器验证已完成；没有真实启动、网络报文或模型运行证据 |
 | 02 的轨迹分叉、改写与 token 对齐专题 | 入口保留为深入材料 | 没有整章或专题完成反馈，不自动续读这些内部细节 |
 | 03–07 的独立深入单元 | 按当前主线与岗位优先级继续；本轮无逐单元完成反馈 | 不从 planned/ready 或测试材料存在推断已读、掌握或运行 |
 
@@ -31,7 +108,9 @@
 
 ### 当前源码与已有材料的版本边界
 
-- 当前实测仓库：`/home/hongshi/projects/slime`，HEAD `2f2318653f6f794dddd321eff7c9d4b7b174643f`；已跟踪源码无改动，保留未跟踪的 `asyncio_concurrency_best_practices/`。历史 `/home/fredkeira/projects/slime` 在本机不存在。
+- 当前实测仓库：`/home/hongshi/projects/slime`，HEAD `2f2318653f6f794dddd321eff7c9d4b7b174643f`；当前 `examples/coding_agent_rl/swe.py` 有一处空白改动，创建方法与调用接口仍对应此固定提交；本次保留该改动及未跟踪的 `asyncio_concurrency_best_practices/`、`pelican-bicycle.html` 和 `qin-polar-bear.html`。历史 `/home/fredkeira/projects/slime` 在本机不存在。
+- 2026-10-22 开始 Step 4 时再次查询官方 `THUDM/slime` main，仍为 `a4202e0595467d9374d9a68d45a34f45c3f8d230`；沿用此前官方比较结果：领先本地 22 个提交，返回的改动列表包含 `agent/adapters/common.py`、`agent/trajectory.py` 及 Coding Agent 的 `generate.py`、`swe.py`。本轮未更新 checkout，讲解与行号继续绑定 `2f231865`；没有把 main 的变化混入已读模型。
+- 同日继续阅读 open_session 时，官方 main 已为 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`；本地 HEAD 仍为 `2f231865`。本次只核对远端引用，未比较这一新提交的文件差异，以上 22 个提交的比较仍归属于此前的 `a4202e0`。本轮不更新 checkout，函数解释与验证继续绑定本地固定版本。
 - 本轮已按当前 HEAD 核对的入口：`train.py::main` 第 103 行、`create_rollout_manager` 第 293 行、`RolloutManager.generate` 第 303 行、`generate_and_rm` 第 289 行、Coding Agent `generate` 第 182 行、`BatchBuilder.convert` 第 237 行。新的讲解继续核对实际调用，不将此定位记录当作运行证明。
 - 下方 26 项索引和原章节合同仍保留 `22a89f9` 的固定来源，4.1 图文还含 `8c17b67`；未逐项迁移，不批量替换提交链接。官方版本查询见[总入口](README.md#每次开始前确认源码与官方最新版本)。
 

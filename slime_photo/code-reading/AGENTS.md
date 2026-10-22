@@ -23,7 +23,7 @@
 
 - 全景从目标和最小端到端职责开始，不以已读过 `generate()` 为前提。已读历史只决定重遇时提醒多少；先建立基本框架，再逐步展开模块，不能把全景写成围绕已读函数补外围知识。
 - 实际展开新问题时，在根目录 `00-repo-reading/repositories/slime/steps/` 创建下一步文件夹，使用 `01-scope.md`、`02-short-term-memory/`、`03-long-term-memory/` 和 `04-flow.md`。下一步 `03` 合并上一份 `03` 与 `02`，新认识写入新的 `02`。追问补在同一步，纠正保留前因后果；不为已有讨论虚构完成步骤。
-- 两层记忆使用 [repo-reading-memory skill](../../.agents/skills/repo-reading-memory/SKILL.md)，[格式参考](../../00-repo-reading/memory-format.md)包含整体地图和镜像源码路径的逐函数记录；当前按用户认可的样例先保留原话，再列简短场景、调用代码、一组输入输出与 LLM 模型，最后列未知和来源。技术结论以源码为依据，修正文档不等于用户已确认理解，采用 skill 中独立的短期、长期 reference 模板。保留首次接触和最近认识更新，源码解释不算用户新增理解。当前 [Step 01 推演](../../backlog/repo-reading/step-01-translate-preview/README.md) 保留实际学习记录，新模板采用紧凑版式；旧步骤保留历史快照。
+- 两层记忆使用 [repo-reading-memory skill](../../.agents/skills/repo-reading-memory/SKILL.md)，[格式参考](../../00-repo-reading/memory-format.md)包含整体地图和镜像源码路径的逐函数记录；当前以 [BaseAdapter._translate](../../.agents/skills/repo-reading-memory/references/base-adapter-translate.md) 为认可样例，依次保留开头定位、LLM 整理的四项、本场景的输入与输出、我的直接表述、尚不清楚和折叠来源；精简文字时保留当前场景与调用参数。技术结论以源码为依据，修正文档不等于用户已确认理解，采用 skill 中独立的短期、长期 reference 模板。保留首次接触和最近认识更新，源码解释不算用户新增理解。当前 [Step 01 推演](../../backlog/repo-reading/step-01-translate-preview/README.md) 保留实际学习记录，新模板采用紧凑版式；旧步骤保留历史快照。
 - 沿用用户认可的 Learn Claude 方式：已有骨架 → 当前新增需求 → 展开或调整的真实机制 → 接回原骨架。Slime 的全局保留职责、输入输出和运行边界，深入范围按岗位对照取舍；不把完整地图等同于完整通读所有实现。
 - 教学骨架从固定版本真实源码裁剪，保留接口、函数名和数据合同，说明省略范围。“逐步展开”表示阅读层次；没有 Git 证据时不写成 Slime 的历史发展，也不另造一套通用框架。
 - 用户已授权持续将带读过程和关键澄清整理到相应 walkthrough，并在 Hugo 阅读。保存问题怎样引出、已有理解怎样接续、代码提供什么证据、解释怎样补齐或修正关系、最后怎样回到全局；不只追加最终结论或聊天摘录。

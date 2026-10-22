@@ -158,7 +158,7 @@ repositories/<repo>/
 
 每一步包含本步范围、完整记忆、本步代码与输入输出；下一步完整复制上一步 `02-memory/` 再更新。以前的记忆保留为当时的版本，当前理解由最新步骤继续推进。
 
-正式文件：[工作流](../../00-repo-reading/workflow.md)、[单步文件夹模板](../../00-repo-reading/templates/step/README.md)、[函数模板](../../00-repo-reading/templates/function.md)。Slime 已有的起点见 [step-000](../../00-repo-reading/repositories/slime/steps/step-000-initial-model/README.md)，迁移格式不表示新的阅读进度或用户已理解新增解释。
+正式文件：[工作流](../../00-repo-reading/workflow.md)、[单步文件夹模板](../../00-repo-reading/templates/step/README.md)、[函数模板](../../00-repo-reading/templates/function.md)。Slime 已有的起点见 [step-000](archived-steps/step-000-initial-model/README.md)，迁移格式不表示新的阅读进度或用户已理解新增解释。
 
 ## 用已讲过的 generate 检验这个工作流
 

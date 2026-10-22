@@ -1,18 +1,127 @@
-# 05 · 任务链路：从 Harness 启动到 Adapter 收到请求
+# 05 · 任务链路：以 _run_turn 串起一次模型请求
 
-[本步范围](01-scope.md) · [步骤入口](README.md) · [原始问题与澄清](../step-001-harness-to-adapter/04-flow.md#从启动到请求入口)
+> `_run_turn` 接住一份模型请求，组织输入、生成与解析，把回复交给 HTTP 层，把本轮消息和 token 记录交给 manager，最后清理当前请求的在途登记。
+
+[本步范围](01-scope.md) · [步骤入口](README.md) · [函数记录](02-short-term-memory/overview.md) · [本次问题与澄清](../step-001-harness-to-adapter/04-flow.md#run-turn-task-flow-closure)
 
 ## 1. 本步在任务中的位置
 
-前一步的[核心骨架](../step-000-coding-agent/01-scope.md)说明了一次 Coding Agent 任务的主要环节。本步展开其中“启动 Agent 并等待”的部分，回答：`HARNESS_CLS().run(...)` 怎样连接到 `BaseAdapter._run_turn(...)`？
+前一步的[核心骨架](../step-000-coding-agent/01-scope.md)说明整次 Coding Agent 任务。本页沿其中一次模型请求，连接本步已读的函数。scope 保留阅读范围与骨架，本页说明数据怎样交接，单函数实现继续从 `02` 的记录打开。
 
-- **起点：** `generate` 已准备好沙箱、工作区、任务提示、会话和 Adapter 地址，开始调用 `HARNESS_CLS().run(...)`。
-- **终点：** CLI 发出的模型请求到达 Adapter，由 HTTP 路由交给 `_run_turn(request)`。
-- **当前场景：** Claude Code / Anthropic 分支。Adapter 服务已经启动；本步追踪它与 CLI 的连接，暂不展开服务启动过程。
+```text
+generate 的第 4 项：HARNESS_CLS().run(...)，启动并等待 CLI
+└─ Claude Code CLI 运行期间
+   └─ HTTP POST /v1/messages
+      └─ BaseAdapter._run_turn(request) ← 本页核心
+```
 
-下面记录助手依据源码核对的任务解释，供继续讨论和修正；不据此认定用户已经掌握这条链路。
+- **起点：** Adapter 已监听并注册路由，请求交给 `_run_turn`；会话、tokenizer 和 SGLang 地址可用。
+- **终点：** 正常路径返回 HTTP 响应对象，本轮数据已交给 manager，当前请求的在途登记已移除。CLI 得到响应后继续任务，Harness 仍等待它整体退出。
+- **场景：** 沿用 Claude Code / Anthropic，以非流式响应为主，保留流式分支的发送时机差异。以下为固定源码的解释，不是一次实际运行日志。
 
-## 2. 源码导航
+<a id="run-turn-flow"></a>
+
+## 2. 沿 _run_turn 看数据交接
+
+下面是正常路径的阅读图，行号均属于 `slime/agent/adapters/common.py`。调用实参按需省略；会话门禁、日志、调试回调和异常分支折叠，具体实现以链接的源码与函数记录为准。
+
+```text
+BaseAdapter._run_turn(request)                               318
+│
+├─ request.json()，预处理并定位会话                          325–338
+│  → body、sid、Session；取得 tok，登记当前 task
+│
+├─ self._translate(body)                                     341
+│  → translated（系统指令与消息历史）＋ tools_schema（工具定义）
+├─ _render_token_ids(...)                                    342
+│  → prompt_ids：按模板组织并编码后的 token ID 列表
+├─ await call_sglang_generate(...)                           344
+│  → turn：输入/输出 token、生成 token 的 logprob、结束原因
+│
+├─ tok.decode(turn.output_ids, ...)                          346
+│  → raw_output：生成的原始文本，保留特殊标记
+├─ parse_model_output(raw_output, ...)                       347–352
+│  → parsed：reasoning、text、工具调用描述与格式标记
+├─ self._build_reply(parsed, ...)                            353
+│  → reply：wire 给协议响应，manager_message 给轨迹记录
+├─ 补 turn.ill_formed；计算 in_tok / out_tok；确定 stream      354–357
+│
+├─ await self._respond(..., reply, in_tok, out_tok, stream)   363
+│  → response：HTTP 响应对象；正常返回后继续
+├─ self.manager.record_turn(...)                            384–390
+│  → 把 translated、reply.manager_message、turn 接入会话树
+│    返回 None，结果保存在 manager 内部
+└─ return response；真正返回前执行 finally                  391–393
+   → 移除当前 task 的在途登记，把 response 交回 aiohttp
+```
+
+按图中的顺序回查单函数，读完返回图中的下一行：
+
+- 输入到生成：[_translate](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md) → [_render_token_ids](02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md) → [call_sglang_generate](02-short-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md)。最后一个函数向 SGLang `/generate` 发起 HTTP 请求，携带 `prompt_ids` 与采样参数，再把服务端结果整理成 `TurnRecord`。
+- 生成到回复材料：[decode](02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md) → [parse_model_output](02-short-term-memory/functions/slime/agent/parsing.py/parse_model_output.md) → [_build_reply](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md)。这里产生的是工具调用的结构化描述；工具的实际执行在 CLI 一侧。
+- 两项交付：[_respond](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md) → [record_turn](02-short-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md)。下方区分各自消费的数据。
+
+<a id="response-and-recording"></a>
+
+### HTTP 响应和轨迹记录各接走什么
+
+`reply.wire` 由具体 Adapter 的 `_respond` 读取，组织为 CLI 能接收的协议响应；`reply.manager_message` 是供 manager 使用的内部 assistant 消息。`turn` 另外保存 token 与 logprob 等生成信息。
+
+下面摘录实际交接，省略中间的异常处理与调试回调：
+
+```python
+response = await self._respond(request, body, reply, in_tok, out_tok, stream)
+self.manager.record_turn(
+    sid,
+    turn=turn,
+    prompt_messages=translated,
+    response_message=reply.manager_message,
+    metadata={"sid": sid},
+)
+return response
+```
+
+因此，manager 保存的是本轮的消息与生成记录，`response` 留给 aiohttp。树按消息组织节点，本轮 assistant 节点附带 `turn`；响应对象本身不会被挂到树上。token 计数则由 `_respond` 写入协议响应的用量字段。
+
+**先调用 `_respond`，再调用 `record_turn`，不等于先确认客户端收到，再记录。** 非流式分支先构造 `response`，在 handler 返回后由 aiohttp 发送；流式分支在 `_respond` 内准备连接并写出事件，然后返回。两种情况下，当前记录都不是客户端消费回复的确认凭证。
+
+<a id="adapter-dispatch"></a>
+
+## 3. 两个 Adapter 怎样共用这条流程
+
+`generate.py:45–52` 根据 `SWE_AGENT` 选出 Harness 与 Adapter 的配对，在 `:150` 创建 Adapter 实例：
+
+| 运行前选择 | Harness | Adapter 与请求入口 |
+| --- | --- | --- |
+| `claude_code`（默认） | `ClaudeCodeHarness` | `AnthropicAdapter`，`POST /v1/messages` |
+| `codex` | `CodexHarness` | `OpenAIAdapter`，`POST /v1/chat/completions` |
+
+两者都把路由绑定到继承的 `BaseAdapter._run_turn`。本场景中，`self` 始终是同一个 `AnthropicAdapter` 实例，`self._translate`、`self._build_reply`、`self._respond` 执行它的具体实现；选择 OpenAI 分支时，同样的位置执行 OpenAI 的实现。
+
+共同流程因此能够接收相同的内部交接形式：转换后的消息与工具定义、`TurnRecord`、解析结果，以及含 `wire` / `manager_message` 的 `Reply`。各协议负责自己的输入转换和响应格式；会话识别、预处理及采样参数名称也有各自约定。**这是运行前选择实现、请求处理中复用共同流程，一次请求不会在两个 Adapter 之间来回切换。**
+
+<a id="inflight-cleanup"></a>
+
+## 4. 结束本次请求
+
+离开请求处理时，清理当前请求的在途登记（`common.py:392–393`）。登记与移除的具体代码、前后状态见 [_run_turn 的局部说明](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#inflight-cleanup)。
+
+<a id="step-boundary"></a>
+
+## 5. 这一步可以在哪里收束
+
+**本步可以收束为：一份模型请求如何经过输入整理、模型生成、结果解析，交出协议响应并留下本轮轨迹，最后清理请求登记。** 上面的交接图把已读函数接回了这个目标；不要求同时展开每个子函数的全部内部机制。
+
+CLI 怎样执行收到的工具调用、怎样组织下一次请求，属于外部工具循环；manager 怎样导出训练样本，以及会话关闭的完整取消机制，也超出本次收束范围。它们保留为后续问题，不因本页整理完成就视为已读懂。
+
+## 6. 按需恢复 Harness 到 HTTP 的来路
+
+<details>
+<summary>展开此前的调用行、HTTP 往返与启动说明</summary>
+
+以下保留此前“追到请求入口”的讲解与当时边界。需要恢复上游时再打开；本次请求内部的完整交接以上方 `_run_turn` 图为准。
+
+### 上游源码导航
 
 <!-- 同步自 slime_photo/code-reading/chapters/01-task-execution/walkthrough.md#source-jump-map；先改源文，再同步此段。 -->
 
@@ -111,7 +220,7 @@ CLI 内部发送 HTTP 的函数尚未检查，所以在图上标为外部程序�
 一次 HTTP 响应先回到 Claude CLI；只有 CLI 整体结束并由启动脚本写下退出码，启动端才沿上述方向返回。这里只做静态源码核对，没有运行 CLI、沙箱或模型服务。
 
 
-## 3. HTTP 服务怎样传递请求和响应
+### 上游 HTTP 服务怎样传递请求和响应
 
 <!-- 同步自 slime_photo/code-reading/chapters/01-task-execution/walkthrough.md#http-round-trip。 -->
 
@@ -226,7 +335,7 @@ return web.json_response(_render_response(body, blocks, stop_reason, in_tok, out
 本段按固定源码做静态核对，未运行沙箱、Claude CLI 或模型服务。网络协议的更底层实现、CLI 内部发送函数和模型生成内部过程继续留白。
 
 
-## 4. 按需回看逐句解释
+### 上游逐句解释
 
 <details>
 <summary>展开 run 的逐句说明与数据交接</summary>
@@ -382,7 +491,7 @@ session_id  → ctx.session_id  → env["ANTHROPIC_AUTH_TOKEN"]
 
 </details>
 
-## 5. 本步补上的关系与未展开处
+### 此前追到请求入口时补上的关系与边界
 
 相对前一步的外层骨架，本步补上的是：**启动调用进入外部 CLI；运行中的 CLI 通过 HTTP 触发 Adapter 请求处理；CLI 结束后，退出码才返回外层任务。**
 
@@ -393,18 +502,21 @@ session_id  → ctx.session_id  → env["ANTHROPIC_AUTH_TOKEN"]
 - Adapter 的创建、监听与 HTTP 请求响应已定位；线程生命周期细节、会话匹配、超时和取消，按后续具体问题展开。
 - `_run_turn` 内部的转换与模型生成不在本轮展开；本轮只补充其输入来自请求、输出通过 `_respond` 返回。需要理解转换时，可复用已有的 `_translate` 函数记录。
 
-## 6. 复用记录与来源
+</details>
+
+## 7. 复用记录与来源
 
 函数自身的场景、输入输出和认识保留在对应记录中：
 
+- [BaseAdapter._run_turn](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md)：请求编排器的总输入输出与子函数之间的交接；全部单函数入口见[本步索引](02-short-term-memory/overview.md)。
 - [BaseHarness.run](../step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md)：启动流程的单函数记录。
-- [BaseAdapter._translate](../step-001-harness-to-adapter/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md)：此前积累的转换模型；具体 Anthropic 场景由该共同记录覆盖。
+- [BaseAdapter._translate](02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md)：此前积累的转换模型；具体 Anthropic 场景由该共同记录覆盖。
 - [Step 1 的原始问题与澄清](../step-001-harness-to-adapter/04-flow.md#从启动到请求入口)：保存问题和理解修正的过程。
 
 <details>
 <summary>固定版本、源码定位与验证边界</summary>
 
-- 整理日期：2026-10-20。
+- 整理日期：2026-10-20；2026-10-21 按已读的 `_run_turn` 请求链补充交接与收束边界。
 - 源码根目录：`/home/hongshi/projects/slime`。
 - 固定提交：`2f2318653f6f794dddd321eff7c9d4b7b174643f`。
 - 本页为静态源码核对，没有运行 CLI、沙箱或模型服务。
@@ -417,6 +529,11 @@ session_id  → ctx.session_id  → env["ANTHROPIC_AUTH_TOKEN"]
 | CLI 命令、地址、会话与额外环境配置 | `slime/agent/harness/claude_code.py:15、57–71` |
 | HTTP 路由与处理器读取请求体 | `slime/agent/adapters/anthropic.py:39–49`；`slime/agent/adapters/common.py:318–327` |
 | 沙箱命令启动与结果返回 | `slime/agent/sandbox.py:82–145` |
+| 本轮请求的真实调用与记录顺序 | [common.py:318–393](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L318-L393) |
+| SGLang 请求与 TurnRecord 返回 | [common.py:442–514](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L442-L514) |
+| 两个协议的路由与具体钩子 | [anthropic.py:39–75](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L39-L75)、[openai.py:38–73](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/openai.py#L38-L73) |
+| manager 接收的数据与树节点 | [trajectory.py:283–305](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L283-L305)、[437–454](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L437-L454) |
+| inflight 的后续使用方 | [common.py:225–243](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L225-L243) |
 
 已有[源码核对记录](../../../../../slime_photo/code-reading/chapters/01-task-execution/SOURCE-CHECK.md)与[完整连接讲解](../../../../../slime_photo/code-reading/chapters/01-task-execution/walkthrough.md#harness-to-adapter)可供回查。函数间的关系来自上述调用、配置和路由；CLI 内部的请求组织未在本步验证。
 

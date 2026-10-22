@@ -1,10 +1,53 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新试用：[确认建立 E2BSandbox 类卡片](discussion.md#e2b-class-card-created)。用户已确认沿用 Session 的方式，在 Step 005 中独立保存对象状态与操作入口；父函数引用类卡，进入、退出复用已有记录。成稿待反馈，通用 skill 未改。[此前分工建议](discussion.md#e2b-object-card-boundary)保留。
+
+最新落实：[scope skill 增加局部导航分支](discussion.md#scope-local-navigation-branch)。用户已要求将分支写入现有 skill；新增“整体位置 → 局部骨架 → 阅读导航”的条件分支，并单独保存 [reference](../../../.agents/skills/repo-reading-scope/references/local-call-context.md)。整体概览与简单调用保留相应的精简方式，既有学习步骤未改写。
+
+此前 scope 复核：[暂不填写函数卡片，仍需保留局部阅读地图](discussion.md#scope-map-without-function-cards)。Step 005 初稿遗漏本步局部骨架与导航，已按前几步的结构补齐；该轮只修改当前材料，随后由上述确认接续到 skill。
+
+最新试用：[确认类卡片方向，以 Session 试用](discussion.md#session-class-card-trial)。用户已要求生成卡片；Step 004 的 `02/classes/` 现保存 [Session 类卡片](../../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，原 reference 保留入口与语法依据。当前成稿待反馈，通用 skill 与旧快照未改写。
+
+此前讨论：[源码中的类与 reference 怎样分工](discussion.md#class-memory-vs-reference)。用户指出 Session 是实际定义的 dataclass，不应仅因它不是函数就归为补充参考；由此提出区分类型定义、场景变量和补充材料的方案。
+
+最新落实：[输入背景参照 Step 003 分开说明](discussion.md#split-input-references)。Step 4 的 base_sample、protocol、md、instance_id 各有独立 reference，session_id 复用已有说明；原合并页改为目录。此前[集中速查的讨论](discussion.md#shared-input-reference)保留为历史，本次未修改通用 skill。
+
+此前建议：[scope skill 小幅修改，增加条件分支与示例](discussion.md#scope-skill-context-branch-proposal)。当时提出按对象或输入是否清楚选择展开方式；当前分支已落实，reference 采用启动沙箱为主例，并保留 Adapter 来源不清楚时的变体。
+
+最新落实：[局部骨架接出对象来源和方法调用](discussion.md#scope-adapter-method-bridge)。Step 004 已按用户反馈，从 `generate` 中的服务状态与 Adapter 来源接到执行编号和 `open_session`；函数实现继续放在原卡片。使用已有 scope skill，本稿尚未作为新的通用 reference。
+
+最新问题：[进入函数前，先恢复调用对象与参数的含义](discussion.md#function-entry-object-context)。用户指出 `open_session` 的 Adapter 与 session_id 背景仍不清楚；建议先看调用现场、最小来源，再进入函数体。当前只保存讨论，尚未将完整初始化加入范围或重排既有卡片。
+
+最新范围纠正：[完整骨架定位与本步展开分开](discussion.md#scope-whole-skeleton-local-question)。Step 004 沿用 Step 001–003 的组织方式，继承完整骨架，仅展开用户明确的 `open_session`；相邻的沙箱和工作区准备保留为后续位置。此次纠正沿用既有 scope 规则，不要求所有 step 都只能含一个函数。
+
+最新确认：[将 sid 与 inflight 分开解释](discussion.md#split-shared-state-explanations)。先建立执行编号的含义，再理解按编号登记请求；两份材料仍位于本步 references，函数卡片分别引用，旧链接保留为导航。此次确认只调整当前材料，未新增通用记忆类型或修改 skill。
+
+最新问题：[sid 与 inflight 这样的共享状态怎样回查](discussion.md#shared-state-memory)。用户在理解函数步骤时仍不清楚所操作对象的含义；本轮在当前函数输入前补最小定义，并沿用 `references` 保存独立状态说明。尚未另立通用概念记忆类型或修改 skill。
+
+最新讨论：[单张函数卡片需要讲清哪一层](discussion.md#trajectory-card-depth)。以 Step 3 的 `get_trajectory` 为例，区分函数自身的完整模型、被调用者的具体算法与跨函数的完整例子；沿用既有拆分规则，当前应用建议待反馈，尚未据此新建子卡或改写 skill。
+
+最新纠正：[阅读路径与记录归属分开](discussion.md#aexit-function-record-ownership)。已独立展开的 `E2BSandbox.__aexit__` 按函数定义位置保存，`_grade_scaleswe` 只保留退出时机、结果交接和链接；这是应用既有规则的纠错，不是按函数长度新增拆分标准。
+
+最新落实：[在 ensure_agent_user 输入旁说明协议](discussion.md#protocol-context-in-function-card)。新卡片保留单函数格式，协议作为参数背景，语言依据进入既有参考；`exec` 暂停在接口。此前[名称与收录边界讨论](discussion.md#sandbox-memory-entry-boundary)保留，提前准备的下游卡片继续标为待阅读。
+
+最新调整：[补回 aenter 输入到输出的关键解释](discussion.md#aenter-balanced-explanation)。用户反馈上一版过于精简，本轮对照认可样例，补回具体中间数据、关键代码与分条说明；Sandbox 基础和完整语法讲解仍留在参考。此前的[精简记录](discussion.md#aenter-compact-model-implemented)与[分工依据](discussion.md#aenter-compact-model-boundaries)保留。
+
+最新确认：[将 _run_turn 保存为锚点函数 reference](discussion.md#run-turn-anchor-reference)。用户已认可当前卡片，现已完整复制到短期记忆 skill 的[独立参考](../../../.agents/skills/repo-reading-short-term-memory/references/base-adapter-run-turn.md)，并在 [skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md#锚点函数的组织方式)中记录适用条件、组织格式与职责边界；原步骤卡片和基础 `_translate` 样例保留。
+
+此前格式统一：[将同类解释统一为分条形式](discussion.md#run-turn-uniform-explanations)。在[第二段已认可的版式](discussion.md#run-turn-explanation-bullets)基础上，同步第一、第三段为“代码块 → 分条逻辑说明 → 子函数跳转表”；折叠操作说明和职责边界也已分条。代码与表格内容保留，其他函数卡片及 scope、task flow 未改。
+
+此前落实：[_run_turn 的函数模型与局部跳转](discussion.md#run-turn-function-model-implemented)。用户要求按[已明确的分工](discussion.md#function-model-before-task-summary)生成卡片；已保留原栏目重写整体输入输出和内部三段处理，各子函数链接交代进入理由与返回位置。scope 当时只增加函数卡片入口，task flow 主体保留；卡片随后经本次确认保存为锚点函数 reference。此前[收窄审阅范围](discussion.md#run-turn-review-focus)的约定继续保留；[早先审阅](discussion.md#run-turn-card-critical-review)中将函数内部流程全面交给 task flow 的建议不再作为改稿方向。
+
+此前补充：[给出响应外观，并确定当前需要理解到哪里](discussion.md#respond-shape-and-reading-depth)。用户初步理解为将已有内容组织成可传输的响应，要求一个简短示意；已放在父卡的[字段对应表](discussion.md#respond-input-output-fields)之后，保留[此前的响应对象说明](discussion.md#respond-output-object)。[四张函数卡片的拆分](discussion.md#respond-split-implemented)保持，内部实现仍放在各自记录中，尚未升级为 skill reference。[本次分工依据](discussion.md#respond-tree-and-function-boundaries)与[此前内部实现补充](discussion.md#respond-internal-mechanism)继续保留。
+
+最新格式纠正：[为什么短期函数记录偏离认可样例](discussion.md#short-term-template-drift)。当前成稿以 BaseAdapter._translate 为准；精简文字时保留栏目、任务场景和调用模式。
+
 日期：2026-10-20。围绕“降低认知负载、复用已读代码的理解”，继续梳理阅读步骤、函数记录、短期与长期记忆，以及用户和助手的责任边界。
 
 ## 接续入口
 
-- [当前 Coding Agent Step 1](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)：用户已明确追问从 Harness 到 Adapter 的连接；[Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)保留前序核心骨架。
+- [当前 Coding Agent Step 1](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)：保留 Harness 到 Adapter 的来路，当前逐段阅读 `_run_turn`；[Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)只保留整体骨架。最新分工见[本次调整](discussion.md#step-zero-skeleton-step-one-run-turn)。
+- [目录范围的最新纠正](discussion.md#keep-coding-agent-archive-initial-model)：保留 Coding Agent 与 Harness 到 Adapter 两步，只将旧 `initial-model` 移至[历史归档](../archived-steps/README.md)。
 - [转换环节局部示范](../step-00-translate-structure-preview/README.md)：此前误标为 Step 0，保留为任务内部的参考。
 - [职责划分建议](responsibilities-proposal.md)：将阅读导航、知识模型和学习记录映射到具体文件，并用同一个函数例子说明边界；当前为讨论草案。
 - [完整讨论与研究依据](discussion.md)：保留用户表述、此前的职责讨论，以及本轮任务驱动架构的完整问答。
@@ -45,7 +88,7 @@
 
 ## 下一次从哪里继续
 
-当前进入[从 Harness 启动到 Adapter 收到请求](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)，先澄清启动、外部 CLI 与 HTTP 回连这一项关系。Step 0 保留当时快照，其转换记录已完整继承到 Step 1 的 `03`。后续是否继续展开地址配置、路由或请求处理，根据用户实际反馈共同确定。
+当前进入 [Step 1 的 `_run_turn` 逐段阅读](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md)。Step 0 只保留整体骨架，原转换记录移入 Step 1 的 `02`，`03` 暂无前序函数继承。已有 Harness 和 HTTP 来路留作回查，不因这次调整推断用户已理解内部机制。
 
 [每轮主题确认的最新规则](discussion.md#每轮-step-先确认主题)保存本次明确要求。
 

@@ -1,6 +1,6 @@
-# 函数记忆：用户认可的紧凑案例
+# 函数记忆：历史紧凑案例
 
-配合[短期模板](short-term-memory-template.md)和[长期模板](long-term-memory-template.md)使用。下面是已讨论案例的精简呈现，展示填写方式；完整问答保留在原步骤，未创建后续学习步骤。
+以下保留此前试用的紧凑版式及原始内容。2026-10-21 用户再次指定 [BaseAdapter._translate](base-adapter-translate.md) 为当前成稿样例；新建记录使用已同步的[短期模板](short-term-memory-template.md)，本页仅供历史回查，不作为另一套当前模板。
 
 ---
 

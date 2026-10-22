@@ -78,3 +78,9 @@
 用户随后明确要求 scope 包含“阅读目标：理解 coding agent”“找到指挥官函数”“给出真正干活的核心骨架”。本轮据此在 [01-scope.md](01-scope.md) 中定位 `generate`，仅展示正常路径的七个核心步骤；这与此前未经确认就提前建立完整函数记录不同。
 
 本次原话与格式调整见[讨论记录](../../../../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#本步-scope-明确为三项)。源码骨架由助手核对，不作为用户已经理解全部函数的证据；既有函数记录和空的前序长期记忆保留。
+
+## 2026-10-21：本步只看整体骨架，转换记录归入 Step 1
+
+用户进一步明确：Step 0 只了解骨架，具体代码分析从 Step 1 的 `_run_turn` 开始。因此将原先收在本步的 common 转换记录与 Anthropic 引用入口移入 Step 1 的 `02`，保留原话、输入输出、来源与认识时间。本步 `02` 和 `03` 暂无函数卡片，七项骨架保持原样。
+
+完整原话、职责说明和迁移记录见[本次讨论](../../../../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#step-zero-skeleton-step-one-run-turn)。这里调整的是材料归属，不改写上面的历史讨论，也不把移动记为新的源码理解。

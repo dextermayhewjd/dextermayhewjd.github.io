@@ -481,6 +481,504 @@ HTTP 请求到 `POST /v1/messages`，由 [AnthropicAdapter._register_routes](htt
 
 **交接：** CLI 的消息历史、工具定义、参数与身份 → handler 持有 `body/sid/Session`。**返回位置：** `_run_turn:341` 的 `_translate(body)`；外层仍停在 `generate:205`。配套：[动作 7](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/7-make-api-calls/)。
 
+<a id="run-turn-step-by-step"></a>
+
+## 从 _run_turn 读清一次模型请求
+
+这一节从已经到达 Adapter 的 `POST /v1/messages` 开始。上游的 Harness 正在等待 CLI 结束；CLI 此时请求一次模型回复，HTTP 路由将请求交给 `BaseAdapter._run_turn`。先把这一次请求读通，再回查影响当前理解的前置代码。
+
+这里有两个编排层：`generate` 组织整次 Coding Agent 任务，`_run_turn` 组织其中一次模型请求。一次 `_run_turn` 返回不代表 CLI 已退出，也不代表整道代码任务已经完成。
+
+```text
+CLI 发来 HTTP 请求
+  → body / sid / Session
+  → translated + tools_schema
+  → prompt_ids
+  → turn（本轮生成记录）
+  → parsed → reply
+  → response → 记录轨迹 → 清理本次登记
+  → HTTP 层完成响应，CLI 继续运行
+```
+
+这张图表示处理与交接顺序。`response` 在非流式分支是待框架发送的响应对象，在流式分支则对应已开始写出的响应；具体区别见第 6 段。
+
+<details>
+<summary>源码入口与本节版本</summary>
+
+本节按提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 静态核对；其他既有章节保留各自版本。
+
+- HTTP 路由：[slime/agent/adapters/anthropic.py:48–49](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L48-L49)。
+- 本节主线：[slime/agent/adapters/common.py:318–393](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L318-L393)。下文未特别注明的行号均指这个文件。
+- 本场景的协议实现：[AnthropicAdapter](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L39-L75)。`_run_turn` 继承自基类，协议钩子由这个子类实现。
+
+以下代码为指定范围的摘录或明确标注的裁剪。没有运行 CLI、沙箱或模型服务；示例输入与生成结果是教学构造。
+
+</details>
+
+### 1．读取请求，找到它所属的会话（325–338）
+
+先只看三行：
+
+```python
+body = await request.json()
+self._preprocess_body(body)
+sid = self._session_id(request, body)
+```
+
+`request` 是 HTTP 框架交进来的请求对象。第一行读出 JSON 数据，得到字典 `body`；第二行做当前协议需要的预处理；第三行确定请求属于哪个会话。这个阶段尚未调用模型。
+
+用一份最小请求贯穿后面的阅读：
+
+```python
+# 教学构造：请求头与 JSON 请求体
+headers = {"Authorization": "Bearer sid-demo"}
+body = {
+    "model": "slime-actor",
+    "system": "你是代码助手。",
+    "messages": [{"role": "user", "content": "只回答：你好。"}],
+    "tools": [],
+    "max_tokens": 128,
+    "stream": False,
+}
+```
+
+在 Anthropic 分支，`_session_id` 从请求头取得 `sid-demo`，并非从 `messages` 推导身份。本例没有需要折叠的消息中间 system 项，预处理不会改变这些消息。
+
+会话通过关闭检查和轮数检查后，代码取得 tokenizer、取出或创建 `Session`，并登记正在处理的请求：
+
+```python
+tok = self.tokenizer
+s = self.store.setdefault(sid, Session())
+task = asyncio.current_task()
+self.inflight.setdefault(sid, set()).add(task)
+```
+
+此后带着三个东西继续：`body` 是本次输入，`sid` 是会话标识，`s` 保存该会话的默认采样配置和上下文预算。这里的 `Session` 不是对话历史容器；这次发送的历史仍在 `body` 中，轨迹由 `manager` 管理。
+
+### 2．把输入整理成两路数据（341）
+
+```python
+translated, tools_schema = self._translate(body)
+```
+
+在本场景，调用进入 `AnthropicAdapter._translate`：系统指令和消息历史整理到 `translated`，可用工具的参数定义整理到 `tools_schema`。本例静态推导的结果是：
+
+```python
+translated = [
+    {"role": "system", "content": "你是代码助手。"},
+    {"role": "user", "content": "只回答：你好。"},
+]
+tools_schema = None  # 本例 tools 为空
+```
+
+换成有历史工具调用的请求，`translated` 还会包含相应调用与结果，`tools_schema` 则保存当前可用工具。两者不能合并成“工具信息”后略去其中一路。这一步只转换已经收到的数据，不执行工具；原有完整转换场景仍可按需回查。
+
+<a id="render-token-ids"></a>
+
+### 3．把两路数据编码成模型输入（342 → 58–73）
+
+沿上一段继续，接下来的问题是：`translated` 和 `tools_schema` 怎样变成 `prompt_ids`？这里进入 `_render_token_ids`，返回后仍接回 `_run_turn` 的第 342 行。
+
+```python
+prompt_ids = _render_token_ids(translated, tok, tools=tools_schema, add_generation_prompt=True)
+```
+
+先认清赋值两侧的方向：右边把上一段的两份结果传入函数，左边的 `prompt_ids` 接住返回值。可以顺着这一条数据流读：
+
+```text
+translated（消息）＋ tools_schema（工具定义）
+    → _render_token_ids：调用 tokenizer.apply_chat_template
+    → 模板按模型所需格式组织内容，并编码为 token ID
+    → 返回列表，由 _run_turn 命名为 prompt_ids
+    → 下一行 call_sglang_generate 接收这份模型输入
+```
+
+实际函数位于 `slime/agent/adapters/common.py:58–73`，是模块函数：
+
+```python
+def _render_token_ids(
+    messages: list[dict],
+    tokenizer,
+    *,
+    tools: list[dict] | None,
+    add_generation_prompt: bool = True,
+) -> list[int]:
+    """Render a chat-message list to token ids with the served chat template."""
+    enc = tokenizer.apply_chat_template(
+        messages,
+        tools=tools,
+        tokenize=True,
+        add_generation_prompt=add_generation_prompt,
+    )
+    ids = enc["input_ids"] if hasattr(enc, "__getitem__") and "input_ids" in enc else enc
+    return list(ids)
+```
+
+先把调用处的名字和函数内部的名字对上：
+
+| `_run_turn` 提供的值 | `_render_token_ids` 内的名字 | 用途 |
+| --- | --- | --- |
+| `translated` | `messages` | 系统指令和消息历史；历史中的工具调用及其结果也在这一路 |
+| `tok` | `tokenizer` | 提供当前模型的聊天模板与编码能力 |
+| `tools_schema` | `tools` | 当前可用工具的定义，单独传入 `apply_chat_template` |
+| `True` | `add_generation_prompt` | 请求模板准备下一条助手回复的开头 |
+
+函数体可以分成两个动作：
+
+1. **第 66–71 行：调用模板并编码。** `apply_chat_template` 接收消息和工具定义；`tokenize=True` 要求得到 token ID。格式由 tokenizer 的模板决定，工具定义怎样被放入提示也由支持工具的模板处理。本函数负责把两路数据传到那里。
+2. **第 72–73 行：统一返回形式。** 如果 `enc` 是带 `input_ids` 的字典类结果，就取出该项；若它已经是 token ID 序列，就直接使用。最后 `list(ids)` 返回一个列表，由调用处的 `prompt_ids` 接住。
+
+`add_generation_prompt=True` 的作用是为下一条助手消息准备前缀，实际添加什么、是否添加，取决于模板。助手的回复正文要在后续生成阶段获得。参数语义参照 [Hugging Face 聊天模板说明](https://huggingface.co/docs/transformers/chat_templating#add_generation_prompt)，工具参数参照[工具使用说明](https://huggingface.co/docs/transformers/chat_extras#passing-tools)。这里尚未选定真实模型模板来检查其渲染结果。
+
+<a id="chat-template-two-actions"></a>
+
+#### 把 `apply_chat_template` 单独拆开看
+
+这里容易产生一个疑问：是不是“按照 tokenizer 内部的训练方式，把内容翻译一下”？可以保留“转换格式”这个方向，但更准确地说，是**按照模型训练时使用的对话格式来组织输入**。tokenizer 带着相应的聊天模板和编码规则，本次调用应用这些已有规则。
+
+`apply_chat_template` 就是“应用聊天模板”。在当前 `tokenize=True` 的调用中，可以把它拆成两个动作：
+
+```text
+消息列表 + 工具定义
+    │ 套用聊天模板：标明角色、消息边界，放入工具说明
+    ▼
+按模型所需格式组织好的提示文本
+    │ token 编码：把内容转成编号
+    ▼
+token ID 序列
+```
+
+例如，输入包含系统要求“你是代码助手”、用户要求“读取 README.md”，以及工具 `read_file` 的定义。模板要把这些信息组织到提示里。下面只示意组织效果，方括号不是任何模型的真实控制符，工具说明的实际位置与写法由支持工具的模板决定：
+
+```text
+[系统消息开始]
+你是代码助手。
+[可用工具说明]
+read_file：读取文件；必填参数 path，类型为字符串。
+[系统消息结束]
+[用户消息开始]
+读取 README.md。
+[用户消息结束]
+[助手消息开始]
+```
+
+这里新增的是角色与边界的表达方式，以及工具定义在提示中的呈现方式；最后的助手开头为后续生成留出位置。它还没有写出助手的回复。
+
+要单独观察第一个动作，可以在已配置好真实 `tok`、`translated` 和 `tools_schema` 的场景中这样调用：
+
+```python
+prompt_text = tok.apply_chat_template(
+    translated,
+    tools=tools_schema,
+    tokenize=False,
+    add_generation_prompt=True,
+)
+```
+
+这是观察用法，相对实际源码只把 `tokenize` 改成 `False`，用 `prompt_text` 接住可读字符串。实际 `_render_token_ids` 使用 `True`，因此同一次调用还完成编码；外层再把编码结果统一成列表。此处没有执行真实 tokenizer，示意文本不能当作这段代码的实测输出。API 行为依据 [Hugging Face 聊天模板文档](https://huggingface.co/docs/transformers/chat_templating#using-apply_chat_template)。
+
+把它接回前一步，两个转换的目标就分开了：
+
+| 位置 | 转换目标 |
+| --- | --- |
+| `_translate` | 将请求协议中的消息和工具定义整理为统一的数据结构 |
+| `apply_chat_template`，当前 `tokenize=True` | 将这些结构组织成模型所需的聊天格式，再编码为 token ID |
+
+回到调用处，`prompt_ids` 接到的是第二项的编码结果，接下来才能作为生成输入。
+
+<details>
+<summary>局部运行样例：观察传入参数和返回值（使用仓库测试 tokenizer）</summary>
+
+下面改用一条读文件请求，给出两条消息和一个完整工具定义。`FakeTokenizer` 来自同版本 `tests/test_agent/_fakes.py`；它按空白分词并记录工具参数，不能代表真实模型如何编码工具定义。
+
+```python
+translated = [
+    {"role": "system", "content": "你是代码助手。"},
+    {"role": "user", "content": "读取 README.md。"},
+]
+tools_schema = [{
+    "type": "function",
+    "function": {
+        "name": "read_file",
+        "description": "读取文件",
+        "parameters": {
+            "type": "object",
+            "properties": {"path": {"type": "string"}},
+            "required": ["path"],
+        },
+    },
+}]
+tok = FakeTokenizer()
+prompt_ids = _render_token_ids(translated, tok, tools=tools_schema, add_generation_prompt=True)
+
+# 实际返回的 prompt_ids
+[1, 100, 5, 2, 101, 102, 5, 3]
+```
+
+这些数字属于仓库测试替身：`1 / 2` 分别标记 system / user 开头，`5` 标记消息结束，`100–102` 是按空白拆分后分配的文本编号，末尾 `3` 是助手开头。局部执行已确认两条消息和完整工具定义被传入；该替身只记录 `tools`，没有把工具定义编码进 token，因此这组数字不表示真实模型如何渲染工具。
+
+</details>
+
+回到第 342 行，现在得到的是一份模型输入 `prompt_ids`。本次读到这里即可接上下一段；具体模型的模板内容仍是后续问题。
+
+### 4．请求本轮生成，取得生成记录（344）
+
+```python
+turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=sid)
+```
+
+`prompt_ids` 是待送入模型的内容，`s` 和 `body` 提供默认配置、上下文预算与请求参数，`self` 提供模型服务等配置，`sid` 保持本次会话关联。正常路径中，这个函数向 SGLang 请求生成，交回一个 `TurnRecord`。
+
+`turn` 包含输入、输出 token，输出 token 的 logprob 和结束原因等。它还不是发回 CLI 的协议 JSON。为了继续观察数据形态，本例假设模型成功生成“你好。”并正常停止；这是假设的生成结果，不是实际运行输出。
+
+先按下面的执行地图定位，再沿顺序逐段阅读。每一段都连接“进来时有哪些值、代码改变了什么、交出什么、接下来去哪”；仅知道函数总职责，还不足以跟踪内部执行。
+
+<a id="call-sglang-internal-flow"></a>
+
+#### 把 `call_sglang_generate` 展开成六段
+
+以下行号属于固定版本的 `slime/agent/adapters/common.py`。这张表是代码分段，不是六个新函数；后面可逐段深入，仍返回同一条请求主线。
+
+| 段 | 源码行 | 进入时的材料 | 这段做什么、留下什么 |
+| --- | --- | --- | --- |
+| 1．准备生成设置 | 454–455，调用 416–439 | 当前会话 `session`、请求 `body`、协议参数名 | `_sampling_params` 合并设置，返回字典 `sp` |
+| 2．检查剩余长度 | 457–468 | `prompt_ids` 的长度、会话上下文上限、`sp` | 有上限时计算剩余空间，再限制 `sp["max_new_tokens"]`；空间已耗尽则提前返回，不发送请求 |
+| 3．准备请求信息 | 470–473 | Adapter 的服务地址、会话标识 | 得到 `sglang_url`、本次请求编号 `rid`、请求头 `headers`、超时设置 `timeout` |
+| 4．请求并读取响应 | 475–496 | 输入编号、`sp` 及请求信息 | 进入 HTTP 请求上下文，取得响应 `r`；检查状态，再等待读取并解析 JSON，得到 `data` |
+| 5．提取生成结果 | 497–501 | 响应字典 `data` | 取出 `output_ids`、`output_log_probs`、`finish` |
+| 6．返回本轮记录 | 509–514 | 原输入编号和第五段得到的三个值 | 在本地创建 `TurnRecord`，返回 `_run_turn:344`，由 `turn` 接住 |
+
+还有一条必须标在地图上的失败路径：HTTP 错误状态在第 495 行抛出异常；取消、连接错误或超时进入第 502–507 行，请求中止上游生成后重新抛出异常。它们不会正常走到第六段。长度耗尽的提前返回也不能因为是 `if` 就从执行图中删除。
+
+先跟随一条正常请求，可以把变量连起来：
+
+```text
+session + body → sp
+                  ↓ 剩余长度检查可能继续修改 sp
+prompt_ids + sp + 请求信息
+                  ↓ HTTP 请求；取得响应 r，再读取 JSON
+                 data
+                  ↓ 提取字段
+output_ids + output_log_probs + finish
+                  ↓ 加上原 prompt_ids
+              TurnRecord → 回到 _run_turn 的 turn
+```
+
+第四段既要讲传输的数据，也要讲等待位置。只说“发给模型”会遗漏：哪个调用启动请求、哪个对象表示响应、读取响应时何时等待、失败时去哪里。当前先把这些位置标出，逐段读到这里时再展开；网络库内部的连接实现按实际问题继续追踪。
+
+<a id="call-sglang-sampling-first"></a>
+
+#### 第一段先回答：`sp` 从哪里来，里面发生了什么变化？
+
+第 455 行的真实调用，按参数换行展示：
+
+```python
+sp = _sampling_params(
+    session,
+    body,
+    max_token_keys=adapter.max_token_keys,
+    stop_keys=adapter.stop_keys,
+)  # 返回本次准备发送的生成设置字典
+```
+
+这里需要继续打开 `_sampling_params`，因为“生成设置怎样得到”正是当前问题。它在第 416–439 行，先放入固定默认项及会话默认设置，再读取当前请求的生成长度、采样和停止参数。
+
+沿用读 README 后继续概括的请求，另外构造两项生成设置来观察这一段；消息和工具内容不变，下面只展示相关字段：
+
+```python
+session.sampling_defaults = {"max_new_tokens": 256, "temperature": 0.7}
+body["max_tokens"] = 128
+body["temperature"] = 0.2
+# 当前 AnthropicAdapter 的参数名约定：
+# max_token_keys = ("max_tokens",)，stop_keys = ("stop_sequences",)
+```
+
+在此输入下，`sp` 中这两个字段的结果是：
+
+```python
+# 输出节选；固定的其他设置仍保留在 sp 中。
+{"max_new_tokens": 128, "temperature": 0.2}
+```
+
+对应到源码，变化不是一句笼统的“合并”：
+
+| 字段 | 依次发生的变化 | 依据 |
+| --- | --- | --- |
+| `max_new_tokens` | 固定默认值 4096 → 会话默认值 256 → 与请求的 128 取较小值，得到 128 | 421–427 |
+| `temperature` | 会话默认值 0.7 → 当前请求覆盖为 0.2 | 422、430–432 |
+
+到这里仅在本地算出了一个字典，还没有发送 HTTP。第 439 行返回后，回到第 455 行完成赋值，接下来执行第 457 行的上下文长度检查；该检查可能再次压低生成长度。
+
+```text
+455：调用 _sampling_params
+    → 416–439：算出 sp 并返回
+    → 455：用 sp 接住
+    → 457：接着检查剩余长度
+```
+
+这就是一个阶段需要记录到的程度：能对照输入算出局部结果，也知道为什么要进入子函数，以及返回后从哪里继续。其余五段沿同一方式逐段展开。下面保留的输出编号例子属于第五段，可在读到该处时回查。
+
+<details>
+<summary>执行地图与第一段的源码、验证</summary>
+
+- 固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`：[完整函数](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L442-L514)、[生成设置合并](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L416-L439)、[Anthropic 参数名](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L45-L46)。
+- 第一段的数值为教学构造，使用该版本的原函数做局部执行核对；输入沿用 README 场景，仅增加上面列出的生成设置。仅验证 `_sampling_params`，不代表后续预算检查、HTTP、模型生成或整条函数已经运行。
+
+</details>
+
+<a id="call-sglang-output-ids"></a>
+
+#### 第五段的局部例子：响应里的 token 怎样进入 `turn.output_ids`
+
+**与前一段的连接：** `prompt_ids` 是准备好的输入 token 编号列表，`call_sglang_generate` 把它放进 HTTP 请求。现在只增加一个问题：请求返回以后，生成的 token 编号在哪里，又怎样交回 `_run_turn`？
+
+先把函数分成三段，作为阅读定位：
+
+```text
+准备本次生成设置 → 通过 HTTP 请求 SGLang → 整理响应并返回 TurnRecord
+                                           本小节只展开这里的 output_ids
+```
+
+HTTP 响应提供的是 JSON 数据；`TurnRecord` 是本函数用这些数据创建的一轮记录。先沿 `output_ids` 这一条线走，其他字段的提取随后再读。
+
+**1．拿到响应数据（496）。**
+
+```python
+data = await r.json(content_type=None)  # 等待读取响应体，并把 JSON 解析成 Python 数据
+```
+
+`r` 是这次 HTTP 请求的响应对象，`data` 接住解析后的内容。下面用仓库测试服务采用的字段形状构造一个小响应。编号和数值只是教学数据，不对应前一段 README 场景的真实模型结果，也不表示这些编号解码成某句话。
+
+**2．沿字段取出生成的 token（497–499）。**
+
+下面是可以单独运行的局部例子：用构造的 `data` 代替网络响应，其余三行提取代码保留源码写法。
+
+```python
+# 教学构造：只保留本小节需要的响应字段，不发送网络请求。
+data = {
+    "meta_info": {
+        "output_token_logprobs": [[-0.2, 701], [-0.5, 702]],
+        "finish_reason": {"type": "stop"},
+    }
+}
+
+meta = data.get("meta_info") or {}  # 先取到生成信息这一层
+output_token_logprobs = meta.get("output_token_logprobs") or []  # 再取出逐 token 的记录
+output_ids = [x[1] for x in output_token_logprobs]  # 依次保留每项的第二个值
+print(output_ids)
+```
+
+输出：
+
+```text
+[701, 702]
+```
+
+本例中的每一项都有两个位置：
+
+```text
+[-0.2, 701]
+   ↑     ↑
+  x[0]  x[1]
+ logprob token ID
+```
+
+先只看第二个位置：第一项取出 `701`，第二项取出 `702`，按原顺序组成 `output_ids`。第一项的 logprob 数值如何理解、如何保存，留到下一小段。
+
+**3．把这一列装进返回记录（509–514）。**
+
+```python
+return TurnRecord(
+    prompt_ids=list(prompt_ids),          # 保存本次送入模型的编号
+    output_ids=output_ids,                # 本小节追踪的生成编号放在这里
+    finish_reason=finish,                # 结束原因，提取过程随后再读
+    output_log_probs=output_log_probs,    # 与输出编号对应的 logprob，随后再读
+)
+```
+
+这里只需要对上一行：`output_ids=output_ids` 左侧是 `TurnRecord` 的字段名，右侧是刚刚得到的列表。返回到 `_run_turn:344` 后，调用者用 `turn` 接住这份记录，于是可以用 `turn.output_ids` 取出生成编号。下一行的 `tok.decode(...)` 再使用这些编号还原文本。
+
+这一步的新增关系是：**响应中的逐 token 记录 → 取出编号列表 → 存入 `turn.output_ids`。** 采样参数、上下文预算、结束原因、logprob 的含义以及取消清理，都按后续问题逐项展开。
+
+<details>
+<summary>本小节的源码位置与验证范围</summary>
+
+- 固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`：[请求及响应读取](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L475-L496)、[字段提取](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L497-L501)、[返回记录](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L509-L514)。
+- [TurnRecord 定义](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L28-L38)列出本轮记录的字段；[测试服务](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/tests/test_agent/_fakes.py#L156-L168)提供这里采用的响应形状。这里只用到各项的前两个位置，不假定所有真实响应都只有两个元素。
+- 局部例子用 Python 3.12.3 执行核对，仅验证响应字段提取；未调用真实 tokenizer、HTTP 服务或模型。输入 token、响应中的 token 和最终文字的真实对应关系尚未取得。
+
+</details>
+
+### 5．把生成结果解析成回复（346–357）
+
+```python
+raw_output = tok.decode(turn.output_ids, skip_special_tokens=False) if turn.output_ids else ""
+parsed = parse_model_output(
+    raw_output,
+    tools_schema=tools_schema,
+    tool_parser_name=self.tool_parser,
+    reasoning_parser_name=self.reasoning_parser,
+)
+reply = self._build_reply(parsed, turn.finish_reason, translated, tools_schema)
+turn = dataclasses.replace(turn, ill_formed=parsed.ill_formed)
+```
+
+解码先将输出 token 还原成字符串；解析器再识别文本、推理内容和工具调用等结构；协议钩子 `_build_reply` 最后把这些结构整理成 `Reply`。
+
+`reply.wire` 供下一段组织客户端响应，`reply.manager_message` 供最后记录轨迹。在本例的纯文本假设下，客户端内容块含有 `{"type": "text", "text": "你好。"}`，轨迹中的消息则是 `{"role": "assistant", "content": "你好。"}`。同一段回答面向两个消费者，形状不同。
+
+随后代码统计输入和输出 token 数，并根据 `body.stream` 或请求头的 `Accept` 判断响应方式。解析出工具调用仍然不等于执行工具；执行由外部 CLI 接手。
+
+### 6．组织 HTTP 响应（363）
+
+```python
+response = await self._respond(request, body, reply, in_tok, out_tok, stream)
+```
+
+在 Anthropic 分支，必须分清两条路径：
+
+| 本次响应方式 | `_respond` 完成什么 | 后续交接 |
+| --- | --- | --- |
+| 非流式，本例采用 | 用 `web.json_response(...)` 构造 JSON 响应对象 | `_run_turn` 返回对象后，由 aiohttp 发送 |
+| 流式 | 调用 `_render_stream`，准备响应并写出 SSE 数据 | 写出完成后回到 `_run_turn`，继续记录轨迹 |
+
+所以准确的顺序是“先调用 `_respond`，它正常返回后才继续 `record_turn`”。不能把它概括成“所有情况下都先确认客户端收到回复，再记录轨迹”：非流式分支此时只是构造了响应对象。
+
+### 7．记录轨迹，清理本次登记，回到 HTTP 层（384–393）
+
+省略可选调试回调后，正常路径来到：
+
+```python
+self.manager.record_turn(
+    sid,
+    turn=turn,
+    prompt_messages=translated,
+    response_message=reply.manager_message,
+    metadata={"sid": sid},
+)
+return response
+```
+
+轨迹管理器接收本轮 token 记录、规范化输入消息和助手回复，归到这个 `sid`。它没有把 HTTP 响应对象当作轨迹内容保存。
+
+离开外层 `try` 时还会执行：
+
+```python
+finally:
+    self.inflight.get(sid, set()).discard(task)
+```
+
+这只移除“本次请求正在处理”的登记，不关闭整个会话。handler 返回后，HTTP 框架继续完成响应交接；CLI 得到本次结果后可以继续发请求或执行工具。只有 CLI 整体退出，上游的 `HARNESS_CLS().run(...)` 才返回退出码，`generate` 才继续收集 diff。
+
+### 第一遍读完，保留哪些边界
+
+这次已经沿一条正常路径连接了请求、两路转换结果、token、生成记录、协议回复与轨迹。再标出三处会改变这条路径的检查即可：关闭的会话返回 503，超过轮数上限返回 429；`_respond` 抛出连接重置或取消时不会继续到正常的轨迹记录，进入外层 `try` 后的清理仍由 `finally` 负责。
+
+下一次深读只选其中一个仍不清楚的交接，例如“`translated` 和 `tools_schema` 怎样参与模板编码”，再进入对应函数。无需为读懂本轮先通读所有辅助函数，也不因为现在列出了调用就视为已掌握它们的实现。
+
+<!-- end-run-turn-step-by-step -->
+
+
 ## 5．翻译输入，向 SGLang 请求生成
 
 <a id="translate-breadcrumb"></a>
@@ -561,6 +1059,217 @@ decode -> parse -> build_reply
 **交接：** Agent 工作区 → diff；任务元数据 + diff + 评分预算 → 独立评分结果。**返回主线：** `generate:220` 的模式分支。
 
 CLI 退出码描述进程状态，reward 描述任务评测结果；非零退出不直接等于评分失败。第一遍只走一条评分路径，把组件接回任务；SWE-bench 与全部数据集准备细节以后按需读。
+
+<a id="swe-evaluation-contract"></a>
+
+### 7.1 先看清评测交接：新环境、补丁状态与奖励
+
+这一段按固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 补充。当前观察点是：`run_evaluation` 接收的已经是任务信息、代码补丁和评分预算；它不接收模型的 `TurnRecord`。对话轨迹留在 manager，代码是否完成任务由评测链路判断。
+
+<a id="two-grading-protocols"></a>
+
+`run_evaluation` 先按协议选择评分器，一次调用只进入一个分支：
+
+```text
+run_evaluation(md, diff_text, timeout_sec)
+├─ protocol == "swebench" → _grade_swebench
+│  └─ 任务实例 → 评测脚本 → 测试日志 → 报告的 resolved → reward
+└─ 其余值（本例 "scaleswe"）→ _grade_scaleswe
+   └─ swepro / eval_cmd / f2p_script 按优先级选一种评分方式
+```
+
+- **共同接口**：两个实现都接收任务信息、补丁和时间参数，在新环境中应用补丁并评分，返回 `EvalResult`。
+- **不同材料与规则**：ScaleSWE 从 `grading` 中选择一种评分材料；SWE-bench 需要 `grading["sweb_instance"]`，并根据评测报告评分。因此，不能只改主例的 `protocol` 就认为已经准备好另一分支的输入。
+- **阅读取舍**：先展开 `scaleswe → eval_cmd`，因为它保留了新环境、补丁、测试与奖励的完整交接，同时只需把给定命令的退出码转为分数。SWE-bench 还需要理解任务实例如何生成测试规格与脚本，以及日志如何解析成报告并得到 `resolved`。先建立共同模型，再读这些协议差异，首轮需要处理的新概念较少。这里较简单的是选定的命令路径；如果目标是复现或排查 SWE-bench 基准，应优先读 `_grade_swebench`。
+
+选定 `scaleswe → eval_cmd` 场景后，真正组织流程的是 `_grade_scaleswe`：
+
+<a id="scaleswe-first-function"></a>
+
+第一次局部展开从第 269 行的 `async with E2BSandbox(image) as ev` 开始，进入 `sandbox.py:281` 的 `E2BSandbox.__aenter__`。先只弄清 `image` 如何用于申请环境，以及 `ev` 是什么；具体代码和对象关系见 [7.2：配置怎样变成可操作的环境](#e2b-aenter)。看到创建调用的输入输出用途后返回主线，第 270 行才准备执行用户与目录权限；SDK 内部、重试算法和服务端部署在此保留边界。
+
+```python
+# 教学裁剪：只保留 eval_cmd 场景；无 swepro 和额外 pre_commands
+async with E2BSandbox(image) as ev:
+    await agent_sandbox.ensure_agent_user(ev, workdir)
+    applied = await _apply_diff(ev, workdir, diff_text)
+    if not applied:
+        return EvalResult(0.0, False)
+    r = await _run_eval_cmd(ev, workdir, eval_cmd, timeout_sec)
+    return EvalResult(r, True)
+```
+
+- **任务镜像 → 新评测环境**：`ev` 与运行 CLI 的执行环境 `sb` 是不同实例。按照相同任务镜像及必要准备恢复基线，再将补丁应用进去。
+- **补丁文本 → 工作区改动**：`_apply_diff` 先写补丁文件，再尝试应用。返回 `False` 时不执行测试，直接得到补丁失败结果。
+- **测试命令 → 奖励**：本场景 `_run_eval_cmd` 执行指定命令，退出码为 `0` 时返回 `1.0`，其他正常返回的退出码得到 `0.0`。
+- **两个结果 → 调用者**：`EvalResult` 的两个字段分别是 `reward` 与 `applied_cleanly`。退出环境上下文后，把结果交回 `generate`。
+
+以“修复加法函数，然后运行测试”为教学假设：
+
+| 条件 | 返回结果 | 能够说明什么 |
+| --- | --- | --- |
+| 补丁成功，测试命令退出码为 0 | `EvalResult(1.0, True)` | 命令型评分成功，补丁处理成功 |
+| 补丁成功，测试命令退出码非零 | `EvalResult(0.0, True)` | 命令评分失败；尚不能仅凭分数区分断言失败和命令执行错误 |
+| 补丁应用失败 | `EvalResult(0.0, False)` | 没有继续运行本次评分命令 |
+
+这张表是静态推导，不是真实测试结果。空补丁在当前实现中也可返回应用成功；`applied_cleanly=True` 并不保证改动有效，更不表示测试通过。底层操作抛出的异常还可能直接向外传播，不能把所有故障都概括为零分。
+
+Sandbox 在这里提供创建/回收、文件读写与命令执行能力，SWE 层决定评分规则。当前具体后端是 `E2BSandbox`；它退出时尝试回收资源，实际成功仍需运行证据。传给测试命令的 `timeout_sec` 也不是整个评测流程统一的截止时间。
+
+<a id="grader-and-kubernetes"></a>
+
+**选择 grader 并不决定是否使用 Kubernetes。** `_grade_scaleswe` 与 `_grade_swebench` 都创建 `E2BSandbox`，由它调用 E2B SDK 的 `AsyncSandbox.create`。当前源码展示的是“评分逻辑 → 沙箱操作接口 → E2B 或兼容服务”；服务端是否使用 Kubernetes，需要查看对应部署。不能把“会调用沙箱”直接理解为“这里实现了 Kubernetes 调度”。
+
+<a id="sandbox-options-and-depth"></a>
+
+<details>
+<summary>补充：公开项目怎样运行，本轮需要了解多深</summary>
+
+公开项目有多种运行方式；以下是有文档依据的例子，不是市场占比统计。
+
+| 方式 | 公开依据 |
+| --- | --- |
+| 本机或服务器上的容器 | [SWE-bench 官方评测](https://www.swebench.com/SWE-bench/guides/evaluation/)使用 Docker 执行补丁测试 |
+| 通过 SDK 使用托管沙箱 | [Open R1 的 E2B 案例](https://e2b.dev/customers/how-hugging-face-is-using-e2b-to-replicate-deepseek-r1)将代码题的执行结果用于奖励计算 |
+| 用 Kubernetes 管理自建沙箱平台 | [OpenSandbox](https://github.com/opensandbox-group/OpenSandbox)支持 Docker 与 Kubernetes；[Kubernetes Agent Sandbox](https://kubernetes.io/blog/2026/03/20/running-agents-on-kubernetes-with-agent-sandbox/)提供环境管理与预热池 |
+
+这些层次可以组合：应用通过 SDK 请求环境，服务端用 Kubernetes 编排任务，再由具体容器或虚拟机运行时执行。Kubernetes 编排与运行时隔离各有职责。
+
+本轮先读清评测需要的创建、命令、文件、结果和退出接口，能解释“任务与补丁 → 新环境中的测试 → 分数与补丁状态”，并区分补丁失败、测试失败和环境故障。后续要研究部署时，再沿具体实现进入环境就绪、并发资源、网络、日志和回收；各类运行时的内部机制按问题深入。
+
+</details>
+
+<details>
+<summary>本段源码入口与验证边界</summary>
+
+- [统一入口与实际编排，swe.py:239–287](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L239-L287)。
+- [SWE-bench 的任务材料，swe.py:113–137](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L113-L137)；[独立评测与报告评分，swe.py:440–492](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L440-L492)。
+- [补丁应用，swe.py:299–313](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L299-L313)；[命令评分，swe.py:341–343](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L341-L343)。
+- [Sandbox 接口，sandbox.py:28–59](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/sandbox.py#L28-L59)；[具体环境的进入与退出，sandbox.py:281–307](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/sandbox.py#L281-L307)。
+- [E2B 兼容服务的环境要求，README:21–25](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/README.md#L21-L25)。[E2B 官方 SDK 说明](https://e2b.dev/docs/sdk-reference/python-sdk/v2.5.0/sandbox_sync)用于核对沙箱创建、命令和文件操作的能力；不作为本例服务端部署方式或本地 SDK 版本的证据。
+- 仅核对静态调用与分支；未运行真实沙箱、pytest 或模型训练。其他评分协议按具体问题另行展开。
+
+</details>
+
+<a id="e2b-aenter"></a>
+
+### 7.2 E2BSandbox.__aenter__：配置怎样变成可操作的环境
+
+本节接在 `_grade_scaleswe` 的环境入口，源码仍使用固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`：
+
+```python
+# swe.py:269–270；只摘录进入环境后的第一句
+async with E2BSandbox(image) as ev:
+    await agent_sandbox.ensure_agent_user(ev, workdir)
+```
+
+<a id="async-with-entry"></a>
+
+这里先分清语法安排与业务动作。`with` 和 `async with` 都管理“进入 → 执行代码块 → 退出”；异步版本会等待异步的进入、退出方法完成：
+
+| 语法 | 进入时 | 退出时 |
+| --- | --- | --- |
+| `with` | 调用 `__enter__()` | 调用 `__exit__(...)` |
+| `async with` | 等待 `__aenter__()` | 等待 `__aexit__(...)` |
+
+本例从正常进入到第一句的顺序，可以展开为下面三行。`manager` 是展示中间对象用的名称；省略了退出与异常处理，不能作为完整替换代码。
+
+```python
+manager = E2BSandbox(image)       # ① 构造本地对象，保存配置
+ev = await manager.__aenter__()  # ② 运行进入方法，等它准备好环境并返回
+await agent_sandbox.ensure_agent_user(ev, workdir)  # ③ 才开始原缩进块的第一句
+```
+
+- **先完成进入，再执行代码块**：第 ② 步成功返回后，结果才赋给 `ev`，然后执行第 ③ 步；进入时抛出异常则不会开始缩进块。
+- **本例的进入动作**：整理创建配置 → 请求创建沙箱并等待 → 保存 SDK 对象与 ID → 返回 `self`。下文展开的就是第 ② 步内部。
+- **异步等待的作用**：本次评测流程等待创建结果，挂起期间事件循环可以运行其他任务；当前缩进块仍须等进入完成。
+- **代码在哪里运行**：缩进块仍由本地 Python 进程执行；后续通过 `ev` 提交的命令才在远端沙箱中运行。
+
+<a id="ev-is-same-object"></a>
+
+**`ev` 是进入方法返回的本地对象。** 本例 `__aenter__` 最后执行 `return self`，因此它和教学展开中的 `manager` 指向同一个 `E2BSandbox` 对象。
+
+```python
+# 正常进入后的关系；manager 是上面教学展开中临时起的变量名
+ev is manager  # True：同一个对象，并未另建一个 ev 对象
+ev.image       # "teaching/calc:v1"：仍保留构造时传入的镜像标识
+```
+
+- **先构造对象**：`E2BSandbox(image)` 在调用 `__aenter__` 之前创建本地对象，并通过 `self.image = image` 保存镜像标识字符串。
+- **再补充状态**：进入方法按配置创建远端环境，将返回的 SDK 对象和沙箱 ID 保存到原对象的 `_sb` 与 `sandbox_id`，没有改写 `self.image`。
+- **最后交给 `ev`**：`return self` 返回原对象，`as ev` 接住它。镜像的完整文件内容没有被复制到 `ev`；后续通过这个本地对象操作环境。其他上下文管理器可返回其他对象，具体看进入方法的返回值。
+
+**输入是已保存配置的当前对象。** 沿用 `image="teaching/calc:v1"` 的教学例子，假设环境变量 `SLIME_AGENT_SANDBOX_IMAGE_METADATA_KEY=image` 已提供，其他配置为默认值：
+
+```python
+# __aenter__ 开始时的字段示意，不是额外执行的赋值
+self.image = "teaching/calc:v1"
+self.image_metadata_key = "image"
+self.size = "md"
+self.timeout = 3600
+self._sb = None
+self.sandbox_id = ""
+```
+
+`timeout` 是交给创建接口的沙箱存活时间设置，单位为秒；外层测试命令的 `timeout_sec=60` 此时没有传入。镜像名为教学占位值，规格 `md` 的具体资源含义由服务端决定。
+
+**第一段：把配置整理为创建接口的 metadata（291–296）。** 此前的 282–287 行会检查镜像键名；缺少配置时直接报错。
+
+```python
+md = {self.image_metadata_key: self.image}
+
+if self.size:
+    prefix = self.image_metadata_key.rsplit("/", 1)[0] if "/" in self.image_metadata_key else ""
+    size_key = f"{prefix}/size" if prefix else "size"
+    md[size_key] = self.size
+```
+
+- 先写入镜像，再补入规格，本例得到 `{"image": "teaching/calc:v1", "size": "md"}`。
+- 这里的 `md` 是新建的局部字典，和评分器中保存整份任务的 `md` 不是同一个对象。它没有包含补丁、工作目录或测试命令。
+- 这些键需要与所使用服务的约定匹配。若镜像键是 `sandbox/image`，规格键就使用 `sandbox/size`。
+
+**第二段：请求创建，接住 SDK 对象（298）。** `AsyncSandbox` 来自此前第 289 行的 `from e2b import AsyncSandbox`。
+
+```python
+self._sb = await self._rpc_retry(
+    "create",
+    lambda: AsyncSandbox.create(timeout=self.timeout, metadata=md),
+)
+```
+
+- `AsyncSandbox.create` 接收本例的 `timeout=3600` 与创建参数，通过 SDK 和配置的服务通信。
+- `lambda` 把一次创建操作交给 `_rpc_retry`；重试器执行它，符合条件的失败会重试，成功时交回创建结果。本节先保留这个职责，不进入重试实现。
+- 创建接口返回的是用于操作远端沙箱的本地 SDK 对象，保存在 `self._sb` 中。
+
+**第三段：保存标识，返回当前对象（299–300）。**
+
+```python
+self.sandbox_id = self._sb.sandbox_id
+return self
+```
+
+- 将 SDK 对象上的沙箱 ID 保存到当前对象。
+- 返回当前 `E2BSandbox` 对象，由外层的 `as ev` 接住。于是 `ev._sb` 就是上一段取得的 SDK 对象。
+- 回到 `swe.py:270`，下一句才用 `ev` 准备执行用户与目录权限；补丁应用和评分继续在同一上下文中进行。
+
+```text
+ev：本地的 E2BSandbox 对象，即这里的 self
+└─ ev._sb：本地的 AsyncSandbox SDK 对象
+   └─ 通过服务接口操作远端沙箱
+```
+
+> 本函数把已保存的配置交给创建接口，保存操作沙箱所需的 SDK 对象，再把当前对象交回调用方。它返回的是环境操作对象；评测分数在后续执行测试时形成。
+
+<details>
+<summary>本节源码与验证范围</summary>
+
+- [默认配置与构造器，sandbox.py:168–205](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/sandbox.py#L168-L205)；[本函数完整实现，281–300](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/sandbox.py#L281-L300)。
+- [调用处，swe.py:269–270](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/swe.py#L269-L270)；[配置约定，README:21–25](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/README.md#L21-L25)。
+- 局部运行使用真实 Slime 方法与替身 SDK：核对了普通键名、带前缀键名及空规格的参数；确认返回的 `ev` 就是原对象、SDK 对象被保存、ID 被复制；缺少镜像键名时在创建前报错。
+- 进入顺序用 Python 3.12.3 再作局部验证：替身创建调用等待返回期间，代码块未开始；创建返回后才执行块内第一句，正常退出时调用回收。语言机制参照《流畅的 Python》第 2 版第 21 章“异步上下文管理器”；沙箱业务行为由上述固定源码核对。
+- 未请求真实服务，没有验证镜像可用、远端创建、网络重试或真实回收。SDK 的具体通信与服务端实现仍在本节边界之外。
+
+</details>
 
 ## 8．导出结果，再清理 Session
 
