@@ -7,6 +7,7 @@
 - 确定或修订本步阅读范围时，使用 [repo-reading-scope skill](.agents/skills/repo-reading-scope/SKILL.md)：明确阅读目标、定位指挥官函数、按五类过滤规则提取核心骨架；参数默认省略，保留必要业务分支和停止位置。
 - 已有骨架后，选择下一处入口或解释为何优先读某个函数时，使用 [repo-reading-order skill](.agents/skills/repo-reading-order/SKILL.md)：按当前问题推荐核心动作，再按需回查最小前置；推荐与用户确认分开，不自动开启下一步。
 - 创建或修订本步单函数短期记录时，使用 [repo-reading-short-term-memory skill](.agents/skills/repo-reading-short-term-memory/SKILL.md)；整体记忆分工与长期继承继续从 [repo-reading-memory skill](.agents/skills/repo-reading-memory/SKILL.md)进入。两者不替代各项目的阅读路线，也不自动将普通代码问答扩展为记录工作。
+- 创建或修订阅读后的 `05-task-flow.md` 时，使用 [repo-reading-task-flow skill](.agents/skills/repo-reading-task-flow/SKILL.md)，以 Step 003 为主要 reference；按位置、交接、结果和收束组织总结，保留源码及函数卡片导航，图示形式按实际执行关系选择。
 - 每个 step 开始前，先与用户讨论“这一步准备读哪个函数、围绕它要弄清什么、短期 memory 准备保留什么”。助手可以根据当前问题提出候选函数及理由，由用户确认后再展开源码、创建对应函数记忆和更新阅读进度。这里确认的是本步范围和记录重点，不要求预先给出答案。用户已明确指定时直接沿用，不重复询问；核心范围变化时重新讨论确认。不能把候选、目录顺序、旧阅读历史或已准备的材料当作确认。结构纠错和保存已发生讨论可继续在已授权范围内完成。
 - 首轮源码阅读采用用户提供的[代码阅读指南：剪枝三步法](00-repo-reading/code-reading-guide.md)：先找组织主流程的函数，提取正常路径，暂时折叠配置、检查、日志、异常与失败包装；本轮调用下钻不超过两层，弄清输入输出后返回主线。按实际源码核对符号和接口，不把教学省略视为实际代码不存在或已掌握。
 - 阅读时的记录参照指南的[第二条方法](00-repo-reading/code-reading-guide.md#方法二读代码时记录什么)，优先保存数据变化、当前追踪路径、设计疑问与依据；沿用既有函数记忆和过程记录，不逐行转述代码，也不因临时草稿可丢弃而删除正式历史。

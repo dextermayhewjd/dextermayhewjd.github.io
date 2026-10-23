@@ -1,0 +1,4 @@
+interface:
+  display_name: "源码阅读任务链路总结"
+  short_description: "参考 Step 003 组织全文、Step 007 展示调用层级与交接"
+  default_prompt: "使用 $repo-reading-task-flow，按 Step 003 的结构总结当前已读范围；涉及嵌套调用时，参考 Step 007 展示入口的直接部分、内部子调用、结果与返回。"

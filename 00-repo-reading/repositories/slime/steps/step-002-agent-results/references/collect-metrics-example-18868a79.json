@@ -1,0 +1,42 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "function": "slime/agent/harness/claude_code.py::ClaudeCodeHarness.collect_metrics",
+  "source_lines": [
+    111,
+    120
+  ],
+  "function_sha256": "d12237ff365e399dbf72e7752306a6a9d04d7c619b4f05ba82d64ffe34a8654f",
+  "method": "Execute the extracted unmodified method with an in-memory read_file substitute; no remote sandbox or CLI.",
+  "cases": [
+    {
+      "case": "recorded_metrics",
+      "file_contents": "{\"attempts\": 2, \"count\": 2, \"limit_reached\": true}",
+      "requested_path": "/workspace/repo/.harness/compaction.json",
+      "returned": {
+        "compact_count": 2,
+        "compact_attempts": 2,
+        "compact_limit_reached": 1
+      }
+    },
+    {
+      "case": "whitespace",
+      "file_contents": " \n\t",
+      "requested_path": "/workspace/repo/.harness/compaction.json",
+      "returned": {}
+    },
+    {
+      "case": "json_empty_object",
+      "file_contents": "{}",
+      "requested_path": "/workspace/repo/.harness/compaction.json",
+      "returned": {
+        "compact_count": 0,
+        "compact_attempts": 0,
+        "compact_limit_reached": 0
+      }
+    },
+    {
+      "case": "invalid_json",
+      "raised": "JSONDecodeError"
+    }
+  ]
+}

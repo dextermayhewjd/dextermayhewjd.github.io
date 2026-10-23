@@ -1,8 +1,9 @@
 # BaseAdapter._build_reply
 
-- 源码定位：共同接口在 [slime/agent/adapters/common.py:193–195](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L193-L195)；本场景实际执行 [AnthropicAdapter._build_reply，anthropic.py:63–69](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L63-L69)，由助手核对。
+- 源码定位：共同接口在 [slime/agent/adapters/common.py:258–260](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L258-L260)；本场景实际执行 [AnthropicAdapter._build_reply，anthropic.py:63–69](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L63-L69)，由助手核对。
 - 首次接触：Step 1，2026-10-21，承接 `parse_model_output` 返回的 `parsed`。
 - 最近认识更新：2026-10-21，用户提出了“将 parsed 还原为对应 Adapter 需要发送的内容”的职责理解；助手补充模型输出格式与 API 协议组装的区别，具体内部字段尚未逐项确认。
+- 最近源码校准：2026-10-23。共同接口、Anthropic 实现、`Reply` 及直接辅助函数均与旧版相同；五种局部场景输出一致，仅随机工具 ID 每次不同。[校准前卡片](../../../../../../references/build-reply-at-2f231865.md)保留，个人认识时间不变。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
@@ -22,7 +23,7 @@
    >
    > 这里完成数据组装。模型内容已经生成，工具调用仍是“要调用什么、传什么参数”的描述；HTTP 响应和工具执行属于后续环节。
 
-4. **调用代码**（[common.py:353](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L353)）：
+4. **调用代码**（[common.py:432](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L432)）：
 
    ```python
    reply = self._build_reply(parsed, turn.finish_reason, translated, tools_schema)
@@ -68,7 +69,7 @@ tools_schema = [
 ]
 ```
 
-`translated` 和 `tools_schema` 在这份实现中不参与组装。`parsed.ill_formed` 也不写入 `Reply`，调用者稍后在 `common.py:354` 将它写回 `TurnRecord`。
+`translated` 和 `tools_schema` 在这份实现中不参与组装。`parsed.ill_formed` 也不写入 `Reply`，调用者稍后在 `common.py:433` 将它写回 `TurnRecord`。
 
 **② 内部先组装内容，再包装成 `Reply`。**
 
@@ -83,7 +84,7 @@ return Reply(
 )
 ```
 
-其中 `_build_reply_parts`（`anthropic.py:147–186`）对同一份内容分别组装两种格式：
+其中 `_build_reply_parts`（`anthropic.py:170–209`）对同一份内容分别组装两种格式：
 
 | 输入内容 | 协议内容 `blocks` | 内部消息 `manager_message` |
 | --- | --- | --- |
@@ -128,7 +129,7 @@ reply = Reply(
 )
 ```
 
-`reply.wire` 当前是 `(blocks, stop_reason)`，还不是完整的 HTTP 响应 JSON。后面的 `_respond` 才根据流式模式继续封装。`reply.manager_message` 随后作为 `response_message` 传入 `manager.record_turn`，具体记录过程留到对应函数展开。
+`reply.wire` 当前是 `(blocks, stop_reason)`，还不是完整的 HTTP 响应 JSON。后面的 `_respond` 才根据流式模式继续封装。`reply.manager_message` 随后作为 `response_message` 传入 `manager.record_turn`，具体记录过程留到对应函数展开。新版调用方还在 `common.py:470–472` 将它与 `translated` 一起复制进 `s.prompt_prefixes`，供后续输入接续；这是调用方新增的用途，本函数仍返回相同的三个字段。
 
 工具调用 ID 只放进协议内容；内部 `tool_calls` 没有这个 ID，`arguments` 保持字典。这样，CLI 后续把这条 assistant 消息作为历史传回时，经 `_translate` 转换出的工具调用可以与内部保存的表示按字典内容匹配。
 
@@ -191,6 +192,26 @@ reply = Reply(
 
 例如，底层可以是 Qwen 模型，而客户端使用 Anthropic 协议；模型的输出格式和客户端的 API 协议是两层不同约定。这里不会重建 Qwen 原来的标签文本。`reply.wire` 先保存待发送的协议材料，完整响应的封装与发送交给后面的 `_respond`。
 
+本次确认继续核对旧卡片与新版的关系：
+
+> 好的那么请继续吧
+> 下一步考虑做的是什么呢？
+> 是应该看一下这里的build reply对吗？
+> 当前这个部分之前油麻？
+> 还是说不需要在修改了呢？
+
+本轮只补充版本核对与调用方的新用途；旧主体解释继续适用，不据此新增个人掌握结论。
+
+用户随后复述并要求继续（节选）：
+
+> 也就是按照anthropic的方式来重构这里的恢复内容对吧
+> 按照anthropic或者codex的格式来做出对应的修正
+> 但是一个部分是需要拆解成为记录的
+> 一部分是需要给这里的manager的
+> 这是我的理解
+
+助手澄清：当前场景按 Anthropic 协议组装。两份材料分别是交给 `_respond` 的 `reply.wire`，以及交给 manager 记录的 `reply.manager_message`；“记录用的”正是给 manager 的那份。Codex 是客户端名称，不能与协议名称混为一层。用户已认可主体职责未变，上述去向细化尚待反馈。
+
 ## 尚不清楚
 
 - 已提出“parsed → 对应 Adapter 的待发送内容”的职责理解；`wire`、`manager_message` 与两种结束原因的具体关系尚未逐项确认。
@@ -198,6 +219,14 @@ reply = Reply(
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**2026-10-23 新版校准：**
+
+- `2f231865 → 18868a79`：共同接口从 `common.py:193` 移到 `:258`，调用从 `:353` 移到 `:432`，`Reply` 在 [:60–70](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L60-L70)。Anthropic 的 `_build_reply` 仍在 `:63–69`，`_build_reply_parts` 移到 [:170–209](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L170-L209)；这些定义均未改变。`tool_call_dict` 与 `manager_finish_reason` 在 [common.py:173–187](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L173-L187)，实现也相同。
+- [五种场景的新旧对照](../../../../../../references/build-reply-version-check-18868a79.json)执行固定版本的原定义，覆盖思考、正文与工具并存，纯文本，纯文本达到长度上限，带工具达到长度上限，以及全空内容。三个返回字段一致；协议工具 ID 按格式校验，对照时才归一化，卡片继续保留初次运行取得的 ID 示例。实参未被修改；没有启动 HTTP、调用模型或执行工具。
+- 当前 [调用方后续处理](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L433-L472)仍将 `parsed.ill_formed` 写回 `turn`，未将 `reply.finish_reason` 写回它；在轨迹记录之后新增前缀保存，复制 `translated + [reply.manager_message]`。因此需要补调用方用途，原函数的输入输出和心智模型不必重写。
+
+**初次阅读与原验证依据（保留旧版归属）：**
 
 - 固定源码：Slime `2f2318653f6f794dddd321eff7c9d4b7b174643f`，本机 `/home/hongshi/projects/slime`。`Reply` 定义在 [common.py:45–55](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L45-L55)；本场景的组装过程在 [anthropic.py:147–186](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L147-L186)。
 - 内部工具调用形状与结束原因来自 [tool_call_dict、manager_finish_reason，common.py:110–124](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L110-L124)；传回的 assistant 历史使用同一工具调用构造函数，见 [anthropic.py:99–117](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L99-L117)。

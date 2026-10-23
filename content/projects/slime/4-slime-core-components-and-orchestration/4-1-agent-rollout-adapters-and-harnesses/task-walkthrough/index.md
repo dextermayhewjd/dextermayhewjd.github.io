@@ -12,6 +12,8 @@ ShowToc: true
 
 源码固定在 `22a89f96835969a47055a659c588f46151f8b07a`。本篇选择 **Claude Code Harness / Anthropic Adapter**，与已有 4.1 图文一致；Codex/OpenAI 留作完整链读通后的实现对照。本轮已核对：这些核心源码与旧 `8c17b676` 资料版本没有差异，原有动作讲解可以继续使用。
 
+**版本阅读提示**：既有段落保留各自固定提交的讲解；`18868a79` 的请求处理变化见 [Step 1 新版对照](#run-turn-version-18868a79)，评测结果与环境退出见 [7.3 新版接续](#evaluation-result-18868a79)。不要将下方旧版实现直接当作当前实现。
+
 ## 为什么从 generate 进入
 
 CodeWiki 原图展示组件关系；本篇按任务执行读它们的组装和交接。`_AdapterService` 在示例的 `generate.py` 中，负责准备图内的 Adapter/模型连接和 HTTP 服务。它不是单轮请求处理，也不是 Harness 的启动逻辑。先扫 generate 骨架，到 state 初始化处下钻，再回外层继续；上游训练、调度和模型服务部署先视为已提供的前提。
@@ -480,6 +482,430 @@ HTTP 请求到 `POST /v1/messages`，由 [AnthropicAdapter._register_routes](htt
 进入 [BaseAdapter._run_turn](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L318)（`slime/agent/adapters/common.py:318`） 的开头，读 JSON、预处理 body、解析 sid、检查会话与轮数门禁，并把当前 handler 加入 `inflight`。sid 关联到步骤 1 已注册的 Session。
 
 **交接：** CLI 的消息历史、工具定义、参数与身份 → handler 持有 `body/sid/Session`。**返回位置：** `_run_turn:341` 的 `_translate(body)`；外层仍停在 `generate:205`。配套：[动作 7](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/7-make-api-calls/)。
+
+<a id="run-turn-version-18868a79"></a>
+
+## Step 1 新版对照：请求主线保留，token 接续与生成记录变化
+
+本节比较 Slime `2f231865` 与 `18868a79`，沿用 Claude Code / Anthropic 场景。先区分两个层次：整次任务的七个业务环节仍在，但具体调用和数据交接已经变化；一次模型请求也仍经过“转换 → 输入 token → 生成 → 解析 → 响应与记录”，其中输入准备、生成过程和留下的状态需要重新校准。
+
+### 哪些旧认识可以保留，哪些需要补齐
+
+| 位置 | 旧版认识 | 新版需要补上的关系 |
+| --- | --- | --- |
+| 消息转换 | `_translate` 交出 `translated` 与 `tools_schema` | 两路输出保留；Anthropic 转换在工具结果的 ID 都能匹配既有调用时，恢复调用顺序，避免并行工具按不同顺序返回后配错位置 |
+| 模型输入 | `_run_turn` 直接调用 `_render_token_ids` | 改为 `_session_prompt_ids`：先正常渲染，满足历史、工具定义及 token 边界等检查时，使用历史原始 token 接上新内容；不满足条件时返回正常渲染结果 |
+| 模型生成 | 一次 HTTP POST 后构成一份 `TurnRecord` | 开启 `partial_rollout` 且 SGLang 以 `abort` 结束、仍有生成预算时，带着已生成 token 继续请求；最终汇总为一轮记录。普通 HTTP 错误并非都自动重试 |
+| 生成输出 | `TurnRecord` 保存输入与输出 ID、生成 token 的 logprob、结束原因及格式标记 | 原字段保留，增加 `replay`、`weight_versions`、`spec_info`、`prefix_cache_info`，承接训练重放资料、权重版本及生成统计；字段可能为空，不代表每次都取得所有附加信息 |
+| 请求尾部 | manager 记下本轮轨迹，随后返回响应并清理在途登记 | 额外向 `Session.prompt_prefixes` 保存本轮消息、工具定义与 `turn`，供下次 `_session_prompt_ids` 使用；这是输入接续状态，与 manager 的轨迹树分工不同 |
+
+### 本轮的阅读顺序
+
+先按 `_translate → _session_prompt_ids → call_sglang_generate → trace_span` 阅读。前三处依次回答“请求如何变成消息与工具定义、如何准备输入 token、如何获得生成记录”；再解释追踪包住了哪些已经读清的业务阶段。
+
+这是讲解顺序。运行时仍先进入外层追踪范围，再执行其中的转换、编码与生成；不能将它读成生成结束后才启动追踪。本轮先解释局部追踪职责与范围，完整传播和导出机制仍可独立展开。
+
+<a id="translate-version-calibration"></a>
+
+### 先看 _translate：核心职责保留，工具结果顺序有变化
+
+对比 `2f231865 → 18868a79`，共同接口、Anthropic 的转换入口与工具 schema 转换未变。真实入口仍然是下面三行：
+
+```python
+translated = _translate_messages(body.get("messages") or [], body.get("system"))
+tools_schema = _tools_to_chat_tools(body.get("tools"))
+return translated, tools_schema
+```
+
+因此原来的核心模型继续成立：`translated` 保存系统指令与对话历史，包括已有工具调用及其结果；`tools_schema` 保存当前可用工具与参数定义。这里只转换已有数据，不执行工具。原卡片中“读取 README.md”的单工具样例已用新旧版本局部执行，输出相同。
+
+变化在 `_translate_messages` 内：对可按 ID 对应的多个工具结果，先恢复调用顺序，再输出不带协议 ID 的 `role: tool` 消息。
+
+```text
+此前工具调用：       A → B
+请求携带工具结果：   B → A
+旧版 translated：  B → A
+新版 translated：  A → B
+```
+
+这只调整一组工具结果：ID 有无法匹配的项时保留原顺序，遇到普通文本等内容时先交出已积累的结果，不重排整段对话。这里整理的是请求中已经存在的结果排列，不控制工具实际完成或返回的先后。实现注释指出，模板可能按位置关联结果，因此丢弃 ID 之前需恢复对应关系。
+
+本次执行了固定版本的转换方法与四个纯辅助函数，检查原样例、结果重排、未知 ID、相邻用户消息以及普通文本边界；没有运行真实工具、CLI、tokenizer 或模型。[入口方法](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L58-L61) · [消息转换差异所在](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L81-L143)。读完仍接到 `_run_turn:416` 的 `_session_prompt_ids`。
+
+<a id="session-prompt-ids"></a>
+
+### 输入准备：先普通编码，再判断能否接回历史原始 token
+
+旧版 `2f231865` 直接用 `_render_token_ids` 把消息与工具定义转成输入 token。新版 `18868a79` **新增 `_session_prompt_ids` 这一层**，原来的模板编码函数仍在内部使用。
+
+```python
+# _run_turn:415–423 的交接，省略其他处理
+translated, tools_schema = self._translate(body)
+prompt_ids = _session_prompt_ids(translated, tok, tools=tools_schema, session=s)
+turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=sid)
+```
+
+**为什么增加这一层？** 模型上轮生成的内容可能包含思考和工具调用。CLI 下次传回历史时，可能省略思考，或重新整理工具参数的表示。可见消息仍在，但重新套模板得到的 token 不一定等于模型当时真正使用和生成的 token。
+
+本函数的输入因此除了消息、工具定义和 tokenizer，还包括当前 `Session`。会话的 `prompt_prefixes` 将两类材料保存到一起：`messages + tools` 用来匹配客户端传回的历史，`turn.prompt_ids + turn.output_ids` 提供那一轮的原始 token。
+
+<a id="session-history-purpose"></a>
+
+### 历史对不上时，本次消息仍然正常编码
+
+这里比较的是 **CLI 本次请求带来的消息**与**同一会话已保存的消息历史**。当前这一轮模型还没有生成答案。本轮的 `_respond` 与 `manager.record_turn` 正常返回后，`_run_turn` 才会保存一份消息历史、工具定义和对应的原始输入／输出 token；`_session_prompt_ids` 读取这些材料。
+
+只看“读取 README”的消息关系，暂时省略保持相同的系统消息和工具定义；A、B、C 各代表一条完整消息：
+
+```text
+已保存的消息历史：[A 用户要求读取 README，B 助手调用 read_file]
+本次请求的消息：  [A 用户要求读取 README，B 助手调用 read_file，C 工具返回文件内容]
+                  └───── 整段旧历史相同 ──────┘   └── 新内容 ──┘
+```
+
+- **能够对应，且其他检查也通过**：A、B 对应的历史部分使用保存过的原始 token，再接上 C 对应的新后缀。A、B 只保留一份，C 正常进入本轮输入。
+- **所有候选都无法对应**：返回函数开头已经算好的 `rendered`，即本次全部消息与工具定义的普通编码结果。例如本次请求本来就带有 `[S 此前工作的摘要，D 接下来的问题]`，返回的就是 S、D 连同工具定义的编码；摘要必须已在请求里，本函数不会生成摘要，也不会额外执行工具。结果是供模型使用的 token ID 列表。
+
+“对应”要求保存的整段消息历史与当前消息开头相同，源码检查为 `prefix.messages == messages[:depth]`；不是只要几句话相似、或任意部分重叠就算匹配。一个候选对不上，还会检查其他候选。
+
+**为什么值得复用？** 已保存的原始输出 token 可能包含思考或特定的工具参数格式，而客户端传回的可见历史只保留了 B 这样的工具调用。利用可见消息确认“这是同一段历史”，才能接回当时真正的 token；找不到可靠对应时，就以本次请求提供的消息重新编码。这个选择决定的是历史部分的 token 来源，新增内容仍参与本轮输入。
+
+<a id="session-prompt-branches"></a>
+
+### 分支图：一个候选失败，就继续检查下一个
+
+这里的主要分支属于 `_session_prompt_ids`；`_render_token_ids` 是它调用的模板编码函数。图中的编号表示本函数的执行位置，行号均属于 `slime/agent/adapters/common.py`。
+
+```text
+① 编码全部消息 → rendered                         common.py:102–104
+   _render_token_ids(..., add_generation_prompt=True)
+                         ↓
+② 按历史长度从长到短，取下一个 prefix              105–107
+   ├─ 没有候选了 → return rendered                 136：普通编码结果
+   └─ 取到一个候选
+          ↓
+③ 历史相符，而且生成记录可用于接续？               108–116
+   ├─ 否 → continue，回到②检查下一个候选
+   └─ 是
+          ↓
+④ 同样的可见历史，是否还对应另一份不同的 token？   120–126
+   ├─ 是 → 有歧义；continue，回到②
+   └─ 否
+          ↓
+⑤ 只编码候选前缀 → anchor                         127–131
+   _render_token_ids(..., add_generation_prompt=False)
+   anchor 是否等于 rendered 开头的同长部分？
+   ├─ 否 → continue，回到②
+   └─ 是
+          ↓
+⑥ 能找到切口，而且切口后只剩留白？                 132–134
+   ├─ 否 → continue，回到②
+   └─ 是
+          ↓
+⑦ return 旧输入 token + 旧输出 token + 新后缀      135：接续结果
+   turn.prompt_ids + turn.output_ids + rendered[end + 1:]
+```
+
+**这些是同一候选必须依次通过的检查。** ③④通过后，还必须进入⑤计算 `anchor`，再通过⑤⑥的前缀与切口检查，才能到⑦拼接；不能因为消息匹配就直接跳到⑦。`anchor` 是对这个候选覆盖的消息临时编码得到的 token 列表，不是匹配失败后另外找来的备用历史。
+
+**`continue` 与 `return` 要分开看：** ③—⑥检查失败，只放弃当前 `prefix`，从②继续取候选；第一次找到完全合格的候选就在⑦返回。只有②已经没有候选可取，才返回普通编码结果。初始列表为空，也直接走②的返回分支。
+
+### 每项检查具体负责什么
+
+| 图中位置 | 实际检查或操作 | 不满足时，为什么不能用这一份历史 |
+| --- | --- | --- |
+| ③ 历史对应 | `prefix.tools == tools`；`prefix.messages == messages[:depth]`；`depth < len(messages)` | 工具或历史变了，或者当前没有新增消息，这份记录不适合作为本次接续前缀 |
+| ③ 生成记录可用 | `finish_reason == "stop"`；`output_ids` 非空；最后一个 ID 属于 `tokenizer.all_special_ids` | 生成未按 `stop` 结束，或缺少可用于定位边界的末尾 token，不能直接拼上新消息 |
+| ④ 排除歧义 | 相同消息、相同工具若还对应不同的 `prompt_ids` 或 `output_ids`，跳过这一候选 | 可见回复一样，隐藏思考等原始 token 可能不同；仅凭当前消息不能选定其中一份 |
+| ⑤ 模板上下文一致 | 将 `messages[:depth]` 单独编码为 `anchor`，比较 `rendered[:len(anchor)] == anchor` | 某些模板会根据后面的消息改变旧消息格式；单独编码的前缀不一定与完整编码的开头相同 |
+| ⑥ 确认切口 | 在 `anchor` 中从后往前找 `turn.output_ids[-1]`；其后解码并去掉留白后必须为空 | 找不到同一标记，或标记后还有实际内容，就不能把这里当作旧输出与新内容的分界 |
+
+例如，较长候选的历史不匹配，并不意味着整个请求只能普通编码：它会继续检查较短候选，较短候选仍可能通过全部检查并被采用。这对应图中的“③ → ②”，不是“③ → 返回”。
+
+<a id="session-render-calls"></a>
+
+### 两处 _render_token_ids 各自做什么
+
+`prefix` 是会话里已经保存的一份历史记录；`anchor` 是当前候选通过前面检查后，调用 `_render_token_ids(messages[:depth], ...)` 新算出的 token 列表。后者用于验证前者能否在 token 层面接上，并不构成另一种备选拼接策略。
+
+| 调用位置 | 交给模板的消息 | `add_generation_prompt` | 结果用在哪里 |
+| --- | --- | --- | --- |
+| ① / 103 行 | 当前全部 `messages` | `True`，使用默认值 | 得到 `rendered`：既是没有合格候选时的完整返回值，也提供接续时的新后缀 |
+| ⑤ / 127–129 行 | 当前候选覆盖的 `messages[:depth]` | `False`，明确传入 | 得到 `anchor`：只用于检查历史前缀和定位切口，不直接作为最终返回值 |
+
+- 两次调用都带上同一份 `tools` 和会话模板参数，都以 `tokenize=True` 得到 token ID。
+- `True` 请求模板准备下一条助手回复的开头；`False` 不额外请求这个开头，便于定位已经结束的历史。具体格式由 tokenizer 的模板决定。
+- ①总是先执行；⑤只在当前候选通过③④后执行，可能随多个候选执行多次。确定切口后使用 `rendered[end + 1:]`，因为新后缀已包含在①的完整编码中。
+
+沿用“读取 README”的局部例子：完整上游消息在没有本地历史时，按已下载的 Qwen 模板编码得到 **337 个 token**。另构造一轮带思考与文件读取调用的旧输出：旧输入 277 个 token、旧输出 43 个。当新的请求只追加工具结果、尚未追加用户追问时，新函数保留前 320 个原始 token，再接上工具结果和下一轮助手开头的 22 个 token，共 **342 个**；普通重新编码则是 332 个。旧输出是教学构造，由真实 tokenizer 编码，未调用模型生成。
+
+这个例子也说明边界检查的必要：追加新的用户追问，会影响该 Qwen 模板对旧助手消息的渲染。本地默认参数下，它没有通过前缀检查，返回普通结果；明确改用 `preserve_thinking=True` 才通过。这是参数对照，不是所有模型或所有请求都一定复用的承诺。
+
+**历史在哪里保存？** 仍在 `_run_turn`，而且发生在本轮生成、解析、响应与 manager 记录之后。下面两处不是相邻执行的代码：
+
+```python
+# 本轮开始准备输入：读取以前保存的材料
+prompt_ids = _session_prompt_ids(translated, tok, tools=tools_schema, session=s)
+...  # 生成、解析、响应与轨迹记录
+# _run_turn:470–472：保存本轮材料，供后续请求使用
+s.prompt_prefixes.append(
+    PromptPrefix(copy.deepcopy(translated + [reply.manager_message]), copy.deepcopy(tools_schema), turn)
+)
+```
+
+这里的保存用途是下轮输入接续；manager 的轨迹记录服务于之后的训练样本导出。本函数不修改会话，也不负责树的搜索或剪枝。
+
+源码：[_session_prompt_ids，93–136 行](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L93-L136) · [取用与保存，415–472 行](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L415-L472)。现有连续性测试本次运行结果为 9 项通过、2 项 HTTP 测试未选取；本地 Qwen tokenizer revision 为 `995ad96eacd98c81ed38be0c5b274b04031597b0`。验证只涉及本地输入处理，没有运行真实 CLI 或模型。
+
+<a id="call-sglang-version-calibration"></a>
+
+### call_sglang_generate：一轮生成可能包含多次请求
+
+接在 `_session_prompt_ids` 后面，调用仍为 `turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=sid)`。输入 token 经 HTTP 发给 SGLang，最后交回一个 `TurnRecord`，这个职责保留。
+
+`2f231865 → 18868a79` 的主要变化发生在函数内部：
+
+| 关系 | 当前实现 |
+| --- | --- |
+| 一轮与一次请求 | 一轮可包含多次 `/generate` 请求；中间用局部 `captured` 累计原输入、生成 token、logprob 和附加资料 |
+| 何时继续 | 有效响应的结束原因是 `abort`、开启 `partial_rollout` 且额度未耗尽时继续；HTTP 错误与校验错误不会走这条续生成分支 |
+| 上下文预算 | 同时考虑会话和服务端限制；特定推测解码算法还预留草稿 token 空间 |
+| 响应与返回 | 严格检查 token/logprob 与已请求的重放资料；`TurnRecord` 增加 `replay`、`weight_versions`、`spec_info`、`prefix_cache_info` |
+
+```text
+原输入 prompt_ids → captured（初始只有原输入）
+                         ↓
+                    POST /generate
+                         ↓
+                  校验并累计本次返回
+                         ├─ abort + 开启续生成 + 还有额度
+                         │       └─ 带上已生成部分，再次 POST
+                         └─ 其余结束条件 → 一个 TurnRecord
+```
+
+例如原输入 `[101,102,103]`，本轮最多生成 `3` 个 token：第一次返回 `[701]`、结束原因 `abort`；开启续生成后，第二次发送 `[101,102,103,701]`，最多再生成 `2` 个。第二次返回 `[702]`、结束原因 `stop`，最终 `turn.prompt_ids=[101,102,103]`，`turn.output_ids=[701,702]`。这些数字是教学构造，已用当前原函数和本地 HTTP 测试服务验证。
+
+`output_log_probs` 仍只逐个对应实际生成的 token。可选 `replay` 另外携带候选编号、相关概率或专家路由资料，因此旧版“只记录生成 token 的概率”的说法需要限定到具体字段。
+
+<a id="call-sglang-responsibility-model"></a>
+
+当前可先用三点建立职责模型：
+
+- 按 SGLang 接口发送已有输入 token 和生成设置，请求生成。
+- 读取并校验输出 token 及其 logprob，取得结束原因。
+- 保留调用者传入的原输入，把本轮结果整理成 Slime 本地的 `TurnRecord`。
+
+接口格式决定怎样与 SGLang 通信，`TurnRecord` 决定本地怎样把结果交给后续处理。`output_log_probs` 对应新生成的 token。累计容器、续生成、预算和重放结构属于下一层实现；先保留“一轮可能有多次请求”这个边界即可。
+
+需要继续细读时，可看 [574–588 行的 captured 与 payload](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L574-L588)，弄清发出的数据；再接返回追加、续生成判断和最后打包。`trace_span` 的内部机制仍放在这段业务之后解释。
+
+源码：[call_sglang_generate，524–700 行](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L524-L700) · [TurnRecord 字段](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L25-L54)。本轮 `test_token_contract.py` 相关测试 14 项通过，另以本地 HTTP 服务验证五个分支；重放套件因缺少 `wandb` 未运行，未验证真实模型生成。
+
+### 保留的分工与本次核对边界
+
+- `decode → parse_model_output → _build_reply → _respond → manager.record_turn` 的主调用关系保留。`parse_model_output`、Anthropic 的回复构造与响应函数、`record_turn` 的函数本体在这两个提交间相同；这不等于相关外部库或所有下游行为都未改变。
+- 执行追踪包住模型请求和编码阶段，负责诊断记录；骨架显示其包围关系，按本轮阅读顺序在三个业务函数之后解释。`prompt_prefixes` 会影响下一次模型输入，也保留在骨架中。
+- 当前只讨论已选定的 Anthropic 场景。新版 Codex 使用 Responses Adapter，其协议差异在对应范围内另行核对。
+
+源码：[Anthropic 转换与协议方法](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L58-L143)。仓库还提供了 [原始 token 接续测试](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/test_agent/test_prompt_continuity.py#L80-L150)、[partial rollout 续接测试](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/test_agent/test_sampler_replay.py#L216-L325)和 [token/logprob 校验测试](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/test_agent/test_token_contract.py#L83-L126)。上述测试链接同时作为固定版本的源码依据；已实际运行的局部检查以各小节说明为准，没有运行真实 CLI 或 SGLang 模型推理。旧卡片中的 aiohttp、Transformers 版本仍保留原证据。
+
+<a id="trace-infrastructure-boundary"></a>
+
+### 理解业务处理后，再看 trace_span 的追踪包装
+
+`trace_span` 可视为跨模块的执行追踪基础设施：多个业务阶段共用它记录起止、嵌套关系与附加结果。它在旧版已经存在；新版在 Coding Agent 的任务、沙箱准备、模型请求、评测与收尾等位置增加了接入，不能将工具本身和新增使用场景混为一谈。
+
+当前骨架应先交代追踪的职责、包围范围与记录用途，便于对应真实源码：
+
+- `agent_tokenize` 包住消息转换与输入编码；外层 `agent_model_turn` 再包含模型生成，解码和响应位于这两层追踪范围之外。
+- 业务调用仍交出 `prompt_ids` 和 `turn`；追踪另外记录执行阶段的开始、结束、层级和附加信息。
+- Trace 用于执行诊断；`TurnRecord` 与 manager 的轨迹用于保存生成数据和后续训练。知道这层分工后，可以继续阅读当前业务流程。
+
+独立专题再展开“内部怎样做到”：记录的数据格式、上下文怎样跨 Adapter 事件循环传递、怎样导出与查看。骨架中的职责说明和后续机制讲解分层承担，不把当前读懂代码所需的含义全部推迟。
+
+源码定位：[追踪工具](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L345) · [模型请求中的接入](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L410-L423)。这些位置说明 Slime 端的接入，不代表已经验证 CLI、模型服务及远端环境都有完整的追踪记录。
+
+<a id="trace-span-local-model"></a>
+
+### trace_span 的局部模型：圈住代码，留下开始与结束
+
+<a id="trace-span-data-structure"></a>
+
+`s` 是当前会话的 `Session`；它的 `trace` 字段保存一个 `TraceHandle` 对象。这个对象指向 `carrier` 字典，字典里的 `events` 是保存事件的列表。图中只列本轮需要的字段：
+
+```text
+s                                      # Session 对象
+└─ trace                               # TraceHandle 对象
+   └─ carrier                          # dict：一份追踪的数据
+      ├─ trace_id = "demo-trace"        # 这份追踪的标识
+      └─ events = []                   # list：每个元素是一条事件 dict
+```
+
+因此，`s.trace.carrier["events"]` 就是沿这条路径取到**那个待追加的列表**。`carrier` 是字段名；在当前场景，它保存的是本地 Python 字典。
+
+可以把这套功能理解为结构化的执行日志。本场景的 `TraceHandle` 已保存在 `s.trace`，`trace_span` 使用它向 `carrier["events"]` 追加事件。`trace_id` 标记事件属于哪份追踪，实际写入位置由对象中的 `carrier` 引用提供；`span_id` 则配对某一段执行的开始与结束。当前记录先保存在内存列表中，打印或导出由后续机制处理。
+
+初始列表是 `[]`。下面只展示外层 `agent_model_turn` 对应的开始、结束两条事件，内层事件及公共元数据暂时省略；编号 `A` 和时间 `10.0 / 12.0` 是教学替换值：
+
+```python
+[
+    {"type": "span_start", "name": "agent_model_turn", "span_id": "A", "ts": 10.0},
+    {"type": "span_end",   "name": "agent_model_turn", "span_id": "A", "ts": 12.0},
+]
+```
+
+- **进入 `with`**：为这一段执行生成编号，追加第一条字典，表示它从何时开始。
+- **执行块内代码**：仍由调用处进行消息转换、编码和模型请求。
+- **离开 `with`**：追加第二条字典，沿用编号 `A`，表示同一段执行何时结束。
+- `name` 是阶段名称，同一个阶段可以多次执行；`span_id` 用来区分具体哪一次，并把其开始和结束配对。`ts` 是时间戳，后续可以据两者之差计算耗时。
+
+实际写入最终落到 `_append_event` 的这一句：
+
+```python
+handle.carrier["events"].append(event)
+```
+
+当前外层场景的 `handle` 就是传入的 `s.trace`，`event` 是刚组好的事件字典。这里的可观察结果是**已有列表增加了记录**；`trace_span(...)` 返回的上下文管理器负责让这项工作发生在 `with` 的进入和退出处。模型结果仍由 `turn` 接住。
+
+| 阅读层次 | 当前需要做到什么 |
+| --- | --- |
+| **现在需要读清** | `TraceHandle → carrier 字典 → events 列表`；一条事件的 `type / name / span_id / ts`；进入、退出各追加什么；包住了哪段业务 |
+| **暂时认得作用** | `parent_span_id` 表示属于哪个外层阶段；`record_error=False` 不自动记异常详情，仍会传播异常 |
+| **以后按问题展开** | ContextVar 栈怎样维护嵌套、`TraceSpanContext` 怎样补属性、多目标兼容、跨事件循环传递、导出和查看器 |
+
+这轮先停在第一层。父子关系的实现、对象创建链和完整追踪系统不作为当前继续阅读的前提；读清第一层后，再决定是否需要向下追。
+
+<details>
+<summary>继续看嵌套调用与源码依据</summary>
+
+在 `_run_turn` 中，先观察两个已经包住业务代码的阶段。下面假定 `s.trace` 已配置，省略空追踪分支及业务实参；顺序和缩进与 `common.py:412–425` 对应：
+
+```python
+with trace_span(s.trace, "agent_model_turn", record_error=False):
+    target = bind_trace_carrier(s.trace.carrier)
+    with trace_span(target, "agent_tokenize", record_error=False):
+        translated, tools_schema = self._translate(body)
+        prompt_ids = _session_prompt_ids(...)
+    turn = await call_sglang_generate(...)
+
+raw_output = tok.decode(...)
+```
+
+- `agent_tokenize` 记录转换和编码这一段，`agent_model_turn` 再圈住模型生成。解码和后续响应已经位于两层包装之外。
+- `trace_span` 进入时记录 `span_start`，退出时记录 `span_end`，写入目标的 `carrier["events"]`。两个事件用同一个 `span_id` 配对；子阶段的开始事件通过 `parent_span_id` 指向外层。
+- 这些事件保存名称、时间戳、关联标识及显式追加的属性。它们供后续查看过程与耗时，`TurnRecord` 则保存输入、生成结果及 logprob。
+
+只运行上面的两层追踪、略去业务函数时，局部实验得到：
+
+```text
+agent_model_turn 开始
+    agent_tokenize 开始
+    agent_tokenize 结束
+agent_model_turn 结束
+```
+
+这四个事件是局部实验结果；真实模型调用内部还可记录 `sglang_generate` 子阶段。事件当前写在内存字典中，导出与查看是后续处理。
+
+`record_error=False` 只是不自动把异常类型和消息写入事件，异常仍会传播；没有 `s.trace` 时，调用处使用 `nullcontext()` 执行业务。当前先理解包装范围和记录去向即可，不同时展开跨事件循环的传递与完整导出链。
+
+源码：[trace_span](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L345-L425) · [写入事件](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L587-L613) · [真实调用](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L410-L425)。局部实验核对了嵌套配对和异常传播，现有 Trace 测试 3 项通过；没有执行真实模型或 CLI。
+
+</details>
+
+<a id="parse-model-output-version-calibration"></a>
+
+### 解析输出：Slime 的职责模型保留，依赖版本另行核对
+
+`parse_model_output` 接住 `tok.decode` 得到的 `raw_output`，先分离思考文本，再从剩余内容提取工具调用，最后返回 `ParsedModelOutput(reasoning, text, tool_uses, ill_formed)`。工具调用描述记录名称和参数，尚未执行工具；调用方接着将 `parsed` 交给 `_build_reply`。
+
+对比 `2f231865 → 18868a79`，Slime 的整个 `parsing.py` 内容相同，调用实参相同；调用处从 `common.py:347` 移到 `:426`。因此原来的“原始字符串 → 思考、正文、工具调用及格式标记”模型继续适用。
+
+<details>
+<summary>版本、局部验证与来源</summary>
+
+[当前解析函数](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/parsing.py#L25-L56)与[调用位置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L425-L432)已对照。新版 [Docker 配置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/docker/README.md#L12-L20)引用 SGLang `v0.5.21`；其中 Qwen 的参数类型识别和思考解析有扩展，不能据 Slime 文件相同推断全部依赖都相同。
+
+以旧卡片的四组构造文本调用新版 Qwen 相关原方法体，纯文本、思考加工具、思考加正文以及缺少开头思考标记的输出均与原结果一致。已有解析测试 3 项通过，1 项因未安装完整 SGLang 而跳过。局部提取只保留本次所需方法和 Qwen 注册项，不是完整模型服务验证；其他模型与复杂 schema 的全部分支不在这次验证范围。
+
+</details>
+
+<a id="build-reply-version-calibration"></a>
+
+### 回复组装：原有输入输出保留，内部消息增加一个下游用途
+
+`_build_reply` 仍把 `parsed` 组织成 `Reply`：`wire` 保存协议回复材料，`manager_message` 保存内部 assistant 消息，`finish_reason` 保存内部命名的结束原因。对照 `2f231865 → 18868a79`，Anthropic 实现、返回类型与直接辅助函数都相同；原有心智模型和五种局部场景的输出继续成立，随机工具 ID 每次会变化。
+
+新版 [调用方](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L432-L472)还会把 `reply.manager_message` 与 `translated` 一起复制进 `prompt_prefixes`，供后续输入接续。这个状态更新发生在调用方，`_build_reply` 本身仍只组装三项回复数据。组装后先回到格式标记回填、token 计数与模式判断，再交给 `_respond`。局部对照没有运行 HTTP、模型或工具。
+
+<a id="before-respond-version-18868a79"></a>
+
+### 进入响应函数前：接清三项准备
+
+`_build_reply` 已经交出两份材料：`reply.wire` 供 `_respond` 组织协议响应；`reply.manager_message` 供 manager 留下内部记录。记录用的消息正是后者。
+
+在调用 `_respond` 之前，`_run_turn` 还要完成下面的连续语句。这是当前函数内部的准备阶段，与旧版逻辑相同（`common.py:433–436`）：
+
+```python
+turn = dataclasses.replace(turn, ill_formed=parsed.ill_formed)
+in_tok, out_tok = len(prompt_ids), len(turn.output_ids)
+stream = body.get("stream") is True or "text/event-stream" in request.headers.get("Accept", "")
+```
+
+- `turn`：把解析器发现的格式状态补回本轮生成记录，供后续轨迹记录使用。
+- `in_tok / out_tok`：取得输入、输出 token 数量，交给响应函数填写用量。
+- `stream`：请求正文明确设置 `True`，或 Accept 头包含 `text/event-stream`，就选择流式响应。
+
+之后才到 `common.py:442` 的 `_respond(request, body, reply, in_tok, out_tok, stream)`。当前 Anthropic 实现位于 `anthropic.py:71–75`，下一处要看清的是这些输入怎样变成普通 JSON 响应或流式事件。[当前源码](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L432-L442)
+
+<a id="respond-record-version-calibration"></a>
+
+### 响应与记录：接住两份不同材料
+
+```text
+reply.wire + 请求与 token 计数
+    → AnthropicAdapter._respond → response（HTTP 响应对象）
+
+translated + reply.manager_message + turn + sid
+    → TrajectoryManager.record_turn → manager._trees[sid]（内存消息树）
+```
+
+`record_turn` 不接收上面的 HTTP 响应对象。它复用输入历史的已有路径，补上新消息，再为本轮 assistant 节点挂上内部消息与整份 `TurnRecord`，更新轮次计数，函数返回 `None`。
+
+对比 `2f231865 → 18868a79`，这两个入口及直接处理逻辑未变。新版 `TurnRecord` 带有 `replay`、`weight_versions`、`spec_info`、`prefix_cache_info`，节点会随整份对象一起保留它们。另一个场景变化是：Coding Agent 未设置合并环境变量时默认传入阈值 0，关闭短 assistant 历史改写的特殊合并；共同历史的正常复用继续工作。单独创建 `TrajectoryManager()` 的类默认阈值仍为 1024。
+
+**调用顺序和发送时机要分开看。** `_run_turn` 取得 `_respond` 的返回对象后，继续调试回调、轨迹记录、保存前缀，最后返回。普通分支这时才由 aiohttp 发送；流式分支已经在 `_respond` 内写出 SSE 事件。写出事件也不代表客户端业务代码已经消费。
+
+<details>
+<summary>当前定位与验证边界</summary>
+
+- [Anthropic 响应入口与分支](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L71-L75)：普通渲染在 `:221–231`，SSE 渲染在 `:234–297`。
+- [轨迹记录入口](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L381-L403)与[关闭特殊合并的条件](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L492-L493)。阈值由 [Coding Agent 配置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L81-L99)传入。
+- [实际调用与前缀保存](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L442-L475)。17 项已有测试通过，其中 3 项使用本地模拟 HTTP 服务，其余验证轨迹记录。另以构造数据验证普通响应返回时尚未准备发送，以及本轮记录完整对象；没有运行真实模型、CLI 或训练。
+
+</details>
+
+<a id="prompt-prefix-save"></a>
+
+### 前缀保存：本轮追加候选，后续请求检查取用
+
+相对 `2f231865`，当前版本新增了 `PromptPrefix`、`Session.prompt_prefixes`，以及 `_run_turn` 收尾处的这句：
+
+```python
+s.prompt_prefixes.append(
+    PromptPrefix(copy.deepcopy(translated + [reply.manager_message]), copy.deepcopy(tools_schema), turn)
+)
+```
+
+三个字段依次保存本轮完整消息（输入历史加 assistant 回复）、工具定义和生成记录。前两份复制为独立副本；`turn` 引用同一对象，其中的原始输入、输出 token 留给后续输入准备使用。
+
+```text
+本轮：_run_turn 保存 PromptPrefix → 当前 Session 的 prompt_prefixes 列表
+后续同一会话请求：_session_prompt_ids 读取候选 → 检查历史、工具和拼接边界
+                                             ├─ 合格：保留旧 token，接上新后缀
+                                             └─ 全部不合格：返回预先算好的普通编码
+```
+
+这里先保存候选，实际复用由后续请求判断。相邻的 `manager.record_turn` 服务于轨迹与样本整理，前缀列表则服务于后续模型输入；两处用途不同。[保存位置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L463-L473) · [三个字段与 Session 列表](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L38-L57) · [后续取用](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L93-L136)
 
 <a id="run-turn-step-by-step"></a>
 
@@ -1064,7 +1490,7 @@ CLI 退出码描述进程状态，reward 描述任务评测结果；非零退出
 
 ### 7.1 先看清评测交接：新环境、补丁状态与奖励
 
-这一段按固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 补充。当前观察点是：`run_evaluation` 接收的已经是任务信息、代码补丁和评分预算；它不接收模型的 `TurnRecord`。对话轨迹留在 manager，代码是否完成任务由评测链路判断。
+这一段按固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 补充。当前观察点是：`run_evaluation` 接收的已经是任务信息、代码补丁和评分预算；它不接收模型的 `TurnRecord`。对话轨迹留在 manager，代码是否完成任务由评测链路判断。 新版环境包装与返回位置见 [7.3](#evaluation-result-18868a79)。
 
 <a id="two-grading-protocols"></a>
 
@@ -1270,6 +1696,41 @@ ev：本地的 E2BSandbox 对象，即这里的 self
 - 未请求真实服务，没有验证镜像可用、远端创建、网络重试或真实回收。SDK 的具体通信与服务端实现仍在本节边界之外。
 
 </details>
+
+<a id="evaluation-result-18868a79"></a>
+
+### 7.3 新版接续：测试分数和补丁状态怎样一起返回
+
+本段使用固定版本 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`。已知命令评测会返回 `1.0` 或 `0.0`，接下来要分清：父函数返回的 `True` 是不是也表示测试通过？
+
+先分清返回值所在的层级：`_run_eval_cmd` 返回分数 `r`；`_grade_scaleswe` 组装 `EvalResult`；`run_evaluation` 原样交回该结果；最外层 `_generate` 解包取得 `reward` 和 `applied_cleanly`。因此，得到 `EvalResult` 的整体理解成立，具体取得它的位置应放在评分编排与统一入口这一层。
+
+`_run_eval_cmd` 执行任务配置中已有的命令，按退出码评分：`0` 对应 `1.0`，其他正常返回的退出码对应 `0.0`。测试内容由命令决定；函数不负责设计测试。随后回到父函数的这两行，省略其余评分分支和追踪包装：
+
+```python
+r = await _run_eval_cmd(ev, workdir, eval_cmd, timeout_sec,
+                        user=grading.get("eval_user", "agent"))
+return EvalResult(r, True)
+```
+
+- `r` 填入 `reward`，表示本次评分。
+- `True` 填入 `applied_cleanly`：前面的补丁失败分支已经提前返回，所以走到这里表示补丁处理成功。
+- 因此，补丁成功但测试未通过时是 `EvalResult(0.0, True)`；补丁应用失败则提前得到 `EvalResult(0.0, False)`，不会继续运行测试。空白补丁按辅助函数的规则视为处理成功。
+
+以上对应 [EvalResult 定义](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L79-L83)和[补丁判断、评分及返回](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L329-L340)。
+
+新版的环境入口使用 `_evaluation_sandbox`，内部由工厂选择后端。第 340 行仍处于这个环境上下文中，正常返回的先后关系是：
+
+```text
+形成 EvalResult
+    → 离开 async with，等待后端 __aexit__
+    → run_evaluation 原样交回结果
+    → _generate 解包为 reward, applied_cleanly
+```
+
+退出交接见[环境包装与分派入口](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L278-L298)，接收处见 [_generate](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L301-L307)。若评分或退出抛异常，这条正常返回路径会被打断；不能把所有异常都写成零分。后端退出接口被等待，也不等于已经验证了真实远端资源的回收。
+
+本段以原始函数配合替身验证正常成功、测试零分、补丁失败、评分异常、无评分材料和退出异常，未运行真实沙箱或测试命令。
 
 ## 8．导出结果，再清理 Session
 

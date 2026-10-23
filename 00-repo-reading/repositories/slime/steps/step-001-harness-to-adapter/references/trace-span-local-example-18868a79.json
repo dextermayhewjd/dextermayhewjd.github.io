@@ -1,0 +1,99 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "method": "Run original trace_span with two nested local spans. Business work is omitted; this is not a complete _run_turn execution. Separately verify exception propagation with record_error=False.",
+  "input_carrier": {
+    "version": 1,
+    "trace_id": "demo-trace",
+    "events": [],
+    "sample_id": null,
+    "group_id": null,
+    "attempt": 0
+  },
+  "normal_carrier": {
+    "version": 1,
+    "trace_id": "demo-trace",
+    "events": [
+      {
+        "type": "span_start",
+        "name": "agent_model_turn",
+        "ts": 1792743393.7085443,
+        "trace_id": "demo-trace",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "ae95df986f314b91b4cd608990d49e85"
+      },
+      {
+        "type": "span_start",
+        "name": "agent_tokenize",
+        "ts": 1792743393.7085767,
+        "trace_id": "demo-trace",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "d8e97336d0a4486b80f528934eb0726d",
+        "parent_span_id": "ae95df986f314b91b4cd608990d49e85"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_tokenize",
+        "ts": 1792743393.7085881,
+        "trace_id": "demo-trace",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "d8e97336d0a4486b80f528934eb0726d"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_model_turn",
+        "ts": 1792743393.7085934,
+        "trace_id": "demo-trace",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "ae95df986f314b91b4cd608990d49e85"
+      }
+    ],
+    "sample_id": null,
+    "group_id": null,
+    "attempt": 0
+  },
+  "span_aliases": {
+    "outer": "ae95df986f314b91b4cd608990d49e85",
+    "inner": "d8e97336d0a4486b80f528934eb0726d"
+  },
+  "yielded_type": "TraceSpanContext",
+  "closed_after_exit": true,
+  "exception_propagated": true,
+  "error_carrier": {
+    "version": 1,
+    "trace_id": "demo-error",
+    "events": [
+      {
+        "type": "span_start",
+        "name": "agent_model_turn",
+        "ts": 1792743393.708621,
+        "trace_id": "demo-error",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "a41a2ef713464e139a300138e4a816ae"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_model_turn",
+        "ts": 1792743393.708631,
+        "trace_id": "demo-error",
+        "sample_id": null,
+        "group_id": null,
+        "attempt": 0,
+        "span_id": "a41a2ef713464e139a300138e4a816ae"
+      }
+    ],
+    "sample_id": null,
+    "group_id": null,
+    "attempt": 0
+  },
+  "stacks_restored": true
+}

@@ -1,0 +1,275 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "method": "Imported current original function and classes; used local aiohttp HTTP test server with constructed token IDs and responses. No real CLI, tokenizer encoding or model inference. Random request IDs normalized in saved output.",
+  "scenarios": [
+    {
+      "name": "normal_stop",
+      "partial_rollout": false,
+      "max_context_tokens": 6,
+      "requests": [
+        {
+          "payload": {
+            "rid": "00000000000000000000000000000001",
+            "input_ids": [
+              101,
+              102,
+              103
+            ],
+            "sampling_params": {
+              "skip_special_tokens": false,
+              "spaces_between_special_tokens": false,
+              "no_stop_trim": true,
+              "max_new_tokens": 3,
+              "temperature": 0.2
+            },
+            "return_logprob": true
+          },
+          "routing_key": "demo-session"
+        }
+      ],
+      "turn": {
+        "prompt_ids": [
+          101,
+          102,
+          103
+        ],
+        "output_ids": [
+          701,
+          702
+        ],
+        "finish_reason": "stop",
+        "output_log_probs": [
+          -0.2,
+          -0.5
+        ],
+        "ill_formed": false,
+        "replay": null,
+        "weight_versions": [],
+        "spec_info": {
+          "spec_accept_token_num": 0,
+          "spec_draft_token_num": 0,
+          "spec_verify_ct": 0,
+          "completion_token_num": 0
+        },
+        "prefix_cache_info": {
+          "cached_tokens": 0,
+          "total_prompt_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "abort_then_stop",
+      "partial_rollout": true,
+      "max_context_tokens": 6,
+      "requests": [
+        {
+          "payload": {
+            "rid": "00000000000000000000000000000001",
+            "input_ids": [
+              101,
+              102,
+              103
+            ],
+            "sampling_params": {
+              "skip_special_tokens": false,
+              "spaces_between_special_tokens": false,
+              "no_stop_trim": true,
+              "max_new_tokens": 3,
+              "temperature": 0.2
+            },
+            "return_logprob": true
+          },
+          "routing_key": "demo-session"
+        },
+        {
+          "payload": {
+            "rid": "00000000000000000000000000000002",
+            "input_ids": [
+              101,
+              102,
+              103,
+              701
+            ],
+            "sampling_params": {
+              "skip_special_tokens": false,
+              "spaces_between_special_tokens": false,
+              "no_stop_trim": true,
+              "max_new_tokens": 2,
+              "temperature": 0.2
+            },
+            "return_logprob": true
+          },
+          "routing_key": "demo-session"
+        }
+      ],
+      "turn": {
+        "prompt_ids": [
+          101,
+          102,
+          103
+        ],
+        "output_ids": [
+          701,
+          702
+        ],
+        "finish_reason": "stop",
+        "output_log_probs": [
+          -0.2,
+          -0.5
+        ],
+        "ill_formed": false,
+        "replay": null,
+        "weight_versions": [],
+        "spec_info": {
+          "spec_accept_token_num": 0,
+          "spec_draft_token_num": 0,
+          "spec_verify_ct": 0,
+          "completion_token_num": 0
+        },
+        "prefix_cache_info": {
+          "cached_tokens": 0,
+          "total_prompt_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "abort_without_partial_rollout",
+      "partial_rollout": false,
+      "max_context_tokens": 6,
+      "requests": [
+        {
+          "payload": {
+            "rid": "00000000000000000000000000000001",
+            "input_ids": [
+              101,
+              102,
+              103
+            ],
+            "sampling_params": {
+              "skip_special_tokens": false,
+              "spaces_between_special_tokens": false,
+              "no_stop_trim": true,
+              "max_new_tokens": 3,
+              "temperature": 0.2
+            },
+            "return_logprob": true
+          },
+          "routing_key": "demo-session"
+        }
+      ],
+      "turn": {
+        "prompt_ids": [
+          101,
+          102,
+          103
+        ],
+        "output_ids": [
+          701
+        ],
+        "finish_reason": "abort",
+        "output_log_probs": [
+          -0.2
+        ],
+        "ill_formed": false,
+        "replay": null,
+        "weight_versions": [],
+        "spec_info": {
+          "spec_accept_token_num": 0,
+          "spec_draft_token_num": 0,
+          "spec_verify_ct": 0,
+          "completion_token_num": 0
+        },
+        "prefix_cache_info": {
+          "cached_tokens": 0,
+          "total_prompt_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "abort_at_turn_budget",
+      "partial_rollout": true,
+      "max_context_tokens": 6,
+      "requests": [
+        {
+          "payload": {
+            "rid": "00000000000000000000000000000001",
+            "input_ids": [
+              101,
+              102,
+              103
+            ],
+            "sampling_params": {
+              "skip_special_tokens": false,
+              "spaces_between_special_tokens": false,
+              "no_stop_trim": true,
+              "max_new_tokens": 3,
+              "temperature": 0.2
+            },
+            "return_logprob": true
+          },
+          "routing_key": "demo-session"
+        }
+      ],
+      "turn": {
+        "prompt_ids": [
+          101,
+          102,
+          103
+        ],
+        "output_ids": [
+          701,
+          702,
+          703
+        ],
+        "finish_reason": "length",
+        "output_log_probs": [
+          -0.2,
+          -0.5,
+          -0.3
+        ],
+        "ill_formed": false,
+        "replay": null,
+        "weight_versions": [],
+        "spec_info": {
+          "spec_accept_token_num": 0,
+          "spec_draft_token_num": 0,
+          "spec_verify_ct": 0,
+          "completion_token_num": 0
+        },
+        "prefix_cache_info": {
+          "cached_tokens": 0,
+          "total_prompt_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "no_context_left",
+      "partial_rollout": true,
+      "max_context_tokens": 3,
+      "requests": [],
+      "turn": {
+        "prompt_ids": [
+          101,
+          102,
+          103
+        ],
+        "output_ids": [],
+        "finish_reason": "length",
+        "output_log_probs": [],
+        "ill_formed": false,
+        "replay": null,
+        "weight_versions": [],
+        "spec_info": {
+          "spec_accept_token_num": 0,
+          "spec_draft_token_num": 0,
+          "spec_verify_ct": 0,
+          "completion_token_num": 0
+        },
+        "prefix_cache_info": {
+          "cached_tokens": 0,
+          "total_prompt_tokens": 0
+        }
+      }
+    }
+  ]
+}

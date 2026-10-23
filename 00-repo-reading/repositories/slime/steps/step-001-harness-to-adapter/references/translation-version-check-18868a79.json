@@ -1,0 +1,174 @@
+{
+  "old_revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "new_revision": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "method": "Execute exact AST nodes for the concrete _translate method and four pure helpers; no module import, CLI, tokenizer or network model invocation.",
+  "checks": [
+    "base_and_concrete_interfaces_and_tool_schema_converter_unchanged",
+    "existing_single_tool_card_example_equal_in_both_versions",
+    "known_parallel_results_sorted_by_call_order",
+    "unknown_id_group_keeps_input_order",
+    "consecutive_user_messages_share_pending_results",
+    "text_boundary_preserves_conversation_order"
+  ],
+  "parallel_case": {
+    "input": {
+      "system": [
+        {
+          "type": "text",
+          "text": "你是代码助手。"
+        }
+      ],
+      "messages": [
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_a",
+              "name": "read_file",
+              "input": {
+                "path": "A.py"
+              }
+            },
+            {
+              "type": "tool_use",
+              "id": "toolu_b",
+              "name": "read_file",
+              "input": {
+                "path": "B.py"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "toolu_b",
+              "content": "B 的内容"
+            },
+            {
+              "type": "tool_result",
+              "tool_use_id": "toolu_a",
+              "content": "A 的内容"
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "name": "read_file",
+          "description": "读取文件",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ]
+          }
+        }
+      ]
+    },
+    "old_translated": [
+      {
+        "role": "system",
+        "content": "你是代码助手。"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "arguments": {
+                "path": "A.py"
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "arguments": {
+                "path": "B.py"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "content": "B 的内容"
+      },
+      {
+        "role": "tool",
+        "content": "A 的内容"
+      }
+    ],
+    "new_translated": [
+      {
+        "role": "system",
+        "content": "你是代码助手。"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "arguments": {
+                "path": "A.py"
+              }
+            }
+          },
+          {
+            "type": "function",
+            "function": {
+              "name": "read_file",
+              "arguments": {
+                "path": "B.py"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "content": "A 的内容"
+      },
+      {
+        "role": "tool",
+        "content": "B 的内容"
+      }
+    ],
+    "tools_schema": [
+      {
+        "type": "function",
+        "function": {
+          "name": "read_file",
+          "description": "读取文件",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

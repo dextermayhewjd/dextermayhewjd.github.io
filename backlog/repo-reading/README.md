@@ -4,6 +4,34 @@
 
 ## 当前从哪里继续
 
+最新衔接讨论：[运行时输入与前序认识需要区分](2026-10-20-task-driven-cognitive-architecture/discussion.md#scope-runtime-input-vs-prior-knowledge)。Step 003 的输入来路原先预设过多，已改为先接前两步的内容，再补最小任务字典；暂未涉及的构造保持明确未知。
+
+最新样例落实：[Step 001 与 Step 002 都作为已认可的完整 scope](2026-10-20-task-driven-cognitive-architecture/discussion.md#scope-two-approved-examples)。两份原正文保留，分别完整收录到 skill reference；后续按问题参考主线阅读与输入来源回查的组织方式。
+
+最新落实：[Step 001 的阅读图与执行总结分开维护](2026-10-20-task-driven-cognitive-architecture/discussion.md#step-one-reading-map-applied)。scope 3.4 已在原 12 项导航前补图，task flow 按 `18868a79` 校准执行与交接；旧版全文归档，函数卡片和长期记忆保留。
+
+最新归属落实：[阅读路径图移入 scope](2026-10-20-task-driven-cognitive-architecture/discussion.md#reading-path-moved-to-scope)。用户已确认，图与函数导航现位于 Step 002 的 scope 3.4；task flow 保留执行与结果总结，并从旧入口链接到新位置，04-flow 保存实际形成过程。
+
+此前格式落实：[Step 002 增加阅读路径图，保留执行图](2026-10-20-task-driven-cognitive-architecture/discussion.md#task-flow-reading-path-applied)。用户已确认将“为什么回查、如何返回主线”独立成图，与真实调用关系分别展示；随后按上面的归属确认移入 scope，通用 skill 与其他步骤尚未修改。
+
+最新职责讨论：[函数卡只连接跨函数机制](2026-10-20-task-driven-cognitive-architecture/discussion.md#function-mechanism-note-boundary)。围绕当前输入输出理解函数；统计如何产生与更新集中保存在机制 reference。已在 Step 002 做局部修正，更多机制记录的通用规则仍作为建议。
+
+最新范围调整：[运行统计与补丁提取单独成为新 Step 002](2026-10-20-task-driven-cognitive-architecture/discussion.md#agent-results-separate-step)。用户希望先看清两个调用各自发生什么，评测保持独立；原 Step 002–008 顺延，历史编号与快照的解释见[对照表](../../00-repo-reading/repositories/slime/step-numbering-2026-10-23.md)。
+
+后续专题候选：[Coding Agent 的执行追踪基础设施](2026-10-20-task-driven-cognitive-architecture/discussion.md#trace-infrastructure-topic)。用户提出日后单独阅读 `trace_span`，接入已有 Trace 与验证专题；具体接续以项目唯一路线为准。
+
+最新确认：[Slime 每个 step 都要按新版重新校准](2026-10-20-task-driven-cognitive-architecture/discussion.md#slime-all-steps-recalibration)。覆盖 Step 0–8，核对入口、输入输出、配置与调用关系；已先整理 Step 0，旧版与未迁移的函数记忆保留。
+
+最新落实：[将 Step 007 的调用层级图保存为新 reference](2026-10-20-task-driven-cognitive-architecture/discussion.md#task-flow-hierarchy-reference)。嵌套调用先展示入口的直接部分，再在每个分支下展开子调用、作用与返回；Step 003 继续作为整体四部分结构的主样例。
+
+此前落实：[以 Step 003 为主要 reference 建立 task-flow skill](2026-10-20-task-driven-cognitive-architecture/discussion.md#task-flow-step-three-reference)。已保存完整样例并接入阅读入口，固定位置、交接、结果和收束四部分；本次进一步明确调用层级图的用法。
+
+此前比较：[参考 Step 1–5 的 task flow 格式](2026-10-20-task-driven-cognitive-architecture/discussion.md#task-flow-step-one-to-five-review)。已有成稿形成了“整体总结、位置、交接、结果、收束、来源”的共同结构；当时尚未确定主要 reference，现由上述确认接续。
+
+此前要求：[task flow 需要固定格式](2026-10-20-task-driven-cognitive-architecture/discussion.md#task-flow-fixed-format)。人的总结与稳定格式同时需要；现已按上述样例落实。
+
+最新确认：[本步用到的旧函数也进入短期记忆](2026-10-20-task-driven-cognitive-architecture/discussion.md#reactivate-prior-function-memory)。即使没有新认识，也可从 `03` 调取完整卡片到 `02`，由本步入口直接链接；原快照、来源与认识时间保留。已用 Step 7 的 `ensure_agent_user` 落实并同步现有规则。
+
 最新试用：[确认建立 E2BSandbox 类卡片](2026-10-20-task-driven-cognitive-architecture/discussion.md#e2b-class-card-created)。用户已确认在 Step 005 中独立保存对象状态与操作入口，父函数通过链接复用，已有方法卡保留。成稿待反馈，通用 skill 尚未修改。
 
 此前试用：[确认类卡片方向，以 Session 试用](2026-10-20-task-driven-cognitive-architecture/discussion.md#session-class-card-trial)。Session 的主体说明进入 Step 004 的 `02/classes/`，原 reference 保留导航与语法依据。

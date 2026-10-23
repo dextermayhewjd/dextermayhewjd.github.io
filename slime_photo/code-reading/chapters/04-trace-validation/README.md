@@ -31,3 +31,14 @@
 **验收问题：** 一次任务失败，日志、Trace、样本状态和评分结果各回答什么？复现实验需要保存哪些配置与产物？
 
 **证据状态：** 文件与符号已静态定位；建议的行为验证尚未执行，阅读反馈与运行证据统一见[当前接续](../../repo-reading-route.md#当前接续)。
+
+
+<a id="coding-agent-trace-candidate"></a>
+
+## 后续候选：沿 Coding Agent 阅读执行追踪
+
+2026-10-23，用户在 Step 1 新版校准中提出日后单独阅读 `trace_span`，将其视为跨模块的基础设施。原话、版本核对与范围建议见[讨论记录](../../../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#trace-infrastructure-topic)。本节只是本专题的场景候选，开读时间与实际进度仍见[唯一路线](../../repo-reading-route.md#当前接续)。
+
+建议先用一轮模型请求串起三个问题：一个 span 保存什么；不同执行阶段怎样关联；记录怎样导出并用于诊断。已有业务调用作为上下文，不同时展开整个日志、指标和测试体系。训练用 `TurnRecord` / manager 的轨迹模型独立保留。
+
+新版定位：[trace_span](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L345) → [_run_turn 的接入](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L410-L423) → [任务层的导出](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L225-L251)。工具在旧版已存在，新增接入与实现变化分别核对。Step 1 已补充 [trace_span 局部函数卡片](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/observability/trace_utils.py/trace_span.md)，先解释包围关系及事件去向；本专题的完整传播、导出和查看仍未展开，也未另建新 step。

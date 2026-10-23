@@ -1,12 +1,42 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新衔接讨论：[输入存在不等于已经讲清](discussion.md#scope-runtime-input-vs-prior-knowledge)。Step 003 先对照前两步实际涉及的内容，再补本步最小输入模型；源码来路与暂未展开部分分别处理，原 skill 和认可样例保留。
+
+最新样例落实：[Step 001、Step 002 并列作为完整 scope reference](discussion.md#scope-two-approved-examples)。用户认可两份现有 scope；原正文保留，skill 分别提供主线阅读与回查输入来源的参考入口。
+
+最新落实：[Step 001 的阅读图与执行总结](discussion.md#step-one-reading-map-applied)。scope 3.4 保留原 12 项表格并补充阅读图；task flow 按 `18868a79` 的执行关系和数据交接整理，旧版全文独立保存。函数卡片、长期记忆及通用 skill 未随之改写。
+
+最新归属落实：[阅读路径图已移入 scope](discussion.md#reading-path-moved-to-scope)。用户确认后，图与函数导航已合并到 Step 002 的 scope 3.4；task flow 保留执行图并引用导航，实际阅读历史留在 04-flow，通用 skill 未修改。
+
+此前格式落实：[Step 002 同时展示阅读路径与执行关系](discussion.md#task-flow-reading-path-applied)。最初将两图放在 task flow，随后按上面的归属确认将阅读图移入 scope，通用 skill 与其他步骤尚未修改。[原始讨论](discussion.md#task-flow-reading-path-review)保留方案由来。
+
+最新职责讨论：[函数卡与跨函数机制分开](discussion.md#function-mechanism-note-boundary)。`collect_metrics` 保留本次调用的输入输出，统计的初始化与运行中更新移入机制 reference；用户已知 hook，当前聚焦本项目中的协作关系。未增加新的 memory 类型或改写 skill。
+
+最新范围调整：[结果收集独立成步](discussion.md#agent-results-separate-step)。新 Step 002 按 `collect_metrics → git_diff` 看清每项输入、行为与输出，评测顺延为 Step 003；历史编号和快照保留其语境。
+
+后续专题候选：[执行追踪基础设施](discussion.md#trace-infrastructure-topic)。保存用户对 `trace_span` 的独立阅读建议，沿一次 Coding Agent 任务理解记录、关联与导出；尚未开启新的 step。
+
+最新确认：[Step 0–8 都要重新校准](discussion.md#slime-all-steps-recalibration)。已保存全体短期卡片盘点，并先校准 Step 0、归档其旧版；逐步正文校准与用户理解反馈分开，当前接续见唯一路线。
+
+最新讨论：[Slime 更新后如何校准既有理解](discussion.md#slime-version-update-impact)。已完成旧版 `2f231865` 与当前 `18868a79` 的静态比较；建议保留各步职责与旧记忆，先校准整体入口，再按影响补读。具体迁移尚待用户选择。
+
+最新落实：[Step 007 作为调用层级的新 reference](discussion.md#task-flow-hierarchy-reference)。已将认可的完整 task flow 单独保存；入口的直接部分、内部子调用和逐层返回应在主图中看清。Step 003 继续负责整体四部分结构，分支数量与深度按具体源码确定。
+
+此前落实：[Step 003 作为 task flow 的主要 reference](discussion.md#task-flow-step-three-reference)。已建立 [repo-reading-task-flow](../../../.agents/skills/repo-reading-task-flow/SKILL.md)，单独保留完整样例并接入已有阅读技能；旧步骤与学习进度保持原状。
+
+此前比较：[从 Step 1–5 提取 task flow 共同格式](discussion.md#task-flow-step-one-to-five-review)。建议保留开头整体总结、四部分正文与折叠来源，以 Step 3 为主样例，Step 4、5 补状态和生命周期变体；本次随后落实主要 reference，既有成稿保留。
+
+此前要求：[task flow 由人形成总结，同时需要固定格式](discussion.md#task-flow-fixed-format)。已确认需要稳定格式；其后的四部分安排与图示选择已随主要 reference 写入 skill。
+
+最新确认：[本步用到的旧函数也进入短期记忆](discussion.md#reactivate-prior-function-memory)。`02` 收录本步正在使用的新旧记录，`03` 保留累计快照；以 Step 7 的 `ensure_agent_user` 落实调取与直接导航，纯调取不改变认识时间。
+
 最新试用：[确认建立 E2BSandbox 类卡片](discussion.md#e2b-class-card-created)。用户已确认沿用 Session 的方式，在 Step 005 中独立保存对象状态与操作入口；父函数引用类卡，进入、退出复用已有记录。成稿待反馈，通用 skill 未改。[此前分工建议](discussion.md#e2b-object-card-boundary)保留。
 
 最新落实：[scope skill 增加局部导航分支](discussion.md#scope-local-navigation-branch)。用户已要求将分支写入现有 skill；新增“整体位置 → 局部骨架 → 阅读导航”的条件分支，并单独保存 [reference](../../../.agents/skills/repo-reading-scope/references/local-call-context.md)。整体概览与简单调用保留相应的精简方式，既有学习步骤未改写。
 
 此前 scope 复核：[暂不填写函数卡片，仍需保留局部阅读地图](discussion.md#scope-map-without-function-cards)。Step 005 初稿遗漏本步局部骨架与导航，已按前几步的结构补齐；该轮只修改当前材料，随后由上述确认接续到 skill。
 
-最新试用：[确认类卡片方向，以 Session 试用](discussion.md#session-class-card-trial)。用户已要求生成卡片；Step 004 的 `02/classes/` 现保存 [Session 类卡片](../../../00-repo-reading/repositories/slime/steps/step-004-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，原 reference 保留入口与语法依据。当前成稿待反馈，通用 skill 与旧快照未改写。
+最新试用：[确认类卡片方向，以 Session 试用](discussion.md#session-class-card-trial)。用户已要求生成卡片；Step 004 的 `02/classes/` 现保存 [Session 类卡片](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，原 reference 保留入口与语法依据。当前成稿待反馈，通用 skill 与旧快照未改写。
 
 此前讨论：[源码中的类与 reference 怎样分工](discussion.md#class-memory-vs-reference)。用户指出 Session 是实际定义的 dataclass，不应仅因它不是函数就归为补充参考；由此提出区分类型定义、场景变量和补充材料的方案。
 

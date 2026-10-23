@@ -1,0 +1,480 @@
+{
+  "revisions": [
+    "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+    "18868a79b0b083a093798a94ed0f8cb4f71b9c14"
+  ],
+  "definitions": {
+    "2f2318653f6f794dddd321eff7c9d4b7b174643f": {
+      "ParsedModelOutput": {
+        "file": "slime/agent/parsing.py",
+        "start": 16,
+        "end": 22,
+        "sha256": "794d2fd051d372f3c1ed0a1c582752fc20b50e760c4c48360994d3fc9bcc7ae4"
+      },
+      "Reply": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 46,
+        "end": 55,
+        "sha256": "2f832b9b97199d5731b109361dafb8d189f2e0eee60d4ccf4653230a67f30967"
+      },
+      "tool_call_dict": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 110,
+        "end": 118,
+        "sha256": "24026ed3a601c9553bb5307742911b400aae445058f601266e272e687553a70c"
+      },
+      "manager_finish_reason": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 121,
+        "end": 124,
+        "sha256": "8f99d1eb157ad222e9e7d9448d458e7b5d87dafd9bfc78aa8addc7de5338aee8"
+      },
+      "AnthropicAdapter._build_reply": {
+        "file": "slime/agent/adapters/anthropic.py",
+        "start": 63,
+        "end": 69,
+        "sha256": "5633a4d6bae3a6f3bf7bf52db043905ab976df3e36d91b06103f1cfb1646c2a5"
+      },
+      "_build_reply_parts": {
+        "file": "slime/agent/adapters/anthropic.py",
+        "start": 147,
+        "end": 186,
+        "sha256": "d655a7e14f88dea9b43957cbfee7893cd44d7657c72dec71863091088703a49c"
+      }
+    },
+    "18868a79b0b083a093798a94ed0f8cb4f71b9c14": {
+      "ParsedModelOutput": {
+        "file": "slime/agent/parsing.py",
+        "start": 16,
+        "end": 22,
+        "sha256": "794d2fd051d372f3c1ed0a1c582752fc20b50e760c4c48360994d3fc9bcc7ae4"
+      },
+      "Reply": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 61,
+        "end": 70,
+        "sha256": "2f832b9b97199d5731b109361dafb8d189f2e0eee60d4ccf4653230a67f30967"
+      },
+      "tool_call_dict": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 173,
+        "end": 181,
+        "sha256": "24026ed3a601c9553bb5307742911b400aae445058f601266e272e687553a70c"
+      },
+      "manager_finish_reason": {
+        "file": "slime/agent/adapters/common.py",
+        "start": 184,
+        "end": 187,
+        "sha256": "8f99d1eb157ad222e9e7d9448d458e7b5d87dafd9bfc78aa8addc7de5338aee8"
+      },
+      "AnthropicAdapter._build_reply": {
+        "file": "slime/agent/adapters/anthropic.py",
+        "start": 63,
+        "end": 69,
+        "sha256": "5633a4d6bae3a6f3bf7bf52db043905ab976df3e36d91b06103f1cfb1646c2a5"
+      },
+      "_build_reply_parts": {
+        "file": "slime/agent/adapters/anthropic.py",
+        "start": 170,
+        "end": 209,
+        "sha256": "d655a7e14f88dea9b43957cbfee7893cd44d7657c72dec71863091088703a49c"
+      }
+    }
+  },
+  "cases": {
+    "2f2318653f6f794dddd321eff7c9d4b7b174643f": {
+      "reasoning_text_tool": {
+        "input": {
+          "reasoning": "需要先读取 README.md。",
+          "text": "我先读取文件。",
+          "tool_uses": [
+            {
+              "name": "read_file",
+              "input": {
+                "path": "README.md"
+              }
+            }
+          ],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "我先读取文件。",
+            "reasoning_content": "需要先读取 README.md。",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": {
+                    "path": "README.md"
+                  }
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls",
+          "wire": [
+            [
+              {
+                "type": "thinking",
+                "thinking": "需要先读取 README.md。"
+              },
+              {
+                "type": "text",
+                "text": "我先读取文件。"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_b3d7a4c52ea80076",
+                "name": "read_file",
+                "input": {
+                  "path": "README.md"
+                }
+              }
+            ],
+            "tool_use"
+          ]
+        }
+      },
+      "plain_text": {
+        "input": {
+          "reasoning": "",
+          "text": "这是一个学习项目。<|im_end|>",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "这是一个学习项目。<|im_end|>"
+          },
+          "finish_reason": "stop",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": "这是一个学习项目。<|im_end|>"
+              }
+            ],
+            "end_turn"
+          ]
+        }
+      },
+      "plain_length": {
+        "input": {
+          "reasoning": "",
+          "text": "这是一个学习项目。<|im_end|>",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "length",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "这是一个学习项目。<|im_end|>"
+          },
+          "finish_reason": "length",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": "这是一个学习项目。<|im_end|>"
+              }
+            ],
+            "max_tokens"
+          ]
+        }
+      },
+      "tool_length": {
+        "input": {
+          "reasoning": "需要先读取 README.md。",
+          "text": "我先读取文件。",
+          "tool_uses": [
+            {
+              "name": "read_file",
+              "input": {
+                "path": "README.md"
+              }
+            }
+          ],
+          "ill_formed": false
+        },
+        "raw_finish": "length",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "我先读取文件。",
+            "reasoning_content": "需要先读取 README.md。",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": {
+                    "path": "README.md"
+                  }
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls",
+          "wire": [
+            [
+              {
+                "type": "thinking",
+                "thinking": "需要先读取 README.md。"
+              },
+              {
+                "type": "text",
+                "text": "我先读取文件。"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_56aa75503435664e",
+                "name": "read_file",
+                "input": {
+                  "path": "README.md"
+                }
+              }
+            ],
+            "tool_use"
+          ]
+        }
+      },
+      "empty": {
+        "input": {
+          "reasoning": "",
+          "text": "",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "finish_reason": "stop",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": ""
+              }
+            ],
+            "end_turn"
+          ]
+        }
+      }
+    },
+    "18868a79b0b083a093798a94ed0f8cb4f71b9c14": {
+      "reasoning_text_tool": {
+        "input": {
+          "reasoning": "需要先读取 README.md。",
+          "text": "我先读取文件。",
+          "tool_uses": [
+            {
+              "name": "read_file",
+              "input": {
+                "path": "README.md"
+              }
+            }
+          ],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "我先读取文件。",
+            "reasoning_content": "需要先读取 README.md。",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": {
+                    "path": "README.md"
+                  }
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls",
+          "wire": [
+            [
+              {
+                "type": "thinking",
+                "thinking": "需要先读取 README.md。"
+              },
+              {
+                "type": "text",
+                "text": "我先读取文件。"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_2e700a8528a2e56e",
+                "name": "read_file",
+                "input": {
+                  "path": "README.md"
+                }
+              }
+            ],
+            "tool_use"
+          ]
+        }
+      },
+      "plain_text": {
+        "input": {
+          "reasoning": "",
+          "text": "这是一个学习项目。<|im_end|>",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "这是一个学习项目。<|im_end|>"
+          },
+          "finish_reason": "stop",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": "这是一个学习项目。<|im_end|>"
+              }
+            ],
+            "end_turn"
+          ]
+        }
+      },
+      "plain_length": {
+        "input": {
+          "reasoning": "",
+          "text": "这是一个学习项目。<|im_end|>",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "length",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "这是一个学习项目。<|im_end|>"
+          },
+          "finish_reason": "length",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": "这是一个学习项目。<|im_end|>"
+              }
+            ],
+            "max_tokens"
+          ]
+        }
+      },
+      "tool_length": {
+        "input": {
+          "reasoning": "需要先读取 README.md。",
+          "text": "我先读取文件。",
+          "tool_uses": [
+            {
+              "name": "read_file",
+              "input": {
+                "path": "README.md"
+              }
+            }
+          ],
+          "ill_formed": false
+        },
+        "raw_finish": "length",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": "我先读取文件。",
+            "reasoning_content": "需要先读取 README.md。",
+            "tool_calls": [
+              {
+                "type": "function",
+                "function": {
+                  "name": "read_file",
+                  "arguments": {
+                    "path": "README.md"
+                  }
+                }
+              }
+            ]
+          },
+          "finish_reason": "tool_calls",
+          "wire": [
+            [
+              {
+                "type": "thinking",
+                "thinking": "需要先读取 README.md。"
+              },
+              {
+                "type": "text",
+                "text": "我先读取文件。"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_98c47ff6a3c817e7",
+                "name": "read_file",
+                "input": {
+                  "path": "README.md"
+                }
+              }
+            ],
+            "tool_use"
+          ]
+        }
+      },
+      "empty": {
+        "input": {
+          "reasoning": "",
+          "text": "",
+          "tool_uses": [],
+          "ill_formed": false
+        },
+        "raw_finish": "stop",
+        "reply": {
+          "manager_message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "finish_reason": "stop",
+          "wire": [
+            [
+              {
+                "type": "text",
+                "text": ""
+              }
+            ],
+            "end_turn"
+          ]
+        }
+      }
+    }
+  },
+  "checks": {
+    "five_cases_match_except_random_ids": true,
+    "selected_definitions_identical": true,
+    "inputs_unchanged": true
+  },
+  "limits": [
+    "Executed unmodified selected definitions from both fixed source revisions with their direct dependencies.",
+    "No HTTP server, model generation or tool execution.",
+    "Only the Anthropic implementation; the OpenAI-specific implementation was not reviewed.",
+    "Random wire tool IDs are validated by format and normalized only for comparison."
+  ],
+  "callsite": {
+    "before": 353,
+    "after": 432,
+    "new_caller_usage": "common.py:470-472 copies translated + [reply.manager_message] into PromptPrefix; the builder return contract is unchanged."
+  }
+}

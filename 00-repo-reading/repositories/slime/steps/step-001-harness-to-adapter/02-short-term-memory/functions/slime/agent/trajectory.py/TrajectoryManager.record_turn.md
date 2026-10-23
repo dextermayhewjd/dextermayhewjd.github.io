@@ -1,14 +1,15 @@
 # TrajectoryManager.record_turn
 
-- 源码定位：[slime/agent/trajectory.py:283–305](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L283-L305)，由助手核对。
+- 源码定位：[slime/agent/trajectory.py:381–403](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L381-L403)，由助手核对。
 - 首次接触：Step 1，2026-10-21，用户指定接续 `_run_turn` 中的 `manager.record_turn`。
 - 最近认识更新：2026-10-21，用户提出“每轮信息交给 manager，逐步接入树并复用已有部分”的初步理解，随后从分叉联想到按成功率延长或剪除路径；当前记录树与搜索决策的职责区别由助手补充，尚待反馈。
+- 最近源码校准：2026-10-23。记录入口、四个辅助方法及节点类型未变化；补充 `TurnRecord` 新字段和 Coding Agent 默认关闭历史改写合并的场景差异。[旧卡片](../../../../../references/record-turn-at-2f231865.md)保留。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
 以下由 LLM 根据当前源码与本页局部例子整理，作为理解参考。
 
-1. **使用场合**：`_run_turn` 已取得 `_respond` 返回的响应对象，并执行调试回调，现在把本轮生成留在轨迹管理器中，随后返回 HTTP 响应。`self.manager` 是 Adapter 初始化时创建的 `TrajectoryManager`，内部按 `sid` 区分会话。
+1. **使用场合**：`_run_turn` 已取得 `_respond` 返回的响应对象，并执行调试回调，现在把本轮生成留在轨迹管理器中，随后由调用方保存前缀并返回 HTTP 响应。`self.manager` 是 Adapter 初始化时创建的 `TrajectoryManager`，内部按 `sid` 区分会话。
 
 2. **具体内容**：用输入消息在该会话的消息树中找到位置，补上尚未记录的消息，再接入本轮 assistant 节点。节点保存内部回复消息、`TurnRecord`、元数据和轮次编号；会话计数随之增加。
 
@@ -18,7 +19,7 @@
    >
    > 消息决定接到哪里，`TurnRecord` 保存本轮的 token 与生成信息。函数返回 `None`，记录结果留在 `manager` 的内部状态中，供后续整理训练样本。
 
-4. **调用代码**（`common.py:384–391`）：
+4. **调用代码**（`common.py:463–473`，省略调用方保存前缀的语句）：
 
    ```python
    self.manager.record_turn(
@@ -28,6 +29,7 @@
        response_message=reply.manager_message,
        metadata={"sid": sid},
    )
+   ...  # 调用方保存 PromptPrefix，供后续请求接续
    return response
    ```
 
@@ -64,9 +66,9 @@ turn = TurnRecord(
 metadata = {"sid": sid}
 ```
 
-消息沿用前卡；为验证存储，这里单独构造 100 个输入编号、40 个输出编号及对应 logprob，与前卡的 `100/40` 数量一致。重复的 `101`、`701` 和 `-0.2` 都是占位值，不能据此推断文本的真实编码或生成概率。实际调用传入的是生成阶段已有、又由 `_run_turn` 补过 `ill_formed` 的 `turn`。
+消息沿用前卡；为验证存储，这里单独构造 100 个输入编号、40 个输出编号及对应 logprob，与前卡的 `100/40` 数量一致。重复的 `101`、`701` 和 `-0.2` 都是占位值，不能据此推断文本的真实编码或生成概率。实际调用传入的是生成阶段已有、又由 `_run_turn` 补过 `ill_formed` 的 `turn`。新版还包含 `replay`、`weight_versions`、`spec_info`、`prefix_cache_info`，上例省略的这些字段使用各自默认值；本函数不重新计算它们，挂入的是整份 `turn`。
 
-**输出：返回值为 `None`，变化保存在 manager 中。** 本例使用新建的 `TrajectoryManager()`，调用前 `_trees` 和 `_turn_count` 都为空。调用后，可把它的状态画成下面这样（对象关系示意，不是实际打印格式）：
+**输出：返回值为 `None`，变化保存在 manager 中。** 本例使用新建的 `TrajectoryManager(fork_threshold_tokens=0)`，与新版 Coding Agent 未设置合并环境变量时的配置一致；调用前 `_trees` 和 `_turn_count` 都为空。调用后，可把它的状态画成下面这样（对象关系示意，不是实际打印格式）：
 
 ```text
 manager._trees["demo-session"]        # 此会话的根节点
@@ -83,11 +85,11 @@ manager._turn_count = {"demo-session": 1}
 返回值：None
 ```
 
-**节点与轮次。** 树主要按消息建节点，一次调用可能补入多个输入消息节点，再新增本轮 assistant 节点。`system` 和 `user` 节点保存输入消息，`turn` 为 `None`；本轮新生成的 assistant 节点同时保存回复消息和整份 `turn`。因此，`turn.prompt_ids`、`output_ids`、`output_log_probs`、`finish_reason`、`ill_formed` 都随这份记录保留。本版本直接保存传入的消息和 `turn` 对象，元数据另建字典。
+**节点与轮次。** 树主要按消息建节点，一次调用可能补入多个输入消息节点，再新增本轮 assistant 节点。`system` 和 `user` 节点保存输入消息，`turn` 为 `None`；本轮新生成的 assistant 节点同时保存回复消息和整份 `turn`。因此，`turn.prompt_ids`、`output_ids`、`output_log_probs`、`finish_reason`、`ill_formed` 都随这份记录保留。本版本直接保存传入的消息和 `turn` 对象，元数据另建字典；上述四个新增字段也随同一份 `turn` 保留。
 
 <a id="first-record-flow"></a>
 
-**内部怎样得到这个结果？** 下面摘录 `trajectory.py:300–305`，增加阅读注释；输入检查见折叠来源。
+**内部怎样得到这个结果？** 下面摘录 `trajectory.py:398–403`，增加阅读注释；输入检查见折叠来源。
 
 ```python
 # 取出该 sid 的根节点；没有时新建
@@ -105,7 +107,9 @@ self._attach_assistant_leaf(sid, node, turn=turn, response_message=response_mess
 
 本例一开始只有根节点，找到的 `depth=0`，所以整段输入消息都需要接入。最后一步把计数从 0 加到 1，并把 1 写入新 assistant 节点的 `turn_index`。
 
-**已有历史时。** `_find_mount_point` 按消息角色和完整字典内容匹配已有路径；如果下一轮原样带回此前历史，就复用已有节点，再补入工具结果等新消息。未匹配的部分通常从最后匹配的位置接出新分支，仍属于同一 `sid` 的树；该 `sid` 尚无树时，则先新建它的根节点。匹配依据是消息内容，token 编号保存在 `turn` 中。特殊的短 assistant 历史改写可能触发合并，改写旧节点并清除它原来的 `turn`；这里仅标出这条分支，具体条件尚未逐步展开。
+**已有历史时。** `_find_mount_point` 按消息角色和完整字典内容匹配已有路径；如果下一轮原样带回此前历史，就复用已有节点，再补入工具结果等新消息。未匹配的部分通常从最后匹配的位置接出新分支，仍属于同一 `sid` 的树；该 `sid` 尚无树时，则先新建它的根节点。匹配依据是消息内容，token 编号保存在 `turn` 中。显式开启合并后，特殊的短 assistant 历史改写可能触发合并，改写旧节点并清除它原来的 `turn`；这里仅标出这条分支，具体条件尚未逐步展开。
+
+**新版场景中的默认值。** `TrajectoryManager()` 自身的默认阈值仍是 1024；变化发生在 Coding Agent 配置：未设置 `SLIME_FORK_MERGE_MAX_RESPONSE_TOKENS` 时，旧版传入 `None`，新版明确传入 `0`。因此当前默认跳过这项特殊合并，改写后的历史按未匹配消息接出分支，原有生成记录保留；共同历史的正常匹配与复用继续工作。
 
 <a id="tree-growth-and-branches"></a>
 
@@ -156,9 +160,9 @@ self._attach_assistant_leaf(sid, node, turn=turn, response_message=response_mess
 
 因此，要实现你的设想，需要把“生成候选 → 评价路径 → 选择继续或停止 → 再生成”接成循环。评价和选择规则决定是否值得继续探索；保存成树本身不会完成这些判断。这里的“剪枝”可以只是停止继续扩展某条路径，失败记录仍可保留用于分析或训练。
 
-已有的 `_try_merge_assistant_rewrite` 会在特定的历史改写情况下清除旧 `turn`，依据是节点结构和回复长度等条件，服务于训练记录的整理，没有判断哪条路径做错了。当前训练路径的 `reward` 来自任务结束后的评估，`get_trajectory` 将传入的同一个奖励赋给该次导出的各个样本；这也不是生成途中逐分支评分和剪枝。这里只核对职责边界，尚不展开样本导出实现。
+已有的 `_try_merge_assistant_rewrite` 在显式开启合并后，会在特定的历史改写情况下清除旧 `turn`，依据是节点结构和回复长度等条件，服务于训练记录的整理，没有判断哪条路径做错了。当前训练路径的 `reward` 来自任务结束后的评估，`get_trajectory` 将传入的同一个奖励赋给该次导出的各个样本；这也不是生成途中逐分支评分和剪枝。这里只核对职责边界，尚不展开样本导出实现。
 
-**返回哪里。** 回到 [_run_turn 的第 391 行](../adapters/common.py/BaseAdapter._run_turn.md#after-respond)，继续 `return response`；离开时执行其 `finally`。本函数保存的是 Python 内存中的消息树，训练 `Sample` 由后续 `get_trajectory` 另行整理。
+**返回哪里。** 回到 `_run_turn:463–469` 的调用处；调用方接着在 `:470–472` 保存本轮 `PromptPrefix`，于 `:473` 执行 `return response`，离开时执行其 `finally`。父函数的已有整体模型见 [_run_turn 卡片](../adapters/common.py/BaseAdapter._run_turn.md#after-respond)。本函数保存的是 Python 内存中的消息树，训练 `Sample` 由后续 `get_trajectory` 另行整理。
 
 ## 我的直接表述（原话）
 
@@ -192,6 +196,12 @@ self._attach_assistant_leaf(sid, node, turn=turn, response_message=response_mess
 > 后续就可能做到如果某一个方向出错了砍掉这个路径？
 > 变成了一种变相的剪去枝丫 pruning？
 
+本次新版校准同时确认阅读响应与记录：
+
+> 好的那么再看一下 这里的anthropic的respond还有这里的manager 的record turn什么的吧
+
+本轮核对与补充说明不代表用户已掌握全部分支。
+
 ## 尚不清楚
 
 - 输入消息怎样匹配旧路径、短 assistant 历史改写在什么条件下合并，尚未逐步带读。
@@ -202,6 +212,15 @@ self._attach_assistant_leaf(sid, node, turn=turn, response_message=response_mess
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**2026-10-23 新版校准：**
+
+- `record_turn:381–403`、节点类型和四个辅助方法与旧版相同。当前辅助方法在 [trajectory.py:450–552](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L450-L552)；入口仍返回 `None`，数据写入 `_trees[sid]` 与轮次计数。
+- 当前 [TurnRecord:40–54](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L40-L54)增加四项生成附加数据。局部主例确认 assistant 节点保存同一个 `turn` 和内部消息对象，新增字段一起保留；[完整验证记录](../../../../../references/respond-record-version-check-18868a79.json)列出字段与状态。
+- 合并阈值来自 [Coding Agent 配置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L81-L99)，再经 `_AdapterService` / Adapter 构造传给 manager。直接调用 `TrajectoryManager()` 仍得到 1024；当前默认传入 0，[_try_merge_assistant_rewrite:492–493](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L492-L493)立即跳过合并。这是调用场景变化，不能把旧局部实验的默认值当作新版任务默认值。
+- 17 项相关测试通过：包含本地 HTTP 响应与多轮交接、消息历史复用、分支、会话隔离、启用/关闭历史改写合并以及输入检查。测试使用构造数据与模型服务替身，未运行真实 CLI、模型或训练。
+
+**初次阅读与原验证依据（保留旧版归属）：**
 
 - 固定源码：Slime `2f2318653f6f794dddd321eff7c9d4b7b174643f`，本机 `/home/hongshi/projects/slime`。`manager` 的创建见 [common.py:161–166](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L161-L166)，实际调用见 [common.py:376–393](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L376-L393)。
 - 数据结构：[TurnRecord:28–38](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L28-L38)、[MessageNode:46–91](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L46-L91)。

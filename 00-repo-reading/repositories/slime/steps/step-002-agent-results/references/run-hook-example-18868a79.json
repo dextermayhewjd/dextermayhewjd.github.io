@@ -1,0 +1,41 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "function": "slime/agent/harness/compaction.py::run_hook",
+  "scope": "Original function, local temporary file, limit=2, default stop_mode=signal. Only non-stopping PreCompact and PostCompact calls were run; no process signal, real CLI, remote sandbox or hook registration was executed. The initial file was written by this fixture.",
+  "directory_in_card": "/workspace/repo/.harness",
+  "directory_in_validation": "/tmp/run-hook-card-j1xdhoum/.harness",
+  "limit": 2,
+  "stop_mode": "signal",
+  "trace": [
+    {
+      "event": "PreCompact",
+      "before": {
+        "attempts": 0,
+        "count": 0,
+        "limit_reached": false
+      },
+      "after": {
+        "attempts": 1,
+        "count": 0,
+        "limit_reached": false
+      },
+      "return_value": 0,
+      "stdout": ""
+    },
+    {
+      "event": "PostCompact",
+      "before": {
+        "attempts": 1,
+        "count": 0,
+        "limit_reached": false
+      },
+      "after": {
+        "attempts": 1,
+        "count": 1,
+        "limit_reached": false
+      },
+      "return_value": 0,
+      "stdout": ""
+    }
+  ]
+}

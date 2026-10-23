@@ -1,10 +1,11 @@
 # _render_stream
 
-- 源码定位：[slime/agent/adapters/anthropic.py:211–274](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L211-L274)，由助手核对。
+- 源码定位：[slime/agent/adapters/anthropic.py:234–297](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L234-L297)，由助手核对。
 - 首次接触：Step 1，2026-10-21；此前随 `_respond` 阅读，本次从其记录拆出。
 - 最近认识更新：尚无本函数内部实现的直接复述；拆分不计为新增理解。
+- 最近源码校准：2026-10-23，函数体与旧版相同；行号与返回位置按 `18868a79` 更新。[旧卡片](../../../../../../references/render-stream-at-2f231865.md)保留。
 
-从 [_respond 的流式分支](../common.py/BaseAdapter._respond.md#response-tree)进入；事件写出后，响应对象返回 `_respond:74`，再交回 `_run_turn:363`。
+从 [_respond 的流式分支](../common.py/BaseAdapter._respond.md#response-tree)进入；事件写出后，响应对象返回 `_respond:74`，再交回 `_run_turn:442`。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
@@ -66,15 +67,15 @@ message_stop
 
 | 源码位置 | 实际行为 | 进入下一段时已有的结果 |
 | --- | --- | --- |
-| `anthropic.py:215–238` | 创建响应，`await out.prepare(request)`，写出 `message_start` | HTTP 响应已准备，消息外层信息已写出 |
-| `:240–262` | 按块类型生成 `start` 和 `delta`，每块依次写 start、delta、stop | 三个内容块依次写出，共 9 个事件 |
-| `:264–274` | 写出停止原因、最终计数和 `message_stop`，`return out` | 返回已写出这些事件的同一个响应对象 |
+| `anthropic.py:238–261` | 创建响应，`await out.prepare(request)`，写出 `message_start` | HTTP 响应已准备，消息外层信息已写出 |
+| `:263–285` | 按块类型生成 `start` 和 `delta`，每块依次写 start、delta、stop | 三个内容块依次写出，共 9 个事件 |
+| `:287–297` | 写出停止原因、最终计数和 `message_stop`，`return out` | 返回已写出这些事件的同一个响应对象 |
 
 当前实现每个内容块写一个完整的 delta。这里的“流式”描述 HTTP 发送格式；`_respond` 接到的已经是完整 `reply`，没有一边调用 SGLang 生成新 token、一边转发它们。全部 12 个事件的内容放在下方折叠区。
 
 流式分支返回时，事件已在 `_render_stream` 内写出，返回值仍是同一个 `web.StreamResponse` 对象。写入成功也不能证明客户端业务代码已经消费了这些事件。
 
-`_respond` 返回后继续执行 `common.py:376–390` 的调试回调和轨迹记录，最后由 `_run_turn` 返回响应对象。回到[父卡的返回位置](../common.py/BaseAdapter._respond.md#return-to-run-turn)，本轮不继续展开轨迹记录内部。
+`_respond` 返回后继续执行 `common.py:455–469` 的调试回调和轨迹记录，再于 `:470–472` 保存本轮前缀，最后由 `_run_turn` 返回响应对象。回到[父卡的返回位置](../common.py/BaseAdapter._respond.md#return-to-run-turn)，本轮不继续展开轨迹记录内部。
 
 ## 我的直接表述（原话）
 
@@ -87,6 +88,8 @@ message_stop
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**本次校准**：源码体相同；当前本地 HTTP 测试通过，结果见[父卡的校准依据](../common.py/BaseAdapter._respond.md#source-evidence)。以下保留初次阅读的旧版来源与完整场景。
 
 - 原始步骤上下文：[Step 1 的请求处理与发送时机纠正](../../../../../../../step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
 

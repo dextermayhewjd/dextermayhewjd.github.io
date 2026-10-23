@@ -1,0 +1,412 @@
+{
+  "schema": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "读取文件",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      }
+    }
+  ],
+  "cases": {
+    "from_decode": {
+      "raw_output": "这是一个学习项目。<|im_end|>",
+      "output_ids": [
+        109455,
+        96472,
+        96618,
+        1710,
+        248046
+      ],
+      "after_reasoning": {
+        "reasoning": "",
+        "body_text": "这是一个学习项目。<|im_end|>"
+      },
+      "after_sglang_tool_parser": {
+        "body_text": "这是一个学习项目。<|im_end|>",
+        "calls": []
+      },
+      "parsed": {
+        "reasoning": "",
+        "text": "这是一个学习项目。<|im_end|>",
+        "tool_uses": [],
+        "ill_formed": false
+      }
+    },
+    "reasoning_and_tool": {
+      "raw_output": "<think>需要先读取 README.md。</think>\n我先读取文件。\n<tool_call>\n<function=read_file>\n<parameter=path>README.md</parameter>\n</function>\n</tool_call><|im_end|>",
+      "output_ids": [
+        248068,
+        135171,
+        111388,
+        59860,
+        20668,
+        1710,
+        248069,
+        198,
+        116951,
+        111388,
+        97380,
+        1710,
+        198,
+        248058,
+        198,
+        27,
+        1628,
+        86779,
+        2378,
+        29,
+        198,
+        27,
+        15704,
+        79114,
+        29,
+        52838,
+        20668,
+        510,
+        15704,
+        29,
+        198,
+        510,
+        1628,
+        29,
+        198,
+        248059,
+        248046
+      ],
+      "after_reasoning": {
+        "reasoning": "需要先读取 README.md。",
+        "body_text": "\n我先读取文件。\n<tool_call>\n<function=read_file>\n<parameter=path>README.md</parameter>\n</function>\n</tool_call><|im_end|>"
+      },
+      "after_sglang_tool_parser": {
+        "body_text": "\n我先读取文件。\n",
+        "calls": [
+          {
+            "tool_index": 0,
+            "name": "read_file",
+            "parameters": "{\"path\": \"README.md\"}"
+          }
+        ]
+      },
+      "parsed": {
+        "reasoning": "需要先读取 README.md。",
+        "text": "我先读取文件。",
+        "tool_uses": [
+          {
+            "name": "read_file",
+            "input": {
+              "path": "README.md"
+            }
+          }
+        ],
+        "ill_formed": false
+      }
+    },
+    "reasoning_and_text": {
+      "raw_output": "<think>文件内容已经提供。</think>这是一个学习项目。<|im_end|>",
+      "output_ids": [
+        248068,
+        97380,
+        96621,
+        96790,
+        96553,
+        1710,
+        248069,
+        109455,
+        96472,
+        96618,
+        1710,
+        248046
+      ],
+      "after_reasoning": {
+        "reasoning": "文件内容已经提供。",
+        "body_text": "这是一个学习项目。<|im_end|>"
+      },
+      "after_sglang_tool_parser": {
+        "body_text": "这是一个学习项目。<|im_end|>",
+        "calls": []
+      },
+      "parsed": {
+        "reasoning": "文件内容已经提供。",
+        "text": "这是一个学习项目。<|im_end|>",
+        "tool_uses": [],
+        "ill_formed": false
+      }
+    },
+    "missing_open_think": {
+      "raw_output": "需要先读取 README.md。</think>\n我先读取文件。\n<tool_call>\n<function=read_file>\n<parameter=path>README.md</parameter>\n</function>\n</tool_call><|im_end|>",
+      "output_ids": [
+        135171,
+        111388,
+        59860,
+        20668,
+        1710,
+        248069,
+        198,
+        116951,
+        111388,
+        97380,
+        1710,
+        198,
+        248058,
+        198,
+        27,
+        1628,
+        86779,
+        2378,
+        29,
+        198,
+        27,
+        15704,
+        79114,
+        29,
+        52838,
+        20668,
+        510,
+        15704,
+        29,
+        198,
+        510,
+        1628,
+        29,
+        198,
+        248059,
+        248046
+      ],
+      "after_reasoning": {
+        "reasoning": "需要先读取 README.md。",
+        "body_text": "\n我先读取文件。\n<tool_call>\n<function=read_file>\n<parameter=path>README.md</parameter>\n</function>\n</tool_call><|im_end|>"
+      },
+      "after_sglang_tool_parser": {
+        "body_text": "\n我先读取文件。\n",
+        "calls": [
+          {
+            "tool_index": 0,
+            "name": "read_file",
+            "parameters": "{\"path\": \"README.md\"}"
+          }
+        ]
+      },
+      "parsed": {
+        "reasoning": "需要先读取 README.md。",
+        "text": "我先读取文件。",
+        "tool_uses": [
+          {
+            "name": "read_file",
+            "input": {
+              "path": "README.md"
+            }
+          }
+        ],
+        "ill_formed": false
+      }
+    }
+  },
+  "extraction": [
+    {
+      "file": "utils.py",
+      "function": "_run_ast_quiet",
+      "lines": [
+        241,
+        252
+      ]
+    },
+    {
+      "file": "utils.py",
+      "function": "safe_literal_eval",
+      "lines": [
+        255,
+        256
+      ]
+    },
+    {
+      "file": "utils.py",
+      "function": "get_schema_properties",
+      "lines": [
+        307,
+        323
+      ]
+    },
+    {
+      "file": "utils.py",
+      "function": "infer_type_from_json_schema",
+      "lines": [
+        326,
+        429
+      ]
+    },
+    {
+      "file": "protocol.py",
+      "class": "Function",
+      "lines": [
+        769,
+        783
+      ],
+      "methods": "all"
+    },
+    {
+      "file": "protocol.py",
+      "class": "Tool",
+      "lines": [
+        786,
+        797
+      ],
+      "methods": "all"
+    },
+    {
+      "file": "core_types.py",
+      "class": "ToolCallItem",
+      "lines": [
+        7,
+        12
+      ],
+      "methods": "all"
+    },
+    {
+      "file": "core_types.py",
+      "class": "StreamingParseResult",
+      "lines": [
+        15,
+        19
+      ],
+      "methods": "all"
+    },
+    {
+      "file": "base_format_detector.py",
+      "class": "BaseFormatDetector",
+      "lines": [
+        32,
+        447
+      ],
+      "methods": [
+        "__init__",
+        "get_required_tool_parser"
+      ]
+    },
+    {
+      "file": "qwen3_coder_detector.py",
+      "class": "Qwen3CoderDetector",
+      "lines": [
+        22,
+        483
+      ],
+      "methods": [
+        "__init__",
+        "_convert_param_value",
+        "_get_arguments_config",
+        "_get_param_type",
+        "detect_and_parse",
+        "has_tool_call"
+      ]
+    },
+    {
+      "file": "reasoning_parser.py",
+      "class": "StreamingParseResult",
+      "lines": [
+        53,
+        62
+      ],
+      "methods": "all"
+    },
+    {
+      "file": "reasoning_parser.py",
+      "class": "BaseReasoningFormatDetector",
+      "lines": [
+        65,
+        354
+      ],
+      "methods": [
+        "__init__",
+        "_detect_and_parse_impl",
+        "_find_tool_start",
+        "_maybe_apply_force_nonempty_content",
+        "detect_and_parse"
+      ]
+    },
+    {
+      "file": "reasoning_parser.py",
+      "class": "Qwen3Detector",
+      "lines": [
+        431,
+        475
+      ],
+      "methods": [
+        "__init__"
+      ]
+    },
+    {
+      "file": "reasoning_parser.py",
+      "class": "ReasoningParser",
+      "lines": [
+        2242,
+        2410
+      ],
+      "methods": [
+        "DetectorMap",
+        "__init__",
+        "parse_non_stream"
+      ]
+    },
+    {
+      "file": "function_call_parser.py",
+      "class": "FunctionCallParser",
+      "lines": [
+        66,
+        387
+      ],
+      "methods": [
+        "ToolCallParserEnum",
+        "__init__",
+        "has_tool_call",
+        "parse_non_stream"
+      ]
+    }
+  ],
+  "source_sha256": {
+    "base_format_detector.py": "c01527332719ec627a65a77aaf1fe5341e5823a97326b2e3e06928cd18d932c2",
+    "protocol.py": "c59fda1238546fb2945d7bbb79466a66344dc054b262aecd85fb2659072aea88",
+    "function_call_parser.py": "b9d423a5e3845a6e1611477a92be043050995ac13522d1e88514bab856bd476a",
+    "reasoning_parser.py": "55360b73acfaac21db2ff4644bfc38ff6d744eb4371b15581a2b08e84673dc5e",
+    "core_types.py": "c0b52c5bc99403e8be212cf94140cbec48eaef65be2b51c88456bd5a6fbfa00f",
+    "utils.py": "3c1caf6907f05ddd4a44634f2c907d514de2191a45ee76b2ffaf962bf30a0902",
+    "qwen3_coder_detector.py": "92eeaeaf02ac1c1e966a8b9bbd4393141353ca9177265044fe12e250c0e38089"
+  },
+  "slime_source_before": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "slime_source_after": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "sglang_source_before": "0b3bb0cbe31873994c9f989fddfe2f87ca839fdd",
+  "sglang_source_after": "e00930c5489053f26d86b179cee0d087f846acbb",
+  "comparison": {
+    "parsing_file_blob_before": "56bc85a4bc78634c18f59eb9c5c630cd4343550a",
+    "parsing_file_blob_after": "56bc85a4bc78634c18f59eb9c5c630cd4343550a",
+    "call_ast_identical": true,
+    "call_lines": [
+      347,
+      426
+    ],
+    "four_prior_examples_match": true
+  },
+  "existing_tests": {
+    "command": "python -m pytest tests/test_agent/test_adapters.py -q -k \"parse_model_output or parse_xml_tool_uses\"",
+    "passed": 3,
+    "skipped": 1,
+    "skip_reason": "Full SGLang package is not installed."
+  },
+  "limits": [
+    "Constructed strings and local tokenizer; no model generation or tool execution.",
+    "Qwen-only AST extraction preserving selected method bodies; registries limited to qwen3 and qwen3_coder.",
+    "Unused GLM detector type replaced by a distinct marker class solely for an isinstance check that is false on Qwen.",
+    "SGLANG_TOOL_STRICT_LEVEL supplied as an unused placeholder for this non-streaming path.",
+    "Not a full SGLang installation or end-to-end test; other models and all schema edge cases not verified."
+  ]
+}

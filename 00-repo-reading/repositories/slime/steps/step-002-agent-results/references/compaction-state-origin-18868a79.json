@@ -1,0 +1,61 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "function": "slime/agent/harness/compaction.py::run_hook",
+  "scope": "Direct calls of the original run_hook with local temporary files; initial file written by test fixture. stop_mode=json avoids signaling processes. No Claude CLI, remote sandbox, or hook registration was executed.",
+  "limit": 2,
+  "trace": [
+    {
+      "event": "test fixture: initial file",
+      "state": {
+        "attempts": 0,
+        "count": 0,
+        "limit_reached": false
+      }
+    },
+    {
+      "event": "PreCompact",
+      "state": {
+        "attempts": 1,
+        "count": 0,
+        "limit_reached": false
+      },
+      "stdout": ""
+    },
+    {
+      "event": "PostCompact",
+      "state": {
+        "attempts": 1,
+        "count": 1,
+        "limit_reached": false
+      },
+      "stdout": ""
+    },
+    {
+      "event": "PreCompact",
+      "state": {
+        "attempts": 2,
+        "count": 1,
+        "limit_reached": false
+      },
+      "stdout": ""
+    },
+    {
+      "event": "PostCompact",
+      "state": {
+        "attempts": 2,
+        "count": 2,
+        "limit_reached": false
+      },
+      "stdout": ""
+    },
+    {
+      "event": "PreCompact",
+      "state": {
+        "attempts": 2,
+        "count": 2,
+        "limit_reached": true
+      },
+      "stdout": "{\"continue\": false, \"stopReason\": \"Compaction budget reached\"}"
+    }
+  ]
+}

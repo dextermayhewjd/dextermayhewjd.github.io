@@ -33,6 +33,7 @@
 - [阅读范围 skill](../.agents/skills/repo-reading-scope/SKILL.md)：按阅读目标、指挥官函数、核心骨架三段组织 scope；包含五类过滤方法和已确认样例，可用 `$repo-reading-scope` 调用。
 - [阅读顺序 skill](../.agents/skills/repo-reading-order/SKILL.md)：已有骨架后，根据当前问题推荐下一处入口，先看核心动作、再回查最小前置；可用 `$repo-reading-order` 调用。
 - [短期 memory skill](../.agents/skills/repo-reading-short-term-memory/SKILL.md)：本步单函数记录与引用入口，包含“共同记录已覆盖时直接引用”的规则；可用 `$repo-reading-short-term-memory` 调用。
+- [任务链路总结 skill](../.agents/skills/repo-reading-task-flow/SKILL.md)：阅读后整理 `05-task-flow.md`，以 Step 003 为主要 reference，串起关键交接、结果与边界；可用 `$repo-reading-task-flow` 调用。
 - [repo-reading-memory 总入口](../.agents/skills/repo-reading-memory/SKILL.md)：整体记忆分工与长期继承；可用 `$repo-reading-memory` 调用。
 - [长短期记忆专属文档](memory-format.md)：集中保存要求、当前格式、复述与追问流程、讨论来由和待验证问题；后续在这里持续修改。
 - [当前 Step 01](../backlog/repo-reading/step-01-translate-preview/README.md)：统一格式的实际例子；新模板已同步，旧步骤保留历史快照。

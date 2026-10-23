@@ -52,7 +52,7 @@ Python 原生异步与并发的专项学习范围统一维护在 [学习规划](
 | 职责 4；要求 1、5：异步执行、资源与结果一致性 | 读清独立环境的生命周期、补丁状态、命令失败与异常传播；先保留关键边界，再按问题深挖重试 |
 | 职责 5；要求 4：将训练需求落到工程链路 | 先解释 `reward` 的来源与含义，再连接已有轨迹和训练样本导出 |
 
-因此 [Step 2](../../00-repo-reading/repositories/slime/steps/step-002-swe-evaluation/README.md) 定为“代码改动如何在独立环境中得到奖励”。第一遍选真实支持的 `scaleswe → eval_cmd` 分支，围绕接口和数据交接展开；不把阅读目标扩成安装某个数据集的全部工具。要求 3 中的 Kubernetes 部署排障能力仍需独立实践，本步理解 Sandbox 接口不能替代该证据。
+因此 [Step 2](../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/README.md) 定为“代码改动如何在独立环境中得到奖励”。第一遍选真实支持的 `scaleswe → eval_cmd` 分支，围绕接口和数据交接展开；不把阅读目标扩成安装某个数据集的全部工具。要求 3 中的 Kubernetes 部署排障能力仍需独立实践，本步理解 Sandbox 接口不能替代该证据。
 
 本节记录选题依据，不保存第二份学习进度；实际掌握与运行状态继续见唯一路线。
 

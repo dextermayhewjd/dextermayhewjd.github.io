@@ -1,0 +1,78 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "scope": "Original AST-extracted methods with recording Sandbox and run_agent replacements. Captured arguments and settings only; no shell, remote files, actual CLI, network, or signal was executed. run_agent return 0 is supplied by the recorder. SWE_PROMPT uses its default literal, with no SWE_CC_PROMPT override.",
+  "write_config": {
+    "input": {
+      "workdir": "/workspace/repo",
+      "SLIME_AGENT_CC_MAX_COMPACTIONS": "2"
+    },
+    "return_value": null,
+    "file_transfer": {
+      "destination": "/tmp/slime-claude-compaction.py",
+      "source": "/home/hongshi/projects/slime/slime/agent/harness/compaction.py",
+      "source_sha256": "246bc28a2ee9fb469b60213c1eb2d63878cfd90e59d6d323ffccee8e4d5d1b05"
+    },
+    "settings": {
+      "hasCompletedOnboarding": true,
+      "bypassPermissionsModeAccepted": true,
+      "hooks": {
+        "PreCompact": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "python3 /tmp/slime-claude-compaction.py /workspace/repo/.harness 2",
+                "timeout": 10
+              }
+            ]
+          }
+        ],
+        "PostCompact": [
+          {
+            "hooks": [
+              {
+                "type": "command",
+                "command": "python3 /tmp/slime-claude-compaction.py /workspace/repo/.harness 2",
+                "timeout": 10
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "exec": {
+      "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true, \"hooks\": {\"PreCompact\": [{\"hooks\": [{\"type\": \"command\", \"command\": \"python3 /tmp/slime-claude-compaction.py /workspace/repo/.harness 2\", \"timeout\": 10}]}], \"PostCompact\": [{\"hooks\": [{\"type\": \"command\", \"command\": \"python3 /tmp/slime-claude-compaction.py /workspace/repo/.harness 2\", \"timeout\": 10}]}]}}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+      "user": "root",
+      "check": true,
+      "timeout": 60
+    }
+  },
+  "launch_and_wait": {
+    "input": {
+      "ctx": {
+        "workdir": "/workspace/repo",
+        "session_id": "sid-demo",
+        "adapter_url": "http://adapter-host:18001",
+        "model_label": "slime-actor"
+      },
+      "prompt": "Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.",
+      "time_budget_sec": 300,
+      "extra_args": "",
+      "extra_envs": ""
+    },
+    "run_agent_arguments": {
+      "workdir": "/workspace/repo",
+      "start_cmd": "printf '%s\\n' '{\"attempts\":0,\"count\":0,\"limit_reached\":false}' > /workspace/repo/.harness/compaction.json; /usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose &\nslime_cli_pid=$!\nprintf '%s\\n' \"$slime_cli_pid\" > /workspace/repo/.harness/cli.pid\nwait \"$slime_cli_pid\"",
+      "env": {
+        "ANTHROPIC_BASE_URL": "http://adapter-host:18001",
+        "ANTHROPIC_AUTH_TOKEN": "sid-demo",
+        "ANTHROPIC_MODEL": "slime-actor",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+        "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+      },
+      "time_budget_sec": 300
+    },
+    "return_value": 0
+  }
+}

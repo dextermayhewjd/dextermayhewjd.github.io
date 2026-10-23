@@ -1,8 +1,9 @@
 # parse_model_output
 
-- 源码定位：[slime/agent/parsing.py:25–56](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/parsing.py#L25-L56)，由助手核对。
+- 源码定位：[slime/agent/parsing.py:25–56](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/parsing.py#L25-L56)，由助手核对。
 - 首次接触：Step 1，承接 `tok.decode` 得到的 `raw_output`。
 - 最近认识更新：2026-10-21，用户进一步表述了“原始输出逐步拆成 reasoning、text、工具相关字段，再继续处理 parsed”的关系；具体分支实现及后续处理仍待展开。
+- 最近源码校准：2026-10-23。Slime 本文件及调用参数与旧版相同；新版 SGLang 的 Qwen 解析方法已复核本页四组输入，输出一致。原个人认识时间保留；[校准前卡片](../../../../../references/parse-model-output-at-2f231865.md)另存。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
@@ -18,7 +19,7 @@
    >
    > 三类内容可以同时存在。工具调用描述保存“调用什么、传什么参数”，这里不执行工具；工具执行后的返回结果属于后续交互。
 
-4. **调用代码**（[common.py:347–353](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L347-L353)）：
+4. **调用代码**（[common.py:426–432](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L426-L432)）：
 
    ```python
    parsed = parse_model_output(
@@ -34,7 +35,7 @@
 
 沿用“读取 README.md 并概括”的任务，以及[上一步的本地 Qwen tokenizer](../../../src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md)。为看清工具调用分支，下面观察这个任务**尚需读取文件的一轮**；末尾再接回上一步已有的纯文本输出。
 
-示例文本由助手构造，经同一 tokenizer 实际编码、解码后交给解析器。解析值已局部运行核对；没有调用模型生成文本，也没有实际读取 README.md。解析器名称采用 Slime 当前 Qwen 示例的 `qwen3` 与 `qwen3_coder`。
+示例文本由助手构造，经同一 tokenizer 实际编码、解码后交给解析器。解析值已局部运行核对；没有调用模型生成文本，也没有实际读取 README.md。沿用原例的 `qwen3` 与 `qwen3_coder` 配置，新版示例仍使用这两个解析器。本轮用新版 SGLang 对同一组文本再做局部验证，下面的中间结果和最终输出保持不变；所用 tokenizer 仍是原例的固定版本。
 
 **① 输入：一段原始文本、工具定义、两个解析器名称。**
 
@@ -182,6 +183,19 @@ ParsedModelOutput(
 
 助手定位：当前 `self` 是 `AnthropicAdapter`，建议从 `common.py:353` 进入 `anthropic.py:63` 的 `_build_reply`，再看 `anthropic.py:147–186` 的 `_build_reply_parts`。本次推荐的范围是 `parsed → Reply`，先看清协议内容与轨迹消息怎样组装；HTTP 发送由后面的 `_respond` 负责，另行展开。
 
+本次新版校准的提问：
+
+> 好的那么这里看一下吧 这里的parse model output是否和之前是一样的
+
+本轮只核对版本变化；源码一致与局部验证通过不表示用户已掌握全部分支。
+
+用户随后再次概括当前职责（节选）：
+
+> 这里的model parsed  韩式就是把对应的内容再通过这种方式来拆成思考文本正文和工具调用描述这一类
+> 这个功能没有变化
+
+这是对当前版本职责模型的确认；具体解析分支的未知继续保留。下一处建议沿调用方进入 `_build_reply`，该函数的新版校准尚未展开。
+
 ## 尚不清楚
 
 - 已表达“原始输出 → 结构化字段 → 后续处理”的关系；具体解析分支及异常处理尚未逐项确认，不据此标为全部理解。
@@ -190,6 +204,16 @@ ParsedModelOutput(
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**2026-10-23 新版校准：**
+
+- Slime `2f231865 → 18868a79` 的整个 `slime/agent/parsing.py` 内容相同，包括 `ParsedModelOutput`、`parse_model_output`、`parse_tool_uses` 和 XML 备用解析；Git blob 均为 `56bc85a4bc78634c18f59eb9c5c630cd4343550a`。调用处从 `common.py:347` 移到 `:426`，实参的语法树相同。
+- [新版 Docker 构建配置](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/docker/README.md#L12-L20)引用 SGLang `v0.5.21`（`e00930c5489053f26d86b179cee0d087f846acbb`），原例参考 `v0.5.15.post1`。旧启动脚本已不在新版目录；当前 [run_qwen38_27b_fully_async.sh:196](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/run_qwen38_27b_fully_async.sh#L196)仍选择 `qwen3` / `qwen3_coder`。
+- 底层实现并非全部相同：[新版 Qwen 工具解析器](https://github.com/sgl-project/sglang/blob/e00930c5489053f26d86b179cee0d087f846acbb/python/sglang/srt/function_call/qwen3_coder_detector.py)调整了 schema 属性与参数类型的取得方式；[思考解析器](https://github.com/sgl-project/sglang/blob/e00930c5489053f26d86b179cee0d087f846acbb/python/sglang/srt/parser/reasoning_parser.py)也有配置与实现扩展。本页保留原来的职责模型；四组普通输入输出一致不代表所有复杂 schema、其他模型或不完整输出都无变化。
+- [本轮局部验证数据](../../../../../references/parse-model-output-version-check-18868a79.json)保存四组输入、中间结果、最终字段、提取范围与源码哈希。沿用原验证方法，执行新版依赖中所需的原方法体；注册表仅保留 Qwen 项，新增 GLM 类型判断用与 Qwen 无关的标记类占位，未执行该分支。不是完整 SGLang 环境，也未调用模型或执行工具。
+- 现有解析测试：3 项通过、1 项因未安装完整 SGLang 而跳过。另行完成的四组局部 Qwen 验证与旧结果相同，不替代被跳过的完整依赖测试。
+
+**初次阅读与原验证依据（保留旧版归属）：**
 
 - Slime 固定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`：返回类型在 [parsing.py:15–22](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/parsing.py#L15-L22)，工具参数解包在 [:59–90](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/parsing.py#L59-L90)。工具解析未得到调用时，带工具定义的请求还会进入同文件的 XML 备用解析（`:93–114`）；本例工具调用由 Qwen 解析器直接取得。
 - `reasoning_parser_name="qwen3"`、`tool_parser_name="qwen3_coder"` 来自 [Coding Agent 示例脚本](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/examples/coding_agent_rl/run_qwen36_35b_a3b_swe_8nodes.sh#L185-L186)。SGLang 参考版本采用该 Slime 提交 [docker/README.md](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/docker/README.md#L7-L8) 中的 `v0.5.15.post1`，提交 `0b3bb0cbe31873994c9f989fddfe2f87ca839fdd`。

@@ -1,0 +1,109 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "source_file": "/home/hongshi/projects/slime/examples/coding_agent_rl/swe.py",
+  "functions": [
+    "git_diff",
+    "_repository_tree"
+  ],
+  "git_version": "git version 2.43.0",
+  "scope": "Original AST-extracted functions run using a local Bash/Git executor in a temporary fixture repository. No actual agent, remote sandbox, model, or grading run. user=agent is recorded, not used to change the local OS user. Initial snapshot called directly to model the return from prepare_workspace.",
+  "workdir": "/tmp/slime-git-diff-reading-r6ga4jhz/repo",
+  "display_workdir": "/workspace/repo",
+  "baseline": "843995093bd53493edd1141a8eb6fdaab4ff9234",
+  "current": "93f569ad263d3cc61637dfa2ed87a5737ebc09b2",
+  "before_source": "# image setup\nresult = 0\n",
+  "after_source": "# image setup\nresult = 42\n",
+  "patch": "diff --git a/source.py b/source.py\nindex 7fe73d4..f130532 100644\n--- a/source.py\n+++ b/source.py\n@@ -1,2 +1,2 @@\n # image setup\n-result = 0\n+result = 42\n",
+  "no_change_output": "",
+  "checks": {
+    "unstaged_change": true,
+    "same_patch_when_staged": true,
+    "same_patch_when_committed": true,
+    "index_and_HEAD_preserved_by_reads": true,
+    "image_shipped_change_not_in_patch": true,
+    "problem_and_harness_excluded": true
+  },
+  "calls": [
+    {
+      "cmd": "set -e\ncd /tmp/slime-git-diff-reading-r6ga4jhz/repo\nagent_index=$(mktemp)\nrm -f \"$agent_index\"\ntrap 'rm -f \"$agent_index\" \"$agent_index.lock\" \"$agent_index.paths\"' EXIT\nexport GIT_INDEX_FILE=\"$agent_index\"\ngit read-tree HEAD\ngit ls-files -z --cached --others --exclude-standard -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness' > \"$agent_index.paths\"\ngit update-index --add --remove -z --stdin < \"$agent_index.paths\"\ngit write-tree",
+      "check": true,
+      "timeout": 600,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "843995093bd53493edd1141a8eb6fdaab4ff9234\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "set -e\ncd /tmp/slime-git-diff-reading-r6ga4jhz/repo\nagent_index=$(mktemp)\nrm -f \"$agent_index\"\ntrap 'rm -f \"$agent_index\" \"$agent_index.lock\" \"$agent_index.paths\"' EXIT\nexport GIT_INDEX_FILE=\"$agent_index\"\ngit read-tree HEAD\ngit ls-files -z --cached --others --exclude-standard -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness' > \"$agent_index.paths\"\ngit update-index --add --remove -z --stdin < \"$agent_index.paths\"\ngit write-tree",
+      "check": true,
+      "timeout": 600,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "843995093bd53493edd1141a8eb6fdaab4ff9234\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "cd /tmp/slime-git-diff-reading-r6ga4jhz/repo && git diff --binary 843995093bd53493edd1141a8eb6fdaab4ff9234 843995093bd53493edd1141a8eb6fdaab4ff9234 -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness'",
+      "check": true,
+      "timeout": 120,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "cmd": "set -e\ncd /tmp/slime-git-diff-reading-r6ga4jhz/repo\nagent_index=$(mktemp)\nrm -f \"$agent_index\"\ntrap 'rm -f \"$agent_index\" \"$agent_index.lock\" \"$agent_index.paths\"' EXIT\nexport GIT_INDEX_FILE=\"$agent_index\"\ngit read-tree HEAD\ngit ls-files -z --cached --others --exclude-standard -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness' > \"$agent_index.paths\"\ngit update-index --add --remove -z --stdin < \"$agent_index.paths\"\ngit write-tree",
+      "check": true,
+      "timeout": 600,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "93f569ad263d3cc61637dfa2ed87a5737ebc09b2\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "cd /tmp/slime-git-diff-reading-r6ga4jhz/repo && git diff --binary 843995093bd53493edd1141a8eb6fdaab4ff9234 93f569ad263d3cc61637dfa2ed87a5737ebc09b2 -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness'",
+      "check": true,
+      "timeout": 120,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "diff --git a/source.py b/source.py\nindex 7fe73d4..f130532 100644\n--- a/source.py\n+++ b/source.py\n@@ -1,2 +1,2 @@\n # image setup\n-result = 0\n+result = 42\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "set -e\ncd /tmp/slime-git-diff-reading-r6ga4jhz/repo\nagent_index=$(mktemp)\nrm -f \"$agent_index\"\ntrap 'rm -f \"$agent_index\" \"$agent_index.lock\" \"$agent_index.paths\"' EXIT\nexport GIT_INDEX_FILE=\"$agent_index\"\ngit read-tree HEAD\ngit ls-files -z --cached --others --exclude-standard -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness' > \"$agent_index.paths\"\ngit update-index --add --remove -z --stdin < \"$agent_index.paths\"\ngit write-tree",
+      "check": true,
+      "timeout": 600,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "93f569ad263d3cc61637dfa2ed87a5737ebc09b2\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "cd /tmp/slime-git-diff-reading-r6ga4jhz/repo && git diff --binary 843995093bd53493edd1141a8eb6fdaab4ff9234 93f569ad263d3cc61637dfa2ed87a5737ebc09b2 -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness'",
+      "check": true,
+      "timeout": 120,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "diff --git a/source.py b/source.py\nindex 7fe73d4..f130532 100644\n--- a/source.py\n+++ b/source.py\n@@ -1,2 +1,2 @@\n # image setup\n-result = 0\n+result = 42\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "set -e\ncd /tmp/slime-git-diff-reading-r6ga4jhz/repo\nagent_index=$(mktemp)\nrm -f \"$agent_index\"\ntrap 'rm -f \"$agent_index\" \"$agent_index.lock\" \"$agent_index.paths\"' EXIT\nexport GIT_INDEX_FILE=\"$agent_index\"\ngit read-tree HEAD\ngit ls-files -z --cached --others --exclude-standard -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness' > \"$agent_index.paths\"\ngit update-index --add --remove -z --stdin < \"$agent_index.paths\"\ngit write-tree",
+      "check": true,
+      "timeout": 600,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "93f569ad263d3cc61637dfa2ed87a5737ebc09b2\n",
+      "stderr": ""
+    },
+    {
+      "cmd": "cd /tmp/slime-git-diff-reading-r6ga4jhz/repo && git diff --binary 843995093bd53493edd1141a8eb6fdaab4ff9234 93f569ad263d3cc61637dfa2ed87a5737ebc09b2 -- . ':(top,exclude)PROBLEM_STATEMENT.md' ':(top,exclude).harness'",
+      "check": true,
+      "timeout": 120,
+      "user": "agent",
+      "returncode": 0,
+      "stdout": "diff --git a/source.py b/source.py\nindex 7fe73d4..f130532 100644\n--- a/source.py\n+++ b/source.py\n@@ -1,2 +1,2 @@\n # image setup\n-result = 0\n+result = 42\n",
+      "stderr": ""
+    }
+  ]
+}

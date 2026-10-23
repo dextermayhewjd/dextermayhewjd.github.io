@@ -1,8 +1,9 @@
 # _render_response
 
-- 源码定位：[slime/agent/adapters/anthropic.py:198–208](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L198-L208)，由助手核对。
+- 源码定位：[slime/agent/adapters/anthropic.py:221–231](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L221-L231)，由助手核对。
 - 首次接触：Step 1，2026-10-21；此前随 `_respond` 阅读，本次从其记录拆出。
 - 最近认识更新：尚无本函数内部实现的直接复述；拆分不计为新增理解。
+- 最近源码校准：2026-10-23，函数体与旧版相同；行号与返回位置按 `18868a79` 更新。[旧卡片](../../../../../../references/render-response-at-2f231865.md)保留。
 
 从 [_respond 的普通分支](../common.py/BaseAdapter._respond.md#response-tree)进入；本函数返回字典后，同一行接着调用 [web.json_response](../../../../aiohttp/web_response.py/json_response.md)。
 
@@ -63,7 +64,7 @@ out_tok = 40
 
 **实现：输入怎样进入这些字段。**
 
-此时传入的值已经齐全：`body` 提供模型名，`blocks` 提供三个内容块，`stop_reason="tool_use"`，两个 token 计数是 `100` 和 `40`。以下是 `anthropic.py:198–208` 的实际实现，补了阅读注释：
+此时传入的值已经齐全：`body` 提供模型名，`blocks` 提供三个内容块，`stop_reason="tool_use"`，两个 token 计数是 `100` 和 `40`。以下是 `anthropic.py:221–231` 的实际实现，补了阅读注释：
 
 ```python
 def _render_response(body: dict, blocks: list[dict], stop_reason: str, in_tok: int, out_tok: int) -> dict:
@@ -93,6 +94,8 @@ def _render_response(body: dict, blocks: list[dict], stop_reason: str, in_tok: i
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**本次校准**：源码体相同；当前本地 HTTP 测试通过，结果见[父卡的校准依据](../common.py/BaseAdapter._respond.md#source-evidence)。以下保留初次阅读的旧版来源与完整场景。
 
 - 原始步骤上下文：[Step 1 的请求处理与发送时机纠正](../../../../../../../step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
 

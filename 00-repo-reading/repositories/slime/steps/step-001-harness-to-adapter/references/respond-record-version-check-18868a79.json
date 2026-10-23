@@ -1,0 +1,125 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "aiohttp_version": "3.13.5",
+  "normal_response": {
+    "status": 200,
+    "prepared_at_return": false,
+    "content_type": "application/json; charset=utf-8",
+    "body": {
+      "id": "msg_c4369958855403ef2011ebe7",
+      "type": "message",
+      "role": "assistant",
+      "model": "slime-actor",
+      "content": [
+        {
+          "type": "thinking",
+          "thinking": "需要先读取 README.md。"
+        },
+        {
+          "type": "text",
+          "text": "我先读取文件。"
+        },
+        {
+          "type": "tool_use",
+          "id": "toolu_22950dab68a5c189",
+          "name": "read_file",
+          "input": {
+            "path": "README.md"
+          }
+        }
+      ],
+      "stop_reason": "tool_use",
+      "stop_sequence": null,
+      "usage": {
+        "input_tokens": 100,
+        "output_tokens": 40
+      }
+    }
+  },
+  "record_turn": {
+    "return_value": null,
+    "threshold": 0,
+    "roles": [
+      "system",
+      "user",
+      "assistant"
+    ],
+    "assistant_message": {
+      "role": "assistant",
+      "content": "我先读取文件。",
+      "reasoning_content": "需要先读取 README.md。",
+      "tool_calls": [
+        {
+          "type": "function",
+          "function": {
+            "name": "read_file",
+            "arguments": {
+              "path": "README.md"
+            }
+          }
+        }
+      ]
+    },
+    "same_turn_object": true,
+    "same_message_object": true,
+    "turn_count": 1,
+    "turn_fields": [
+      "prompt_ids",
+      "output_ids",
+      "finish_reason",
+      "output_log_probs",
+      "ill_formed",
+      "replay",
+      "weight_versions",
+      "spec_info",
+      "prefix_cache_info"
+    ],
+    "additional_turn_fields": {
+      "replay": null,
+      "weight_versions": [],
+      "spec_info": {
+        "spec_accept_token_num": 0,
+        "spec_draft_token_num": 0,
+        "spec_verify_ct": 0,
+        "completion_token_num": 0
+      },
+      "prefix_cache_info": {
+        "cached_tokens": 0,
+        "total_prompt_tokens": 0
+      }
+    }
+  },
+  "existing_tests": {
+    "passed": 17,
+    "deselected": 21,
+    "scope": "3 local HTTP adapter cases with fake tokenizer and SGLang server; 14 trajectory branching/validation cases.",
+    "command": "python -m pytest tests/test_agent/test_adapters.py::test_anthropic_messages_nonstream_records_token_segments tests/test_agent/test_adapters.py::test_anthropic_messages_streams_blocks tests/test_agent/test_adapters.py::test_anthropic_multiturn_wire_roundtrip_and_token_capture tests/test_agent/test_trajectory_manager_branching.py -q -k 'anthropic_messages or anthropic_multiturn or test_1_ or test_3_1_ or test_3_3_ or test_4_2_ or test_4_3_'"
+  },
+  "limits": [
+    "This local example constructs a normal response without opening an HTTP connection.",
+    "Separate existing tests exercise loopback HTTP with fake SGLang, not real model generation or CLI tools.",
+    "Token IDs, logprobs and counts are constructed examples."
+  ],
+  "source_comparison": {
+    "before": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+    "after": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "unchanged": [
+      "BaseAdapter._respond",
+      "AnthropicAdapter._respond",
+      "_render_response",
+      "_render_stream",
+      "TrajectoryManager.record_turn",
+      "TrajectoryManager.__init__",
+      "MessageNode",
+      "_find_mount_point",
+      "_try_merge_assistant_rewrite",
+      "_mount_prompt_messages",
+      "_attach_assistant_leaf"
+    ],
+    "changed_context": [
+      "TurnRecord has replay, weight_versions, spec_info, prefix_cache_info.",
+      "Coding Agent default fork merge threshold changed from None (manager default 1024) to explicit 0 when environment variable is unset.",
+      "Caller saves PromptPrefix before returning response."
+    ]
+  }
+}

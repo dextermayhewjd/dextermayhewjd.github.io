@@ -33,9 +33,18 @@ description: Use when creating or revising a learner's function-level short-term
 
 同一函数已有认识时，本步记录保留使它独立可读的已有内容，再补充本步的新认识或修正。首次接触、原始来源与明确未知不能因复制或整理而丢失；“最近认识更新”只随实际理解变化更新。
 
+## 从长期记忆调取本步要用的函数
+
+`02` 保存本步正在使用的函数记录，包括新读的函数和从 `03` 调取的旧函数。已确认本步需要阅读或回顾某个函数时，即使没有新认识，也把 `03` 中的完整卡片复制到本步 `02` 的同名源码路径；本步已有该卡时直接复用，避免覆盖本步补充。
+
+- 保留原话、未知、首次接触、最近认识更新与原始来源，单独注明“本步调取”及来源快照。调取或补充调用场景不算个人认识更新。
+- 对齐本次调用者、实参和返回位置，重算相对链接；scope、调用方与本步索引直接链接 `02` 中的卡片，读者在本步即可回看完整记录。
+- `03` 继续保留进入本步时的累计快照。尚未实际用到、只是候选或深层依赖的旧函数仍留在 `03`，不因调取一张卡片就递归复制全部依赖。
+- 下一步仍按 `03 + 02` 合并；按源码路径与符号合成一份完整记录，保留有效旧内容和本步补充，不把纯调取标为新增理解。
+
 ## 函数记录写什么
 
-先打开用户明确指定的认可样例，按它的栏目名称、顺序和展示方式填写。基础样例是 [BaseAdapter._translate](../repo-reading-memory/references/base-adapter-translate.md)，[短期函数模板](../repo-reading-memory/references/short-term-memory-template.md)是它的占位版；二者共同规定成稿，不把样例仅当作内容素材。锚点函数另参照 [BaseAdapter._run_turn](references/base-adapter-run-turn.md)，在相同栏目内展开函数自身的编排与数据交接。
+先打开用户明确指定的认可样例，按它的栏目名称、顺序和展示方式填写。基础样例是 [BaseAdapter._translate](../repo-reading-memory/references/base-adapter-translate.md)，[短期函数模板](../repo-reading-memory/references/short-term-memory-template.md)是它的占位版；二者共同规定成稿，不把样例仅当作内容素材。锚点函数另参照 [BaseAdapter._run_turn](references/base-adapter-run-turn.md)，在相同栏目内展开函数自身的编排与数据交接。跨环境/跨边界调度函数另参照 [ClaudeCodeHarness.launch_and_wait](references/claude-code-launch-and-wait.md)，在“本场景的输入与输出”中采用显式 ASCII 流转图，用双线框 `╔══╗` 严格划出本函数直接职责与下游协同背景（沙箱环境、后端服务）的分界。
 
 | 内容 | 记录要求 |
 | --- | --- |
@@ -70,7 +79,7 @@ description: Use when creating or revising a learner's function-level short-term
 - 跳转表写清“需要展开时进入哪里”和“读完回到这里，接着使用什么”。父卡解释自身的调用组合，子卡承接被调用函数的内部实现。
 - 阶段数量按实际函数决定，不固定为样例中的三段。详细字段和辅助状态机制可按需折叠，主要输入输出与关键交接仍须直接可见；简单函数继续沿用基础样例。
 
-scope 负责阅读目标、骨架和函数入口；函数卡片建立完整的单函数模型，并在实际调用处提供局部跳转；task flow 在本步阅读后总结该 scope 内的整体配合。不要因 scope 或 task flow 中已有流程，就删去锚点函数自身的编排。问答与修正经过仍保存在 `04-flow.md` 或对应讨论中。
+scope 负责阅读目标、骨架和函数入口；函数卡片建立完整的单函数模型，并在实际调用处提供局部跳转；[task flow](../repo-reading-task-flow/SKILL.md) 在本步阅读后总结该 scope 内的整体配合，以 Step 003 为主要 reference。不要因 scope 或 task flow 中已有流程，就删去锚点函数自身的编排。问答与修正经过仍保存在 `04-flow.md` 或对应讨论中。
 
 ## 共用模型与引用入口
 
@@ -95,6 +104,8 @@ scope 负责阅读目标、骨架和函数入口；函数卡片建立完整的�
 
 - [已认可的 BaseAdapter._translate 样例](../repo-reading-memory/references/base-adapter-translate.md)：先读，确定当前成稿的结构、场景、输入输出和引用方式；保留样例原文。
 - [已认可的锚点函数 BaseAdapter._run_turn 样例](references/base-adapter-run-turn.md)：本步以一个组织多个子函数的函数为入口时阅读，参考完整输入输出、分阶段代码、分条说明和局部跳转的结合方式；2026-10-21 经用户确认后独立保存。
+- [已认可的跨环境调度函数 ClaudeCodeHarness.launch_and_wait 样例](references/claude-code-launch-and-wait.md)：涉及本地组装并跨网络/跨沙箱调度外部进程时阅读，参考 ASCII 物理流转图、双线框职责锁定与分层代码归属表的结合方式；2026-10-22 经用户确认后独立保存。
+- [已认可的面包屑链路与通用基座样例](references/breadcrumb-navigation-and-shared-infra.md)：涉及上层业务特化函数下钻到底层通用长任务基座（如 `run_agent` 委派 `exec_and_wait`）时阅读，参考调用链面包屑导航条、双向精确相对链接以及底层基座多业务入口与“读完返回”跳转表的结合方式；2026-10-23 经用户确认后独立保存。
 - [短期函数模板](../repo-reading-memory/references/short-term-memory-template.md)：按上述样例提取的占位版，新建完整函数记录时填写。
 
 原有模板与基础样例继续保留在原路径；锚点函数样例独立保存在本 skill 的 `references/`，原步骤卡片与来源链接保留。通用分工见[记忆总入口](../repo-reading-memory/SKILL.md)；本仓库的后续 skill 拆分仍按已确认职责逐项推进。

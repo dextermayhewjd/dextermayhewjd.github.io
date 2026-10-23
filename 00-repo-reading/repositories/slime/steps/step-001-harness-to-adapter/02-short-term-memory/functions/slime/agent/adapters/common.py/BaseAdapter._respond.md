@@ -1,8 +1,9 @@
 # BaseAdapter._respond
 
-- 源码定位：共同接口在 [slime/agent/adapters/common.py:197–206](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L197-L206)；本场景实际执行 [AnthropicAdapter._respond，anthropic.py:71–75](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L71-L75)，由助手核对。
+- 源码定位：共同接口在 [slime/agent/adapters/common.py:262–271](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L262-L271)；本场景实际执行 [AnthropicAdapter._respond，anthropic.py:71–75](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L71-L75)，由助手核对。
 - 首次接触：Step 1，2026-10-21，承接 `_build_reply` 返回的 `reply`。
 - 最近认识更新：2026-10-21，用户给出整体职责的初步理解（见下方原话），仍在确认需要掌握的细节范围。此前对调用前准备的追问和说明见 [_run_turn](BaseAdapter._run_turn.md#before-respond)。
+- 最近源码校准：2026-10-23。响应入口、普通 JSON 与 SSE 渲染实现均未变化；更新新版调用位置与后续前缀保存说明。[旧卡片](../../../../../../references/respond-at-2f231865.md)保留，个人认识时间不变。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
@@ -16,7 +17,7 @@
 
    > `_respond` 根据 `stream` 选择响应方式：普通分支创建 JSON 响应对象；流式分支写出 SSE 事件。最后返回对应的响应对象。进入这里时，模型内容已经生成完。
 
-4. **调用代码**（`common.py:363`，省略外围异常处理）：
+4. **调用代码**（`common.py:442`，省略外围异常处理）：
 
    ```python
    response = await self._respond(request, body, reply, in_tok, out_tok, stream)
@@ -145,7 +146,7 @@ _respond
 
 <a id="return-to-run-turn"></a>
 
-**返回哪里。** 对象回到 `_run_turn:363` 的 `response`。随后执行调试回调和轨迹记录，再于 `:391` 返回给 aiohttp；普通分支此后才发送响应。接回 [_run_turn 的后续处理](BaseAdapter._run_turn.md#after-respond)。流式事件虽已写出，也不等于客户端业务代码已消费。
+**返回哪里。** 对象回到 `_run_turn:442` 的 `response`。随后执行调试回调和轨迹记录，并在 `:470–472` 保存本轮前缀，再于 `:473` 返回给 aiohttp；普通分支此后才发送响应。接回 [_run_turn 的后续处理](BaseAdapter._run_turn.md#after-respond)。流式事件虽已写出，也不等于客户端业务代码已消费。
 
 <a id="personal-statements"></a>
 
@@ -189,6 +190,12 @@ _respond
 
 这次反馈确认的是本轮总体理解可以继续接续；没有据此将完整协议字段或全部内部实现标为掌握。接续记录见 [TrajectoryManager.record_turn](../../trajectory.py/TrajectoryManager.record_turn.md)。
 
+本次新版校准同时确认阅读响应与记录：
+
+> 好的那么再看一下 这里的anthropic的respond还有这里的manager 的record turn什么的吧
+
+本轮核对与补充说明不代表用户已掌握全部分支。
+
 ## 尚不清楚
 
 - 用户已给出整体职责的初步理解；两种响应路径的字段细节与发送时机尚无直接复述。
@@ -208,7 +215,7 @@ _respond
 in_tok, out_tok = len(prompt_ids), len(turn.output_ids)
 ```
 
-`prompt_ids` 是模板编码得到的输入 token ID 列表，`turn.output_ids` 是模型生成的 token ID 列表。输入列表若有 100 项、输出列表若有 40 项，这里就得到 `in_tok=100`、`out_tok=40`；本页局部实验直接构造这两个数量，没有取得模型实际生成的列表。
+`prompt_ids` 是 `_session_prompt_ids` 准备并实际交给模型的输入 token ID 列表，`turn.output_ids` 是模型生成的 token ID 列表。输入列表若有 100 项、输出列表若有 40 项，这里就得到 `in_tok=100`、`out_tok=40`；本页局部实验直接构造这两个数量，没有取得模型实际生成的列表。
 
 传给 `_respond` 后，`in_tok` 和 `out_tok` 分别进入响应的 `usage.input_tokens` 与 `usage.output_tokens`。统计包含列表中实际存在的思考、工具调用和特殊标记等 token，不是只数最终正文的字数。`_respond` 接收的是两个数量，不接收 `prompt_ids` 或整个 `turn` 对象。
 
@@ -283,6 +290,15 @@ reply = Reply(
 
 <details>
 <summary>来源、验证与完整例子</summary>
+
+**2026-10-23 新版校准：**
+
+- Slime `2f231865 → 18868a79` 的 `AnthropicAdapter._respond`、[_render_response:221–231](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L221-L231)、[_render_stream:234–297](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/anthropic.py#L234-L297)均未变化；共同接口移到 `common.py:262–271`，调用处在 `:442`。
+- 本机 aiohttp 仍为 `3.13.5`。用当前实现直接构造普通响应，确认状态 200、三类内容块、用量 100/40、返回时 `prepared=False`；[结果与边界](../../../../../../references/respond-record-version-check-18868a79.json)已保存。不要把 `common.py:438–440` 的注释泛化成所有分支都已经送达客户端。
+- 17 项已有测试通过，其中 3 项在本地 HTTP 服务器上验证普通响应、流式响应与多轮交接，其余核对轨迹记录；模型服务与 tokenizer 使用测试替身，没有运行真实模型或 CLI。
+- [当前后续顺序](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L442-L475)是取得响应对象、调试回调、轨迹记录、保存 `PromptPrefix`，最后返回。普通 JSON 分支的发送由 aiohttp 在处理器返回后完成；流式事件在 `_respond` 内写出，写出不证明客户端业务已消费。
+
+**初次阅读与原验证依据（保留旧版归属）：**
 
 - 原始步骤上下文：[Step 1 的请求处理与发送时机纠正](../../../../../../../step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
 

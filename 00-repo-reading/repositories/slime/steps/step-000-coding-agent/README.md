@@ -2,7 +2,7 @@
 
 **本步按用户确认的三项组织：理解 Coding Agent、找到指挥官函数、给出真正干活的核心骨架。**
 
-从 [01 · 阅读范围](01-scope.md)进入，先看 `generate` 的正常路径与七个核心步骤；子函数内部留待后续选定问题后展开。
+从 [01 · 阅读范围](01-scope.md)进入，本轮沿新版 `generate → _generate` 校准正常路径与七个核心业务环节；子函数内部留待对应步骤逐项校准。旧版完整骨架见[归档 scope](references/scope-at-2f231865.md)。
 
 ## 当前保留什么
 
@@ -23,4 +23,4 @@
 
 当前接续以[项目唯一路线](../../../../../slime_photo/code-reading/repo-reading-route.md#当前接续)为准。
 
-具体代码进入 [Step 1](../step-001-harness-to-adapter/README.md)：保留 Harness 到 Adapter 的来路，逐段阅读 `_run_turn`，并在其短期记忆中复用转换记录。本步继续保留原来的七项核心骨架。
+具体代码进入 [Step 1](../step-001-harness-to-adapter/README.md)：保留 Harness 到 Adapter 的来路，逐段阅读 `_run_turn`，并在其短期记忆中复用转换记录。本步保留七项业务职责，已在新版 scope 补上实际编排位置、对象选择、工作区基线与运行统计。后续各步尚需按新版逐项核对；材料更新不代表已经完成新版理解。

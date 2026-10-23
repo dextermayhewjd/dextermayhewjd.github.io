@@ -59,6 +59,19 @@ description: Use when defining or reviewing a source-code reading scope, locatin
 
 “先建 scope、暂不填写具体函数”表示暂缓函数卡片；scope 仍需保留已确认范围内的局部导航。若用户明确要求只定位、不展开内部，则按该边界保留调用位置和后续问题。
 
+### 按需分支：阅读路径图与回查
+
+**观察点较多，或阅读中需要回查并返回主线时**，参考下面两份用户已认可的完整 scope。两份都已包含整体定位、局部骨架、阅读图与导航表；按当前问题选择参考，不需要据此改写原步骤。
+
+| 完整样例 | 重点参考什么 |
+| --- | --- |
+| [Step 001：一次模型请求](references/step-001-reading-path.md) | 沿局部编排的数据主线阅读，中途回看追踪包装，辅助函数从所属分支进入后返回 |
+| [Step 002：运行统计与补丁提取](references/step-002-reading-path.md) | 从结果读取回查输入的写入、配置与初始化，再返回原调用、继续下一项结果 |
+
+- 图表达“先读哪里 → 按需回查 → 回到哪里”，辅助函数放在所属分支下；表与图编号一致，补上卡片或源码入口、当前问题、阅读深度和返回位置。
+- 局部骨架保留真实执行顺序；阅读图标明回看、跨请求关联等阅读关系。阅读导航在 scope 维护，实际追问与修正留在 04-flow；task flow 总结执行与数据交接，并引用 scope 的导航。
+- 新步骤先保留已确认的入口，回查分支随问题和范围确认逐步补全。样例的函数、观察点数量和已读状态只属于原步骤，不能直接套作下一步的清单。
+
 ## 4. 生成三段 scope
 
 | 部分 | 要回答的问题 |
@@ -76,5 +89,6 @@ description: Use when defining or reviewing a source-code reading scope, locatin
 - [剪枝方法](references/pruning-method.md)：执行本方法时阅读，包含指挥官判断、五类过滤、下钻与常见误判。
 - [Coding Agent scope 样例](references/coding-agent-scope.md)：需要对照三段格式时阅读；这是固定源码的样例，不预设其他仓库也从 `generate` 开始。
 - [局部导航 reference](references/local-call-context.md)：本步展开某个核心调用，或需补调用对象、输入与实现来路时阅读；示范整体定位、局部骨架、阅读深度和返回位置。
+- 完整局部 scope 样例：[Step 001](references/step-001-reading-path.md)与 [Step 002](references/step-002-reading-path.md)。两份均按已认可的正文保存，分别展示沿编排主线阅读与回查输入来源；共同参考阅读图、定位表和实际执行骨架的分工。
 
 交付前核对：入口确实串联当前任务；核心调用有源码依据；参数展示符合本步问题；业务分支和返回结构没有被剪错；局部阅读同时保留整体位置与可跟随的局部导航；停止位置明确。文档生成或源码核对成功，不作为学习者已掌握的证据。
