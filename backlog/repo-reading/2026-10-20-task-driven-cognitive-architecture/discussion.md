@@ -369,7 +369,7 @@ turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=
 > 部队啊 这里的step 不是从coding agent部分开始看吗？
 > 不是目前的这个train
 
-助手此前把转换局部示范当作 Step 0，并保留项目旧的外层启动入口，未满足用户要看 Coding Agent 起点的要求。本轮将当前入口统一到[新的 Coding Agent Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)，以 `examples/coding_agent_rl/generate.py::generate` 组织一份任务的主线。
+助手此前把转换局部示范当作 Step 0，并保留项目旧的外层启动入口，未满足用户要看 Coding Agent 起点的要求。本轮将当前入口统一到[新的 Coding Agent Step 0](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)，以 `examples/coding_agent_rl/generate.py::generate` 组织一份任务的主线。
 
 新的结构先展示任务准备、Harness 运行期间的模型与工具交互、diff、独立评估、结果与清理。既有 `_translate` 两份函数认识继承到 `03`，作为主线内的可复用局部；新函数仅定位的内容和助手解释与用户认识分开。下一处观察点为 `_AdapterService(args)`，不是外层训练启动。
 
@@ -697,7 +697,7 @@ Skill 方面，已有短期 skill 继续使用；步骤 skill 候选暂时协同
 >
 > 请按照之前指南中的方法给出这里的scope吧
 
-据此将当前 [Step 0 的 01-scope.md](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/01-scope.md)直接组织为这三个部分。阅读目标是理解 Coding Agent 的整体工作轮廓；指挥官函数定位到 `examples/coding_agent_rl/generate.py::generate`；核心骨架按代码阅读指南的剪枝方法，仅保留登记会话、启动沙箱、准备工作区、运行 Agent、取得改动、独立评测、导出样本七个步骤。
+据此将当前 [Step 0 的 01-scope.md](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/01-scope.md)直接组织为这三个部分。阅读目标是理解 Coding Agent 的整体工作轮廓；指挥官函数定位到 `examples/coding_agent_rl/generate.py::generate`；核心骨架按代码阅读指南的剪枝方法，仅保留登记会话、启动沙箱、准备工作区、运行 Agent、取得改动、独立评测、导出样本七个步骤。
 
 助手静态核对了本地 Slime 提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f` 的 `generate.py:182` 起始实现。骨架是 `evaluation=False` 正常路径的教学裁剪，保留真实调用和主要数据交接，省略参数准备、配置、检查、日志、异常、附加元数据和最终清理。
 
@@ -766,7 +766,7 @@ Skill 方面，已有短期 skill 继续使用；步骤 skill 候选暂时协同
 
 ### 用户确定本轮交接问题
 
-用户随后明确追问 `harness_cls().run` 怎样接到 `BaseAdapter._run_turn`，并担心内部调用被拆成过多步骤。当前据这个已明确的问题进入 [Step 1](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)：以一个交接问题划分阅读单元，不以每个函数调用划分一步。原话和技术澄清保存在 [Step 1 的 flow](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#从启动到请求入口)，连续讲解同步到已有任务 walkthrough。步骤创建和助手解释不表示用户已经掌握；后续仍根据实际反馈继续。
+用户随后明确追问 `harness_cls().run` 怎样接到 `BaseAdapter._run_turn`，并担心内部调用被拆成过多步骤。当前据这个已明确的问题进入 [Step 1](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/README.md)：以一个交接问题划分阅读单元，不以每个函数调用划分一步。原话和技术澄清保存在 [Step 1 的 flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#从启动到请求入口)，连续讲解同步到已有任务 walkthrough。步骤创建和助手解释不表示用户已经掌握；后续仍根据实际反馈继续。
 
 ## 教学怎样配合代码与心智模型
 
@@ -926,19 +926,19 @@ Skill 方面，已有短期 skill 继续使用；步骤 skill 候选暂时协同
 
 > 好的那么先生成一个这样子的task-flow吧
 
-据此在当前 [Step 1 新建任务链路笔记](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md)，由步骤 README 提供入口。样例沿用已确认的 Harness 启动到 Adapter 收到请求这一范围，记录任务位置、执行链路、关键数据交接、请求完成与 CLI 退出的区别、未展开处和源码依据。
+据此在当前 [Step 1 新建任务链路笔记](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md)，由步骤 README 提供入口。样例沿用已确认的 Harness 启动到 Adapter 收到请求这一范围，记录任务位置、执行链路、关键数据交接、请求完成与 CLI 退出的区别、未展开处和源码依据。
 
 本轮用固定版本源码核对调用、配置、路由及返回值，没有运行外部服务。单函数认识通过原有记录复用，不因链路出现了某个函数就新增该函数卡片；用户的理解状态也不因生成样例而更新。通用模板、skill 和其他步骤暂未推广，后续根据这份样例的实际反馈调整。
 
 ### 试用反馈：函数调用树没有讲清 HTTP 发生的时机
 
-用户反馈仍不理解信息为何突然通过 HTTP POST 发出，以及运行顺序。原话和技术澄清保存在 [Step 1 的问题记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#http-请求为什么会发生先后顺序仍不清楚)。
+用户反馈仍不理解信息为何突然通过 HTTP POST 发出，以及运行顺序。原话和技术澄清保存在 [Step 1 的问题记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#http-请求为什么会发生先后顺序仍不清楚)。
 
 这次反馈暴露出任务链路笔记还需要区分调用树与事件时序：准备地址不等于发送请求，接收端注册不等于发送请求，启动外部程序后还存在该程序内部的运行过程。现将按执行者、时间排列的说明置于前面，原函数树折叠为回查入口；完整说明同步到同源教学正文。此为本次样例调整，不据此认定用户已经理解，也未将其扩展为新的通用模板规则。
 
 ### 再次试用反馈：还需要从函数体追踪进入与返回
 
-用户看过上一轮解释后，仍明确表示完全跟不上 `run` 如何往下执行。完整原话与本轮解释见 [Step 1 的对应记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#run-execution-still-unclear)。
+用户看过上一轮解释后，仍明确表示完全跟不上 `run` 如何往下执行。完整原话与本轮解释见 [Step 1 的对应记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#run-execution-still-unclear)。
 
 此次将 task-flow 的主讲解改为从 `run` 函数体逐句展开，给每个关键子调用标明进入哪里、何时返回、此刻谁还在等待。尤其分开“后台启动命令已返回”和“被启动的 Claude 已退出”，再把 HTTP 请求放回这段等待期间。函数调用树继续作为回查入口；不把新的讲解形式或静态检查当成用户已理解的证据。
 
@@ -1040,9 +1040,9 @@ app.router.add_post("/v1/messages", self._run_turn)
 
 ### 后续要求：流程图必须能定位具体实现和返回位置
 
-用户随后明确指出，仍分不清要看哪一个 Harness 的实现，希望图中直接给出代码行号，并解释每段代码做什么；多层嵌套时需要能继续跟随。完整原话保存在 [Step 1 的对应反馈](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#source-location-and-return-feedback)。
+用户随后明确指出，仍分不清要看哪一个 Harness 的实现，希望图中直接给出代码行号，并解释每段代码做什么；多层嵌套时需要能继续跟随。完整原话保存在 [Step 1 的对应反馈](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#source-location-and-return-feedback)。
 
-这条反馈修正了上一版“源码位置主要放回查”的安排：对于当前正在跟踪的链路，文件和行号本身就是必要的导航信息，应默认可见。当前落实在 [task-flow 的源码导航](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md#source-jump-map)：
+这条反馈修正了上一版“源码位置主要放回查”的安排：对于当前正在跟踪的链路，文件和行号本身就是必要的导航信息，应默认可见。当前落实在 [task-flow 的源码导航](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md#source-jump-map)：
 
 - 先指出当前选型及实际对象，区分 `ClaudeCodeHarness` 和 `AnthropicAdapter`。
 - 文件至少保留 `harness/` 或 `adapters/` 目录，避免两个 `common.py` 混淆。
@@ -1201,7 +1201,7 @@ BaseAdapter._run_turn(request)
 > 继承一下step0的核心干活框架？
 > 采用面包屑的方式 在核心骨架下面单独拆分出来一个分支吧
 
-本轮按此安排调整 [Step 1 的 scope](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md)：整体指挥官继续是 `generate`，原样继承 Step 0 的七项核心骨架；在骨架下面单独展开第 4 项 `HARNESS_CLS().run(...)`，用面包屑标出本步的 Harness、CLI 与 Adapter 位置。分支标明源码文件和行号，HTTP 交接单独标注，并说明 CLI 整体退出后返回第 4 项、继续第 5 项。
+本轮按此安排调整 [Step 1 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md)：整体指挥官继续是 `generate`，原样继承 Step 0 的七项核心骨架；在骨架下面单独展开第 4 项 `HARNESS_CLS().run(...)`，用面包屑标出本步的 Harness、CLI 与 Adapter 位置。分支标明源码文件和行号，HTTP 交接单独标注，并说明 CLI 整体退出后返回第 4 项、继续第 5 项。
 
 scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 继续负责具体交接与实现依据，函数记忆继续保存局部认识。Step 0、函数卡片、长期继承规则与详细教学正文保持原样。本轮只落实当前 scope 的结构，不预先展开其他六项，也不把这项格式选择记录为用户新增源码理解。
 
@@ -1287,7 +1287,7 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 
 关于工程师的阅读方式，助手赞成这个安排：先取得整体位置，再围绕一个问题沿真实执行路径读具体代码，最后把局部认识接回整体。Sillito 等人的[程序理解研究](https://www.cs.ubc.ca/~murphy/papers/other/asking-answering-fse06.pdf)区分了寻找起点、围绕起点探索、连接多项信息及整合模型等问题，支持“局部实体加关系”这一关注点；它不规定本仓库的目录名，也不能证明所有大厂工程师采用同一套笔记制度。将该研究用于此次目录分工是助手的应用判断。
 
-保留边界：`_run_turn` 处理一次模型请求，不承载 CLI 的完整工具执行循环；同一轮先调用 `_respond` 再记录轨迹，但非流式分支在 `_respond` 返回时只是准备了响应对象。完整技术纠正见 [Step 1 记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
+保留边界：`_run_turn` 处理一次模型请求，不承载 CLI 的完整工具执行循环；同一轮先调用 `_respond` 再记录轨迹，但非流式分支在 `_respond` 返回时只是准备了响应对象。完整技术纠正见 [Step 1 记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
 
 此次迁移不改变已有原话、认识时间或明确未知；新增 `_run_turn` 的模型是助手解释，尚无用户完整职责复述，未运行 CLI、沙箱或模型服务。长期继承仍采用下一步 `03 = 本步 03 + 本步 02`。
 
@@ -1312,7 +1312,7 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 | 缩减场景 | 助手把原调用的工具定义、`tokenize=True` 与助手前缀，替换成无工具、自定义模板、`False` 与“你好”的小实验 | 主记录接住 `_translate` 的真实两路输出和原调用参数；变更参数的观察实验放补充说明 |
 | 验收 | 当时核对了 Jinja 模板能否渲染和链接是否存在，却没有核对成稿结构及当前任务是否对应 | 同时核对认可样例的栏目顺序、当前场景、关键模式参数和输出边界，再检查技术证据与链接 |
 
-本次修正采用用户指明的 [BaseAdapter._translate](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md) 作为结构基准，原文件和 skill 中的独立 reference 不改。新 [apply_chat_template 记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md) 按“开头定位 → LLM 四项 → 本场景输入输出 → 原话 → 未知 → 折叠来源”重排，保留此前用户疑问；没有真实模型 tokenizer 时，只声明已核对的输出类型与用途，不虚构 token 值。
+本次修正采用用户指明的 [BaseAdapter._translate](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md) 作为结构基准，原文件和 skill 中的独立 reference 不改。新 [apply_chat_template 记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md) 按“开头定位 → LLM 四项 → 本场景输入输出 → 原话 → 未知 → 折叠来源”重排，保留此前用户疑问；没有真实模型 tokenizer 时，只声明已核对的输出类型与用途，不虚构 token 值。
 
 同步调整 [短期 skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md)、[短期模板](../../../.agents/skills/repo-reading-memory/references/short-term-memory-template.md) 与主动入口中的旧版顺序说明；长期机制仍完整继承原记录，旧快照不批量重写。本次属于格式和流程纠错，不代表用户形成了新的源码理解。
 
@@ -1322,7 +1322,7 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 
 > 那么按照这个方式来处理一下 这里的_render_token_id 了吗？
 
-据此将正式的 [_render_token_ids 记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md) 按同一结构整理。主样例接住 `_translate` 的全部消息和工具定义；此前 `FakeTokenizer` 的输入、结果与验证边界移入折叠来源保留。原有两段用户表述、未知与认识时间均保留，未把上轮独立试写直接覆盖到正式记录，也未新增理解确认。
+据此将正式的 [_render_token_ids 记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md) 按同一结构整理。主样例接住 `_translate` 的全部消息和工具定义；此前 `FakeTokenizer` 的输入、结果与验证边界移入折叠来源保留。原有两段用户表述、未知与认识时间均保留，未把上轮独立试写直接覆盖到正式记录，也未新增理解确认。
 
 
 <a id="function-contract-and-internal-execution"></a>
@@ -1403,9 +1403,9 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 > 好的先按照这种生成方案吧
 > 然后看一下是否能够比较清楚的解决这里的问题
 
-这次确认的是先生成一版用于阅读反馈，并非已经认可其阅读效果或将它设为通用规则。助手据此修改 [Step 1 的 BaseAdapter._run_turn 卡片](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond) 的“本场景的输入与输出”局部。
+这次确认的是先生成一版用于阅读反馈，并非已经认可其阅读效果或将它设为通用规则。助手据此修改 [Step 1 的 BaseAdapter._run_turn 卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond) 的“本场景的输入与输出”局部。
 
-试排沿原源码顺序，从已有 `reply` 接续：先就地说明本例的回复材料，再分别解释 `turn.ill_formed` 更新、token 用量、响应模式，最后将参数交给 `_respond` 并接回记录轨迹的位置。每处把当前需要的已有值、实际语句、结果和使用位置放在一起。例如 [token 用量段](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#token-usage) 直接连接两份 ID 列表、`len` 计数和响应中的 `usage`，无需先打开另一张卡片寻找去向。
+试排沿原源码顺序，从已有 `reply` 接续：先就地说明本例的回复材料，再分别解释 `turn.ill_formed` 更新、token 用量、响应模式，最后将参数交给 `_respond` 并接回记录轨迹的位置。每处把当前需要的已有值、实际语句、结果和使用位置放在一起。例如 [token 用量段](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#token-usage) 直接连接两份 ID 列表、`len` 计数和响应中的 `usage`，无需先打开另一张卡片寻找去向。
 
 当前主线统一沿用原卡片的“你好。”非流式假设场景；其他响应模式的字段说明和四种结果保留在折叠区。子函数卡仍可用于深入，但本段直接提供继续阅读所需的结果，并标明子卡采用不同的工具调用例子。`turn` 的更新明确接到后面的 `record_turn`，与响应参数区分；保留非流式响应在 handler 返回后由 aiohttp 发送的边界。
 
@@ -1427,8 +1427,8 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 
 本次修改仍限于本步短期函数记录：
 
-- [_respond](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation) 在原“本场景的输入与输出”中补齐两个计数与响应模式的来源、实际准备代码、示例值及用途，再接原有的响应实现和输出。主例继续使用该卡片已有的工具调用场景，计数 `100/40` 保持为构造值；四种响应模式的对照说明一并移入。
-- [_run_turn](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond) 保留 `turn.ill_formed` 更新及其与 `record_turn` 的连接，响应部分留下调用和返回位置，并链接 `_respond` 的输入说明。旧的计数、响应准备锚点继续作为新位置的入口。
+- [_respond](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation) 在原“本场景的输入与输出”中补齐两个计数与响应模式的来源、实际准备代码、示例值及用途，再接原有的响应实现和输出。主例继续使用该卡片已有的工具调用场景，计数 `100/40` 保持为构造值；四种响应模式的对照说明一并移入。
+- [_run_turn](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond) 保留 `turn.ill_formed` 更新及其与 `record_turn` 的连接，响应部分留下调用和返回位置，并链接 `_respond` 的输入说明。旧的计数、响应准备锚点继续作为新位置的入口。
 
 执行边界明确保留：两行准备代码仍在源码 `common.py:356–357` 的 `_run_turn` 内执行，实际 `_respond` 从第 363 行接收参数，并在 `anthropic.py:71–75` 使用它们。移动的是讲解位置，没有把参数计算描述成 `_respond` 的内部实现，也没有修改 Slime 源码。
 
@@ -1452,7 +1452,7 @@ scope 负责“整体在哪里、本步从哪里向下看”；已有 task-flow 
 
 > 好的那么就按照这里的_respond 来处理吧
 
-本轮将方案写入原 [_respond 函数卡](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#ordinary-response) 的“本场景的输入与输出”。原有输入准备和工具调用例子保留，从 `stream=False` 出发依次说明：`reply.wire` 拆出内容块与停止原因 → `_render_response` 把它们与计数等字段组成 Python 字典 → `web.json_response` 创建 `web.Response` → `_run_turn` 接收对象、记录轨迹并返回给 aiohttp。
+本轮将方案写入原 [_respond 函数卡](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#ordinary-response) 的“本场景的输入与输出”。原有输入准备和工具调用例子保留，从 `stream=False` 出发依次说明：`reply.wire` 拆出内容块与停止原因 → `_render_response` 把它们与计数等字段组成 Python 字典 → `web.json_response` 创建 `web.Response` → `_run_turn` 接收对象、记录轨迹并返回给 aiohttp。
 
 `_render_response` 的真实实现直接放在当前交接处，标出已有值如何进入 `content`、`stop_reason` 和 `usage`。完整 `_respond` 实现移到来源折叠区；流式说明作为普通路径结束后的折叠对照，保留原有 SSE 内容、事件顺序和验证边界。个人原话、认识时间、明确未知以及原有输入输出代码块均保留。
 
@@ -1515,7 +1515,7 @@ return response
 
 助手据源码区分当前需要展示的两层：`AnthropicAdapter._respond` 自身从 `wire` 取值并选择分支；普通分支的工作由 `_render_response` 与 `web.json_response` 完成，流式分支由 `_render_stream` 完成。子函数的名称和职责仍可能是黑盒，需要在当前函数的上下文中打开真正执行的代码，展示中间数据或发送动作，再回到调用处，而不能用另一串抽象名称替代实现讲解。
 
-本轮沿已经采用的普通分支，选 `web.json_response` 作为一次实际展开的示范，并补入[原短期函数卡片](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#json-response-internals)：`data` 接住正文字典，`json.dumps` 生成字符串，`Response` 在当前默认路径设置 JSON UTF-8 响应头、编码并保存正文字节，响应对象逐层返回给 `_run_turn`。卡片中的已有 `_render_response` 实现、完整样例和流式对照继续保留；参数准备不再增加讲解。
+本轮沿已经采用的普通分支，选 `web.json_response` 作为一次实际展开的示范，并补入[原短期函数卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#json-response-internals)：`data` 接住正文字典，`json.dumps` 生成字符串，`Response` 在当前默认路径设置 JSON UTF-8 响应头、编码并保存正文字节，响应对象逐层返回给 `_run_turn`。卡片中的已有 `_render_response` 实现、完整样例和流式对照继续保留；参数准备不再增加讲解。
 
 方法上的候选分工仍是：整张函数卡片保留入口与总输入输出，在其中按真实子调用展开当前未知的实现；一个局部片段同时放具体代码、中间结果及返回位置。只为该问题服务的辅助调用暂时就地解释，有独立复用需求时再讨论是否另建函数卡。这是依据本轮反馈提出的做法，尚未成为已认可的 skill 或 reference。
 
@@ -1575,10 +1575,10 @@ return response
 
 本次实际调整仍限定在 Step 1 的短期函数记录中：
 
-- [BaseAdapter._respond](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-tree) 保留原定位、认识时间、个人原话、明确未知，以及短模型、总输入输出和用户认可的调用树。参数准备和完整 `Reply` 放在折叠区；原有 `response-preparation`、`token-usage`、`ordinary-response`、`json-response-internals` 锚点继续有效。
-- [_render_response](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md) 接收字典组装的实现说明，按同一工具调用场景补齐独立输入输出。返回值明确为 Python 字典，并连接后续 `web.json_response`。
-- [web.json_response](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/aiohttp/web_response.py/json_response.md) 接收序列化、响应头、编码和 `Response` 构造说明，以及完整历史 HTTP JSON；`json.dumps` 和字节编码留在本卡解释，没有额外建立细碎卡片。
-- [_render_stream](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md) 接收事件顺序、字段对照、发送副作用和全部 12 个历史 SSE 事件，保留写出与客户端消费的区别。
+- [BaseAdapter._respond](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-tree) 保留原定位、认识时间、个人原话、明确未知，以及短模型、总输入输出和用户认可的调用树。参数准备和完整 `Reply` 放在折叠区；原有 `response-preparation`、`token-usage`、`ordinary-response`、`json-response-internals` 锚点继续有效。
+- [_render_response](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md) 接收字典组装的实现说明，按同一工具调用场景补齐独立输入输出。返回值明确为 Python 字典，并连接后续 `web.json_response`。
+- [web.json_response](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/aiohttp/web_response.py/json_response.md) 接收序列化、响应头、编码和 `Response` 构造说明，以及完整历史 HTTP JSON；`json.dumps` 和字节编码留在本卡解释，没有额外建立细碎卡片。
+- [_render_stream](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md) 接收事件顺序、字段对照、发送副作用和全部 12 个历史 SSE 事件，保留写出与客户端消费的区别。
 
 三张子卡均沿用认可的外层格式，明确从父函数哪个分支进入、返回哪里；没有直接复述时如实注明。四张卡片沿用同一份三个内容块、工具调用 ID 与构造计数 `100/40`。`_render_response` 的字典输出由此前 HTTP JSON 对应表示得到，保留原随机消息 ID 的来源说明，不冒称本次新运行结果。
 
@@ -1597,7 +1597,7 @@ return response
 > 我支持这里的写法
 > 但是这里起码告诉我一下这里response是什么吧
 
-用户支持当前写法，同时指出输出只写“响应对象”仍不足以恢复理解。本轮保留四张卡片的分工，在父卡的[输出位置](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-object)补清：`response` 是调用者的变量名；普通分支返回的是 `aiohttp.web.Response` 实例，保存 HTTP 状态码、响应头和正文；模型文字和工具调用位于正文 JSON 的 `content` 中。
+用户支持当前写法，同时指出输出只写“响应对象”仍不足以恢复理解。本轮保留四张卡片的分工，在父卡的[输出位置](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-object)补清：`response` 是调用者的变量名；普通分支返回的是 `aiohttp.web.Response` 实例，保存 HTTP 状态码、响应头和正文；模型文字和工具调用位于正文 JSON 的 `content` 中。
 
 补充的观察代码读取 `response.status`、`response.headers["Content-Type"]`、`response.body`，并通过 `json.loads(response.text)` 读到当前例子第二个内容块的“我先读取文件。”。明确这只是普通分支的查看方式，原有表格继续区分流式返回对象和发送时机；没有把库内部实现重新搬回父卡。
 
@@ -1611,7 +1611,7 @@ return response
 
 > 我的意思是，哪些保留了这里的body in_tok啊什么的
 
-上一轮只解释响应对象的类型和属性，未直接回答输入与输出之间的字段对应。本次在父卡的[总输入输出](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-fields)补上普通分支的对照：请求中的模型名进入 `model`，`reply.wire` 的两部分进入 `content` 与 `stop_reason`，`in_tok` 和 `out_tok` 进入 `usage` 下的两个计数字段。
+上一轮只解释响应对象的类型和属性，未直接回答输入与输出之间的字段对应。本次在父卡的[总输入输出](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-fields)补上普通分支的对照：请求中的模型名进入 `model`，`reply.wire` 的两部分进入 `content` 与 `stop_reason`，`in_tok` 和 `out_tok` 进入 `usage` 下的两个计数字段。
 
 同时区分输入请求字典 `body` 与输出正文字节 `response.body`，说明其余实参承担分支选择或连接准备，以及响应新增的固定字段和随机 ID。保留流式字段分布与模型名来源的差异，具体实现继续链接子卡。
 
@@ -1629,7 +1629,7 @@ return response
 >
 > 所以似乎好像也不需要 具体了解这里的格式或者内容？
 
-本次实际在父卡的[字段对应表后](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-shape)补上普通分支的 `response` 结构示意：状态、响应头、字节正文，以及将正文解码后能看到的模型名、三个内容块、停止原因和计数。示意沿用已有输入，明确省略哪些字段，不作为实际对象打印结果；原有 Python 属性观察代码折叠保留。
+本次实际在父卡的[字段对应表后](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-shape)补上普通分支的 `response` 结构示意：状态、响应头、字节正文，以及将正文解码后能看到的模型名、三个内容块、停止原因和计数。示意沿用已有输入，明确省略哪些字段，不作为实际对象打印结果；原有 Python 属性观察代码折叠保留。
 
 助手对当前阅读深度的建议：先能说明回复内容、停止原因和用量被组织成 HTTP 响应，以及普通分支交回 aiohttp 后才发送，就可以接回调用方。完整字段、JSON 编码细节与 SSE 事件顺序在需要修改或排查响应时再读子卡。流式分支仍单独保留，不能把普通分支的对象示意套到已写出事件的流式响应。
 
@@ -1650,7 +1650,7 @@ return response
 
 **主要判断：函数卡片应保留，但当前没有明确区分“恢复这个函数的认识”和“沿本次任务连续读代码”。** 前两轮逐项补齐数据与收尾，解决了一些局部缺口，却没有充分审视整张卡片的主要用途。栏目符合样例、源码解释正确，不足以证明组织合理。
 
-**1．本步任务恰好接近一个编排函数的职责，三个文件因此重叠。** [scope 的 3.3、3.4](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md)已经包含正常路径和阶段表；[task flow](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)再次按 `_run_turn` 展开；[函数卡片](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond)又详细串联后半段。它们各有用途，但目前详细解释的归属不够明确。少量上下文重复有助于独立阅读；多份相似但详略不同的流程则要求读者自己判断应跟哪一份。
+**1．本步任务恰好接近一个编排函数的职责，三个文件因此重叠。** [scope 的 3.3、3.4](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md)已经包含正常路径和阶段表；[task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)再次按 `_run_turn` 展开；[函数卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md#before-respond)又详细串联后半段。它们各有用途，但目前详细解释的归属不够明确。少量上下文重复有助于独立阅读；多份相似但详略不同的流程则要求读者自己判断应跟哪一份。
 
 **2．输入输出写得具体，但没有把编排函数的结果放在同一层看。** 当前卡片用完整的普通响应 JSON 表示输出，轨迹记录和任务登记主要在后面解释。对 `_run_turn` 而言，至少需要并列辨认：返回给 aiohttp 的 `response`、保存在 manager 中的消息与生成记录，以及退出时移除当前 Task 登记的状态变化。它还依赖已配置的 Adapter、tokenizer、模型服务等；这些只需简短说明，不必罗列全部成员变量。认可样例的栏目可以保留，但不能把这个有状态的编排函数完全写成一次字典转换。
 
@@ -1861,9 +1861,9 @@ scope 提供阅读范围、骨架和函数入口，函数卡片解释自身编�
 
 > 好的请按照这样子修改吧
 
-已按上一节的分工修改当前 Step 2 的 [E2BSandbox.__aenter__ 卡片](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/02-short-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md)：由 206 行收敛为 75 行，保留定位、LLM 四项、对应的输入输出、核心原话、未知和折叠来源。输入保留镜像、metadata 键名、规格、存活时间和重试配置；输出保留原对象、SDK 对象与沙箱 ID，并保留失败时不进入代码块的边界。
+已按上一节的分工修改当前 Step 2 的 [E2BSandbox.__aenter__ 卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/02-short-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md)：由 206 行收敛为 75 行，保留定位、LLM 四项、对应的输入输出、核心原话、未知和折叠来源。输入保留镜像、metadata 键名、规格、存活时间和重试配置；输出保留原对象、SDK 对象与沙箱 ID，并保留失败时不进入代码块的边界。
 
-Sandbox 基础、async with 语法、对象关系与三段实现展开移至一份[参考说明](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/references/sandbox-entry.md)。旧原话完整保留在 Step 2 的 04-flow，卡片仅保留直接说明创建时机的复述并提供回查链接；来源链接明确绑定原始 Step 2，以便后续继承。
+Sandbox 基础、async with 语法、对象关系与三段实现展开移至一份[参考说明](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/references/sandbox-entry.md)。旧原话完整保留在 Step 2 的 04-flow，卡片仅保留直接说明创建时机的复述并提供回查链接；来源链接明确绑定原始 Step 2，以便后续继承。
 
 本次沿用已有 skill，未修改通用规范或锚点函数 reference；公开 walkthrough 继续承担完整讲解职责，前序函数记忆保持原样。此次为记录压缩和材料归位，不新增个人掌握状态、阅读步骤或运行结论。
 
@@ -1919,7 +1919,7 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 
 #### 2026-10-21 · 在实际使用协议的函数卡片中保存最小背景
 
-用户随后询问下一张卡片是什么，以及怎样把协议加入短期记忆，原话与落实记录见 [Step 2 本轮讨论](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/04-flow.md#ensure-agent-user-card)。
+用户随后询问下一张卡片是什么，以及怎样把协议加入短期记忆，原话与落实记录见 [Step 2 本轮讨论](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/04-flow.md#ensure-agent-user-card)。
 
 本轮创建 `ensure_agent_user.md`，把协议解释放在输入部分，对应签名中的 `sb: Sandbox`：协议约定接口，实参 `ev` 提供具体对象，方法调用由该对象实现。模块名只作定位说明；完整语言依据并入既有 `sandbox-entry.md` 参考。函数本身继续按既定格式记录场景、输入输出、代码与逐条解释，`E2BSandbox.exec` 暂只保留接口与未知。
 
@@ -1939,7 +1939,7 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 - `E2BSandbox.__aexit__` 负责保存 SDK 对象、`kill()`、异常日志、自身返回值与资源副作用。
 - Python 上下文机制的扩展材料与验证证据仍在已有参考，函数卡片保留必要的具体语境和引用。
 
-已将退出记录独立保存到本步 `02-short-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md`，父卡保留局部跳转和返回交接，完整落实见 [Step 2 的归属纠正](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/04-flow.md#aexit-record-ownership)。判断依据是现有短期 memory skill 的独立职责、输入输出与复用需要，不以函数行数决定是否独立，也不因此把尚未展开的所有 helper 预先建卡。
+已将退出记录独立保存到本步 `02-short-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md`，父卡保留局部跳转和返回交接，完整落实见 [Step 2 的归属纠正](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/04-flow.md#aexit-record-ownership)。判断依据是现有短期 memory skill 的独立职责、输入输出与复用需要，不以函数行数决定是否独立，也不因此把尚未展开的所有 helper 预先建卡。
 
 原讲解与替身验证保留来源；本次移动和整理不表示新增掌握状态，没有修改通用 skill 或前序长期记忆。
 
@@ -1969,7 +1969,7 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 
 拆分不按固定字数或函数数量决定：若复杂算法就在一个函数内部，仍在该函数卡片中按处理阶段展开；简单的 `len`、字典读取等操作无需各建卡。有独立职责、具体输入输出且实际需要理解的函数，才形成独立记录。也不把尚未逐段读过的实现写成个人已掌握。
 
-本轮保存问题与分工建议，未新建轨迹子函数卡片，未重写现有函数卡片、skill 或前序长期记忆。源码阅读位置继续停在 [Step 3](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/README.md) 的 `get_trajectory` 与样本组装交接。
+本轮保存问题与分工建议，未新建轨迹子函数卡片，未重写现有函数卡片、skill 或前序长期记忆。源码阅读位置继续停在 [Step 3](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/README.md) 的 `get_trajectory` 与样本组装交接。
 
 <a id="shared-state-memory"></a>
 
@@ -1984,12 +1984,12 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 **助手给出的局部处理**：
 
 - 当前函数卡片在输入前直接解释 `sid` 是会话编号，`inflight` 是按编号记录当前请求 Task 的字典，先给一个具体形状。
-- 将两者合在一份[独立状态说明](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/references/session-id-and-inflight.md)中，保存“是什么、长什么样、谁登记、谁移除、谁使用”。它沿用本步 `references`，从当前卡片和索引链接进入。
+- 将两者合在一份[独立状态说明](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/session-id-and-inflight.md)中，保存“是什么、长什么样、谁登记、谁移除、谁使用”。它沿用本步 `references`，从当前卡片和索引链接进入。
 - 状态说明负责恢复对象关系；函数卡片负责具体操作，已有 `_run_turn` 记录仍保留其登记与清理的实现。无需为两个变量分别创建不存在的函数，也不要求读者为回忆一个名称重读整个 `_run_turn`。
 
 这次先应用现有“函数卡片 + 参考材料”的分工。是否让概念或对象成为与函数并列的短期记忆类型、如何继承和索引，尚未形成新的通用约定；未改动 skill、旧步骤或 `03`。当前函数的最小定义和引用随卡片保留，详细说明有固定来源入口。
 
-源码澄清和实际阅读边界见 [Step 3 本轮记录](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/04-flow.md#sid-inflight-background)。用户明确报告这两个名称仍不清楚，不能以此前的流程复述或材料已存在为由标记掌握。
+源码澄清和实际阅读边界见 [Step 3 本轮记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#sid-inflight-background)。用户明确报告这两个名称仍不清楚，不能以此前的流程复述或材料已存在为由标记掌握。
 
 <a id="split-shared-state-explanations"></a>
 
@@ -2000,15 +2000,15 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 > 我觉得这里的sid和对应的inflight还是拆开比较好吧
 > 拆分开来解释我觉得会非常有益处？
 
-**已确认并落实的局部调整**：先用 [sid 说明](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/references/session-id.md)建立“一次独立执行”的对象含义，再用 [inflight 说明](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/references/inflight.md)解释该执行中的请求登记。函数卡片分别引用，两份说明保留各自源码证据；旧合并路径只做导航。
+**已确认并落实的局部调整**：先用 [sid 说明](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/session-id.md)建立“一次独立执行”的对象含义，再用 [inflight 说明](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/inflight.md)解释该执行中的请求登记。函数卡片分别引用，两份说明保留各自源码证据；旧合并路径只做导航。
 
-本次反馈说明当前两个对象需要分开建立认识，不据此推出“每个变量都应单独建卡”的通用规则。仍沿用 references，不修改 skill、不新增记忆层、不改写长期快照。此前合并方案与本次修正均保留，技术记录见 [Step 3](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/04-flow.md#split-sid-inflight-references)。
+本次反馈说明当前两个对象需要分开建立认识，不据此推出“每个变量都应单独建卡”的通用规则。仍沿用 references，不修改 skill、不新增记忆层、不改写长期快照。此前合并方案与本次修正均保留，技术记录见 [Step 3](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#split-sid-inflight-references)。
 
 <a id="scope-whole-skeleton-local-question"></a>
 
 #### 2026-10-22 · 完整骨架负责定位，本步范围只展开当前问题
 
-用户指出 Step 004 的 scope 未沿用 Step 001–003 的构建方式，并明确当前只看 `adapter.open_session`。[原话与本步修正](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#scope-narrowed-to-open-session)保留在步骤记录中。
+用户指出 Step 004 的 scope 未沿用 Step 001–003 的构建方式，并明确当前只看 `adapter.open_session`。[原话与本步修正](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#scope-narrowed-to-open-session)保留在步骤记录中。
 
 助手对照后确认：前几步先保留完整 `generate` 骨架，再展开当前入口；初版 Step 004 却只留下准备阶段片段，并把会话登记、沙箱启动、工作区准备三个并列阶段都作为本步内容，混淆了整体定位和当前展开范围。
 
@@ -2022,7 +2022,7 @@ Sandbox 基础、async with 语法、对象关系与三段实现展开移至一�
 
 #### 2026-10-22 · 进入函数前，先恢复调用对象与参数的含义
 
-用户在 scope 收窄为 `open_session` 后继续提出：还不清楚 `session_id` 与 `adapter`，直接进入函数是否合适。原话与源码依据见 [Step 4 本次讨论](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#open-session-minimal-context)。
+用户在 scope 收窄为 `open_session` 后继续提出：还不清楚 `session_id` 与 `adapter`，直接进入函数是否合适。原话与源码依据见 [Step 4 本次讨论](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#open-session-minimal-context)。
 
 **这次发现的区别**：缩小函数数量解决展开范围，补清对象与参数解决读者能否理解这个调用。只写“对象已经准备好”，并没有交代对象是谁、来自哪里、代表哪一次业务活动。以前读过相关函数，也不表示这层关系此刻能够直接提取。
 
@@ -2034,7 +2034,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 #### 2026-10-22 · 局部骨架接出对象来源和方法调用
 
-用户进一步指出 `open_session` 的局部骨架应涉及 Adapter 和登记方法的关系，并询问已有 skill 或 reference。完整原话、方法核对与调整见 [Step 4 本次记录](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#adapter-open-session-scope-bridge)。
+用户进一步指出 `open_session` 的局部骨架应涉及 Adapter 和登记方法的关系，并询问已有 skill 或 reference。完整原话、方法核对与调整见 [Step 4 本次记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#adapter-open-session-scope-bridge)。
 
 本次在现有 scope 方法内落实：保留整体七项骨架，局部导航从调用方取得服务状态开始，标出 Adapter 的创建位置、执行编号的来路及实际进入的 `BaseAdapter.open_session`。入口表分别约束对象来源、参数含义、登记实现的阅读深度；函数体和具体数据仍归已有卡片。
 
@@ -2065,9 +2065,9 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 #### 2026-10-22 · 相关名称集中速查，函数卡片保留当前输入
 
-用户询问 `base_sample`、`protocol`、`md`、`instance_id` 与 `session_id` 是否应保存为 reference，还是仅留在当前解释中。[原话与源码关系](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#shared-input-reference)保存在本步过程。
+用户询问 `base_sample`、`protocol`、`md`、`instance_id` 与 `session_id` 是否应保存为 reference，还是仅留在当前解释中。[原话与源码关系](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#shared-input-reference)保存在本步过程。
 
-**本次局部处理**：新增一份[输入背景速查](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/references/generate-input-context.md)，共同说明这些相关名称的含义、类型、来路和后续用途，供不同函数回查。scope 保留导航入口，函数卡片继续在输入旁解释自己用到的参数；已有 sid 详细说明直接引用。
+**本次局部处理**：新增一份[输入背景速查](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/references/generate-input-context.md)，共同说明这些相关名称的含义、类型、来路和后续用途，供不同函数回查。scope 保留导航入口，函数卡片继续在输入旁解释自己用到的参数；已有 sid 详细说明直接引用。
 
 **分工判断**：同一调用背景中的少量相关名称适合合在一份速查中。若只出现一次、解释也短，可以直接留在调用处；若跨函数使用或反复妨碍理解，reference 提供固定回查位置。抽出 reference 后，当前函数仍须能看清“接收什么、做什么、交出什么”，不能把所有必要定义都藏到链接后。此项沿用既有函数与参考材料分工，不新增变量卡片类型，也不按每个名称拆文件。
 
@@ -2077,7 +2077,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 #### 2026-10-22 · 输入背景参照 Step 003 分开说明
 
-用户进一步要求将几个名称拆开，参照 Step 003 的处理。[原话与本步修改](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#split-input-references)记录在当前步骤。
+用户进一步要求将几个名称拆开，参照 Step 003 的处理。[原话与本步修改](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#split-input-references)记录在当前步骤。
 
 本次将上一版合并表调整为“参考目录 + 单个对象或概念的说明”：base_sample、protocol、md、instance_id 各有一份 reference，session_id 复用已有独立说明。各页保存必要的形状、来路、用途与关联链接；目录只回答去哪里查，函数卡片仍承担本函数的完整输入输出模型。
 
@@ -2122,15 +2122,15 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 **与现有 reference 的关系**：`base_sample` 是当前传入变量的名字，`Sample` 是类型名。已有 base_sample 参考负责调用场景；今后独立阅读 Sample 时可以建立类卡，并让变量说明引用它。现有 Session reference 的技术内容可在采用方案后复用到类卡，语法依据仍保留为补充资料，避免维护两份相同正文。
 
-本轮保存问题、修正判断与具体方案；未修改 skill、未创建 classes 目录、未迁移 Session，也未回写旧步骤或长期快照。此前[按 reference 保存 Session 的记录](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#session-object-reference)作为形成历史保留；[本次回查](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#session-class-record-question)说明归属仍在讨论。
+本轮保存问题、修正判断与具体方案；未修改 skill、未创建 classes 目录、未迁移 Session，也未回写旧步骤或长期快照。此前[按 reference 保存 Session 的记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#session-object-reference)作为形成历史保留；[本次回查](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#session-class-record-question)说明归属仍在讨论。
 
 <a id="session-class-card-trial"></a>
 
 #### 2026-10-22 · 确认类卡片方向，以 Session 试用
 
-用户认可上一轮方案，要求生成卡片，并用 per-session state 概括 Session 实例的作用。[原话与本步解释](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/04-flow.md#session-class-card)保存在 Step 004。
+用户认可上一轮方案，要求生成卡片，并用 per-session state 概括 Session 实例的作用。[原话与本步解释](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/04-flow.md#session-class-card)保存在 Step 004。
 
-本轮将 Session 整理为 [02 中的正式类卡片](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，落实以下分工：
+本轮将 Session 整理为 [02 中的正式类卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，落实以下分工：
 
 - 类卡保存类型代表什么、构造输入、实例字段与默认值，以及它与使用方的关系。沿用既有卡片栏目，只把例子适配为“构造参数 → 新实例 → 按 sid 登记”。
 - `open_session` 函数卡保存创建与登记动作，通过链接进入类卡；不在两处重复维护完整类型模型。
@@ -2143,11 +2143,11 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 #### 2026-10-22 · 暂不填写函数卡片，仍需保留局部阅读地图
 
-用户要求简单建立 Step 005、先弄清 scope，随后追问是否正确使用了 skill、为什么仍有缺项。[完整反馈与修改记录](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/04-flow.md#scope-local-skeleton-correction)保存在该步骤。
+用户要求简单建立 Step 005、先弄清 scope，随后追问是否正确使用了 skill、为什么仍有缺项。[完整反馈与修改记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/04-flow.md#scope-local-skeleton-correction)保存在该步骤。
 
 复核发现，初稿只有三段标题、整体七项骨架和停止位置，缺少本步 `boot_agent_sandbox` 的局部调用关系。助手将“不提前填写具体函数”解释为连局部阅读导航也暂缓，没有沿用 Step 003、004 的整体定位与局部展开方式。
 
-本次在 [Step 005 scope](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/01-scope.md#boot-agent-sandbox-local-skeleton)补回局部骨架、实际实现定位、旧卡片回查与返回位置。scope 说明接下来怎样读，函数卡片记录实际展开后的单函数模型，task flow 在读通后总结；三者的内容深度仍分开。
+本次在 [Step 005 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/01-scope.md#boot-agent-sandbox-local-skeleton)补回局部骨架、实际实现定位、旧卡片回查与返回位置。scope 说明接下来怎样读，函数卡片记录实际展开后的单函数模型，task flow 在读通后总结；三者的内容深度仍分开。
 
 现有 skill 要求提取当前任务的核心调用，但 reference 主要展示 Step 0 的整体骨架；[此前的条件分支建议](#scope-skill-context-branch-proposal)尚未落实。这次只修正当前 scope 并保存问题，不将新稿自动升级为通用 reference，也不记作用户已认可全部写法或已读懂实现。
 
@@ -2194,23 +2194,23 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 类卡的停止位置是：能分清两个本地对象与远端环境，能指出关键状态与几个操作入口。它不承包所有方法实现，也不要求额外为每个 SDK 调用建立记录。上轮放入父函数卡的对象解释可作为内容来源，采用后再整理成单一维护入口。
 
-**状态**：本次保存分工建议，尚未生成 E2BSandbox 类卡或拆分方法卡，未修改 skill、旧卡片或长期快照。该建议沿用已讨论的类卡方向，不视为用户已经确认本次具体拆分。技术上下文见 [Step 5 · 本地客户端与远端地址](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/04-flow.md#sandbox-client-and-address)。
+**状态**：本次保存分工建议，尚未生成 E2BSandbox 类卡或拆分方法卡，未修改 skill、旧卡片或长期快照。该建议沿用已讨论的类卡方向，不视为用户已经确认本次具体拆分。技术上下文见 [Step 5 · 本地客户端与远端地址](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/04-flow.md#sandbox-client-and-address)。
 
 <a id="e2b-class-card-created"></a>
 
 #### 2026-10-22 · 确认建立 E2BSandbox 类卡片
 
-用户随后确认：“好的那么做一个这样子的卡片吧”。本轮在 Step 005 的 `02/classes/slime/agent/sandbox.py/` 建立 [E2BSandbox 类卡片](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/02-short-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md)，沿用 Session 的栏目，保存对象职责、构造与进入后的状态、本地与远端关系及操作入口。
+用户随后确认：“好的那么做一个这样子的卡片吧”。本轮在 Step 005 的 `02/classes/slime/agent/sandbox.py/` 建立 [E2BSandbox 类卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/02-short-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md)，沿用 Session 的栏目，保存对象职责、构造与进入后的状态、本地与远端关系及操作入口。
 
 `boot_agent_sandbox` 中的共用对象说明改为引用类卡，父函数自身的输入输出和两段编排保留。已有 `__aenter__`、`__aexit__` 卡片继续引用；其他方法仅定位用途与接口。详细配置和 SDK 证据仍在原讨论中，未把整套 SDK 展开为新卡片。
 
-本次落实的是用户已确认的具体记录分工；成稿详略与补充解释尚待反馈。没有修改通用 skill、旧步骤或长期快照，也没有标记本步完成。源码核对与形成过程见 [Step 5 本次记录](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/04-flow.md#e2b-class-card)。
+本次落实的是用户已确认的具体记录分工；成稿详略与补充解释尚待反馈。没有修改通用 skill、旧步骤或长期快照，也没有标记本步完成。源码核对与形成过程见 [Step 5 本次记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/04-flow.md#e2b-class-card)。
 
 <a id="reactivate-prior-function-memory"></a>
 
 #### 2026-10-23 · 本步用到的旧函数也进入短期记忆
 
-用户在 Step 7 回顾 `ensure_agent_user` 时，指出仅把旧函数留在长期记忆会增加页面跳转。[完整原话与本次处理](../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/04-flow.md#reactivate-prior-function-memory)。
+用户在 Step 7 回顾 `ensure_agent_user` 时，指出仅把旧函数留在长期记忆会增加页面跳转。[完整原话与本次处理](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/04-flow.md#reactivate-prior-function-memory)。
 
 **本次明确的分工**：
 
@@ -2230,7 +2230,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 > 之前的task flow之前参考的样本或者reference吗？
 
-助手回查：Step 7 初稿实际参考了 [Step 4 的 task flow](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/05-task-flow.md)。现有步骤有历史成稿，短期 memory skill 也已说明 task flow 的职责；当前尚无独立的 task-flow skill、固定 reference 或专用模板。历史成稿可以借鉴，不等于其图示形式适合所有任务。
+助手回查：Step 7 初稿实际参考了 [Step 4 的 task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/05-task-flow.md)。现有步骤有历史成稿，短期 memory skill 也已说明 task flow 的职责；当前尚无独立的 task-flow skill、固定 reference 或专用模板。历史成稿可以借鉴，不等于其图示形式适合所有任务。
 
 用户进一步明确：
 
@@ -2266,11 +2266,11 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 | 已有成稿 | 值得复用的组织 | 作为通用格式时的取舍 |
 | --- | --- | --- |
-| [Step 1：一次模型请求](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md) | 调用后紧接数据产物；分清 HTTP 响应与轨迹记录两个接收方；协议共用与差异单独说明 | 主文与折叠历史分开看；协议比较、在途登记及旧上游讲解不作为每步必填栏目 |
-| [Step 2：补丁到奖励](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/05-task-flow.md) | 起点、终点和选定场景明确；调用旁标结果；表格解释两项输出，再接回 Coding RL | 只有分支会改变结果含义时才需要结果对照表 |
-| [Step 3：轨迹到样本](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/05-task-flow.md) | 接住前序材料、按阶段交接、说明最终字段来源、列明未展开内容，四部分职责较完整 | 建议作为主要结构样例；详细拼接算法继续由函数卡片承接 |
-| [Step 4：会话配置登记](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/05-task-flow.md) | 回补已有流程中的空缺；用小字典展示登记后的状态；说明同一状态何时被使用和取走 | 适合作为状态登记类变体，不把所有函数的输出都强行画成数据流水线 |
-| [Step 5：执行沙箱](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/05-task-flow.md) | 准备、yield 交付、调用方使用、退出回收分开；说明返回调用方的位置和使用期 | 适合作为资源生命周期变体；交出对象与整段生命周期结束需要分别写清 |
+| [Step 1：一次模型请求](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md) | 调用后紧接数据产物；分清 HTTP 响应与轨迹记录两个接收方；协议共用与差异单独说明 | 主文与折叠历史分开看；协议比较、在途登记及旧上游讲解不作为每步必填栏目 |
+| [Step 2：补丁到奖励](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/05-task-flow.md) | 起点、终点和选定场景明确；调用旁标结果；表格解释两项输出，再接回 Coding RL | 只有分支会改变结果含义时才需要结果对照表 |
+| [Step 3：轨迹到样本](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/05-task-flow.md) | 接住前序材料、按阶段交接、说明最终字段来源、列明未展开内容，四部分职责较完整 | 建议作为主要结构样例；详细拼接算法继续由函数卡片承接 |
+| [Step 4：会话配置登记](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/05-task-flow.md) | 回补已有流程中的空缺；用小字典展示登记后的状态；说明同一状态何时被使用和取走 | 适合作为状态登记类变体，不把所有函数的输出都强行画成数据流水线 |
+| [Step 5：执行沙箱](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/05-task-flow.md) | 准备、yield 交付、调用方使用、退出回收分开；说明返回调用方的位置和使用期 | 适合作为资源生命周期变体；交出对象与整段生命周期结束需要分别写清 |
 
 **从实际成稿提取的共同格式**：
 
@@ -2316,7 +2316,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 > 好的那么就把这个step 03作为主要的reference 加入在skill里面吧
 
-**本次落实**：建立独立的 [repo-reading-task-flow skill](../../../.agents/skills/repo-reading-task-flow/SKILL.md)，将 [Step 003 原 task flow](../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/05-task-flow.md)完整保存为 [主要 reference](../../../.agents/skills/repo-reading-task-flow/references/step-003-trajectory-to-samples.md)。样例正文保留，仅增加副本来源说明并调整相对链接。
+**本次落实**：建立独立的 [repo-reading-task-flow skill](../../../.agents/skills/repo-reading-task-flow/SKILL.md)，将 [Step 003 原 task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/05-task-flow.md)完整保存为 [主要 reference](../../../.agents/skills/repo-reading-task-flow/references/step-003-trajectory-to-samples.md)。样例正文保留，仅增加副本来源说明并调整相对链接。
 
 - 开头保留 `>` 整体总结与本步导航，正文按位置、交接、结果和收束四部分组织，末尾折叠源码、形成依据和验证范围。
 - 图形依据真实交接选择；调用树不自动等于执行顺序，关键节点要说明输入、变化、去向与返回。Step 004 和 Step 005 只作为按需回查的状态与生命周期变体。
@@ -2342,7 +2342,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 > 对的 我觉得这个比较适合最为新的task flow的reference？
 > 看一下当前的这个skill吧？
 
-**复核**：原 skill 已有缩进表达调用层级、补充返回和等待关系的要求，但仍将顺序表与调用树并列为可选主展示。此前平铺为八段虽然说明了顺序，却丢失了 `BaseHarness.run` 的四个直接部分及内部归属；这是格式要求不够明确的地方。实际修订经过见 [Step 007 的图示反馈](../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/04-flow.md#task-flow-call-hierarchy)。
+**复核**：原 skill 已有缩进表达调用层级、补充返回和等待关系的要求，但仍将顺序表与调用树并列为可选主展示。此前平铺为八段虽然说明了顺序，却丢失了 `BaseHarness.run` 的四个直接部分及内部归属；这是格式要求不够明确的地方。实际修订经过见 [Step 007 的图示反馈](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/04-flow.md#task-flow-call-hierarchy)。
 
 **本次落实**：
 
@@ -2368,7 +2368,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 **当前反馈**：用户报告大致理解当前 Harness 通信这一部分。结合前文，当前讨论涉及配置、CLI 启动、远端执行与等待；不据此新增 HTTP 接收、SDK 内部或所有异步机制已掌握的结论。
 
-**助手建议，待用户反馈**：优先接续已确认的 [Step 008](../../../00-repo-reading/repositories/slime/steps/step-009-adapter-request-entry/01-scope.md)，暂不批量重写旧 task flow。
+**助手建议，待用户反馈**：优先接续已确认的 [Step 008](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-009-adapter-request-entry/01-scope.md)，暂不批量重写旧 task flow。
 
 - 当前已有 CLI 启动端和 Step 001 的模型处理端，缺的是中间的 HTTP 接收、路由和 `request → body`；Step 008 直接补这段交接。
 - 按既有 scope，首个观察点仍是 `AnthropicAdapter._register_routes` 中的 `app.router.add_post("/v1/messages", self._run_turn)`。先看清路径与处理函数的对应，再按需回查服务监听，最后接回 `_run_turn` 的 JSON 读取；本轮仅核对入口，没有新增函数卡片或开展完整带读。
@@ -2418,7 +2418,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 - [逐步卡片盘点](../../../00-repo-reading/repositories/slime/version-reviews/2026-10-23-step-card-audit.md)覆盖 49 份短期卡片、43 个不同目标。它是本体差异和明确依赖变化的检查清单，不是逐卡正文已经迁移的证明。
 - 函数本体没变仍须检查上下文。例如 `apply_pre_commands` 使用的 `_PRE` 已从 `/workspace` 改到 `/tmp`；轨迹入口没变，但配置默认阈值与 `_SampleBuilder` 有变化。
-- [Step 0 新版 scope](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/01-scope.md)已对准 `generate → _generate`、按样本选择运行对象、`baseline → git_diff` 和运行统计；[旧版全文](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/references/scope-at-2f231865.md)保留。
+- [Step 0 新版 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/01-scope.md)已对准 `generate → _generate`、按样本选择运行对象、`baseline → git_diff` 和运行统计；[旧版全文](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/references/scope-at-2f231865.md)保留。
 - 当前没有覆盖 Step 1–8 的函数正文或长期记忆，也没有把静态校准写成用户掌握；后续每步继续核对入口、输入输出、作用与副作用、调用关系和代表场景。
 
 **判断方式**：旧表述若与旧源码不符，作为原有理解错误纠正；旧表述原本正确而新版改变了行为，标为版本变化；尚无证据的细节保留待核实。不能把所有旧认识一律判错，也不能以函数名没变为依据原样沿用。
@@ -2488,7 +2488,7 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 > 所以就会需要看清楚？
 > 直接全部塞进当前的step2不合理
 
-完整原话与技术范围见[新 Step 002 的记录](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md#scope-confirmation)。本轮按这一要求将“结果收集”与“独立评测”分开，替代助手此前把补丁交接并入评测、只概述统计用途的建议。
+完整原话与技术范围见[新 Step 002 的记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md#scope-confirmation)。本轮按这一要求将“结果收集”与“独立评测”分开，替代助手此前把补丁交接并入评测、只概述统计用途的建议。
 
 - 新 Step 002 先读 `harness.collect_metrics`，再读 `swe.git_diff`，逐个明确输入来源、主要动作、输出和消费者。
 - `01-scope.md` 给出整体位置、局部调用与停止点；函数输入输出和模型在实际阅读时写入 `02`。当前先建 scope，不预填函数理解或 task flow。
@@ -2501,11 +2501,11 @@ scope 可在局部骨架前给出最小来源导航，函数卡片保存本场�
 
 #### 2026-10-23 · 函数的输入说明与跨函数机制分开
 
-用户在 `collect_metrics` 的阅读中指出，统计何时开始、由谁更新应作为机制来理解，函数卡只保留连接；用户已经知道 hook，并要求从认知角度考虑后续函数怎样阅读。完整原话保存在[本步纠正记录](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md#function-mechanism-boundary)。
+用户在 `collect_metrics` 的阅读中指出，统计何时开始、由谁更新应作为机制来理解，函数卡只保留连接；用户已经知道 hook，并要求从认知角度考虑后续函数怎样阅读。完整原话保存在[本步纠正记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md#function-mechanism-boundary)。
 
 **已明确的反馈**：不能因为一个机制解释了当前函数的输入来源，就把整条机制放进当前函数卡。用户需要补清的是本项目中的具体绑定与发生时机，不是重新学习 hook 的通用概念。
 
-**本轮修正**：将初始化、事件更新与读取的完整段落移至 [压缩统计的产生与收集机制](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/references/compaction-metrics-lifecycle.md)，函数卡保留一句输入背景和一个有明确含义的链接。原函数的输入输出、实现、LLM 模型和用户技术表述保留。沿用现有 `references/`，未新增正式机制 memory 类型、skill 或继承规则。
+**本轮修正**：将初始化、事件更新与读取的完整段落移至 [压缩统计的产生与收集机制](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/references/compaction-metrics-lifecycle.md)，函数卡保留一句输入背景和一个有明确含义的链接。原函数的输入输出、实现、LLM 模型和用户技术表述保留。沿用现有 `references/`，未新增正式机制 memory 类型、skill 或继承规则。
 
 **认知依据与适用边界**：
 
@@ -2537,7 +2537,7 @@ Step 002 已按原定范围收束并生成 task flow 后，用户提出：
 > 这里的task flow蜗居的这里是否还需要考虑到我们阅读的顺序呢？
 > 这里如果只是单纯的只是看调用的话是否不太好？
 
-**当前材料的缺口**：现有 [Step 002 task flow](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md)说明了程序在 CLI 结束后先收集统计、再提取补丁，也补上统计的上游来路。但它没有直接呈现本轮为何从 `collect_metrics` 回查 `run_hook`、再回查配置与初始化，最后才继续 `git_diff`。函数名和调用层级能恢复程序关系，读者仍需回到完整问答才能恢复当时的阅读动机。
+**当前材料的缺口**：现有 [Step 002 task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md)说明了程序在 CLI 结束后先收集统计、再提取补丁，也补上统计的上游来路。但它没有直接呈现本轮为何从 `collect_metrics` 回查 `run_hook`、再回查配置与初始化，最后才继续 `git_diff`。函数名和调用层级能恢复程序关系，读者仍需回到完整问答才能恢复当时的阅读动机。
 
 **助手建议，尚未作为通用格式确认**：保留现有四部分结构；第 2 节先写一段简短的“本轮怎样读通”，再展示现有“程序怎样执行”的调用层级图。前者按问题组织，后者按源码组织，两种箭头分别标明含义。
 
@@ -2557,7 +2557,7 @@ collect_metrics：已有统计怎样变成 agent_metrics？
 git_diff：运行前后的工作区状态怎样形成 diff_text？
 ```
 
-这段路线从本步 [04-flow 的实际问答](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md)提炼，只保留主要问题、回查动作和返回点，不逐条重放所有聊天。开始时已经出现过少量上游定位；上图不能反过来被当成每个函数首次出现的精确时间线，也不是函数互相调用的关系。
+这段路线从本步 [04-flow 的实际问答](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md)提炼，只保留主要问题、回查动作和返回点，不逐条重放所有聊天。开始时已经出现过少量上游定位；上图不能反过来被当成每个函数首次出现的精确时间线，也不是函数互相调用的关系。
 
 采用该方案后，各处仍有不同职责：
 
@@ -2582,12 +2582,12 @@ git_diff：运行前后的工作区状态怎样形成 diff_text？
 > 好的那么现在重新排一下这个task flow吧
 > 我觉得你说的很对 或许应该是再有一个新的图？
 
-已将 [Step 002 task flow](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md)第 2 节调整为两个小节：
+已将 [Step 002 task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md)第 2 节调整为两个小节：
 
-- **[2.1 阅读路径](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md#reading-path)**：按本轮关键问题，记录为何从读取者回查写入者、配置和初始化，补齐后怎样返回主线。每个节点保留读到的关系及源码行号，图后提供本步函数卡片链接。
-- **[2.2 执行关系](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md#execution-flow)**：保留原调用层级图，继续表达 `_generate` 在 CLI 结束后先取统计、再取补丁，各个子调用完成后返回哪里。
+- **[2.1 阅读路径](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md#reading-path)**：按本轮关键问题，记录为何从读取者回查写入者、配置和初始化，补齐后怎样返回主线。每个节点保留读到的关系及源码行号，图后提供本步函数卡片链接。
+- **[2.2 执行关系](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md#execution-flow)**：保留原调用层级图，继续表达 `_generate` 在 CLI 结束后先取统计、再取补丁，各个子调用完成后返回哪里。
 
-四部分结构和其他正文主体保持原样；原有上游卡片导航移到阅读图下方，减少重复。完整原话与调整记录见[本步 flow](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md#task-flow-reading-path-applied)。
+四部分结构和其他正文主体保持原样；原有上游卡片导航移到阅读图下方，减少重复。完整原话与调整记录见[本步 flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md#task-flow-reading-path-applied)。
 
 本次确认与实施的范围是这份 task flow。通用 skill 和原 reference 尚未修改，其他步骤不批量套用；也不据此修改源码阅读进度或个人掌握状态。
 
@@ -2600,7 +2600,7 @@ git_diff：运行前后的工作区状态怎样形成 diff_text？
 > 或者这个图更加应该放在scope里面？
 > 因为scope是会在阅读的时候看的一张图？
 
-助手重新按用途判断：刚新增的阅读路径图主要回答“现在看哪里、遇到缺口回查哪里、读完回到哪里”。当它作为阅读时持续使用的导航，更适合归入 scope，和现有 [3.4 阅读导航](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/01-scope.md#34-每次读哪一段读到什么程度)合并。上轮放入 task flow 的理由是阅读后回顾；这个用途成立，但不能因此让日常导航在两份文件中重复维护。
+助手重新按用途判断：刚新增的阅读路径图主要回答“现在看哪里、遇到缺口回查哪里、读完回到哪里”。当它作为阅读时持续使用的导航，更适合归入 scope，和现有 [3.4 阅读导航](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/01-scope.md#34-每次读哪一段读到什么程度)合并。上轮放入 task flow 的理由是阅读后回顾；这个用途成立，但不能因此让日常导航在两份文件中重复维护。
 
 **当前建议，尚未移动正文**：
 
@@ -2620,11 +2620,11 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 
 > 那么把这部分放在scope里面吧
 
-本次落实到 [Step 002 的 scope 3.4](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/01-scope.md#reading-path)：阅读路径图与导航表使用一致编号，保留函数卡片链接、读到什么程度与返回位置；按当前缺口决定是否进入回查分支。图从已发生的问题中整理，不预设起步时就已知全部依赖。
+本次落实到 [Step 002 的 scope 3.4](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/01-scope.md#reading-path)：阅读路径图与导航表使用一致编号，保留函数卡片链接、读到什么程度与返回位置；按当前缺口决定是否进入回查分支。图从已发生的问题中整理，不预设起步时就已知全部依赖。
 
-[task flow](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md#reading-path)只保留返回 scope 的入口、原程序执行图与任务结果。原阅读路径锚点继续有效，历史链接能找到新位置；步骤 README 同步导航。两份正文不再重复维护同一张阅读图。
+[task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md#reading-path)只保留返回 scope 的入口、原程序执行图与任务结果。原阅读路径锚点继续有效，历史链接能找到新位置；步骤 README 同步导航。两份正文不再重复维护同一张阅读图。
 
-这次确认的是本步阅读图的归属。函数卡片、前序长期记忆、通用 skill 和原 reference 不变；完整迁移经过见[本步记录](../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md#reading-path-moved-to-scope)。
+这次确认的是本步阅读图的归属。函数卡片、前序长期记忆、通用 skill 和原 reference 不变；完整迁移经过见[本步记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md#reading-path-moved-to-scope)。
 
 <a id="step-one-reading-map-review"></a>
 
@@ -2634,7 +2634,7 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 
 > 那么当前的step01部分的内容适合也这样子做一下吗？
 
-**核对结果**：Step 001 的 [scope 3.4](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md#confirmed-reading-order)已经按本轮明确的顺序列出 12 个观察点、源码位置、深度与返回点，但没有压缩成一张可快速跟随的阅读路径图。3.2 的上游面包屑、3.3 的正常执行骨架各有用途，不能直接代替阅读导航。
+**核对结果**：Step 001 的 [scope 3.4](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md#confirmed-reading-order)已经按本轮明确的顺序列出 12 个观察点、源码位置、深度与返回点，但没有压缩成一张可快速跟随的阅读路径图。3.2 的上游面包屑、3.3 的正常执行骨架各有用途，不能直接代替阅读导航。
 
 **适合复用分工，图的内容应按本步重新组织**。Step 002 的主要困难是从读取者回查统计的产生；Step 001 则沿业务数据流阅读，中途回看追踪包装，并在后面理解前缀保存怎样支持后续请求。建议保留既有 12 项表格，在它前面增加按以下关系组织的阅读图：
 
@@ -2651,7 +2651,7 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 
 图中 4 是阅读回看，不是程序在生成后才开始追踪；源码中 `common.py:412、414` 的追踪分别包住对应业务阶段。保存 `PromptPrefix` 则供后续同一会话的 `_session_prompt_ids` 检查，不能画成本次请求在末尾立即重新执行输入准备。辅助函数继续从所属父函数进入，不增加为外层平铺阶段。
 
-**另一个独立问题是 task flow 的版本**：现有 [05-task-flow](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)仍是 `2f231865` 的交接图，主线直接使用 `_render_token_ids`，没有新版 `_session_prompt_ids` 和前缀保存；页内 `_run_turn` 从 318 行开始，当前固定版本实际从 387 行开始。scope 已按 `18868a79` 校准并注明差异。因此不能只更换图的样式，就将旧 task flow 视作新版总结。
+**另一个独立问题是 task flow 的版本**：现有 [05-task-flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)仍是 `2f231865` 的交接图，主线直接使用 `_render_token_ids`，没有新版 `_session_prompt_ids` 和前缀保存；页内 `_run_turn` 从 318 行开始，当前固定版本实际从 387 行开始。scope 已按 `18868a79` 校准并注明差异。因此不能只更换图的样式，就将旧 task flow 视作新版总结。
 
 建议先在已校准的 scope 3.4 增加阅读图，保持现有阅读次序、深度表与函数卡片；task flow 的新版整理另按当前源码校准，保留原版本材料与来源。此次只是适用性判断与具体方案，尚未修改 Step 001 正文、函数记忆、通用 skill 或学习进度。
 
@@ -2663,11 +2663,11 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 
 > 好的那么按照这样子来做一下修改吧
 
-[Step 001 的 scope 3.4](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md#reading-path)已在原 12 项观察表前补图，保留原顺序、卡片入口、回查深度与返回位置。追踪放在第 4 项回看，表示本轮阅读策略；前缀保存与第 2 项的关系表示后续请求如何取用，均不当作程序的倒序执行或即时回跳。
+[Step 001 的 scope 3.4](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md#reading-path)已在原 12 项观察表前补图，保留原顺序、卡片入口、回查深度与返回位置。追踪放在第 4 项回看，表示本轮阅读策略；前缀保存与第 2 项的关系表示后续请求如何取用，均不当作程序的倒序执行或即时回跳。
 
-[当前 task flow](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md)按 `18868a79` 重整，显示真实追踪嵌套、输入编码、生成、解析、响应、轨迹记录与前缀保存。旧总结及上游讲解[全文归档](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/references/task-flow-at-2f231865.md)，保留原版本边界；当前页的原显式锚点继续可用。配对核对还修正了新版 Codex 使用 `ResponsesAdapter` 的入口，不据此视为已展开其内部实现。
+[当前 task flow](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md)按 `18868a79` 重整，显示真实追踪嵌套、输入编码、生成、解析、响应、轨迹记录与前缀保存。旧总结及上游讲解[全文归档](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/references/task-flow-at-2f231865.md)，保留原版本边界；当前页的原显式锚点继续可用。配对核对还修正了新版 Codex 使用 `ResponsesAdapter` 的入口，不据此视为已展开其内部实现。
 
-此次仅在 Step 001 落实已确认的分工：scope 用于阅读导航，函数卡片保留单函数模型，04-flow 保留实际讨论，task flow 总结执行与数据交接。函数与类卡片、长期记忆和通用 skill 保留，未推进其他步骤或补写个人掌握状态。实施与验证边界见[本步记录](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#scope-map-and-task-flow-refresh)。
+此次仅在 Step 001 落实已确认的分工：scope 用于阅读导航，函数卡片保留单函数模型，04-flow 保留实际讨论，task flow 总结执行与数据交接。函数与类卡片、长期记忆和通用 skill 保留，未推进其他步骤或补写个人掌握状态。实施与验证边界见[本步记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#scope-map-and-task-flow-refresh)。
 
 <a id="scope-reading-path-reference"></a>
 
@@ -2709,6 +2709,388 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 
 本次暴露的区别是：程序执行到当前函数时已经准备好某个对象，与前序阅读已经解释这个对象，并不等同。列字段和源码位置只回答“值从哪里来”，还需要判断读者是否有足够的输入模型进入当前函数。
 
-在 [Step 003 的局部修正](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/01-scope.md#input-bridge)中，先说明前两步实际涉及的内容，再用最小任务字典补 `md / grading / eval_cmd` 的含义；配置与对象构造保留待查，环境选择延后到对应观察点。原有运行顺序保留，阅读导航加入这段输入衔接。历史后续章节有卡片，不能自动视为当前前置知识。
+在 [Step 003 的局部修正](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/01-scope.md#input-bridge)中，先说明前两步实际涉及的内容，再用最小任务字典补 `md / grading / eval_cmd` 的含义；配置与对象构造保留待查，环境选择延后到对应观察点。原有运行顺序保留，阅读导航加入这段输入衔接。历史后续章节有卡片，不能自动视为当前前置知识。
 
-本轮只在 Step 003 落实这一修正并保存讨论，Step 001、002 的认可样例、通用 skill、函数卡片和长期记忆均保留。用户报告的是理解缺口，补写解释不代表缺口已确认解决；完整记录见[本步经过](../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/04-flow.md#input-prerequisite-gap)。
+本轮只在 Step 003 落实这一修正并保存讨论，Step 001、002 的认可样例、通用 skill、函数卡片和长期记忆均保留。用户报告的是理解缺口，补写解释不代表缺口已确认解决；完整记录见[本步经过](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/04-flow.md#input-prerequisite-gap)。
+
+<a id="scope-intro-bullets-and-version-footer"></a>
+
+#### 2026-10-24 · Step 001 的 scope 开头采用要点，版本说明移到文末
+
+用户认为当前 scope 变得臃肿，要求先从 Step 001 提出修改方案，只处理“阅读目标”和“指挥官函数”，并参考原 Step 005–008 的写法。助手对比后提出：目标保留本步问题与场景，指挥官部分保留整体位置、局部入口和选择理由；路由细节与阅读操作由已有后文承接。
+
+用户确认方案并补充：
+
+> 好的
+> 同时阅读目标等考虑清楚是
+> 改成点
+> - xxxx
+> - xxxx
+> 这样子来做到这件事情
+>
+> 同时考虑把这个版本说明放在最后吧
+
+本轮在 [Step 001 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md)落实：
+
+- “阅读目标”用三点说明整体目标、本步问题和阅读范围。
+- “指挥官函数”用三点说明整体位置、本步指挥官和选择理由；保留 CLI 通过 HTTP 请求 Adapter 的关系、函数卡片和固定源码入口。
+- 开头的版本说明及原第二节的完整源码提交集中移到文末，保留各材料的校准状态、历史版本和使用边界。
+
+本轮是已授权的格式整理，第 3 部分的核心骨架、阅读图与导航表保持原文。其他步骤、固定 skill reference、函数记忆及源码学习进度未随之改变；成稿的阅读密度继续以用户实际反馈为准。
+
+<a id="step-two-scope-intro-bullets"></a>
+
+#### 2026-10-24 · Step 002 沿用已确认的 scope 开头格式
+
+用户认可 Step 001 的成稿作为标准，要求先看 Step 002 的具体改法。助手按相同六个要点给出替换稿，保留本步由 `_generate` 直接串联 `collect_metrics` 与 `git_diff` 的实际关系，并将源码版本和本地仓库路径移到文末。
+
+用户确认：
+
+> 好的那么就这么做吧
+> 请继续吧
+
+已按该稿修改 [Step 002 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/01-scope.md)：
+
+- “阅读目标”保留整体目标、本步问题、阅读范围；范围仍是读取运行统计、提取代码补丁并交回主流程。
+- “指挥官函数”保留整体位置、本步指挥官、选择理由；链接到 `_generate` 的两项调用处。
+- “版本说明”位于文末，保留完整源码提交和本地仓库路径。
+
+输入来路、具体实现与回查方法继续由原第 3 部分承接。此次仅整理 scope 开头与版本信息，未调整核心骨架、阅读导航或源码学习进度；其他步骤继续按后续确认处理。
+
+<a id="step-three-scope-intro-bullets"></a>
+
+#### 2026-10-24 · Step 003 精简 scope 开头并折叠选读理由
+
+用户要求继续查看 SWE evaluation 部分。助手按 Step 001、002 的标准给出六个要点的改稿：本步目标是补丁如何得到奖励与应用状态，指挥官是组织选定评测场景的 `_grade_scaleswe`，由 `run_evaluation` 按协议分派进入。同时提出完整保留“为什么先选 ScaleSWE 的 eval_cmd 分支”的说明并默认折叠，将版本说明移到文末。
+
+用户确认：
+
+> 好的那么就这样子修改吧
+
+已在 [Step 003 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/01-scope.md)落实：
+
+- 前两节各用三点说明目标与入口，保留 `scaleswe → eval_cmd` 的选读范围、两项结果和返回位置。
+- 选读理由全文放入默认收起的说明，原 `why-scaleswe-first` 跳转入口保留。
+- 文末按源码基准、本轮卡片、历史证据、总结与差异整理版本信息。
+
+第 3 部分的输入衔接、核心骨架、阅读导航和环境深度保持原文。此次为格式整理，未新增源码理解或运行结论，也未改变学习进度。
+
+<a id="step-three-input-bridge-compaction"></a>
+
+#### 2026-10-24 · 精简 Step 003 的 3.2，保留必要输入模型
+
+用户询问 3.2 是否需要修改。助手回查此前的输入缺口、`_metadata_scaleswe` 卡片和前一步任务总结，建议用“短说明、数据例子、回查入口”组织，保留 `md` 的最小字典，合并重复说明并折叠辅助参数。用户确认：
+
+> 那么按照你的想法来做指出对应的修改吧
+> 这里的3.2太臃肿了
+
+已调整 [Step 003 的 3.2](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/01-scope.md#input-bridge)：
+
+- 用“上一步交来什么、评测还需要什么、接下来交给谁”三个要点替换首张表格与重复说明。
+- 保留 `calc.py` 场景的最小 `md` 字典及教学节选标记；注释明确 `workdir` 指新评测环境中的仓库目录，`grading` 保存评分设置。
+- 正文说明 `md` 在 CLI 启动前准备、`diff_text` 在 CLI 结束后取得；本节为理解评测输入而回查，阅读顺序不改变执行顺序。
+- 保留 `_metadata_scaleswe` 函数卡片与返回评分入口的链接，将 `timeout_sec`、`trace` 的用途及尚未展开的部分合并到原源码来路折叠区。
+
+本次只精简 3.2 的呈现，原 `input-bridge` 锚点保留，其他 scope 部分与函数卡片未改。此前输入缺口及认识形成过程继续保存在原 flow 和本讨论中；未据此新增掌握或运行状态。
+
+<a id="step-four-scope-intro-bullets"></a>
+
+#### 2026-10-24 · Step 004 前两节采用要点并接入已核对的新版入口
+
+用户先核对 Step 003 已按既定范围收束、应接续 Step 004，随后要求审阅 Step 004 的前两节。助手建议沿用六个要点，保留“会话轨迹、奖励与基础样本交成 Sample 列表”的主题，并将第 2 节的旧调用位置换成已保存的 `18868a79` 入口核对。版本说明放在文末，明确部分更新范围。用户确认：
+
+> 那么请修改一下吧
+
+已在 [Step 004 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/01-scope.md)落实：
+
+- “阅读目标”按整体目标、本步问题、阅读范围组织；继续沿 `evaluation=False` 的样本导出路径。
+- “指挥官函数”按整体位置、本步指挥官、选择理由组织，定位 `generate.py:326–336 → BaseAdapter.finish_session:314–345`。
+- 文末注明前两节采用 `18868a79` 的入口依据，第 3 部分、原有函数卡片和 task flow 继续保留 `2f231865` 的版本归属。
+- 步骤 README 同步部分更新的提示，避免把入口整理视作整步内容已完成新版校准。
+
+新版定位来自[2026-10-23 已保存的入口核对](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#step-four-reentry-18868a79)。本次未新增源码实现核验、函数阅读或运行结论；第 3 部分保留原文，学习接续仍以唯一路线为准。
+
+<a id="step-four-scope-core-refresh"></a>
+
+#### 2026-10-24 · Step 004 的整体骨架、输入衔接与局部导航
+
+用户继续询问第 3 部分是否需要修改。助手核对本机固定版本后，提出三项调整：同步真实的整体调用与结果交接，以三个要点补齐本步输入，更新局部骨架和导航行号，并显式保留 `decode` 调用。用户确认：
+
+> 好的就这么修改吧
+
+[Step 004 的 scope](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/01-scope.md)已按“3.1 整体位置 → 3.2 本步接住什么 → 3.3 局部骨架与阅读导航”整理。输入只保留已有轨迹、基础字段与奖励、附加信息三项；导航表标出各段返回位置，已有卡片继续标为旧版，不随 scope 自动升级。旧版全文归档。
+
+源码路径、版本与实际交接的核对见[本步技术记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#scope-core-refresh-18868a79)。入口及唯一接续已同步材料状态；本次未扩大阅读范围、改写函数卡片或增加个人掌握结论。
+
+<a id="shutdown-state-cross-loop-review"></a>
+
+#### 2026-10-24 · shutdown_session 卡片应突出状态变化与跨循环收尾
+
+用户对当前卡片的反馈：
+
+> 你是否会觉得这里的函数卡片太长了?
+> 你觉得有什么需要修改的地方吗?
+> 总觉得这里的纯粹用输入和输出不太合适
+> 之前的skill里面有针对于这种函数给出对应的解决办法吗?
+
+**现有规则核对**：[短期记忆 skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md#函数记录写什么)已有两项适用规定：跨环境、跨边界调度参考 [launch_and_wait](../../../.agents/skills/repo-reading-short-term-memory/references/claude-code-launch-and-wait.md)，用显式流转图及双线框区分本函数直接职责与协同背景；有状态的编排函数保留返回值和相关副作用，再按实际执行阶段说明交接。后者另有 [_run_turn 样例](../../../.agents/skills/repo-reading-short-term-memory/references/base-adapter-run-turn.md)。这些不是本轮新增规则。
+
+**当前卡片的具体问题**：已经包含输入前后的状态变化，不能说完全没写副作用；但 LLM 概括、输入输出示意、五步摘要、三段源码讲解和多轮历史复述叠在一起，重复描述收尾过程。对于返回 `None` 的本函数，主要理解困难是状态如何变化、收尾在哪里执行，以及调用方何时恢复；仅看前后状态仍不足以呈现交接。
+
+**本卡的调整建议，待采用**：
+
+- 保留简短调用合同：当前 `sid`、等待预算、已有的请求 Task，以及正常路径中的状态效果；明确返回 `None`。
+- 在现有场景栏目中，以一张跨循环图作为主线，区分调用方循环、请求所属循环和已运行的 HTTP 请求 Task。`_drain` 虽在另一循环执行，仍是 `shutdown_session` 内定义的收尾逻辑；被等待的请求 Task 才是协同背景。采用样例的边界表达方法，场景改为同一进程中的事件循环交接。
+- 五步摘要并入图，三段源码与图中的准备、提交等待、目标循环收尾相互定位，保留实际执行顺序；不另叠一套平行步骤说明。
+- LLM 四项压短，多轮原话和重复校正说明折叠保留或引用原 flow，当前直接表述与明确未知仍可见；不删除学习历史或改写认识日期。
+- 必要边界保留：`wait_timeout` 只限制首次等待；异常记录后也可能返回 `None`，不能将该返回值当成收尾成功证明。
+
+现行 skill 的外层栏目仍名为“本场景的输入与输出”，内部可以展示状态、执行位置和完成交接。本轮只审阅这张卡片，不据此重构 scope、task flow 或全部函数模板；卡片正文、skill 和学习进度尚未随本方案改写。
+
+<a id="shutdown-state-cross-loop-applied"></a>
+
+#### 2026-10-24 · 按状态变化与跨循环交接重构 shutdown_session 卡片
+
+用户确认：
+
+> 好的那么按照这种范式重构这个函数卡片吧
+
+已在[当前函数卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md#shutdown-cross-loop)应用既有短期记忆 skill 的跨边界图示方式：
+
+- 开头四项压短，场景区先给出必要状态与正常返回后的效果。
+- 用一张 56 列的流转图替换五步摘要。双线框包含本函数在 A、B 两个循环中的直接职责；已运行的 HTTP 请求 Task 标在框外。图内只用 ASCII 文本与框线，中文解释放在图外。
+- 图中编号对应三段源码；明确 `_drain` 先在 A 定义，经第 3 段提交后在 B 执行，调用方等待完成后恢复。
+- 各段只保留与当前语句相关的关键说明；时间预算只覆盖首次等待、`None` 不是成功状态码两项边界保持可见。
+- 完整场景和前后状态、完整历史复述及校正、扩展异常问题分别折叠。当前原话节选和直接相关未知保持可见；所有原话与未知均保留，认识日期不变。
+
+[重构前卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/shutdown-session-before-cross-loop-layout.md)完整归档，原 `shutdown-five-steps` 与 `shutdown-restatement-after-split` 导航锚点继续保留。当前成稿供用户试读，不把布局完成视为理解完成；scope、其他函数卡片、长期记忆、task flow 和通用 skill 未随之重写。
+
+<a id="adapter-state-card-responsibility"></a>
+
+#### 2026-10-24 · 对象字段归类卡，方法中的操作保留在方法卡
+
+用户先反馈新的卡片呈现更清楚，随后提出：
+
+> 我在想这里的这个closed和inflight的内容是否更加适合放在adapter short term中的adapter class里面
+>
+> 然后把我刚才的话写在我的直接表述里面吧
+
+核对发现两个字段都由 `BaseAdapter.__init__` 初始化，当前尚无该类卡片。本轮在 Step 004 的 `02/classes/` 建立有限范围的 [BaseAdapter 卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/classes/slime/agent/adapters/common.py/BaseAdapter.md)，集中说明字段保存什么、实例与 sid 的关系、哪些方法读写；`shutdown_session` 卡片保留 `add`、`pop`、筛选 Task 与等待取消的具体过程。图中的状态操作也继续保留，避免归并定义后丢失执行交接。
+
+此前较完整的复述已原样写入函数卡的[“我的直接表述”](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md#shutdown-user-restatement-2026-10-24)，误写和疑问均保留；旧原话未覆盖。版式得到正面反馈，不能据此认定 `sid`、Task、loop 与跨线程提交均已理解。具体技术问题与接续见[本步记录](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#adapter-state-card-and-user-restatement)。
+
+本次只落实这两个字段的记录归属，未展开完整 BaseAdapter 或修改通用 skill、长期记忆与其他步骤。
+
+<a id="class-memory-object-map-proposal"></a>
+
+#### 2026-10-24 · 类卡先建立基本对象地图，方法卡保存调用过程
+
+用户继续询问：
+
+> 你觉得clas 是否有比较合适short term memroy呢?
+> 我这里就不是特别清楚了关于字段对应的function被归为function
+> 那么这里是否应该适合一开始把一个base adapter的基本的字段理清楚呢?
+> 应为其余的都可以归为function?
+
+本轮区分两个维度：短期与长期表示记录形成或继承的步骤，类与函数/方法表示记录对象。当前已有 `02/classes/` 与 `02/functions/` 的并列用法，类中定义的方法仍是该类的方法；笔记放入 functions 目录并不改变代码归属。
+
+**助手建议，尚未实施**：先将现有 BaseAdapter 类卡补成最小对象地图。类卡保留整体职责、实例持有的核心状态与协作对象、关键方法的一句职责及导航；方法卡解释一次调用的输入、局部变量、状态变化和执行过程。第一轮应先接清 `store`、`inflight`、`closed`、`manager` 的分工，`app` 和模型输入输出相关对象先知道用途；运行限制、诊断和协议配置随需要展开。
+
+当前源码 `18868a79` 的 `common.py:190–240` 显示，`store` 保存会话配置、`inflight` 按 sid 登记 Task、`closed` 保存关闭编号、`manager` 管理轨迹；`app` 是 HTTP 应用，`tokenizer`、服务地址与解析器支持模型请求处理。类属性与实例字段应在地图中区分，不能把方法参数 `sid`、局部变量 `tasks`、`pending`、`loop` 都列成 Adapter 的持久字段。
+
+类卡不只是一张字段清单，还需说明这些字段为何同属这个对象，以及哪些方法共同使用它们；方法入口只做导航，实际展开时再建立或更新方法卡。`__init__` 的字段结果可以先在类卡说明，具体初始化流程在需要时单独阅读。短期记忆记录本步新认识，下一步仍按已有继承规则带入长期记忆。
+
+当前类卡仍保持只覆盖 `closed`、`inflight` 的版本，本轮只保存讨论与扩充建议。接续仍在 Step 004 的 `shutdown_session` 与跨循环问题，未将基础地图视为用户已掌握的前提，也未提前展开所有方法。
+
+<a id="class-memory-field-overview-and-usage"></a>
+
+#### 2026-10-24 · 类卡先总览全部字段，再按实际阅读补充用法
+
+用户进一步提出：
+
+> 那么你觉得是否适合一次性先点亮所有的字段呢?
+> 然后简单说一下中间记录的大概是什么 然后如果这个字段之后再被用到了?
+> 那么应该考虑的就是把这一部分具体在哪里使用的方式说清楚?
+> 你觉得这样子会好很多吗?
+>
+> 好好考虑一下应该如何写这种short term memory把
+
+本轮用 AST 核对 `18868a79` 的 BaseAdapter：`__init__` 明确初始化 13 个实例字段，类体另有 `logger`、`log_prefix`、`max_token_keys`、`stop_keys` 四个带默认值的类属性；`manager: Any` 是类型注解，实际实例字段已计入前面，不重复计数。此范围不包含子类新增字段或方法局部变量。
+
+**助手建议：全字段浅层总览与渐进用法分开维护。** “点亮”表示先能辨认字段与对象，不表示已经掌握全部使用机制。当前字段规模适合一次总览；首次只说明保存的内容、初始化来源/空值与一句用途，方法细节随阅读展开。
+
+拟用类卡结构：
+
+1. **这个对象是什么**：一两句话说明职责、一个实例管理的范围与主要协作对象。
+2. **字段总览**：实例字段与类级配置分别列出，按职责分组；每个字段一行，保留名称、保存什么、初始形态或来源、基本用途。
+3. **已展开的字段用法**：实际读到方法后才增加关系摘要与链接。字段、真实使用者、读写/调用/交付方式、方法记录入口各有位置；源码静态发现的其他使用点不标成已学。
+4. **我的直接表述与尚不清楚**：沿用现有记录职责，个人表述与助手整理的字段解释分开。新的使用关系只有用户实际表达时才记为个人认识更新。
+5. **来源**：固定版本、定义位置、首次建立与后续认识来源，详情折叠。
+
+例如，`inflight` 的总览始终回答“它按 sid 保存请求 Task 集合”。在实际阅读中，可逐步补充 `_run_turn` 的登记、退出时移除以及 `shutdown_session` 的取出和筛选；类卡只写一句作用并链接对应阶段，完整代码、等待/取消流程仍在方法卡。重复遇到同一用法时修订原条目，新增消费者时补新条目，避免累积成每次会话一段的流水账。
+
+字段的使用者也可能是类外函数，例如 `call_sglang_generate` 读取 Adapter 上的配置；不预设全部用法都在本类方法内。字段若持有复杂对象，先说明对象职责，需要展开内部结构时进入该对象自己的类卡。`debug_callback` 保存可调用对象，仍是字段，不能因值是函数就从字段总览中遗漏。
+
+该版式是针对类卡的试用建议，保留原话、未知和版本来源，不机械套用方法卡的成对输入输出。当前未据此扩充正式 BaseAdapter 类卡或修改通用 skill；后续可先在本类试用再决定是否推广。
+
+<a id="class-field-memory-applied"></a>
+
+#### 2026-10-24 · 在 BaseAdapter 落实全字段总览与渐进用法索引
+
+用户确认：
+
+> 好的那么请构建这样子的short term memory吧
+
+现有 [BaseAdapter 类卡](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/classes/slime/agent/adapters/common.py/BaseAdapter.md)已采用六部分结构：对象职责、字段总览、已展开的使用关系、我的直接表述、尚不清楚、来源。
+
+- 源码总览覆盖基类自身 13 个实例字段与 4 个类级默认配置。按会话与轨迹、请求处理与协作对象、类级配置分组，每个字段说明保存内容、初始形态或来源、基本用途。
+- 使用关系只保留已经讨论的 `closed`、`inflight` 读写，分别链接前序 `_run_turn` 与本步 `shutdown_session` 的方法记录；未把静态找到的其他调用点写成已学。
+- 后续同一用法修订原条目、新的使用者补新条目，详细代码继续由方法卡承担；复杂字段对象的内部结构留给该对象的记录。
+- 当前原话、未知和首次接触信息保留，方案确认与技术理解分开；来源与版本置于文末，原两字段类卡完整归档。
+
+本次仅在现有类卡试用此格式。通用 skill、方法卡、长期快照和学习范围未随之修改；当前跨循环问题仍待接续。
+
+<a id="base-adapter-field-card-review"></a>
+
+#### 2026-10-24 · 从工程准确性与学习可用性审阅 BaseAdapter 类卡
+
+用户要求：
+
+> 请你从一个资深工程师和认知科学家的角度来看一下 这个md合适吗?
+
+本轮审阅当前[类卡](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/classes/slime/agent/adapters/common.py/BaseAdapter.md)及固定源码。总体判断：完整字段总览、类属性/实例字段区分、用法索引与个人表述分开的方向成立。字段数与源码对齐、链接和渲染通过，只能证明文档的一部分准确性，不能据此证明读者已形成可提取的对象模型。
+
+**工程方面的改进建议**：
+
+- 字段总览说明了各自保存什么，还应补充同一 `sid` 怎样关联 `store`、`inflight`、`closed` 与 `manager`，使数据归属及状态区别直接可见。
+- 当前运行场景需要一小段定位：具体协议子类使用共同字段，HTTP 应用由外部启动层运行在专用循环中。类级默认值与实际子类的覆盖值、对象字段与方法局部变量继续区分；尤其不能将每个 sid 误认为拥有独立 loop。
+- 使用关系表的部分链接只到较长的整张方法卡，应尽量定位到具体处理段或源码位置；后续新增用法保持去重，避免变成另一份方法全文。
+
+**认知方面的改进建议**：
+
+- 保留用户要求的全部字段可见，另用一行提示本轮关注的字段。页面列出 17 项不等于需要同时记住 17 项，重点是分组是否有意义、关系是否容易看见、查阅是否频繁打断主线。
+- “保存什么”和“基本用途”在少数行中信息相近，尤其抽象的对象或配置描述可用一个局部例子增强辨认；无需对所有字段机械增加例子。
+- 当前原话主要表达记录方式偏好，已被正确标明，不能当成字段模型已经形成的证据。之后用实际问题检查能否解释字段差别与一次状态变化，再决定是否追加内容；不要求一次复述全部字段。
+
+以上为依据分组、注意引导、减少分散查阅和提取练习等一般原则作出的设计判断，尚无对这张卡片学习效果的实测。建议保留当前框架，先小幅补关系与定位；本轮仅保存审阅结论，未重写类卡、方法卡、skill 或学习进度。
+
+<a id="base-adapter-card-slimming"></a>
+
+#### 2026-10-24 · 先精简 BaseAdapter 类卡的查阅负担
+
+用户要求：
+
+> 首先先瘦身吧
+> 按照双方专家都觉得合适的方式重构这里的内容
+
+本轮按工程准确性与减少重复查阅两个标准精简[当前类卡](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/classes/slime/agent/adapters/common.py/BaseAdapter.md)：
+
+- 仍保留 13 个实例字段与 4 个类级配置，并区分两者；四列表压成“字段、含义”两列，一行合并保存内容、用途和必要默认值。
+- 开头只保留对象职责与本轮关注字段，删除重复的阅读方式说明。
+- 五条用法按 `closed`、`inflight` 合并为两行，保留入口检查、登记、退出移除、关闭标记和取出筛选五项关系；请求入口指向具体源码，登记清理使用已有段落锚点。
+- 原话整体折叠，当前未知保持可见；构造细节、状态例子和完整来源保存在[精简前类卡](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/base-adapter-before-slimming.md)，并从文末提供入口。
+
+此次优先瘦身，没有继续扩写运行场景或增加大图。原话、认识时间、方法卡、长期快照、学习进度及通用 skill 保留；精简是否更便于实际阅读，仍以用户后续反馈判断。
+
+<a id="base-adapter-usage-column"></a>
+
+#### 2026-10-24 · 将已展开的用法放到字段含义右侧
+
+用户提出：
+
+> 我觉得可以把以及展开的放在含义的右边?
+
+已将 BaseAdapter 类卡的三个字段表统一为“字段、含义、已展开的用法”。原 `closed`、`inflight` 的使用说明与方法链接移入对应行，独立用法表移除，后续栏目顺延编号。其余行用“—”注明本卡尚未归纳具体用法，不据此判断用户没有学过。
+
+17 个字段的含义、已有用法、原话、未知和来源保持原内容；本轮仅调整查阅位置，未改变方法卡、学习进度或通用 skill。
+
+<a id="get-trajectory-card-reorder-proposal"></a>
+
+#### 2026-10-24 · get_trajectory 保留三段主线，调整材料的先后与复杂度
+
+用户反馈 TrajectoryManager 和 MessageNode 的对象前置大概理解，认为当前 get_trajectory 卡片内容质量较高，同时要求先给出优化顺序和复杂度的方案。[完整表述](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#get-trajectory-reorder-feedback)及两类卡片中的节选已保存，不将整体反馈扩大成逐字段或内层算法已掌握。
+
+本轮对照短期记忆 skill 的锚点函数规则：整个函数的调用合同与状态变化先可见，内部仍按“阶段标题与源码范围 → 连续代码块 → 本场景中的变化 → 按需子函数入口”组织。该函数同步处理一棵树，不照搬跨循环调度函数的大图。
+
+**主要判断**：取树、路径到样本、赋奖励与移除三个阶段已有清楚的源码依据，应保留。负担主要来自在主流程前铺完整 token 数组和样本字段，以及在第二阶段同时展开分叉、共享生成标记、mask 和压缩语义。
+
+**拟改方案，待采用**：
+
+1. 开头压短 LLM 四项与对象回查，沿用原函数名、调用实参和已有两张类卡；不重复解释全部节点字段。
+2. 在原“本场景的输入与输出”中先紧邻给出小合同：输入已有树、sid、基础样本与奖励，输出 Sample 列表，同时移除本会话的树和计数，文本仍由父函数补齐。
+3. 主例仍使用原单轮、无分叉场景。只展示 root → user → assistant 的树，以及对应的节点路径；完整 token 与 logprob 数组折叠保存，保持历史示例的版本说明。
+4. 保留现有三段代码顺序，解释紧跟本例的数据：取到 root；叶子变成 chain，组装函数返回样本并由 extend 汇总；最后赋 reward、移除记录和返回。第二阶段先读这一条路径，避免在首次经过时同时承担全部变体。
+5. 分叉、共享前缀、response_trained、mask 和压缩对照继续保留，放在基础主线之后或引用已有 reference；默认正文只指出不同路径可以共享节点、一条路径不保证恰好一个样本。
+6. 保留原话、未知、来源与旧稿；较长历史和版本说明默认折叠，方法卡继续负责本函数，scope 与 task flow 不随本方案重写。
+
+本轮只更新真实反馈与保存提案，尚未实施 get_trajectory 的讲解重排。
+
+<a id="get-trajectory-card-reorder-applied"></a>
+
+#### 2026-10-24 · 按单轮主线重排 get_trajectory
+
+用户确认“好的那么重构一下吧”。当前卡片保留原有三段代码与单轮场景，先用短表交代输入、返回及状态变化，再以小树对应 root、chain、Sample 列表和 reward 的逐段变化。默认正文保留不同路径可共享节点、一条路径未必对应一个样本的边界；完整数值、分叉和压缩对照放在主线之后的折叠区，历史原话及来源保留。
+
+[重排前全文](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/references/get-trajectory-before-mainline-layout.md)完整归档；`trajectory-object-entry`、`trajectory-path-iteration` 和历史复述锚点继续有效。当前修改仅针对本函数卡片，未改动类卡、其他方法卡、scope、task flow 或通用 skill，也不将排版更新记为个人理解更新。
+
+<a id="get-trajectory-before-after-review"></a>
+
+#### 2026-10-24 · 前后两版如何支持当前的心智模型
+
+用户要求助手比较前后两版，判断哪一版更符合人的心智模型。
+
+助手倾向新版作为当前主读入口：先明确任务与对象，再沿同一单轮例子跟随 `sid → root → 节点路径 → 样本列表 → 奖励与状态收尾`。三个阶段保留真实代码，变量变化紧邻解释，减少在数值细节、基础流程和复杂变体之间切换。
+
+旧版的优点是具体数据和边界材料完整，适合核对 token、mask 或分叉、压缩场景；这些材料在新版仍可按需展开。新版当前支持的是 get_trajectory 外层的职责与交接，后续研究组装算法时，需要将对应数值和分支重新带入当轮阅读。
+
+这是针对当前阅读目标与用户已有前置的设计判断，不是普遍的认知效果定论。本轮未再次修改卡片，也未据助手评价更新个人掌握状态。
+
+
+<a id="slime-topic-grouping-applied"></a>
+
+#### 2026-10-25 · 按主题归入既有 Slime 步骤
+
+用户在讨论“仓库 → 主题 → 步骤”的结构后确认：
+
+> 好的那么就按照这个方式来构建吧
+
+[主题分组方案](slime-topic-grouping-proposal.md)已落实为第一个 [Coding Agent RL 主题](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/README.md)。既有 Step 000–009 整体迁入，主入口是 generate/_generate，agent/ 与 swe.py 等作为支撑源码范围；步骤编号、内部记录结构、原话、未知与版本证据保留。后续主题只在项目入口列为规划，不预建阅读步骤。
+
+项目入口和相关来源链接随目录变化调整；通用工作流说明主题是步骤上层分组，跨主题仍从上一实际步骤继承 03 + 02，当前进度保持唯一。具体范围与校验见[迁移记录](../../../00-repo-reading/repositories/slime/version-reviews/2026-10-25-topic-migration.md)。
+
+<a id="step010-core-skeleton-review"></a>
+
+#### 2026-10-25 · Step 010 的 scope 应先让真实调用主干可见
+
+用户反馈：
+
+> 请参考一下过往?
+> 这里的scope部分是按照skill搭建的吗?
+> 怎么感觉完全看不清楚这里的骨架呢?
+
+本轮对照 [scope skill](../../../.agents/skills/repo-reading-scope/SKILL.md)、其 [Coding Agent 骨架样例](../../../.agents/skills/repo-reading-scope/references/coding-agent-scope.md)，以及 Step 004、007 的正式 scope。助手判断：上一版只保持了三段栏目，未充分执行正常路径剪枝。整体图混合调用与职责描述；局部代码同时展示配置选择、两种取消包装、两次上下文传递以及单样本/列表评分，读者尚未建立主干就需要跨多条分支理解。
+
+按既有规则调整 [Step 010 scope](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/01-scope.md)：
+
+1. 调用位置只交代 `generate_and_rm_group → generate_and_rm → Coding Agent generate`，说明结果怎样返回。
+2. 主骨架固定为本轮 Coding Agent 的正常列表返回路径；保留真实函数名、`await`、必要的奖励筛选与写回，用短注释标出五项动作。
+3. 阅读导航与骨架编号对应，提供源码入口和返回位置；配置、运行控制、其他评分分支及边界移入折叠说明。
+
+[原 scope 全文](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-before-core-skeleton-review-2026-10-25.md)已归档。这里调整的是骨架呈现与首轮剪枝，没有改写函数卡片、累计记忆、源码或通用 skill；用户尚未反馈重排后的可读性，不将本次调整记为机制理解更新。
+
+<a id="step010-skeleton-data-handoffs-proposal"></a>
+
+#### 2026-10-25 · 骨架提取还应保留业务分块与关键实参
+
+用户继续追问：
+
+> 之前应该有一个skill 专门写了 如何在一个函数中找到具体骨架
+> 我总觉得这里好像和之前的不太一样?
+> 总觉得好像差了点什么
+> 你看看有没有什么好一点的方法来处理呢?
+
+本轮重新查阅 scope skill、剪枝 reference、代码阅读指南原文及 Step 000。对应方法确实已存在；助手判断上次主要减少了分支，仍未解决动态函数身份、阶段粒度与数据交接的可见性。例如将 `_run_server_abort_generate` 的参数全部改为 `...`，隐藏了它接收上一行 `generate_call` 的关系。
+
+已保存[具体对照方案](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-by-data-handoffs-proposal.md)：先按生成、后处理、补奖励三项业务结果分块；动态实现先给身份提示；保留 `generate_call`、待评分成员和返回分数这些关键实参，再折叠其余机制。包装器已核对为等待 `generate_call` 并维护活跃计数，名称中的 `abort` 不能代替职责判断。
+
+本轮交付方法说明与候选骨架，正式 scope、函数卡片和 skill 尚未改用候选；没有推进函数阅读或新增个人掌握结论。可读性判断属于助手提出的改进方向，等待用户实际反馈。

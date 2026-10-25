@@ -2,7 +2,7 @@
 
 > 2026-10-21 已按用户要求移出当前步骤目录。以下保留当时内容；当前保留的步骤见 [Slime 项目入口](../../../../00-repo-reading/repositories/slime/README.md)，实时接续见[阅读路线](../../../../slime_photo/code-reading/repo-reading-route.md#当前接续)。
 
-2026-10-20：本页保留此前的框架启动方案。当前入口为 [Step 0 · Coding Agent 阅读准备](../../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)，具体主题须先由用户确认；下文关于 `train.py::main()` 的安排属于历史。
+2026-10-20：本页保留此前的框架启动方案。当前入口为 [Step 0 · Coding Agent 阅读准备](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)，具体主题须先由用户确认；下文关于 `train.py::main()` 的安排属于历史。
 
 - 日期：2026-10-19。
 - 前一步：无；从[Slime 阅读目标](../../../../00-repo-reading/repositories/slime/README.md)开始。

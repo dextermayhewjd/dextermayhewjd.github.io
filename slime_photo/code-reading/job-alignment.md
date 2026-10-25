@@ -8,6 +8,82 @@
 
 Python 原生异步与并发的专项学习范围统一维护在 [学习规划](../../python-async-reference/learning-plan.md) 第 4.3–4.5 节：只展开原生机制，不承担完整岗位或通用工程化课程。三库 API 频次用于选例与检查遗漏；阶段性调用覆盖比例不作为岗位能力验收。既有源码阅读顺序仍以本目录的唯一路线为准。
 
+<a id="next-month-job-plan-20261025"></a>
+
+## 2026-10-25：一个月内投递的岗位复核与接续建议
+
+本轮再次从腾讯官方招聘接口取得同一岗位，返回 `Code=200`，标题为“混元Agent强化学习框架工程师（深圳/北京/上海）”，更新日期为 **2026年10月20日**，工作经验字段为“**一年以上工作经验**”。依据见[岗位页面](https://careers.tencent.com/jobdesc.html?postId=2061654749727600640)与[本轮取证元数据及要点](job-evidence/2026-10-25-tencent-2061654749727600640.json)。该记录证明本轮取得了职位信息，不额外推断招聘截止时间。
+
+**用户本轮明确的条件**：计划一个月内投递或面试；用过 kubectl、部署过简单服务。继续沿用此前“本地无 GPU、以源码理解和可行的验证为主”的条件。以下是建议方案，尚未因此开启新步骤或实施项目。
+
+### 岗位要求怎样落实到下一阶段
+
+| 官方要求归纳 | 当前已有基础 | 接下来最需要补的证据 |
+| --- | --- | --- |
+| 职责 2、3：统一组件，支持策略与评测接入 | 已沿单题主线读过 Harness、Adapter、Sandbox、评分和 Sample 导出 | 从框架调用者看清插件契约，完成一个可配置的策略或评测接入及契约测试 |
+| 要求 1、5，职责 4：Python 异步、并发、性能与稳定性 | 有 Python/asyncio 学习基础，读过局部等待、取消和清理 | 对同一小任务验证并发上限、超时、取消、失败状态和资源释放，给出测试与测量结果 |
+| 要求 3：容器、Kubernetes 与集群实践 | 用户报告能用 kubectl，部署过简单服务 | 将任务 worker 与服务接口部署起来，亲手复现并定位一类资源或网络/重启故障，保存恢复过程 |
+| 职责 1、5，要求 4：实验复现与训练视角 | 已读过 reward、token、logprob、mask 的生产端，并有训练基础概念 | 看清 Sample 到训练批次、训练调用与权重更新的交接；保存任务配置、版本、输入输出和复现方式 |
+| 要求 6：问题分析、协作和 owner 意识 | 当前记录包含问题追踪和源码解释 | 用一项实际变更说明需求、边界、取舍、实现、验证和遗留风险，形成可展示的技术记录 |
+
+- Kubernetes 与集群实践列在正式要求中；AI 编程工具、相关框架经验、研发效能工具和跨语言维护列在加分项中。
+- 训练要求是了解所列流程中的至少一类，不能据此推出本月必须通读所有训练范式或 Megatron 底层；也不能据此保证面试不会问某个具体方向。
+- 岗位对齐按“要求—代码能力—实际证据”判断，不使用函数数量或没有分母的“覆盖 60%–70%”估算。
+
+### 建议围绕同一条接入任务推进四周
+
+| 阶段 | 重点 | 最小产出 |
+| --- | --- | --- |
+| 第 1 周：接入与数据契约 | 从 `generate_and_rm` 接回已经读过的 Coding Agent，理解调用、返回的 Sample/list、奖励归属和失败结果；增加一个范围小的策略或评测扩展 | 一份接口说明；可配置的扩展；成功/失败及奖励不重复计算的测试 |
+| 第 2 周：批量运行与可观测性 | 复用该任务，验证并发、超时、取消和资源清理；用已有 Trace 记录定位失败 | 可重复的故障用例；并发上限与结果完整性检查；一份耗时或吞吐测量 |
+| 第 3 周：Kubernetes 实践 | 将同一个最小 worker 与服务接口部署到可用集群；无 GPU 时使用 CPU 任务与可控模型服务替身 | 部署配置；一类 Pod/资源/服务连接故障的排查、恢复与产物保存记录 |
+| 第 4 周：训练交接与整理 | 短读 `BatchBuilder.convert`、`train.py` 的训练调用和权重更新；整理前面变更与故障证据 | 数据流图；能解释 reward/logprob/mask 如何被消费；可复现 README 和项目讲述材料 |
+
+每阶段围绕同一个小任务递进，避免同时新开多个框架项目。普通模型 API 只能用于它实际支持的验证；SGLang 的 token/logprob 合同、参数训练和权重同步仍分别确认。替身验证、本地 Kubernetes 实践和真实 GPU 训练分别记录，不混为同一种运行证据。
+
+### 推荐的下一处入口
+
+**主入口：[slime/rollout/sglang_rollout.py::generate_and_rm，338–380 行](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L338-L380)。** 它直接承接已经读过的 `examples.coding_agent_rl.generate.generate`，并能回答岗位最关心的一组接入问题：
+
+1. 自定义生成函数怎样被选中、装载和调用？
+2. 返回 Sample 或 Sample 列表时，框架怎样接收；已有 reward 时谁还负责评分？
+3. 失败状态和结果如何传出，怎样用测试确认接口接对？
+
+将 `_generate:337–413` 的状态、失败返回和最终清理作为上述契约的必要回查收尾，不为完成函数清单继续无限下钻。配套从现有 [test_plugin_generate_contracts.py](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/plugin_contracts/test_plugin_generate_contracts.py) 与 [test_plugin_path_loading_contracts.py](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/plugin_contracts/test_plugin_path_loading_contracts.py) 入手；本轮只核对它们存在，尚未运行。
+
+当前示例脚本使用 fully-async 入口；`fully_async_rollout` 复用 `generate_and_rm_group`。因此先看共同的 `generate_and_rm` 有直接衔接，之后再选择与真实运行方式对应的批量调度路径。
+
+**Dressage 的位置**：保留为完成接口理解后的定点对照，围绕环境接口、阶段钩子与 reward registry 解释抽象取舍。当前不把整仓再读一轮放在最前面；遇到具体扩展需求时查它更容易形成可验证的设计结论。
+
+实际下一步范围仍需在接续时确认；当前学习位置只以[唯一路线](repo-reading-route.md#当前接续)为准。
+
+<a id="reading-order-jd-audit-20261025"></a>
+
+### 对“Slime 后续阅读顺序”README 的明确评估
+
+核对对象是 [Slime 后续阅读顺序](../../00-repo-reading/repositories/slime/slime后续阅读顺序/README.md)的四项阅读路线、测试和 Kubernetes 部分。结论：**作为源码学习路线，四个选题都直接对应 JD，第一入口也合理；作为一个月的完整岗位准备方案，目前的运行模式说明和实践完成标准还需要补齐。**
+
+| README 项目 | 对应 JD | 评估与需要补准的边界 |
+| --- | --- | --- |
+| 策略与评测接入 | 职责 2、3；要求 5、6 | 直接对齐。`generate_and_rm` 与 RM 入口能说明扩展契约及评分责任，但读懂函数不等于做过接入；应以一个小扩展和契约验证收束 |
+| 批量任务与并发控制 | 职责 4；要求 1、5 | 直接对齐。应标明所读调度模式；当前 coding 示例的 fully-async 关键路径也要覆盖 |
+| Trace 与故障定位 | 职责 1、2、4；要求 2、5 | 直接对齐。基本 Trace 与日志应贯穿前两项；独立深入时应以分析一个失败或慢任务为目标，而不只读两个装饰/上下文函数 |
+| 训练数据交接 | 职责 5；要求 4 | 直接对齐，当前深度合理。训练全景可先短看，详细转换放后面；需要接到实际消费端，不能把 `BatchBuilder.convert` 当成优化器训练本身 |
+| 配套契约测试 | 职责 3；要求 5 | 选得合理，源码确有 GPU 数为 0 的替身测试。至少实际运行相关测试并验证自己的扩展，不把“阅读断言”当作工程产物 |
+| Kubernetes 实践 | 要求 3 | README 已经列出，不能说遗漏。但缺少明确环境、故障场景及交付标准，尚不足以回应集群实践要求 |
+
+**第 2 项的源码依据**：当前 [run_qwen38_27b_fully_async.sh:165–167](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/run_qwen38_27b_fully_async.sh#L165-L167) 配置 `fully_async_rollout.generate_rollout_fully_async` 和 Coding Agent 的自定义 generate。其后台 [AsyncRolloutWorker._loop:178–243](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L178-L243) 调用共同的 `generate_and_rm_group`，并有完成队列与接纳控制。README 列出的 `sglang_rollout.generate_rollout_async` 可作为基础批处理调度阅读，但不能单凭它解释当前示例的全部实际调度。完整 fully-async 文件仍可后置，活跃的关键路径需要明确接入。
+
+**建议的有限调整**：
+
+- 开始前短看 `Sample → 训练调用 → 权重更新 → 下一轮生成` 的全景，然后仍以 `generate_and_rm` 为首个深入入口；训练第 4 项无需整个前移。
+- 保留“接入 → 批量运行 → 训练数据交接”的主顺序，测试和基本 Trace 从第一项就配套；第三项升级为真实的失败/慢任务定位练习。
+- Kubernetes 从批量运行阶段同步推进一个有限案例，例如 worker 与 Service 的部署、资源限制、一次故障排查及结果保存。无 GPU 时可以使用 CPU 任务或服务替身，按实际环境描述产物。
+- 给每项增加一个可检查结果：插件契约测试、并发/取消实验、失败 Trace、Sample 字段到训练输入的对应。原有“能说明”保留为理解目标，再补工程验证目标。
+- Dressage 继续作为定点设计对照，岗位没有指定必须使用这个框架；一个月内优先利用已有 Slime 基础形成一项可验证扩展。
+
+本轮核对了对应 Slime `18868a79` 的代码与测试文件，没有运行这些测试或替用户创建下一步。这里只记录评估和建议，未直接改写被评估 README 的四项主顺序。
+
 <a id="current-reading-job-relevance"></a>
 
 ## 2026-10-21 再核对：当前读到的内容与岗位有多相关
@@ -52,7 +128,7 @@ Python 原生异步与并发的专项学习范围统一维护在 [学习规划](
 | 职责 4；要求 1、5：异步执行、资源与结果一致性 | 读清独立环境的生命周期、补丁状态、命令失败与异常传播；先保留关键边界，再按问题深挖重试 |
 | 职责 5；要求 4：将训练需求落到工程链路 | 先解释 `reward` 的来源与含义，再连接已有轨迹和训练样本导出 |
 
-因此 [Step 2](../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/README.md) 定为“代码改动如何在独立环境中得到奖励”。第一遍选真实支持的 `scaleswe → eval_cmd` 分支，围绕接口和数据交接展开；不把阅读目标扩成安装某个数据集的全部工具。要求 3 中的 Kubernetes 部署排障能力仍需独立实践，本步理解 Sandbox 接口不能替代该证据。
+因此 [Step 2](../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/README.md) 定为“代码改动如何在独立环境中得到奖励”。第一遍选真实支持的 `scaleswe → eval_cmd` 分支，围绕接口和数据交接展开；不把阅读目标扩成安装某个数据集的全部工具。要求 3 中的 Kubernetes 部署排障能力仍需独立实践，本步理解 Sandbox 接口不能替代该证据。
 
 本节记录选题依据，不保存第二份学习进度；实际掌握与运行状态继续见唯一路线。
 

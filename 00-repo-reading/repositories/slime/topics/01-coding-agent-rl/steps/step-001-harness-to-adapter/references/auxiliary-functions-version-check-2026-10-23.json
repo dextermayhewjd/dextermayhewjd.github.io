@@ -1,0 +1,171 @@
+{
+  "review_date": "2026-10-23",
+  "verification_kind": "fixed-version source text and AST comparison; no new model or HTTP execution",
+  "slime_functions": [
+    {
+      "name": "_render_response",
+      "source_identical": true,
+      "versions": [
+        {
+          "version": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+          "lines": [
+            198,
+            208
+          ],
+          "source_sha256": "66be169bb36dc36cffc1f1aca6ba8118f00145e9efcc4778f69ce92bc0e06929"
+        },
+        {
+          "version": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+          "lines": [
+            221,
+            231
+          ],
+          "source_sha256": "66be169bb36dc36cffc1f1aca6ba8118f00145e9efcc4778f69ce92bc0e06929"
+        }
+      ]
+    },
+    {
+      "name": "_render_stream",
+      "source_identical": true,
+      "versions": [
+        {
+          "version": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+          "lines": [
+            211,
+            274
+          ],
+          "source_sha256": "ce8d8c16b873a2e336b036a3bbebb05b1d6eb90191c8764f97c6a60bce779c6a"
+        },
+        {
+          "version": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+          "lines": [
+            234,
+            297
+          ],
+          "source_sha256": "ce8d8c16b873a2e336b036a3bbebb05b1d6eb90191c8764f97c6a60bce779c6a"
+        }
+      ]
+    }
+  ],
+  "external_functions": [
+    {
+      "name": "apply_chat_template",
+      "old_lines": [
+        1546,
+        1721
+      ],
+      "new_lines": [
+        1547,
+        1722
+      ],
+      "source_identical": true,
+      "ast_identical": true,
+      "local_matches_official": true
+    },
+    {
+      "name": "get_chat_template",
+      "old_lines": [
+        1779,
+        1831
+      ],
+      "new_lines": [
+        1780,
+        1832
+      ],
+      "source_identical": true,
+      "ast_identical": true,
+      "local_matches_official": true
+    },
+    {
+      "name": "chat_template_utils.py",
+      "whole_file_identical": true,
+      "local_matches_official": true
+    },
+    {
+      "name": "json_response",
+      "official_lines": [
+        833,
+        856
+      ],
+      "local_lines": [
+        833,
+        856
+      ],
+      "source_identical": true,
+      "ast_identical": true
+    },
+    {
+      "name": "Response.__init__",
+      "official_lines": [
+        628,
+        691
+      ],
+      "local_lines": [
+        628,
+        691
+      ],
+      "source_identical": true,
+      "ast_identical": true
+    }
+  ],
+  "official_downloads": [
+    {
+      "file": "tokenization_utils_base-4.57.1.py",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.1/src/transformers/tokenization_utils_base.py",
+      "bytes": 211457,
+      "sha256": "e71871474be2b1aa32f3a147dc31fe0a195fd402a27c37d30d666035fcccd891"
+    },
+    {
+      "file": "chat_template_utils-4.57.1.py",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.1/src/transformers/utils/chat_template_utils.py",
+      "bytes": 22775,
+      "sha256": "a61d29d984494999a0f1a280143422e2846964727a4cc66f72e12cff1d992ee2"
+    },
+    {
+      "file": "tokenization_utils_base-4.57.6.py",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.6/src/transformers/tokenization_utils_base.py",
+      "bytes": 217915,
+      "sha256": "a2d62f7e5d58f908b3a2d0b24ce6329e1e52c815082cedde29a5c007a23e7e83"
+    },
+    {
+      "file": "chat_template_utils-4.57.6.py",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.6/src/transformers/utils/chat_template_utils.py",
+      "bytes": 22775,
+      "sha256": "a61d29d984494999a0f1a280143422e2846964727a4cc66f72e12cff1d992ee2"
+    },
+    {
+      "file": "aiohttp-web_response-3.13.5.py",
+      "url": "https://raw.githubusercontent.com/aio-libs/aiohttp/v3.13.5/aiohttp/web_response.py",
+      "bytes": 29366,
+      "sha256": "0e87ce3ce5386defeea62aa8b968f17e130bcae6ed445bce1a72596c86a61fab"
+    }
+  ],
+  "preserved_cards": [
+    {
+      "path": "00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+      "sha256": "0491c9bdc3c024b2184424d0da7d735f0a65410ce0057515bc28389c38819dd1",
+      "unchanged_this_review": true
+    },
+    {
+      "path": "00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/aiohttp/web_response.py/json_response.md",
+      "sha256": "e34e5593e8d354b1682beafaa66f18f73a32d2c592e0833f9d85ac24fb19d928",
+      "unchanged_this_review": true
+    },
+    {
+      "path": "00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md",
+      "sha256": "3880a94397bc423ea900e8817edd9052ccaa26e8a7d9b88ad0baa6b140ce3788",
+      "unchanged_this_review": true
+    },
+    {
+      "path": "00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+      "sha256": "3f9ee62a711b87bf2094ee91cd6852f4d5cc6d11762df46abdc1ea66834f4651",
+      "unchanged_this_review": true
+    }
+  ],
+  "local_validation_environment": {
+    "python": "/home/hongshi/projects/alpha_agent/.venv/bin/python",
+    "transformers": "4.57.6",
+    "aiohttp": "3.13.5"
+  },
+  "scope": "The local validation environment is not asserted to be the deployed training container."
+}

@@ -101,8 +101,8 @@ prompt_ids = _render_token_ids(                          # 342：套模板并编
 
 | 需要展开时进入 | 读完回到这里，接着使用什么 |
 | --- | --- |
-| [_translate](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md)：消息历史和工具定义怎样转换 | 接住 `translated`、`tools_schema`，交给模板编码 |
-| [_render_token_ids](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md)：模板如何接收两份数据 | 接住 `prompt_ids`，进入下面的模型生成 |
+| [_translate](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md)：消息历史和工具定义怎样转换 | 接住 `translated`、`tools_schema`，交给模板编码 |
+| [_render_token_ids](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md)：模板如何接收两份数据 | 接住 `prompt_ids`，进入下面的模型生成 |
 
 <a id="before-respond"></a>
 
@@ -129,10 +129,10 @@ turn = dataclasses.replace(turn, ill_formed=parsed.ill_formed)                  
 
 | 需要展开时进入 | 读完回到这里，接着使用什么 |
 | --- | --- |
-| [call_sglang_generate](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md)：请求模型并形成 `TurnRecord` | 用 `turn.output_ids` 解码，其余生成数据继续保留 |
-| [tok.decode](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md)：token 如何还原为字符串 | 将 `raw_output` 交给解析器 |
-| [parse_model_output](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/parsing.py/parse_model_output.md)：字符串如何拆成结构化内容 | 将 `parsed` 交给回复组装，并读取格式标记 |
-| [_build_reply](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md)：解析结果如何适配当前协议 | 接住 `reply`，进入响应与轨迹记录 |
+| [call_sglang_generate](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md)：请求模型并形成 `TurnRecord` | 用 `turn.output_ids` 解码，其余生成数据继续保留 |
+| [tok.decode](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md)：token 如何还原为字符串 | 将 `raw_output` 交给解析器 |
+| [parse_model_output](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/parsing.py/parse_model_output.md)：字符串如何拆成结构化内容 | 将 `parsed` 交给回复组装，并读取格式标记 |
+| [_build_reply](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md)：解析结果如何适配当前协议 | 接住 `reply`，进入响应与轨迹记录 |
 
 <a id="response-preparation"></a>
 <a id="token-usage"></a>
@@ -154,7 +154,7 @@ return response                                         # 391：返回前仍会�
 
 <a id="after-respond"></a>
 
-- **响应前准备：得到 `in_tok`、`out_tok` 与 `stream`。** 第 356–357 行先计算 `len(prompt_ids)`、`len(turn.output_ids)`，再结合正文 `stream` 和请求头 `Accept` 决定响应模式，本例为 `False`。对应源码与参数用途仍见 [_respond 的输入说明](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation)。
+- **响应前准备：得到 `in_tok`、`out_tok` 与 `stream`。** 第 356–357 行先计算 `len(prompt_ids)`、`len(turn.output_ids)`，再结合正文 `stream` 和请求头 `Accept` 决定响应模式，本例为 `False`。对应源码与参数用途仍见 [_respond 的输入说明](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation)。
 - **`reply` → `response`：组织协议响应。** `_respond` 使用 `reply.wire`、token 数和响应模式构造响应；本例普通分支返回响应对象，流式分支在内部写出事件。`turn` 本身不作为 `_respond` 的实参。
 - **`translated`、`reply.manager_message` 与 `turn` → manager：保存轨迹。** 正常路径在 `_respond` 返回后，经过调试回调，再将输入消息、内部回复与 token 记录交给 `record_turn`。`response` 不作为树节点传入。
 - **`response` → aiohttp：返回本次响应。** 普通分支由 aiohttp 在 handler 返回后发送；前面取得响应对象不能证明 CLI 已收到它。
@@ -163,8 +163,8 @@ return response                                         # 391：返回前仍会�
 
 | 需要展开时进入 | 本次交接及返回后的位置 |
 | --- | --- |
-| [_respond](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md)：协议材料怎样形成 HTTP 响应 | 内部读取 `reply.wire`，结合 token 数与模式返回 `response`；正常返回后继续记录轨迹 |
-| [TrajectoryManager.record_turn](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md)：材料怎样写入消息树 | 接收 `translated`、`reply.manager_message` 和 `turn`，更新 manager，返回 `None`；随后返回上面已取得的 `response` |
+| [_respond](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md)：协议材料怎样形成 HTTP 响应 | 内部读取 `reply.wire`，结合 token 数与模式返回 `response`；正常返回后继续记录轨迹 |
+| [TrajectoryManager.record_turn](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md)：材料怎样写入消息树 | 接收 `translated`、`reply.manager_message` 和 `turn`，更新 manager，返回 `None`；随后返回上面已取得的 `response` |
 
 <a id="inflight-cleanup"></a>
 
@@ -209,7 +209,7 @@ finally:
 - **协议实现**：`self._translate`、`self._build_reply`、`self._respond` 等钩子使用当前具体 Adapter 的实现；本例始终是同一个 `AnthropicAdapter`。
 - **函数之外**：工具执行、CLI 决定是否继续，以及整次会话的评估与导出由外部流程负责。
 
-本步读哪些函数由 [scope](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md)定位；本页及相关函数读完后，用 [task flow](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)回顾本 scope 内的整体配合。
+本步读哪些函数由 [scope](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md)定位；本页及相关函数读完后，用 [task flow](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md#run-turn-flow)回顾本 scope 内的整体配合。
 
 ## 我的直接表述（原话）
 
@@ -235,7 +235,7 @@ finally:
 > 我觉得从这个角度来说 这里的任务已经完整的解决了？
 > 是否应该考虑以run_turn作为比较核心的函数来写一下这里的task flow？
 
-助手据源码补充：具体 Adapter 在运行前选定；`_run_turn` 组织工具调用描述，工具由 CLI 执行；manager 接收内部消息与 `turn`，HTTP `response` 另交给 aiohttp。三处边界在 [task flow](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/05-task-flow.md#response-and-recording) 集中对照，未将修正后的说法写成用户原话。
+助手据源码补充：具体 Adapter 在运行前选定；`_run_turn` 组织工具调用描述，工具由 CLI 执行；manager 接收内部消息与 `turn`，HTTP `response` 另交给 aiohttp。三处边界在 [task flow](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/05-task-flow.md#response-and-recording) 集中对照，未将修正后的说法写成用户原话。
 
 用户随后提出补齐短期记录：
 
@@ -254,15 +254,15 @@ finally:
 <details>
 <summary>来源、验证与完整例子</summary>
 
-- 参考副本：2026-10-21，用户[认可本卡作为锚点函数样例](../../../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#run-turn-anchor-reference)，从 [Step 1 的原始函数卡片](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md)完整复制；仅调整相对链接并补充本条来源。此确认针对记录格式，不表示新增源码掌握或运行验证。
+- 参考副本：2026-10-21，用户[认可本卡作为锚点函数样例](../../../../backlog/repo-reading/2026-10-20-task-driven-cognitive-architecture/discussion.md#run-turn-anchor-reference)，从 [Step 1 的原始函数卡片](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md)完整复制；仅调整相对链接并补充本条来源。此确认针对记录格式，不表示新增源码掌握或运行验证。
 - 固定源码：提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`，[共同请求流程](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L318-L393)、[Anthropic 路由与钩子](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L48-L75)、[响应字段](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/anthropic.py#L192-L208)。
 - 样例为基于上述接口的静态推导，生成文本为显式假设；没有端到端运行证据。
-- 响应前准备的补充依据：[TurnRecord 定义，trajectory.py:28–38](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L28-L38)与上面的实际调用代码。此前局部用构造列表核对了 `dataclasses.replace` 保留其他字段并产生新对象、长度计数以及四种响应模式；计数与模式说明现归入 [_respond 的输入部分](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation)。没有运行完整 `_run_turn`。
+- 响应前准备的补充依据：[TurnRecord 定义，trajectory.py:28–38](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/trajectory.py#L28-L38)与上面的实际调用代码。此前局部用构造列表核对了 `dataclasses.replace` 保留其他字段并产生新对象、长度计数以及四种响应模式；计数与模式说明现归入 [_respond 的输入部分](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md#response-preparation)。没有运行完整 `_run_turn`。
 - 逐段讲解：[一次模型请求的处理](../../../../slime_photo/code-reading/chapters/01-task-execution/walkthrough.md#run-turn-step-by-step)。
-- 形成过程：[Step 1 本次范围调整与解释](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
-- 本次整体串联：[Step 1 的 task flow 与收尾问题](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#run-turn-task-flow-closure)。`inflight` 用途按 [shutdown_session:225–243](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L225-L243) 静态核对，没有执行会话关闭或端到端模型请求。
-- `inflight` 局部记录：[Step 1 的补齐要求与分工](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#inflight-short-term-memory)。字典定义见 `common.py:157`，登记见 `:337–338`，移除见 `:392–393`；状态表限定为没有会话关闭的单请求场景，未新增运行实验。
+- 形成过程：[Step 1 本次范围调整与解释](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#run-turn-reading-scope)。
+- 本次整体串联：[Step 1 的 task flow 与收尾问题](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#run-turn-task-flow-closure)。`inflight` 用途按 [shutdown_session:225–243](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/adapters/common.py#L225-L243) 静态核对，没有执行会话关闭或端到端模型请求。
+- `inflight` 局部记录：[Step 1 的补齐要求与分工](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#inflight-short-term-memory)。字典定义见 `common.py:157`，登记见 `:337–338`，移除见 `:392–393`；状态表限定为没有会话关闭的单请求场景，未新增运行实验。
 - 记录整理：沿用已认可样例的开头定位、LLM 四项、场景输入输出、原话、未知和折叠来源；本页解释完整函数，内部按输入准备、生成与解析、响应与记录组织，子函数入口旁说明返回后如何使用结果。原有“你好。”场景、用户引文和旧锚点继续保留，普通响应完整字段及 `inflight` 实现按需展开；计数和响应模式的详细说明仍在 `_respond` 输入部分。
-- 本次重写：[Step 1 的函数模型与局部跳转](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/04-flow.md#run-turn-function-model)。这是记录组织与静态源码核对，认识时间保持原值；未新增端到端运行或个人掌握结论。
+- 本次重写：[Step 1 的函数模型与局部跳转](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/04-flow.md#run-turn-function-model)。这是记录组织与静态源码核对，认识时间保持原值；未新增端到端运行或个人掌握结论。
 
 </details>

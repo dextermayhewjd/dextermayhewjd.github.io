@@ -1,0 +1,51 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "source_file": "examples/coding_agent_rl/swe.py",
+  "function": "_repository_tree",
+  "git_version": "git version 2.43.0",
+  "scope": "Unmodified AST-extracted function with a local Bash/Git executor in an isolated temporary fixture. user=agent is recorded only; no OS account switch, real sandbox, agent, model, or grading run. Fixture removed after inspection.",
+  "display_workdir": "/workspace/repo",
+  "head_files": {
+    "source.py": "result = 0\n",
+    "delete_me.txt": "old file\n",
+    "PROBLEM_STATEMENT.md": "old prompt\n",
+    ".gitignore": "*.tmp\n"
+  },
+  "real_index_source_py": "result = 1\n",
+  "worktree_changes": {
+    "source.py": "result = 2\n",
+    "delete_me.txt": null,
+    "new_file.txt": "new file\n",
+    "scratch.tmp": "ignored\n",
+    "PROBLEM_STATEMENT.md": "new prompt\n",
+    ".harness/run.log": "run log\n"
+  },
+  "tree": "ca43c1d572c91fd0a65fbccc2f3876240af68b0a",
+  "snapshot_files": {
+    ".gitignore": "*.tmp\n",
+    "PROBLEM_STATEMENT.md": "old prompt\n",
+    "new_file.txt": "new file\n",
+    "source.py": "result = 2\n"
+  },
+  "call": {
+    "user_argument": "agent",
+    "timeout": 600,
+    "check": true,
+    "returncode": 0,
+    "stdout": "ca43c1d572c91fd0a65fbccc2f3876240af68b0a\n",
+    "stderr": ""
+  },
+  "checks": {
+    "captures_worktree_not_staged_version": true,
+    "captures_untracked_file": true,
+    "captures_tracked_deletion": true,
+    "ignores_untracked_ignored_and_harness_files": true,
+    "excluded_tracked_file_retains_HEAD_entry": true,
+    "real_index_bytes_unchanged": true,
+    "HEAD_unchanged": true,
+    "real_index_still_holds_staged_version": true,
+    "worktree_source_unchanged": true,
+    "status_unchanged": true
+  },
+  "measurement_note": "The original index byte snapshot is taken after the initial git status command, since status itself may refresh cached index metadata."
+}

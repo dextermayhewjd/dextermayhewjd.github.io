@@ -50,7 +50,7 @@ CLI 发起请求的内部实现不在这几处 Python 函数中；这里核对�
 | RT9 | `apply_chat_template` 使用 `tokenize=True`；返回后取 `input_ids` 或直接使用序列，再转为列表 | `adapters/common.py:66–73` |
 | RT10 | 测试替身按消息角色和文本产生 ID，并按 `add_generation_prompt` 追加助手开头；只记录工具定义，不编码它 | `tests/test_agent/_fakes.py:41–113` |
 
-局部运行：从原文件按 AST 提取 `_render_token_ids`、`FakeTokenizer` 和其所需常量，执行[函数卡片](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md)中的两条消息及一个工具 schema，返回 `[1, 100, 5, 2, 101, 102, 5, 3]`；同时核对 `tok.rendered == [(translated, tools_schema)]`。此运行验证列表返回及参数交接，不验证真实模型的模板、工具编码、HTTP 或生成。字典类返回分支仅作静态核对。
+局部运行：从原文件按 AST 提取 `_render_token_ids`、`FakeTokenizer` 和其所需常量，执行[函数卡片](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md)中的两条消息及一个工具 schema，返回 `[1, 100, 5, 2, 101, 102, 5, 3]`；同时核对 `tok.rendered == [(translated, tools_schema)]`。此运行验证列表返回及参数交接，不验证真实模型的模板、工具编码、HTTP 或生成。字典类返回分支仅作静态核对。
 
 `tokenize` 与助手前缀的语义参照 [Hugging Face 文档](https://huggingface.co/docs/transformers/chat_templating#add_generation_prompt)，工具参数参照[官方工具使用说明](https://huggingface.co/docs/transformers/chat_extras#passing-tools)；查阅日期为 2026-10-21。当前未固定具体运行时 Transformers 版本或模型模板，不据此宣称真实模板输出已经验证。
 

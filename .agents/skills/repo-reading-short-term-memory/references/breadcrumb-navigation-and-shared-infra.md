@@ -1,7 +1,7 @@
 # 源码阅读参考：面包屑链路与通用底层基座（Breadcrumbs & Shared Infrastructure）
 
 - 确认时间：2026-10-23，由用户明确认可并指示沉淀为标准参考（Reference）。
-- 典型案例：[`run_agent`](../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/harness/common.py/run_agent.md)（特化上层调用者）与 [`exec_and_wait`](../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/sandbox.py/exec_and_wait.md)（通用底层基础设施）。
+- 典型案例：[`run_agent`](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/harness/common.py/run_agent.md)（特化上层调用者）与 [`exec_and_wait`](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/sandbox.py/exec_and_wait.md)（通用底层基础设施）。
 
 ---
 

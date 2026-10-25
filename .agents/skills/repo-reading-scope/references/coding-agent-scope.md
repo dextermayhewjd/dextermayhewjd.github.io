@@ -1,6 +1,6 @@
 # Scope 样例：Coding Agent 的核心骨架
 
-来自用户已确认的 [Step 0 scope](../../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/01-scope.md)。这是用于展示格式的快照，源码绑定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`；应用到其他任务时重新定位入口。
+来自用户已确认的 [Step 0 scope](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/01-scope.md)。这是用于展示格式的快照，源码绑定提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`；应用到其他任务时重新定位入口。
 
 ## 1. 阅读目标：理解 Coding Agent
 

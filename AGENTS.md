@@ -127,6 +127,7 @@ For any Slime explanation, study planning, source reading, or route maintenance,
 
 - Slime 学习按用户提供的腾讯混元 Agent 强化学习框架工程师 JD 决定投入重点；岗位对照保存能力与预算，阅读路线保存唯一进度，不把官网目录顺序当成平均投入要求。
 - Slime 的认知步骤入口在 `00-repo-reading/repositories/slime/README.md`。全景从基本工作流开始，`generate()` 的已读历史仅用于按需提醒；本目录的步骤快照不另存一套实时进度。
+- 2026-10-25 用户确认 Slime 按“主题 → 步骤”组织：现有 Step 000–009 位于 `00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/`，主题入口见其上层 `README.md`。下一步骤继续全局编号 Step 010；后续主题实际展开时再建立，跨主题仍继承前一步的 `03 + 02`，不重置来源、原话或未知。
 - 阅读进度和当前入口只以路线的“当前接续”为准。保留用户已读事实，首次重遇时先短提醒职责、关键输入输出与主线位置；不假定已读内容仍能随时回忆，也不因需要提醒而清零进度或默认重讲内部全链。
 - 带读同时交代全局位置与局部调用：框架中的当前位置 → 本轮源码与输入输出 → 回到调用方及下一次交接。具体协议与接续更新规则见 Slime 专属 `AGENTS.md`。
 - 用户已要求在 Hugo 持续保存完整 Walkthrough：技术问题、关系如何建立、源码依据、解释与修正同步补入对应正文；有明确反馈才写成用户自己的理解，不替用户虚构心智状态。正文从一个维护来源渲染。

@@ -12,7 +12,7 @@ ShowToc: true
 
 源码固定在 `22a89f96835969a47055a659c588f46151f8b07a`。本篇选择 **Claude Code Harness / Anthropic Adapter**，与已有 4.1 图文一致；Codex/OpenAI 留作完整链读通后的实现对照。本轮已核对：这些核心源码与旧 `8c17b676` 资料版本没有差异，原有动作讲解可以继续使用。
 
-**版本阅读提示**：既有段落保留各自固定提交的讲解；`18868a79` 的请求处理变化见 [Step 1 新版对照](#run-turn-version-18868a79)，评测结果与环境退出见 [7.3 新版接续](#evaluation-result-18868a79)。不要将下方旧版实现直接当作当前实现。
+**版本阅读提示**：既有段落保留各自固定提交的讲解；`18868a79` 的服务对象与后台监听见 [1.1 新版接续](#adapter-service-startup-18868a79)，会话登记见 [1.2 新版接续](#session-registration-18868a79)，执行沙箱见 [2.1 新版接续](#boot-agent-sandbox-18868a79)，工作区准备见 [2.3 新版接续](#prepare-workspace-18868a79)，请求处理变化见 [Step 1 新版对照](#run-turn-version-18868a79)，评测结果与环境退出见 [7.3 新版接续](#evaluation-result-18868a79)，样本导出见 [8.1 新版接续](#sample-export-mainline-18868a79)。不要将下方旧版实现直接当作当前实现。
 
 ## 为什么从 generate 进入
 
@@ -84,6 +84,234 @@ CLI 使用 Adapter 地址；Adapter 使用 SGLang 地址。题目、环境、会
 
 第一遍停止标准：知道模型入口和会话身份从哪来，能说明为什么一次模型请求可以找到这次任务。这里的准备在外层 `try` 前；不要把它的所有失败都当作已进入后面的统一清理分支。
 
+<a id="adapter-service-startup-18868a79"></a>
+
+### 1.1 新版接续：服务对象怎样提供一个可用的 Adapter
+
+本节按 `18868a79` 接续。先分清三个对象：`state` 引用 `_AdapterService`，`adapter` 处理会话与模型请求，`app_handle` 保存 HTTP 服务的运行资源。
+
+```python
+state = _AdapterService(args)
+agent_name = agent_name_for(base_sample)
+adapter, adapter_url, _ = state.endpoint(agent_name)
+# 随后取得 session_id，并调用 adapter.open_session(...)
+```
+
+`_AdapterService.__init__` 准备 tokenizer、模型服务地址等共用依赖，并通过 `endpoint(AGENT_NAME)` 建立默认端点。服务实例可以复用；初始化方法本身返回 `None`，类调用才把服务实例交给调用方。
+
+<a id="adapter-endpoint-cache-entry"></a>
+
+`__init__` 先用 `self._endpoints = {}` 建立缓存，再调用 `endpoint`。缓存的键是 Agent 类型名称，例如 `"claude_code"`，值是准备好的 `(adapter, adapter_url, app_handle)`。
+
+先看 endpoint 开头的两行：
+
+```python
+if agent_name in self._endpoints:  # 查找这个 Agent 类型是否已有端点
+    return self._endpoints[agent_name]  # 交回缓存中的三元组，本次调用结束
+```
+
+已有条目就在这里返回；缺少条目时才继续创建 Adapter，再调用 `run_app_in_thread(adapter.app, ...)` 启动 HTTP 服务。第一次初始化时字典为空；默认端点建立后，后续获取同一类型即可命中缓存。
+
+<a id="adapter-app-service-handle"></a>
+
+#### run_app_in_thread：运行已经配好路由的 HTTP 应用
+
+> 在后台启动已有 HTTP 应用，使它开始接收请求，并把服务管理对象交回调用方。
+
+请求交给谁处理，已经在 Adapter 注册路由时确定。例如下面这句来自 `AnthropicAdapter._register_routes`：
+
+```python
+app.router.add_post("/v1/messages", self._run_turn)  # 提前登记这个 HTTP 方法和路径的处理函数
+```
+
+服务启动后，发到此服务、匹配 `POST /v1/messages` 的请求才交给 `_run_turn`。其他路径按各自的规则处理。启动函数负责运行这个应用，路由注册负责指定处理函数。
+
+<details>
+<summary>回看应用创建、运行位置与 AppHandle</summary>
+
+HTTP 应用由 Adapter 显式创建。`BaseAdapter.__init__:224` 使用 Python 的 aiohttp 库建立应用对象：
+
+```python
+self.app = web.Application(client_max_size=64 * 1024 * 1024)  # 创建 HTTP 应用对象
+```
+
+当前 AnthropicAdapter 随后在 `_register_routes:49` 登记消息请求的处理入口：
+
+```python
+app.router.add_post("/v1/messages", self._run_turn)  # 指定此路径的 POST 请求由哪个函数处理
+```
+
+此时定义了请求处理规则，尚未建立监听。`run_app_in_thread` 接过这个 `adapter.app`，在运行 Slime 的当前 Python 进程内启动后台线程，让 HTTP 服务开始监听并执行这些规则。正常启动后的关系是：
+
+```text
+运行 Slime 的节点
+└─ 当前 Python 进程
+   ├─ 调用方：拿到 app_handle，继续后面的流程
+   └─ 后台线程：运行 HTTP 服务，按 adapter.app 的规则处理请求
+```
+
+沙箱中的 CLI 通过 `adapter_url` 请求这个服务。调用方保存的 `app_handle` 则是本项目定义的 AppHandle 数据对象，里面是服务运行的信息和对象引用；例如 `app_handle.port` 可读取实际端口，`app_handle.stop()` 提供之后关闭服务的操作入口。它的具体线程、循环和 runner 字段可以随实现逐项阅读。
+
+当前先理解“应用规定如何处理请求 → 启动函数让服务运行 → 句柄供调用方查看和管理”即可。以下代码仍按静态源码解释，没有在本次阅读中启动真实 Adapter 服务。
+
+</details>
+
+<a id="adapter-thread-start-first-step"></a>
+
+#### 先看两行：创建线程对象与启动线程
+
+HTTP 服务需要持续处理请求，外层还需要继续执行任务。这里先看怎样把服务工作交给另一个线程。下面是 `run_app_in_thread` 的 87–88 行，增加了阅读注释；本次只关注 `target` 和 `start()`。
+
+```python
+thread = threading.Thread(target=_run, name=thread_name, daemon=True)  # 创建线程对象，指定入口函数
+thread.start()  # 启动新线程，由它调用 _run()
+```
+
+`_run` 是前面用普通 `def` 定义的函数，定义时函数体还没有执行。第一行将这个函数交给线程对象；`target=_run` 没有括号，这里没有调用它。第二行启动新线程，由新线程调用 `_run()`。
+
+原调用线程继续执行 `run_app_in_thread` 后面的代码，新线程负责 `_run` 中的工作。先读清这两个执行位置，再看下一行怎样等待启动通知。
+
+#### 后续阅读：完整的启动交接
+
+`run_app_in_thread` 的正常启动路径是：
+
+```text
+Caller thread                          Adapter thread
+-------------                          --------------
+thread.start() ----------------------> create event loop
+started.wait()                         set up AppRunner
+                                       start TCP listener
+                <--------------------- started.set()
+return AppHandle                       loop.run_forever()
+endpoint continues                     handles HTTP requests
+```
+
+这里要同时看清返回与持续运行：调用线程等待启动通知后拿到 AppHandle，后台线程继续运行 HTTP 事件循环。句柄保留线程、循环、runner 和实际监听地址。
+
+<a id="adapter-listen-port"></a>
+
+#### 在启动参数处看监听端口
+
+下面是 `endpoint` 调用启动函数的参数节选：
+
+```python
+app_handle = run_app_in_thread(
+    adapter.app,
+    host=CONFIG.adapter_bind_host,  # HTTP 服务的监听绑定地址
+    port=CONFIG.adapter_port if not self._endpoints else 0,  # 请求监听的端口
+    # 阅读节选：这里省略 thread_name 和 runner_kwargs
+)
+```
+
+`port` 指定这个 HTTP 服务的监听入口。第一份端点使用配置的端口；后续新建端点传入 `0`，由系统分配可用端口。正常启动后，`app_handle.port` 保存实际监听端口。
+
+<a id="adapter-node-ip-and-thread"></a>
+<a id="adapter-public-host"></a>
+
+#### 在 public_host 处看节点 IP
+
+```python
+# 自动取得当前节点 IP，或直接采用已配置的对外主机
+public_host = get_current_node_ip() if CONFIG.adapter_public_host == "auto" else CONFIG.adapter_public_host
+```
+
+node 可以先理解为运行 Adapter 服务的计算节点，node IP 是它的网络地址。配置为 `"auto"` 时取得当前节点 IP；显式配置时直接使用该对外主机地址。
+
+<a id="adapter-url-assembly"></a>
+
+#### 在 URL 拼接处连接两项结果
+
+```python
+adapter_url = f"http://{public_host}:{app_handle.port}"  # 组成对外访问地址
+# 省略日志
+self._endpoints[agent_name] = (adapter, adapter_url, app_handle)  # 按 Agent 名称缓存三项结果
+return self._endpoints[agent_name]  # 把这份三元组交回调用方
+```
+
+这里使用前两处已经取得的结果。`endpoint` 随后缓存并返回 `(adapter, adapter_url, app_handle)`；地址供沙箱中的 CLI 访问。示意值 `192.0.2.10` 与 `18001` 组合为 `http://192.0.2.10:18001`，并未执行真实网络验证。
+
+<details>
+<summary>可选回顾：请求与服务的运行位置</summary>
+
+```text
+沙箱中的 CLI
+    │ HTTP 请求：http://192.0.2.10:18001
+    ▼
+运行 Adapter 服务的节点
+    └─ Python 进程
+       └─ 后台线程运行 adapter.app，监听 18001 端口
+```
+
+IP 与端口用于找到服务，后台线程执行服务代码。此处的整体图只用于回顾，具体说明分别紧跟端口参数、IP 取值和 URL 拼接的代码。
+
+</details>
+
+本节只读清服务准备与正常启动交接。HTTP 请求分派、启动失败与超时的完整处理、`AppHandle.stop()` 的停止回收另行展开；这些静态说明没有实际运行 Adapter、模型或沙箱。
+
+<details>
+<summary>本节固定源码入口</summary>
+
+- [初始化与 endpoint：generate.py:167–222](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L167-L222)。
+- [调用与会话登记：generate.py:254–279](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L254-L279)。
+- [AppHandle 与后台启动：aiohttp_threaded.py:25–98](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/aiohttp_threaded.py#L25-L98)。
+
+</details>
+
+<a id="session-registration-18868a79"></a>
+
+### 1.2 新版接续：用已有编号登记一份 Session
+
+服务与 Adapter 已经准备好，调用方还需要从基础样本整理题目信息。`md` 在新版中仍参与这次准备；下面保留 `_generate:261–269` 的关键语句，省略条件检查：
+
+```python
+md = swe.get_metadata(base_sample, protocol)  # 按任务协议整理题目信息
+instance_id = md["instance_id"]  # 取出题目编号
+session_id = base_sample.session_id = _session_id(base_sample, instance_id)  # 取得并保存执行编号
+```
+
+`md["image"]` 与 `md["workdir"]` 后续继续用于沙箱和工作区准备，评测也会使用 md 中的材料。随后 `adapter.open_session(...)` 登记会话状态；完整 md 没有作为这个方法的参数传入。
+
+沿用教学例：题目编号为 `demo-1`，两个样本索引都是 0，原先没有编号，得到 `cagent-demo-1-0-0`。为观察登记，传入采样参数 `{"temperature": 0.7, "top_p": 0.9}`、上下文长度 `4096`、空模板选项与 `trace=None`；实际调用处的 trace 由调用方准备，本例只检验存储行为。
+
+`open_session` 在 `common.py:284–292` 执行以下语句：
+
+```python
+"""Register a fresh per-sid Session; sids must be unique."""
+if sid in self.store:  # 同一编号不能重复登记
+    raise ValueError(f"session_id {sid!r} already exists; sids must be unique per agent run")
+self.store[sid] = Session(  # 创建会话状态，用编号保存
+    sampling_defaults=dict(sampling_defaults or {}),
+    max_context_tokens=int(max_context_tokens or 0),
+    apply_chat_template_kwargs=dict(apply_chat_template_kwargs or {}),
+    trace=trace,
+)
+```
+
+编号直接作为 store 的键；Session 接收配置并创建新对象。两个 `dict(...)` 复制顶层字典，长度整理为整数，trace 引用直接保存。假定原 store 为空，登记后包含：
+
+```python
+{
+    "cagent-demo-1-0-0": Session(
+        sampling_defaults={"temperature": 0.7, "top_p": 0.9},
+        max_context_tokens=4096,
+        apply_chat_template_kwargs={},
+        prompt_prefixes=[],
+        trace=None,
+    )
+}
+```
+
+`prompt_prefixes` 由 Session 的默认工厂建立，open_session 没有显式传入它。函数正常返回 `None`，这次产生的结果保存在 `adapter.store[sid]` 中；后续请求按编号使用它，结束时 `finish_session` 再取走。HTTP 服务已在前面启动，这里完成的是当前进程内的一次状态登记。
+
+<details>
+<summary>本节源码与验证范围</summary>
+
+- 固定版本 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`；[编号与登记调用](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L269-L279)、[编号规则](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L438-L443)。
+- [Session 定义](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L45-L57)、[open_session](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L275-L292)。
+- 局部执行原始类与函数，以只有 store 的对象承载方法，核对了本例字段、返回值、字典复制、默认列表与重复编号保留旧记录。没有创建完整 Adapter、HTTP 服务、模型或沙箱。
+
+</details>
+
 ## 2．创建执行环境，准备工作区
 
 **从主线进入：** `generate:203` → [boot_agent_sandbox](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/generate.py#L96)（`examples/coding_agent_rl/generate.py:96`）；环境交出后，`generate:204` → [prepare_workspace](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/examples/coding_agent_rl/swe.py#L177)（`examples/coding_agent_rl/swe.py:177`）。
@@ -108,6 +336,339 @@ CLI 使用 Adapter 地址；Adapter 使用 SGLang 地址。题目、环境、会
 **交接：** 镜像、目录、题目与 `sb` → 已有工具链和题目材料的工作区。**返回主线：** `generate:205` 的 `await HARNESS_CLS().run(...)`。
 
 本步第一遍只走创建、安装、文件/命令操作与退出位置；启动重试和 E2B SDK 内部后读。这个 `async with` 一直包住后面的 Agent 运行和 diff 收集。
+
+<a id="boot-agent-sandbox-18868a79"></a>
+
+### 2.1 新版接续：选择执行沙箱，准备 CLI，再交给调用方
+
+以下依据 `18868a79`。调用方在 `_generate:283` 传入任务镜像、题目编号、当前 Harness 和追踪上下文：
+
+```python
+async with boot_agent_sandbox(md["image"], instance_id, harness=harness, trace=base_sample) as sb:
+    baseline = await swe.prepare_workspace(sb, md["workdir"], md)
+    ...  # 同一个 sb 继续用于运行 Agent、收集统计和提取补丁
+```
+
+创建入口由直接构造 E2B 改为 `create_sandbox(image)`。工厂按 `SWE_SANDBOX_PROVIDER` 选择后端，默认 Sunabako，也可选择 E2B；创建对象之后，才通过进入方法使执行环境就绪。下面是一次成功路径的教学裁剪，省略并发、追踪、重试与安装失败包装：
+
+```python
+cand = create_sandbox(image)  # 得到当前后端的候选对象
+await cand.__aenter__()  # 使对应的执行环境就绪
+await (harness or HARNESS_CLS()).install_cli(cand)  # 在同一环境准备 CLI
+sb = cand  # 保留同一个对象
+try:
+    yield sb  # 交给调用处，本函数暂停
+finally:
+    await sb.__aexit__(*sys.exc_info())  # 调用方离开上下文后请求回收
+```
+
+`yield` 交出的是能够操作执行环境的本地对象。调用方使用期间环境仍保留；工作区准备、CLI 运行和结果收集都在调用方的上下文块中完成。离开块时才执行这里的退出处理，正常结束后回到独立评测。
+
+当前 Claude Code 安装方法新增 native 包分支；未指定 native 包时沿用公共 npm 安装。配置并发门限为 0 时不使用准备信号量，设置正数时限制环境进入与 CLI 安装，交付给调用方前即释放。失败、取消与后端清理的完整细节按对应实现继续核对。
+
+<details>
+<summary>固定源码与验证边界</summary>
+
+- [boot_agent_sandbox:110–164](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L110-L164)、[调用与使用期:283–306](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L283-L306)。
+- [沙箱工厂](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/sandbox.py#L8-L16)、[Claude Code 安装分支](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/claude_code.py#L38-L55)。
+- 使用原始父函数和替身核对正常交付、调用方异常、安装失败后重试及耗尽路径；没有运行真实沙箱或安装软件。
+
+</details>
+
+<a id="sunabako-lifecycle-18868a79"></a>
+
+### 2.2 SunabakoSandbox：从初始字段，到环境就绪，再到退出
+
+前面已经有“准备 → 交付使用 → 退出”的外层骨架。现在沿同一个 `cand` 看三个方法各自增加什么。以下依据 `18868a79`，采用默认 Sunabako 路径；配置和路径是教学占位，没有创建真实环境。
+
+#### 2.2.1 `__init__`：先给本地对象备好字段
+
+`create_sandbox(image)` 选中 Sunabako 后，执行 `SunabakoSandbox(image)`，触发这个初始化方法。下面保留完整方法，只添加注释：
+
+```python
+def __init__(self, image: str) -> None:
+    self.image = image                 # 用于查找本次镜像的配置
+    self.sandbox_id = ""               # 进入成功后再填写编号
+    self._sandbox = None              # 进入成功后再保存 SDK 操作对象
+    self._commands: list[dict] = []    # 后续积累命令与执行结果
+    self._workdir = "/testbed"         # 默认工作目录路径
+    self._runtime = None              # 进入成功后记录运行方式
+```
+
+这些字段在运行 Slime 的 Python 对象中。此时还没有调用 SDK 创建环境，工作目录字段也只是一个路径字符串。工厂返回后，`cand` 指向这个对象；后续方法中的 `self` 仍指向它。
+
+#### 2.2.2 `__aenter__`：创建环境，保存操作它的入口
+
+进入方法先根据 `self.image` 查到创建资料：
+
+```python
+cluster = Cluster.from_file(os.environ["SUNABAKO_CLUSTER"])
+images = json.loads(Path(os.environ["SUNABAKO_IMAGES"]).read_text())
+info = images[self.image]
+self._workdir = info.get("workdir", "/testbed")
+```
+
+`SUNABAKO_CLUSTER` 指向提供可分配节点信息的配置文件；`SUNABAKO_IMAGES` 指向镜像映射 JSON。它们在 Slime 主机上读取。`info` 是这次镜像的配置，其中 `rootfs` 指向所选节点可访问的镜像或根文件系统材料。
+
+然后把资料交给 Sunabako SDK。以下节选省略网络、资源、环境变量参数及日志、可选清单；完整实参见下方固定源码入口。
+
+```python
+runtime = os.environ.get("SUNABAKO_RUNTIME", "proot")
+self._sandbox = await AsyncSandbox.create(
+    info["rootfs"],
+    cluster=cluster,
+    runtime=runtime,
+)
+self._runtime = runtime
+self.sandbox_id = self._sandbox.sandbox_id
+return self
+```
+
+现在最重要的变化是：`cand._sandbox` 从 `None` 变成了本地 SDK 操作对象。它负责后续与节点上执行环境的交互；`cand` 本身仍是外层的 Slime 封装对象。
+
+返回的 `self` 还是同一个对象。当前父函数没有接这个返回值，而是继续把已经就绪的 `cand` 传给 `install_cli`。CLI 安装由 `boot_agent_sandbox` 安排，随后才通过 `yield sb` 交给调用方使用。
+
+<details>
+<summary>本轮暂时折叠的创建选项</summary>
+
+原调用还指定 `network="host"`、内存与进程数限制、创建超时、内存管理方式，以及合并后的环境变量。运行方式默认 `proot`；这些参数的后端实现留待需要时深入。
+
+设置 `SUNABAKO_ARTIFACTS` 时，返回前会在本机保存创建清单，记录镜像、沙箱编号和节点；写清单失败时先请求回收，再抛出异常。SDK 创建部分失败时的内部清理仍需另查，不能由这段包装代码推断。
+
+</details>
+
+#### 2.2.3 `__aexit__`：用同一个操作入口收尾
+
+调用方离开外层的 `async with` 后，`boot_agent_sandbox` 调用 `sb.__aexit__(*sys.exc_info())`。此时 `sb` 就是此前的 `cand`。
+
+下面保留退出方法的前半段，后半段的特定异常转换放在折叠说明中：
+
+```python
+async def __aexit__(self, exc_type, exc, tb) -> None:
+    if self._sandbox is None:
+        return
+    try:
+        if destination := os.environ.get("SUNABAKO_ARTIFACTS"):
+            await self._save_artifacts(Path(destination) / self.sandbox_id)
+    except Exception:
+        logger.exception("[sunabako] could not save artifacts for %s", self.sandbox_id)
+    finally:
+        await self._sandbox.kill(defer_cleanup=os.environ.get("SUNABAKO_DEFER_ROOTFS_DELETE") == "1")
+```
+
+<a id="sunabako-artifact-boundary"></a>
+
+只有设置 `SUNABAKO_ARTIFACTS` 时，才先把指定的运行记录和日志文件保存到 Slime 主机上按沙箱编号区分的目录；这里不保存整个执行环境的快照。未设置时，直接请求回收。普通保存异常会记日志，`finally` 中仍尝试 `kill`，因此回收不以保存成功为前提。回收调用本身失败会向外传播。
+
+正常完成返回 `None`，本地的 `_sandbox` 和 `sandbox_id` 没有被清空。字段仍在，不说明执行环境仍可使用。正常退出这段使用期后，外层继续独立评测。
+
+<details>
+<summary>产物、延后清理与异常转换</summary>
+
+产物包括创建清单、命令记录、可取得的状态以及轨迹／安装／评测日志。部分内容需要通过 SDK 从执行环境读取，因此保存安排在回收之前。
+
+`SUNABAKO_DEFER_ROOTFS_DELETE="1"` 时，向 SDK 传入 `defer_cleanup=True`；具体延后删除的行为属于后端实现。
+
+退出方法在回收正常完成后，还检查传入的 `exc`：如果它是 SDK 的 `SandboxError`，且可解析的 JSON 中 `error` 恰为 `"sandbox must be running"`，就改抛 `SandboxTerminatedError`。其他原异常由外层继续传播；正常退出时三个异常参数均为 `None`。
+
+</details>
+
+<details>
+<summary>固定源码与阅读边界</summary>
+
+- [初始化：21–27](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/sunabako_sandbox.py#L21-L27)。
+- [进入与完整创建参数：35–82](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/sunabako_sandbox.py#L35-L82)。
+- [退出及异常转换：84–103](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/sunabako_sandbox.py#L84-L103)。
+- [产物辅助函数：105–124](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/sunabako_sandbox.py#L105-L124)，只核对产物含义和保存位置。
+- 本轮为静态源码阅读，止于 SDK 的创建和回收接口；没有启动真实沙箱、安装 CLI 或运行模型。
+
+</details>
+
+
+<a id="prepare-workspace-18868a79"></a>
+
+### 2.3 prepare_workspace：布置题目工作区，留下运行前的基准
+
+执行环境和 CLI 已就绪后，`_generate:285` 调用：
+
+```python
+baseline = await swe.prepare_workspace(sb, md["workdir"], md)
+```
+
+三个输入各有分工：`sb` 用于操作同一个执行环境，`workdir` 指定本题代码目录，`md` 提供准备配置与题目文字。下面依据 `18868a79`，沿用 auth0-python 题目的字段：工作目录是 `/workspace/auth0-python`，`swepro=None`，而 `pre_commands` 含有切换到题目基础版本的命令。本例只用于阅读，没有启动镜像或执行命令。
+
+#### 2.3.1 准备账号与目录访问
+
+```python
+await agent_sandbox.ensure_agent_user(sb, workdir)
+```
+
+<a id="ensure-agent-user-execution"></a>
+
+这里的 `agent` 是执行环境中的系统账号，已有时复用，没有时才创建。函数还准备 Git 安全目录设置，目录归属按后端条件处理。沿前文的 Sunabako / `proot` 场景时，跳过递归 `chown`；所需代码仓库仍须已在环境中。
+
+函数以 `root` 身份调用 `sb.exec`，并通过 `await` 等待命令执行完成。正常返回的是 `None`，准备效果留在执行环境中，调用方继续使用同一个 `sb`。源码中已保留失败检查与 600 秒命令预算。
+
+#### 2.3.2 按题目配置整理工作区
+
+```python
+if md.get("protocol") == PROTOCOL_SCALESWE:
+    grading = md.get("grading") or {}
+    swepro = grading.get("swepro")
+    if swepro:
+        await apply_before_repo_set_cmd(sb, workdir, swepro)
+    pre_commands = grading.get("pre_commands")
+    if pre_commands:
+        await apply_pre_commands(sb, workdir, pre_commands)
+```
+
+本例跳过 `swepro`，执行 `pre_commands`，其中包含切换到题目基础提交的操作。两项是独立条件，都有值时就按顺序处理；其他协议跳过这一段。
+
+<a id="apply-before-preparation"></a>
+
+`apply_before_repo_set_cmd` 处理的是题目配置指定的那部分前置准备：取出 `swepro["before_repo_set_cmd"]` 中已有的命令，写成 `/workspace/swepro_setup/before.sh`，再以 `agent` 身份执行；脚本先进入 `workdir`，再运行这些命令。例如教学配置 `mkdir -p .cache` 只会创建目录，安装软件要由配置中的具体命令决定。返回后父函数仍继续其余准备与题目写入，实际修复题目发生在后续 Agent 运行阶段。
+
+这些辅助函数把配置里的命令写成脚本并在环境中执行。当前 `pre_commands` 脚本位置是 `/tmp/__cagent_pre__.sh`，而命令工作的目录是传入的 `workdir`。Python 编排留在 Slime 主机上，命令执行产生的变化留在工作区。
+
+<details>
+<summary>准备命令与评测字段的边界</summary>
+
+本函数不读取 `eval_cmd` 或 `f2p_script`，它们留给后续独立评测。两个准备入口的最终命令使用 `check=False`，父函数没有验收其退出码，所以正常返回不保证可选准备命令已达到预期效果。
+
+第二段的条件判断、调用顺序与两个辅助函数体均和旧版相同。但 `_PRE` 常量由 `/workspace/__cagent_pre__.sh` 改到 `/tmp/__cagent_pre__.sh`，因此脚本的保存位置变化了，执行目录仍是 `workdir`。源码注释说明，`/workspace` 在某些后端可能归 root 所有，而脚本由 `agent` 写入；新版改用各沙箱自己的 `/tmp`。
+
+父函数新增的 `baseline` 返回属于下方第 4 段。它扩展了准备完成后的交接，不改变这里先检查 `swepro`、再检查 `pre_commands` 的顺序。
+
+</details>
+
+#### 2.3.3 写入 Agent 要读取的题目
+
+```python
+await sb.write_file(
+    f"{workdir}/PROBLEM_STATEMENT.md",
+    md.get("problem_statement") or "",
+    user="agent",
+)
+```
+
+本例的文件是 `/workspace/auth0-python/PROBLEM_STATEMENT.md`，内容为原题目的问题描述。这里以 `agent` 身份写入字符串；后续默认 `SWE_PROMPT` 要求 Agent 读取这个文件并解决问题。写好说明后，当前函数还剩最后一次交接。
+
+#### 2.3.4 记录准备后的状态，返回 baseline
+
+```python
+return await _repository_tree(sb, workdir)
+```
+
+`_repository_tree` 取得纳入比较的工作区文件状态，返回 Git 树标识。调用方用 `baseline` 接住这个字符串，同时继续把原来的 `sb` 交给 `harness.run`。
+
+基准取在准备动作之后、调用 `harness.run` 之前。这样，准备阶段已有的变化属于比较起点；等待该调用返回后，`git_diff` 再取得当时的状态并与 `baseline` 比较，返回本次改动的补丁。比较时显式排除根目录的题目文件与 `.harness`；快照如何处理这些路径见[下一节](#repository-tree-18868a79)。
+
+环境中的准备效果与返回值分开理解：文件和目录状态留在执行环境，`baseline` 回到 Slime 调用方。它不是本次补丁，也不能证明前面的可选命令一定成功。
+
+<details>
+<summary>四段版本差异、固定源码与样例来源</summary>
+
+| 部分 | `2f231865` → `18868a79` 的变化 |
+| --- | --- |
+| 1. 用户与目录准备 | 父函数的调用不变；`ensure_agent_user` 增加后端条件，按需跳过递归 `chown`，并改进路径引用及命令预算 |
+| 2. 按配置执行准备命令 | 分支、顺序和两个辅助函数体不变；`pre_commands` 脚本的运行时路径由 `/workspace` 改为 `/tmp`，执行目录仍是 `workdir` |
+| 3. 写入题目文件 | 调用及其参数不变，仍把题目字符串写入 `PROBLEM_STATEMENT.md` |
+| 4. 返回初始状态 | 新增 `_repository_tree` 调用，返回 `baseline` 字符串供后续比较；旧版返回 `None` |
+
+路径变化发生在沙箱内的脚本保存位置，两个准备函数仍位于 `swe.py`。第 2、3 段可沿用既有职责模型，第 1 段补后端条件，第 4 段补初始状态与后续比较的交接。
+
+- [prepare_workspace：187–209](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L187-L209)。
+- [调用与后续比较：generate.py:283–298](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L283-L298)。
+- [用户准备：sandbox.py:409–420](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/sandbox.py#L409-L420)；[准备命令与快照：swe.py:212–262](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L212-L262)。
+- 题目字段来自 [Scale-SWE 固定版本](https://huggingface.co/datasets/AweAI-Team/Scale-SWE/blob/d8db20390a936bbda9c96d88b97cc4778dff1481/processed_to_upload.jsonl) 的 `auth0_auth0-python_pr671`；字段映射用于解释输入，不代表镜像已经接入当前 Sunabako 部署。
+- 这段保留父函数的静态交接；Git 临时索引在[下一节](#repository-tree-18868a79)展开，SDK 通信与其他辅助函数的完整实现按需回查。
+
+</details>
+
+
+<a id="repository-tree-18868a79"></a>
+
+### 2.4 _repository_tree：用临时索引记录当前文件状态
+
+`prepare_workspace` 最后需要一份运行前的代码基准；调用方等待 `harness.run` 返回后，`git_diff` 还会调用同一函数再取一次状态。本节依据 `18868a79`，解释“工作区 → 临时索引 → Git 树标识”这一条交接。
+
+索引（index）是 Git 记录路径与文件版本的清单。下面用独立的小型 Git 实验，只看同一个 `source.py`：
+
+| 位置 | 调用前的内容 |
+| --- | --- |
+| `HEAD` 所指提交 | `result = 0` |
+| 原暂存区 | `result = 1` |
+| 工作区文件 | `result = 2` |
+
+这次要记录工作区里的 `2`，同时保留原暂存区的 `1`。示例在本地临时仓库验证，展示路径写为 `/workspace/repo`，与前文的真实题目分开。
+
+#### 2.4.1 临时索引先载入 HEAD
+
+前两段展示源码拼出的 Shell 文本，长行只做排版换行。Python 先组装整串 `cmd`，在第 3 段通过一次 `sb.exec` 执行。
+
+```bash
+set -e
+cd /workspace/repo
+agent_index=$(mktemp)
+rm -f "$agent_index"
+trap 'rm -f "$agent_index" "$agent_index.lock" "$agent_index.paths"' EXIT
+export GIT_INDEX_FILE="$agent_index"
+git read-tree HEAD
+```
+
+`GIT_INDEX_FILE` 指定这次 Shell 中 Git 命令使用的临时索引。空临时文件先移除，让 Git 创建有效索引；退出清理登记在 `trap` 中。`git read-tree HEAD` 把原提交状态载入临时索引，此时里面是 `result = 0`，工作区和原暂存区都保持原样。
+
+#### 2.4.2 用工作区内容更新，再写成树
+
+```bash
+git ls-files -z --cached --others --exclude-standard -- . \
+  ':(top,exclude)PROBLEM_STATEMENT.md' \
+  ':(top,exclude).harness' > "$agent_index.paths"
+git update-index --add --remove -z --stdin < "$agent_index.paths"
+git write-tree
+```
+
+`ls-files` 收集要更新的路径，写到 `.paths` 文件；`-z` 使用 NUL 分隔路径。`update-index` 再按这些路径读取工作区内容，处理新增与删除。因此临时索引中的 `source.py` 更新为 `result = 2`，原暂存区的 `1` 不变。
+
+`git write-tree` 根据临时索引写出树对象，并将树标识打印到标准输出。这里没有创建新提交，也没有移动 `HEAD`。
+
+<details>
+<summary>题目文件与运行记录怎样被排除</summary>
+
+路径名单不更新 `PROBLEM_STATEMENT.md` 和 `.harness`。如果这些路径已在 `HEAD` 中，初始化临时索引时载入的旧条目仍可能保留，所以不能把它理解为“树里绝对没有这些文件”。本地实验验证了已跟踪的题目文件保留 `HEAD` 版本，而未跟踪的运行日志没有加入。
+
+后续 `git_diff` 在比较两棵树时，还会显式排除这两类路径的差异。
+
+</details>
+
+#### 2.4.3 取回树标识，交给调用方
+
+```python
+_, out, _ = await sb.exec(cmd, user="agent", timeout=600, check=True)
+tree = out.strip()
+if len(tree) not in (40, 64) or any(c not in "0123456789abcdef" for c in tree):
+    raise RuntimeError(f"Invalid repository snapshot: {tree!r}")
+return tree
+```
+
+前两段命令在执行环境中运行。Python 等待结束，接住标准输出，去掉两端空白，并检查它是否为 40 或 64 位小写十六进制字符串。
+
+同一个返回值，在 `prepare_workspace` 的调用链里成为 `baseline`，在 `git_diff` 中成为 `current`；名称不同来自调用时机。返回的是树标识，补丁文本要在之后比较两棵树时才产生。
+
+这里的 `current` 是 `git_diff` 保存的一次快照标识。CLI 运行期间可以反复请求 `_run_turn` 并通过工具修改工作区；这些文件变化不会自动改写已经取得的树标识或旧树内容。
+
+<details>
+<summary>固定源码、实验与边界</summary>
+
+- [完整函数：swe.py:241–262](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L241-L262)。
+- 当前调用顺序见 [generate.py:283–330](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L283-L330)。`_run_turn` 不引用这个 `current` 局部变量；它负责模型请求与会话、轨迹的更新。
+- 快照不会冻结文件系统。[等待函数](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/sandbox.py#L79-L162)超时时可返回超时码，而未在此同步停止远端进程；因此不能把所有返回情况都视为所有后台活动已停止。即使后续还有文件写入，旧树仍保持原内容。
+- 本次本地实验使用原样提取的函数，以 Bash/Git 执行器替代沙箱；核对工作区版本、新文件、删除、忽略项与已跟踪排除项，以及原暂存区、`HEAD` 和业务文件保持原样。
+- Git 对象写入仓库对象库，临时索引等文件在 Shell 退出时清理；没有创建真实沙箱、切换系统用户或运行 Agent。
+- 索引文件格式、Git 对象的回收机制、并发写入与真实 SDK 传输暂不展开。
+
+</details>
+
 
 ## 3．Harness 配置并启动 CLI，然后等待
 
@@ -134,6 +695,135 @@ CLI 使用 Adapter 地址；Adapter 使用 SGLang 地址。题目、环境、会
 **交接：** `sb/workdir/sid/adapter_url/prompt/budget` → CLI 配置、命令、环境变量、进程与完成标记。最终输出是 `exit_code`。
 
 **此时先停在等待处。** `Harness.run()` 尚未返回，`generate()` 尚未到 diff。为了理解等待期间发生什么，接下来进入 CLI 发起的模型请求。配套：[动作 4](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/4-launch-agent/)、[动作 5](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/5-manage-sandbox/)、[动作 6](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/6-exec-commands/)。
+
+<a id="launch-pid-compaction-18868a79"></a>
+<a id="launch-and-wait-mainline-18868a79"></a>
+
+### 3.1 新版接续：launch_and_wait 怎样连接启动材料、沙箱与模型服务
+
+`BaseHarness.run` 已准备好账号、运行上下文和 CLI 配置，随后调用 `launch_and_wait(sb, ctx, prompt, time_budget_sec)`。本函数按三段理解：
+
+- **组装启动材料**：把 `prompt` 和 `ctx` 变成 `cmd`、`env`。
+- **补充运行控制**：在命令中安排统计初始化、启动 CLI、保存 PID 和等待。
+- **委派并等待**：交给 `run_agent`，由下层在沙箱执行，最后取回整数结果。
+
+以下绑定 `18868a79`，沿 Claude Code 场景说明。图中目录、地址和编号采用教学值，未运行真实 CLI。
+
+#### 先看整体关系
+
+双线框表示本函数直接负责的内容。下方是同一调用链中的执行层与协作服务；模型请求发生在 CLI 运行期间。
+
+```text
+╔══════════════════════════════════════════════════════════════════════════════════════════════╗
+║ A. 本函数直接职责：Slime / Python 中的 launch_and_wait（86–109）                             ║
+╠══════════════════════════════════════════════════════════════════════════════════════════════╣
+║ 输入：sb、ctx、prompt、time_budget_sec                                                       ║
+║ ① prompt → cmd；ctx 的地址、会话编号、模型标签 → env                                         ║
+║ ② 给 cmd 加入：统计清零 → 后台启动 CLI → 保存 PID → wait                                     ║
+║ ③ await run_agent(sb, start_cmd=cmd, env=env, ...)                                           ║
+║ 等待返回整数结果，再交给 BaseHarness.run                                                     ║
+║ 这里组装的是字符串和字典；命令的效果在下层执行时产生                                         ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════╝
+                   │                                                 ▲
+                   │ 下交 cmd / env 等材料                           │ 上返 exit_code
+                   ▼                                                 │
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ B. 同一 Slime 进程中的下层：run_agent → exec_and_wait                                        │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 准备 .harness 输出目录，将命令写成启动脚本                                                   │
+│ 通过 sb 启动脚本，读取完成文件，取得执行结果                                                 │
+│ exec_and_wait 返回 (exit_code, output)，run_agent 只交回 exit_code                           │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+                   │                                                 ▲
+                   │ 通过 sb 提交并启动                              │ 读取完成文件
+                   ▼                                                 │
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ C. 执行沙箱：启动脚本与独立的 Claude Code CLI                                                │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ 实际执行 cmd：清零 compaction.json → 启动 CLI → 写 cli.pid → wait                            │
+│ CLI 读取题目和 env；需要模型回复时发出 HTTP 请求                                             │
+│ CLI 接收回复后继续工具操作、修改工作区，可能发起下一轮请求                                   │
+│ 压缩由 CLI 完成；hook 记录次数，触限时按 PID 发送停止信号                                    │
+│ CLI 结束 → wait 返回 → 外层启动脚本写入完成文件                                              │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+                   │                                                 ▲
+                   │ HTTP 请求                                       │ 模型回复
+                   ▼                                                 │
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ D. 模型请求路径：已有 Adapter 与 SGLang 服务                                                 │
+├──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ POST /v1/messages → Adapter 按会话编号找到配置 → SGLang 推理                                 │
+│ 推理结果 → Adapter 组装协议回复 → 返回给 CLI                                                 │
+│ 本区域说明协作关系，请求处理的实现属于其他函数                                               │
+└──────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### ① 组装 cmd 与 env（87–99）
+
+```python
+cmd = f"/usr/local/bin/claude -p {shlex.quote(prompt)} {self.launch_flags}"
+extra = os.environ.get(self.extra_args_env, "").strip()
+if extra:
+    cmd = f"{cmd} {extra}"
+env = {
+    "ANTHROPIC_BASE_URL": ctx.adapter_url,
+    "ANTHROPIC_AUTH_TOKEN": ctx.session_id,
+    "ANTHROPIC_MODEL": ctx.model_label,
+    **self.static_env,
+}
+extra_envs = os.environ.get(self.extra_envs_env, "").strip()
+if extra_envs:
+    env.update(json.loads(extra_envs))
+```
+
+`prompt` 放进 `claude -p` 命令，`ctx` 的地址、会话编号与模型标签放进三个 `ANTHROPIC_*` 环境变量。CLI 之后读取这些变量并向 Adapter 请求模型。本段只在本地构造字符串和字典，运行开关来自类配置，额外参数与环境覆盖是可选项。
+
+#### ② 加入统计、PID 与等待包装（100–108）
+
+```python
+directory = shlex.quote(f"{ctx.workdir}/.harness")
+# The detached launcher stays alive to write its normal completion
+# marker when the compaction hook stops only the CLI child.
+cmd = (
+    f'printf \'%s\\n\' \'{{"attempts":0,"count":0,"limit_reached":false}}\' '
+    f"> {directory}/compaction.json; {cmd} &\n"
+    f"slime_cli_pid=$!\nprintf '%s\\n' \"$slime_cli_pid\" > {directory}/cli.pid\n"
+    'wait "$slime_cli_pid"'
+)
+```
+
+这段继续构造 `cmd`。当下层在沙箱执行它时，才会清零 `compaction.json`、后台启动 CLI、保存 PID 并等待子进程。这里的 PID 是本次运行进程的编号。
+
+<details>
+<summary>PID 和压缩事件怎样配合</summary>
+
+- `compaction.json` 保存压缩尝试、完成次数与是否触限；`cli.pid` 保存本次 CLI 的进程编号。
+- 前面的 `write_config` 已放好脚本并注册 `PreCompact`、`PostCompact`。压缩由 Claude CLI 自身处理；hook 在事件发生时记录次数。
+- 若启用了次数上限，下一次压缩前发现预算已用完，hook 读取 PID、核验进程关系后向该 CLI 发 `SIGTERM`；默认上限为 `-1` 时不因次数停止。
+- `wait` 等待该子进程结束，外层启动脚本随后可以写完成标记，使退出状态返回给 Slime。
+
+</details>
+
+#### ③ 委派执行，等待返回结果（109）
+
+```python
+return await run_agent(sb, workdir=ctx.workdir, start_cmd=cmd, env=env, time_budget_sec=time_budget_sec)
+```
+
+`run_agent` 接住同一个沙箱、工作目录、命令、环境变量和预算，先准备输出目录，再交给 `exec_and_wait` 启动并等待完成标记。CLI 在此期间可以请求模型、执行工具与修改代码。
+
+下层取得执行结果后，整数结果沿 `run_agent → launch_and_wait → BaseHarness.run` 返回到 `_generate:287`。一次模型回复会回到仍在运行的 CLI，整次调用的结果则回到等待它的 Slime 主线。
+
+<details>
+<summary>固定源码与边界</summary>
+
+- [launch_and_wait：86–109](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/claude_code.py#L86-L109)；[BaseHarness.run：81–104](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/common.py#L81-L104)。
+- [run_agent：111–126](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/common.py#L111-L126)；[执行与等待：sandbox.py:79–162](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/sandbox.py#L79-L162)。
+- [配置与 hook 注册](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/claude_code.py#L57-L84)；[压缩事件处理与停止](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/harness/compaction.py#L23-L68)。
+- 正常完成时返回 CLI 退出码；等待预算耗尽也可能返回超时码，不能据此断言所有后台活动已停止。本轮只核对源码与材料，没有执行真实 CLI 或发送停止信号。
+
+</details>
+
 
 ## 4．CLI 的请求进入 Adapter，找回 Session
 
@@ -213,6 +903,8 @@ exit_code = await _await_done_marker(        # 启动成功后，继续等整条
 ```
 
 `sb` 是操作沙箱的接口，`sb.exec` 负责让沙箱执行命令。这里需要分清两个时刻：**后台启动命令返回了，Claude 程序还在运行。** 所以 `exec_and_wait` 还要继续等退出标记，上层的 `run_agent`、`launch_and_wait`、`run` 也都还没完成。
+
+这里的后台执行不依赖启动请求一直保持连接；主机上的 Slime 仍会读取完成文件，等待结果或达到预算。“脱机运行”不表示主机不再参与。
 
 <a id="http-request-order"></a>
 
@@ -1744,6 +2436,45 @@ return EvalResult(r, True)
 **最终返回主线：** `generate` 确定返回值后，先执行 `finally` 的 [BaseAdapter.drop_session](https://github.com/THUDM/slime/blob/22a89f96835969a47055a659c588f46151f8b07a/slime/agent/adapters/common.py#L278)（`slime/agent/adapters/common.py:278`）。它等待/取消在途请求，移除会话与轨迹，是 cleanup-only，不再次导出样本。 源码接着执行 `await asyncio.sleep(10)`，完成这段等待后，函数才真正把结果返回调用方；阅读任务耗时时要把它计入。
 
 第一遍停止标准：能区分一次 HTTP 请求结束、CLI 进程结束、Session 导出与清理、整次任务结束。环境退出调用只表示进行了回收尝试，实际远端回收成功还需要运行证据。
+
+<a id="sample-export-mainline-18868a79"></a>
+
+### 8.1 新版接续：从会话配置和已有轨迹，走到 Sample 列表
+
+本段依据固定版本 `18868a79`，沿 `evaluation=False` 的正常路径。评测已经给出 `reward`，manager 已经保存这次会话的轨迹；`shutdown_session` 先按“关闭入口并处理未结束的请求”理解，跨循环机制留待后续。
+
+`finish_session` 接着完成三项交接：
+
+1. **取会话配置。** `session = self.store.pop(sid, None)` 取出并移除配置，读取 `max_context_tokens` 作为样本长度上限。此时轨迹还在 manager 中。
+2. **把轨迹导出为样本。** `manager.get_trajectory(...)` 按 sid 找到消息树，逐条路径委托组装，汇总 `Sample`，给每个样本赋 `reward`，再移除 manager 中这次会话的轨迹登记。
+3. **补文本并交回列表。** Adapter 按每个样本的 `response_length` 解码末尾 token，写入 `response`，最后 `return samples`。
+
+以下为主流程的教学裁剪，省略参数和长度读取细节：
+
+```python
+await self.shutdown_session(...)
+session = self.store.pop(...)
+max_sample_tokens = ...
+samples = self.manager.get_trajectory(...)
+for s in samples:
+    rlen = int(s.response_length or 0)
+    s.response = self.tokenizer.decode(...) if rlen and s.tokens else ""
+return samples
+```
+
+读这段时，把三份信息分开：**配置在 store，轨迹在 manager，最终数据在返回的 samples 中。** `base_sample` 提供编号、prompt 等基础字段；轨迹组装提供 token、mask 与 logprob；评测提供 reward；Adapter 最后补上文本。
+
+返回的是样本列表，可能为空、一个或多个；导出过程本身没有执行训练。外层 `_generate` 随后检查空结果、补退出信息和截断状态，并最终清理会话。本段在样本列表交回处收束；token 拼接、分段、mask 算法和跨线程细节继续保留为后续问题。
+
+<details>
+<summary>本段源码与版本边界</summary>
+
+- [实际调用与返回后的处理](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L325-L349)。
+- [finish_session](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L314-L345) 与 [get_trajectory](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L405-L442)。
+- [新版样本字段](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/trajectory.py#L311-L359)还包含权重版本、统计、追踪与可选 replay 信息；本段没有展开其内部实现。
+- 本段为静态源码讲解，没有新增真实模型、沙箱或训练运行。
+
+</details>
 
 ## 再补一条失败路径
 

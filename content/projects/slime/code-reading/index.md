@@ -14,6 +14,8 @@ ShowToc: true
 
 **整体与局部相互对照。** 单任务导览可帮助定位正在阅读的模块，外层调度和训练启动留待相关问题出现时展开；[全景 Walkthrough](/projects/slime/framework-walkthrough/)保留为框架背景。通用方法与当前步骤记录在仓库的 `00-repo-reading/`。
 
+**生成接入材料：[Rollout 接入与奖励](/projects/slime/rollout-reward/)。** 从 `generate_and_rm` 接回 Coding Agent，先看配置怎样选中生成函数，再沿返回值追踪奖励归属。
+
 **第 2 章深入材料：[Trajectory Management 专题笔记](/projects/slime/4-slime-core-components-and-orchestration/4-1-agent-rollout-adapters-and-harnesses/trajectory-management/)。** 展开历史接续与分叉、assistant 改写、token 对齐和 Sample 导出，作为任务与模型调用主线的实现回查入口。
 
 ## 职责索引：按当前问题选择材料

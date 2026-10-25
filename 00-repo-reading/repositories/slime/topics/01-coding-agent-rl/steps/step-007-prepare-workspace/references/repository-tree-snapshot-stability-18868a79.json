@@ -1,0 +1,11 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "function": "_repository_tree",
+  "scope": "Original function, local isolated Git fixture. Edit after the first snapshot and call again. No actual run_turn, CLI, remote sandbox, concurrency, or model execution.",
+  "first_tree": "e6bd3064d4ad171ac0079fa13aeab01c0df0bff6",
+  "file_after_first_snapshot": "value = 2\n",
+  "first_tree_content_after_edit": "value = 1\n",
+  "second_tree": "8c555e0f3749afe396380da10e7cfb9ac7d9df1c",
+  "second_tree_content": "value = 2\n",
+  "saved_current_unchanged": true
+}

@@ -54,7 +54,7 @@ description: Use when creating or revising a post-reading task summary such as 0
 
 第 3 部分可以是输出字段及来源表、登记后的状态小例子，或“交付 → 使用 → 回收”的资源说明。无需把所有结果都写成返回值。
 
-需要对照变体时，再读 [Step 004 的状态登记](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/05-task-flow.md)或 [Step 005 的资源生命周期](../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/05-task-flow.md)。它们补充主 reference，不增加所有步骤都必填的栏目。
+需要对照变体时，再读 [Step 004 的状态登记](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/05-task-flow.md)或 [Step 005 的资源生命周期](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/05-task-flow.md)。它们补充主 reference，不增加所有步骤都必填的栏目。
 
 ## 与其他记录的分工
 

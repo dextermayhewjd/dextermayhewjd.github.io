@@ -1,5 +1,47 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新骨架方法讨论：[业务分块与关键实参的对照方案](discussion.md#step010-skeleton-data-handoffs-proposal)。本轮进一步区分减少代码行数与恢复数据交接，保留正式 scope，另存候选写法。
+
+最新 scope 审阅：[Step 010 的真实调用骨架与分支层次](discussion.md#step010-core-skeleton-review)。原稿虽采用三段栏目，但配置、包装和多种返回路径同时进入主干；本轮按既有 skill 固定正常路径，保留连续代码与对应导航。
+
+最新主题分组落实：[Slime 阅读主题与 step 的层次](slime-topic-grouping-proposal.md)。Step 000–009 已归入 Coding Agent RL 主题，以 generate 为入口、agent/ 与 swe.py 为支撑范围；原编号与记忆内容保留。
+
+最新前后对比：[get_trajectory 两版的阅读用途](discussion.md#get-trajectory-before-after-review)。新版优先保持同一对象变化的连续性，完整数值与复杂分支保留为深入时的参考；本轮只评价，未再改稿。
+
+最新函数卡落实：[get_trajectory 的单轮主线与分层对照](discussion.md#get-trajectory-card-reorder-applied)。保留原三段代码和历史内容，先读小树到样本的交接，再按需展开数值与复杂场景。
+
+最新函数卡方案：[get_trajectory 的递进阅读顺序](discussion.md#get-trajectory-card-reorder-proposal)。保留现有三阶段源码与证据，将长数组及复杂分支移到基础主线之后；本轮只保存方案和真实反馈。
+
+最新类卡排版：[字段、含义、已展开的用法同表展示](discussion.md#base-adapter-usage-column)。现有使用关系移到右侧列，减少上下查找；原话、未知与来源继续保留。
+
+最新类卡精简：[BaseAdapter 先压缩查阅负担](discussion.md#base-adapter-card-slimming)。全部字段仍可见，每个字段只留一句含义和必要默认值；已讨论用法合并，原话、未知与历史保持可追溯。
+
+最新类卡审阅：[工程准确性与认知负担](discussion.md#base-adapter-field-card-review)。保留全字段结构，优先补对象与状态的关系、当前场景和精确跳转；区分源码核对通过与学习效果验证。
+
+最新类卡落实：[BaseAdapter 采用全字段总览与用法索引](discussion.md#class-field-memory-applied)。六部分结构已在当前类卡试用，完整列字段、按实际阅读补关系，保留个人原话和未知；通用 skill 尚未改写。
+
+最新类卡方案：[字段先总览，用法随阅读增加](discussion.md#class-memory-field-overview-and-usage)。总览覆盖基类自身字段的内容与基本用途；具体使用只保留关系摘要和方法入口，个人表述与未知另存，尚未将方案写入通用 skill。
+
+最新类卡讨论：[BaseAdapter 先补基本字段与职责地图](discussion.md#class-memory-object-map-proposal)。类卡描述对象持有的状态、协作对象和方法入口；方法卡描述一次调用的过程。当前提出扩充既有类卡的方案，尚未更改学习进度或模板。
+
+最新记录分工：[closed、inflight 的定义归入 BaseAdapter 类卡](discussion.md#adapter-state-card-responsibility)。方法卡继续保留具体状态变化和执行交接；本轮完整原话已保存，版式的正面反馈与机制理解分别记录。
+
+最新卡片落实：[shutdown_session 的跨循环图与三段源码](discussion.md#shutdown-state-cross-loop-applied)。已按用户确认重构当前卡片，保留状态结果、关键边界与完整历史；未改变源码、认识日期或通用 skill。
+
+最新卡片审阅：[shutdown_session 的状态变化与跨循环表达](discussion.md#shutdown-state-cross-loop-review)。记录用户对篇幅和输入输出呈现的反馈；建议应用已有跨边界图示规则，并合并重复讲解，尚未改写卡片或通用 skill。
+
+最新 scope 校准：[Step 004 第 3 部分接入新版源码](discussion.md#step-four-scope-core-refresh)。保留整体位置、三项输入和局部导航，归档旧稿；静态校准与用户的阅读状态分别记录。
+
+最新格式落实：[Step 004 精简前两节并注明部分版本更新](discussion.md#step-four-scope-intro-bullets)。入口采用已有的 `18868a79` 核对，文末保留第 3 部分、函数卡片与 task flow 的旧版归属。
+
+最新格式落实：[Step 003 的输入衔接精简](discussion.md#step-three-input-bridge-compaction)。3.2 围绕 `diff_text`、`md` 和评分入口展开，保留最小字典；辅助信息折叠，输入准备时机在正文说明。
+
+最新格式落实：[Step 003 精简 scope 开头并折叠选读理由](discussion.md#step-three-scope-intro-bullets)。本步指挥官明确为 `_grade_scaleswe`，保留从 `run_evaluation` 分派进入的关系；版本说明集中到文末。
+
+最新格式落实：[Step 002 沿用已确认的 scope 开头格式](discussion.md#step-two-scope-intro-bullets)。前两节各用三点说明目标与入口，版本说明移到文末；本步由 `_generate` 直接组织统计读取与补丁提取。
+
+最新格式落实：[Step 001 的 scope 开头采用要点，版本说明移到文末](discussion.md#scope-intro-bullets-and-version-footer)。前两节分别保留目标、问题、范围与整体位置、局部入口、选择理由；其余步骤继续按后续反馈处理。
+
 最新衔接讨论：[输入存在不等于已经讲清](discussion.md#scope-runtime-input-vs-prior-knowledge)。Step 003 先对照前两步实际涉及的内容，再补本步最小输入模型；源码来路与暂未展开部分分别处理，原 skill 和认可样例保留。
 
 最新样例落实：[Step 001、Step 002 并列作为完整 scope reference](discussion.md#scope-two-approved-examples)。用户认可两份现有 scope；原正文保留，skill 分别提供主线阅读与回查输入来源的参考入口。
@@ -36,7 +78,7 @@
 
 此前 scope 复核：[暂不填写函数卡片，仍需保留局部阅读地图](discussion.md#scope-map-without-function-cards)。Step 005 初稿遗漏本步局部骨架与导航，已按前几步的结构补齐；该轮只修改当前材料，随后由上述确认接续到 skill。
 
-最新试用：[确认类卡片方向，以 Session 试用](discussion.md#session-class-card-trial)。用户已要求生成卡片；Step 004 的 `02/classes/` 现保存 [Session 类卡片](../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，原 reference 保留入口与语法依据。当前成稿待反馈，通用 skill 与旧快照未改写。
+最新试用：[确认类卡片方向，以 Session 试用](discussion.md#session-class-card-trial)。用户已要求生成卡片；Step 004 的 `02/classes/` 现保存 [Session 类卡片](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/02-short-term-memory/classes/slime/agent/adapters/common.py/Session.md)，原 reference 保留入口与语法依据。当前成稿待反馈，通用 skill 与旧快照未改写。
 
 此前讨论：[源码中的类与 reference 怎样分工](discussion.md#class-memory-vs-reference)。用户指出 Session 是实际定义的 dataclass，不应仅因它不是函数就归为补充参考；由此提出区分类型定义、场景变量和补充材料的方案。
 
@@ -76,7 +118,7 @@
 
 ## 接续入口
 
-- [当前 Coding Agent Step 1](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)：保留 Harness 到 Adapter 的来路，当前逐段阅读 `_run_turn`；[Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)只保留整体骨架。最新分工见[本次调整](discussion.md#step-zero-skeleton-step-one-run-turn)。
+- [当前 Coding Agent Step 1](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/README.md)：保留 Harness 到 Adapter 的来路，当前逐段阅读 `_run_turn`；[Step 0](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)只保留整体骨架。最新分工见[本次调整](discussion.md#step-zero-skeleton-step-one-run-turn)。
 - [目录范围的最新纠正](discussion.md#keep-coding-agent-archive-initial-model)：保留 Coding Agent 与 Harness 到 Adapter 两步，只将旧 `initial-model` 移至[历史归档](../archived-steps/README.md)。
 - [转换环节局部示范](../step-00-translate-structure-preview/README.md)：此前误标为 Step 0，保留为任务内部的参考。
 - [职责划分建议](responsibilities-proposal.md)：将阅读导航、知识模型和学习记录映射到具体文件，并用同一个函数例子说明边界；当前为讨论草案。
@@ -118,7 +160,7 @@
 
 ## 下一次从哪里继续
 
-当前进入 [Step 1 的 `_run_turn` 逐段阅读](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/01-scope.md)。Step 0 只保留整体骨架，原转换记录移入 Step 1 的 `02`，`03` 暂无前序函数继承。已有 Harness 和 HTTP 来路留作回查，不因这次调整推断用户已理解内部机制。
+当前进入 [Step 1 的 `_run_turn` 逐段阅读](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/01-scope.md)。Step 0 只保留整体骨架，原转换记录移入 Step 1 的 `02`，`03` 暂无前序函数继承。已有 Harness 和 HTTP 来路留作回查，不因这次调整推断用户已理解内部机制。
 
 [每轮主题确认的最新规则](discussion.md#每轮-step-先确认主题)保存本次明确要求。
 

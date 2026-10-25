@@ -9,6 +9,6 @@
 
 旧初始模型保留原有内容与来源，仅调整归档入口说明和移动涉及的链接。正文中的“当前”“本步”“下一步”沿用当时语境，不作为实时进度或后续步骤的默认继承来源。
 
-当前步骤：[Coding Agent 核心骨架](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md) → [Harness 到 Adapter](../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md)。
+当前步骤：[Coding Agent 核心骨架](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md) → [Harness 到 Adapter](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/README.md)。
 
 [本次纠正记录](../2026-10-20-task-driven-cognitive-architecture/discussion.md#keep-coding-agent-archive-initial-model) · [Slime 项目入口](../../../00-repo-reading/repositories/slime/README.md) · [唯一阅读进度](../../../slime_photo/code-reading/repo-reading-route.md#当前接续)

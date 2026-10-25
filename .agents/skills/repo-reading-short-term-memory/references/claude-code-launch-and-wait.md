@@ -29,7 +29,7 @@
 
 ## 本场景的输入与输出
 
-接住 [BaseHarness.run 的同一个教学场景](../../../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md)：`write_config` 已完成配置准备，工作目录沿用 auth0-python，编号、地址和预算为构造值；假定没有额外参数或环境覆盖，CLI 最终退出码为 0。没有运行真实命令。
+接住 [BaseHarness.run 的同一个教学场景](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/02-short-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md)：`write_config` 已完成配置准备，工作目录沿用 auth0-python，编号、地址和预算为构造值；假定没有额外参数或环境覆盖，CLI 最终退出码为 0。没有运行真实命令。
 
 ### 跨边界流转与职责边界标注
 
@@ -228,8 +228,8 @@ return await run_agent(
 - 固定定义见页首；类的开关和环境变量名称见 `claude_code.py:18–34`，父调用见 `harness/common.py:104`，委派见 107–122 行，脚本启动与等待见 `sandbox.py:107–145`，SDK 参数见 324–331 行。
 - 命令与环境代码直接摘自源码。2026-10-22 提取原方法及类的设置，使用原始默认 `SWE_PROMPT`，将 `run_agent` 换成本地操作记录器，并提供空的额外配置环境；核对完整提示保持为一个命令参数、六项环境变量、同一个 `sb`、工作目录与 300 秒预算的传递。返回的 0 由记录器设定，确认本函数原样交回；它不是实际 CLI 的退出结果。没有执行 shell、启动 CLI 或请求模型。
 - CLI 接口依据：[环境变量](https://code.claude.com/docs/en/env-vars)、[命令行参数](https://code.claude.com/docs/en/cli-reference)，2026-10-22 复核 `-p`、输出格式与环境变量的公开含义。当前文档只用于接口对照，不证明固定版本安装包的全部运行行为，也不替代其内部函数实现。
-- 形成过程：[Step 7 · 原始通信问题](../../../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/04-flow.md#run-cross-process-communication) · [独立成步的确认](../../../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/04-flow.md#separate-communication-step)。
-- 本轮展开：[Step 7 · 启动命令、环境变量与等待结果](../../../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/04-flow.md#launch-and-wait)。
-- 完整跨组件关系见[通信路径参考](../../../../../../00-repo-reading/repositories/slime/steps/step-008-harness-communication/references/run-communication-path.md)。
+- 形成过程：[Step 7 · 原始通信问题](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/04-flow.md#run-cross-process-communication) · [独立成步的确认](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/04-flow.md#separate-communication-step)。
+- 本轮展开：[Step 7 · 启动命令、环境变量与等待结果](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/04-flow.md#launch-and-wait)。
+- 完整跨组件关系见[通信路径参考](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-008-harness-communication/references/run-communication-path.md)。
 
 </details>

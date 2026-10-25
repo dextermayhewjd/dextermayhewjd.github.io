@@ -50,6 +50,8 @@ steps/step-NNN-<问题>/
 
 `01-scope.md` 由助手帮助限定本步位置、问题和材料。`03-long-term-memory/` 完整保留此前形成的理解与未知，`02-short-term-memory/` 保存本步正在使用的记录，包括调取的旧卡与新增、修正。`04-flow.md` 记录实际发生的追问、源码核对与澄清；`05-task-flow.md` 按“本步位置 → 已读部分的交接 → 结果及去向 → 收束与后续衔接”总结，开头保留整体概括，末尾折叠来源。详细教材按需引用；未发生的阅读不预填完成总结。
 
+**按主题组织的项目**：可将上述步骤放在 `topics/<主题>/steps/`。主题只增加问题范围与步骤索引，步骤编号仍按项目内的真实阅读顺序连续；跨主题的“前一步”仍是上一实际步骤，不能因切换目录就清空 `03 + 02` 的继承。
+
 ### 函数记录与源码一一对应
 
 以 `slime/ray/rollout.py` 中的 `RolloutManager.generate` 为例，首次形成认识时笔记位于 `02-short-term-memory/functions/slime/ray/rollout.py/RolloutManager.generate.md`，以后继承到相应步骤的 `03-long-term-memory/functions/` 同名路径。

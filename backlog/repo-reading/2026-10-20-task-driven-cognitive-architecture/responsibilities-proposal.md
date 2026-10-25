@@ -1,12 +1,12 @@
 # 阅读系统的职责划分建议
 
-2026-10-20 后续纠正：本稿中“overview 保存组合模型”的建议不再采用。用户明确两层 memory 都以单个函数为记录单位：`02` 为本步函数，`03` 为此前累计函数；任务主线在步骤层，overview 只做索引。当前实现见 [Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)，下文保留原提案历史。
+2026-10-20 后续纠正：本稿中“overview 保存组合模型”的建议不再采用。用户明确两层 memory 都以单个函数为记录单位：`02` 为本步函数，`03` 为此前累计函数；任务主线在步骤层，overview 只做索引。当前实现见 [Step 0](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)，下文保留原提案历史。
 
 状态：2026-10-20 的讨论草案。沿用已认可的函数记录基础与长期继承机制；下述职责边界、形成过程的收缩方式尚待用户讨论，不直接改写现行 skill、模板或旧步骤。
 
 [讨论入口](README.md) · [原始讨论](discussion.md#具体化职责划分任务模型与学习记录)
 
-本方案现应用于[从 Coding Agent 开始的 Step 0](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)，供直接查看和调整。此前的[转换局部示范](../step-00-translate-structure-preview/README.md)用于任务内部的模型请求环节，不再作为阅读起点。示范不代表全部建议已推广为通用规范。
+本方案现应用于[从 Coding Agent 开始的 Step 0](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)，供直接查看和调整。此前的[转换局部示范](../step-00-translate-structure-preview/README.md)用于任务内部的模型请求环节，不再作为阅读起点。示范不代表全部建议已推广为通用规范。
 
 ## 1. 整体分为三类职责
 

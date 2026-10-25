@@ -1,12 +1,18 @@
 # Slime 后续阅读顺序
 
-记录日期：2026-10-22。
+记录日期：2026-10-22（2026-10-24 增补 Dressage 抽象与评测路线入口）。
 
 目标：对齐腾讯混元 Agent 强化学习框架工程师岗位，按岗位工作需要选读源码。以下安排以当前 Coding Agent RL 主线读完为前提，保存具体阅读文件、先后顺序、必须弄清的问题和停止位置。
 
 本文件记录后续选读计划；实际阅读进度继续以[唯一阅读路线](../../../../slime_photo/code-reading/repo-reading-route.md#当前接续)为准。保存计划不表示已经开始或完成这些阅读。
 
-[返回 Slime 阅读入口](../README.md) · [岗位对照](../../../../slime_photo/code-reading/job-alignment.md)
+2026-10-25 用户补充计划一个月内投递或面试，已有 kubectl 和简单服务部署经验；针对这一时限的[岗位逐项复核与四周建议](../../../../slime_photo/code-reading/job-alignment.md#next-month-job-plan-20261025)已另行补充。下表继续作为模块入口导航，具体下一步尚待确认。
+
+新增记录：[Slime 后续阅读顺序与腾讯混元岗位：逐项评估](hunyuan-jd-reading-order-assessment-2026-10-25.md)。保存四项主题的岗位对应、三处调整建议与下一入口；原阅读顺序保留。
+
+简明方案：[当前目标推进的slime阅读顺序](current-goal-slime-reading-order.md)。按六个模块列出接续顺序、入口函数和阅读边界。
+
+[返回 Slime 阅读入口](../README.md) · [岗位对照](../../../../slime_photo/code-reading/job-alignment.md) · [generate() 生命周期阅读结论](generate-lifecycle-reading-conclusion.md) · [Slime 到 Dressage 阅读顺序](slime-to-dressage-reading-order.md) · [切入 Dressage：提炼抽象层级与评测方式](dressage-abstraction-and-evaluation-route.md) · [混元岗位对齐与评测抽象分析](hunyuan-jd-and-eval-abstraction-analysis.md)
 
 ## 阅读顺序
 

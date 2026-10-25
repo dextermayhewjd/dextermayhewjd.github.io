@@ -2,7 +2,7 @@
 
 **本步问题：已经拿到请求 `body` 后，`_translate` 交回什么，这两份结果接下来交给谁？**
 
-这是用已有转换步骤制作的局部结构示范。此前将它标为 Step 0 不符合用户要求；当前起点见 [Step 0 · 一次 Coding Agent 任务](../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/README.md)。本页用于主线到达模型请求时回查，原文件路径保留兼容；用户表述与认识更新仍来自原 Step 01。
+这是用已有转换步骤制作的局部结构示范。此前将它标为 Step 0 不符合用户要求；当前起点见 [Step 0 · 一次 Coding Agent 任务](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/README.md)。本页用于主线到达模型请求时回查，原文件路径保留兼容；用户表述与认识更新仍来自原 Step 01。
 
 ## 先看本步在任务中的位置
 

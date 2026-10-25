@@ -1,0 +1,34 @@
+{
+  "retrieved_on": "2026-10-25",
+  "page_url": "https://careers.tencent.com/jobdesc.html?postId=2061654749727600640",
+  "api_url": "https://careers.tencent.com/tencentcareer/api/post/ByPostId?postId=2061654749727600640&language=zh-cn",
+  "api_code": 200,
+  "raw_response_sha256": "ac5b276dc06fe3d204ffd23615691878761427d1d558aa6b8affde084c184c39",
+  "post_id": "2061654749727600640",
+  "title": "混元Agent强化学习框架工程师（深圳/北京/上海）",
+  "last_update": "2026年10月20日",
+  "work_experience": "一年以上工作经验",
+  "business_group": "TEG",
+  "note": "以下为助手对官方职责、要求和加分项的归纳，不是逐字复制的招聘正文。",
+  "responsibilities_summary": [
+    "研发维护 Research Agent 框架，服务强化学习、数据生产、自动评估和可复现实验。",
+    "把模型、工具、任务、上下文、追踪、结果及评估能力组织为可复用组件。",
+    "允许不同 Agent 策略与评估逻辑接入，并维护接口与验证。",
+    "治理并发、资源、调用链和行为一致性，提高易用性、稳定性及性能。",
+    "从模型训练需求出发，与算法团队共同实现新 Agent 范式及训练评测流程。"
+  ],
+  "requirements_summary": [
+    "Python 基础扎实，熟悉 asyncio、并发和工程实践。",
+    "理解模型与工具调用、上下文、任务执行、Trace 和评估链路。",
+    "熟悉容器与 Kubernetes，并具有集群开发、部署、排障或优化经历。",
+    "了解预训练、SFT、RLHF、强化学习或自动评估中的至少一种流程与原理。",
+    "注重模块边界、测试、日志、性能及稳定性的软件工程能力。",
+    "能分析和解决问题、沟通协作，对接算法需求并持续负责迭代。"
+  ],
+  "bonus_summary": [
+    "会使用 AI 编程工具并理解其限制与工程应用。",
+    "有 Agent、Coding CLI、RL 环境或评测框架方面的经验。",
+    "做过研发效能、审查调试、观测分析、问题追踪或知识工具。",
+    "能借助 AI 工具协作阅读维护 TypeScript、Rust 或 Go。"
+  ]
+}

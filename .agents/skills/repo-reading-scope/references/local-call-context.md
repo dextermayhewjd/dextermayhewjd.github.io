@@ -15,7 +15,7 @@
 
 ## 样例：展开启动执行沙箱
 
-来源：[Step 005 scope](../../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/01-scope.md)。下例是局部导航的格式参考，绑定 Slime 提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`，不表示其他项目也需要同样的生命周期或五个动作。
+来源：[Step 005 scope](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/01-scope.md)。下例是局部导航的格式参考，绑定 Slime 提交 `2f2318653f6f794dddd321eff7c9d4b7b174643f`，不表示其他项目也需要同样的生命周期或五个动作。
 
 ### 3.1 整体位置
 
@@ -46,14 +46,14 @@ finally:
 
 | 局部位置 | 要解决的问题与阅读深度 | 读完回到哪里 |
 | --- | --- | --- |
-| `106–109`：创建并进入沙箱 | 本地对象怎样接上远端沙箱；按需回查[已有进入卡片](../../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md) | `111`：把同一对象交给安装入口 |
+| `106–109`：创建并进入沙箱 | 本地对象怎样接上远端沙箱；按需回查[已有进入卡片](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md) | `111`：把同一对象交给安装入口 |
 | `111`：安装 CLI | 定位 [ClaudeCodeHarness.install_cli](https://github.com/THUDM/slime/blob/2f2318653f6f794dddd321eff7c9d4b7b174643f/slime/agent/harness/claude_code.py#L36-L42)，先看用途，安装命令暂不下钻 | `115、132`：接住对象并交给调用方 |
-| `132–134`：交付与退出 | 看清使用期和清理时机；按需回查[已有退出卡片](../../../../00-repo-reading/repositories/slime/steps/step-006-agent-sandbox/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md) | 交付时回到 `generate:203`；使用期结束后继续 `generate:215` 的评测 |
+| `132–134`：交付与退出 | 看清使用期和清理时机；按需回查[已有退出卡片](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md) | 交付时回到 `generate:203`；使用期结束后继续 `generate:215` 的评测 |
 
 停止条件：能说明镜像怎样进入启动入口、准备好的 `sb` 交给谁、何时退出回收。本轮不展开安装内部、并发重试、工作区准备或评测，也不因导航列出了某个函数就自动创建卡片。
 
 ## 变体：先补对象或输入的来路
 
-[Step 004 的局部骨架](../../../../00-repo-reading/repositories/slime/steps/step-005-agent-preparation/01-scope.md#adapter-to-open-session)展示另一种情况：读者尚不清楚 `state.adapter` 和 `session_id`，直接列出 `open_session` 函数体不足以进入阅读。
+[Step 004 的局部骨架](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/01-scope.md#adapter-to-open-session)展示另一种情况：读者尚不清楚 `state.adapter` 和 `session_id`，直接列出 `open_session` 函数体不足以进入阅读。
 
 此时只补两条必要关系：`_AdapterService` 持有哪个 Adapter，以及 `_session_id` 的结果怎样交给 `open_session`。注明首次初始化与已有对象复用的区别，再接到实际方法实现；完整服务启动、tokenizer 加载等仍保持折叠。来源已经清楚时直接回查既有记录，无需重复这段追溯。

@@ -2,7 +2,7 @@
 
 本页与 [Step 001 scope 样例](step-001-reading-path.md)都是用户已认可的完整 scope，均保留整体定位、局部骨架、阅读图和导航表。本例重点展示：读到输入来路不清楚时，沿问题回查产生与配置的位置，再带着答案返回原调用。配合 [scope skill](../SKILL.md)使用。
 
-- 来源：[Step 002 的完整 scope](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/01-scope.md)。2026-10-23 按用户反馈补入；对应 Slime 固定提交 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`。
+- 来源：[Step 002 的完整 scope](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/01-scope.md)。2026-10-23 按用户反馈补入；对应 Slime 固定提交 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`。
 - 下方正文完整保留，仅调整复制后的相对链接。文中步骤编号、观察点和已读情况属于当时记录；项目文件以后可能更新，本样例保留此次快照。
 
 ## 复用时关注什么
@@ -18,7 +18,7 @@
 
 # 01 · 阅读范围：CLI 结束后，收集运行统计与代码补丁
 
-[本步入口](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/README.md) · [前一步：模型请求处理](../../../../00-repo-reading/repositories/slime/steps/step-001-harness-to-adapter/README.md) · [后一步：独立评测](../../../../00-repo-reading/repositories/slime/steps/step-003-swe-evaluation/README.md)
+[本步入口](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/README.md) · [前一步：模型请求处理](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-001-harness-to-adapter/README.md) · [后一步：独立评测](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-003-swe-evaluation/README.md)
 
 ## 1. 阅读目标
 
@@ -42,7 +42,7 @@
 
 ### 3.1 继承整体骨架，标出本步位置
 
-以下继承 [Step 0 的整体骨架](../../../../00-repo-reading/repositories/slime/steps/step-000-coding-agent/01-scope.md)，是 `evaluation=False` 正常路径的教学裁剪。参数通常省略；`baseline` 与本步输入交接直接相关，因此保留。配置、入口检查、trace、异常与失败包装暂时折叠，源码中仍存在。
+以下继承 [Step 0 的整体骨架](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-000-coding-agent/01-scope.md)，是 `evaluation=False` 正常路径的教学裁剪。参数通常省略；`baseline` 与本步输入交接直接相关，因此保留。配置、入口检查、trace、异常与失败包装暂时折叠，源码中仍存在。
 
 ```python
 adapter.open_session(...)                              # 登记会话
@@ -121,18 +121,18 @@ _generate                                             generate.py:296–298
    _repository_tree 暂按“取得快照标识”的接口使用
 ```
 
-按图进入下表的函数卡片；表格补充阅读深度与返回位置。统计的跨阶段关系集中在[机制参考](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/references/compaction-metrics-lifecycle.md)，完整追问与修正保存在 [04-flow](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/04-flow.md#collect-metrics-first-read)。
+按图进入下表的函数卡片；表格补充阅读深度与返回位置。统计的跨阶段关系集中在[机制参考](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/references/compaction-metrics-lifecycle.md)，完整追问与修正保存在 [04-flow](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/04-flow.md#collect-metrics-first-read)。
 
 | 顺序与源码入口 | 本次要弄清什么 | 读完回到哪里 |
 | --- | --- | --- |
-| **①⑤ [ClaudeCodeHarness.collect_metrics，111–120 行](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.collect_metrics.md)** | 从哪个文件读取什么内容，怎样变成三个统计字段，空内容返回什么；用文件内容与返回字典对照 | 输入来路不清楚时走②–④，再回到⑤；`_generate:296` 接住 `agent_metrics` 后继续⑥ |
-| **② [run_hook，23–68 行](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/compaction.py/run_hook.md)** | 一次事件怎样读取旧统计、选择更新字段并写回；触限停止先保留职责边界 | 继续③，补清事件处理怎样被配置 |
-| **③ [ClaudeCodeHarness.write_config，57–84 行](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md)** | 重点看脚本复制、两个事件注册到同一命令、传入统计目录与上限 | 继续④，补齐统计文件的初始状态 |
-| **④ [ClaudeCodeHarness.launch_and_wait，103–109 行](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md#compaction-initialization)** | 只展开本轮需要的初始化片段：先组装命令，沙箱执行时才写入零值并启动 CLI | 返回⑤，将准备、事件更新与最终读取接起来 |
-| **⑥ [swe.git_diff，265–272 行](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/02-short-term-memory/functions/examples/coding_agent_rl/swe.py/git_diff.md)** | `baseline` 与 `current` 分别代表哪份状态，执行什么比较，返回的补丁是什么样子；不要把 `agent_metrics` 或模型回复当作它的输入 | `_generate:298` 接住 `diff_text`，再看两份结果的交接 |
+| **①⑤ [ClaudeCodeHarness.collect_metrics，111–120 行](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.collect_metrics.md)** | 从哪个文件读取什么内容，怎样变成三个统计字段，空内容返回什么；用文件内容与返回字典对照 | 输入来路不清楚时走②–④，再回到⑤；`_generate:296` 接住 `agent_metrics` 后继续⑥ |
+| **② [run_hook，23–68 行](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/compaction.py/run_hook.md)** | 一次事件怎样读取旧统计、选择更新字段并写回；触限停止先保留职责边界 | 继续③，补清事件处理怎样被配置 |
+| **③ [ClaudeCodeHarness.write_config，57–84 行](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md)** | 重点看脚本复制、两个事件注册到同一命令、传入统计目录与上限 | 继续④，补齐统计文件的初始状态 |
+| **④ [ClaudeCodeHarness.launch_and_wait，103–109 行](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/02-short-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md#compaction-initialization)** | 只展开本轮需要的初始化片段：先组装命令，沙箱执行时才写入零值并启动 CLI | 返回⑤，将准备、事件更新与最终读取接起来 |
+| **⑥ [swe.git_diff，265–272 行](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/02-short-term-memory/functions/examples/coding_agent_rl/swe.py/git_diff.md)** | `baseline` 与 `current` 分别代表哪份状态，执行什么比较，返回的补丁是什么样子；不要把 `agent_metrics` 或模型回复当作它的输入 | `_generate:298` 接住 `diff_text`，再看两份结果的交接 |
 | ⑥ 内部按需进入：[swe._repository_tree，241–262 行](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/swe.py#L241-L262) | 本轮先用“工作区状态 → 快照标识”的接口；需要解释具体文件为何进入补丁时，再看临时索引。Git 底层对象存储不作为前置 | `git_diff:267–272` 比较两份快照并返回 |
 | **两份结果的交接**：[generate.py:301–349](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L301-L349) | 在调用处指出补丁交给评测、统计交给样本记录与状态处理；明确谁产生 reward | 到 `run_evaluation` 的入口停住，后一步再展开评分 |
 
 从①开始，按当前缺口选择是否回查。`read_file`、`exec` 先按沙箱接口理解输入输出；出现具体通信疑问时再调取已有记录。这份导航随本轮已确认的问题补全，不表示开始时就已知全部分支，也不把列出函数视为已经掌握。字段整理、局部变量和每条 Git 命令不自动拆成独立函数卡。
 
-**停止条件**：能够连续说明“CLI 结束 → 读取统计 → 提取补丁 → 两份结果交回主流程”，并分别指出输入、输出和下游消费者。阅读后的串联与保留问题见 [task flow](../../../../00-repo-reading/repositories/slime/steps/step-002-agent-results/05-task-flow.md)。
+**停止条件**：能够连续说明“CLI 结束 → 读取统计 → 提取补丁 → 两份结果交回主流程”，并分别指出输入、输出和下游消费者。阅读后的串联与保留问题见 [task flow](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-002-agent-results/05-task-flow.md)。

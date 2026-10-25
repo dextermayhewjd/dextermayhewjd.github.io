@@ -1,4 +1,4 @@
-本文件是 [Step 003 原任务总结](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/05-task-flow.md)的完整副本，2026-10-23 按用户确认保存为本 skill 的主要 reference。正文保留，仅调整相对链接；其中的源码版本、例子与学习状态属于原步骤。
+本文件是 [Step 003 原任务总结](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/05-task-flow.md)的完整副本，2026-10-23 按用户确认保存为本 skill 的主要 reference。正文保留，仅调整相对链接；其中的源码版本、例子与学习状态属于原步骤。
 
 ---
 
@@ -6,7 +6,7 @@
 
 > `finish_session` 先给当前会话收尾，再把已有轨迹、任务基础字段与奖励交给 manager 导出样本，最后补上样本文本，交回 `generate`。
 
-[本步 scope](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/01-scope.md) · [步骤入口](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/README.md) · [函数记录](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/02-short-term-memory/overview.md) · [本次收拢](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/04-flow.md#sample-export-flow-closure)
+[本步 scope](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/01-scope.md) · [步骤入口](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/README.md) · [函数记录](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/overview.md) · [本次收拢](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/04-flow.md#sample-export-flow-closure)
 
 ## 1. 本步接住前面哪两份结果
 
@@ -47,11 +47,11 @@ generate.py:237：交入会话标识、任务基础字段、奖励与元数据
 generate：接住样本列表；对非空结果继续补 agent_exit_code
 ```
 
-需要展开时回到：[会话收尾](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md)、[路径遍历与导出](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md)、[finish_session 的配置读取与文本补全](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md)。解码职责复用[此前的 decode 记录](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md)。
+需要展开时回到：[会话收尾](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md)、[路径遍历与导出](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md)、[finish_session 的配置读取与文本补全](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md)。解码职责复用[此前的 decode 记录](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md)。
 
 ## 3. 最后交出的数据是什么
 
-沿用两张函数卡片的单轮构造例：已经记录回复“已修复。”，输入奖励为 `1.0`；本例无分叉和长度截断，返回一个样本。完整 token 数组见 [finish_session 的输入与输出](../../../../00-repo-reading/repositories/slime/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md#本场景的输入与输出)。
+沿用两张函数卡片的单轮构造例：已经记录回复“已修复。”，输入奖励为 `1.0`；本例无分叉和长度截断，返回一个样本。完整 token 数组见 [finish_session 的输入与输出](../../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-004-trajectory-to-samples/02-short-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md#本场景的输入与输出)。
 
 | 样本中的内容 | 来自哪次交接 |
 | --- | --- |

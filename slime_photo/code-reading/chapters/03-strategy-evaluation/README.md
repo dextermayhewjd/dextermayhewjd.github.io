@@ -3,8 +3,10 @@
 [阅读路线](../../repo-reading-route.md) · [总目录](../../README.md)
 
 **目录 ID：** `03-strategy-evaluation`
-**产物状态：** planned
+**产物状态：** 已有生成接入的首段 [walkthrough](walkthrough.md)与[源码核对](SOURCE-CHECK.md)；其余范围仍为计划。
 **学习状态：** 统一见[阅读路线的当前接续](../../repo-reading-route.md#当前接续)。
+
+当前材料从 [Topic 02 / Step 010](../../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/README.md)承接：先解释 `generate_and_rm` 怎样选中 Coding Agent 生成实现，使用 `18868a79`。下方较广的章节清单保留原固定版本与规划用途，不作为本轮已展开内容。
 
 **问题：** 新增 Agent 策略、评分器、数据集或样本处理逻辑时，应该接在哪个扩展点？
 
