@@ -1,0 +1,56 @@
+{
+  "source": "/home/hongshi/projects/slime/slime/utils/dp_schedule.py",
+  "source_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+  "runtime_scope": "Unmodified function bodies; static micro-batches, no workload balancing. No split_by_dp, Ray, tensors or training execution.",
+  "input": {
+    "args": {
+      "use_dynamic_batch_size": false,
+      "micro_batch_size": 1,
+      "balance_by_flops": false,
+      "balance_data": false
+    },
+    "train_parallel_config": {
+      "dp_size": 2,
+      "cp_size": 1,
+      "vpp_size": 1,
+      "microbatch_group_size_per_vp_stage": 1
+    },
+    "total_lengths": [
+      3,
+      4
+    ],
+    "global_batch_size": 2,
+    "rollout_indices": [
+      10,
+      20
+    ]
+  },
+  "output": {
+    "partitions": [
+      [
+        0
+      ],
+      [
+        1
+      ]
+    ],
+    "micro_batch_indices": [
+      [
+        [
+          0
+        ]
+      ],
+      [
+        [
+          0
+        ]
+      ]
+    ],
+    "num_microbatches": [
+      1
+    ],
+    "global_batch_sizes": [
+      2
+    ]
+  }
+}

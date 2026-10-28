@@ -1,4 +1,19 @@
+# Slime 后续阅读入口
+
+现行安排统一见 **[2026-10-28 阅读计划与约定](current-goal-slime-reading-order.md#reading-agreement-20261028)**。按生成接入验证、训练数据、训练闭环、关键失败处理的顺序推进；Trace 继续暂缓，Kubernetes 单列实践，队列与底层恢复按需选读。
+
+本目录保存计划与选题依据；实际开始、暂缓和运行状态只维护在[唯一阅读路线](../../../../slime_photo/code-reading/repo-reading-route.md#当前接续)。已读 Agent、generate_and_rm、worker loop 与结果交付记录继续复用，不重开整条主线。
+
+- [岗位依据](../../../../slime_photo/code-reading/job-evidence/2026-10-28-user-provided-jd.md)与[能力对照](../../../../slime_photo/code-reading/job-alignment.md)。
+- [队列案例的关联与阅读边界](straw-queue-jd-assessment-2026-10-28.md)：可选参考，其曾被排为下一步的建议已修正。
+- [返回 Slime 项目入口](../README.md)。
+
+<details>
+<summary>此前索引与候选顺序（历史原文）</summary>
+
 # Slime 后续阅读顺序
+
+最新选题评估：[straw 队列调度与混元岗位的对应及第一轮边界](straw-queue-jd-assessment-2026-10-28.md)。先评估跨 worker 的任务领取、归还与续跑，不将存储引擎与完整恢复机制整体列为必读；实际状态见唯一路线。
 
 记录日期：2026-10-22（2026-10-24 增补 Dressage 抽象与评测路线入口）。
 
@@ -10,7 +25,7 @@
 
 新增记录：[Slime 后续阅读顺序与腾讯混元岗位：逐项评估](hunyuan-jd-reading-order-assessment-2026-10-25.md)。保存四项主题的岗位对应、三处调整建议与下一入口；原阅读顺序保留。
 
-简明方案：[当前目标推进的slime阅读顺序](current-goal-slime-reading-order.md)。按六个模块列出接续顺序、入口函数和阅读边界。
+简明方案：[按完整 JD 复核的阅读范围](current-goal-slime-reading-order.md#full-jd-review-20261028)。复用已读 Agent 主线，明确组件替换、策略/评估接入与复跑、并发治理和训练数据交接的检验目标；Trace 保持暂缓，Kubernetes 单列实践。此前“两块重点与一块概览”及六模块路线保留为历史快照。
 
 [返回 Slime 阅读入口](../README.md) · [岗位对照](../../../../slime_photo/code-reading/job-alignment.md) · [generate() 生命周期阅读结论](generate-lifecycle-reading-conclusion.md) · [Slime 到 Dressage 阅读顺序](slime-to-dressage-reading-order.md) · [切入 Dressage：提炼抽象层级与评测方式](dressage-abstraction-and-evaluation-route.md) · [混元岗位对齐与评测抽象分析](hunyuan-jd-and-eval-abstraction-analysis.md)
 
@@ -54,3 +69,5 @@ Kubernetes 要单独安排实践，从第二轮附近就可以开始，不必等
 本轮问题限定为：
 
 > Coding Agent 的实现如何通过统一接口接入框架；如果换一种策略或评分逻辑，哪些地方需要改，怎样验证？
+
+</details>

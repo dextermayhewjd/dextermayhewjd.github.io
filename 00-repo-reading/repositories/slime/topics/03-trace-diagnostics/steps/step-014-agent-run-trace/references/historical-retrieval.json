@@ -1,0 +1,9 @@
+{
+  "record": "functions/slime/observability/trace_utils.py/trace_span.md",
+  "historical_source": "../../../01-coding-agent-rl/steps/step-001-harness-to-adapter/02-short-term-memory/functions/slime/observability/trace_utils.py/trace_span.md",
+  "source_sha256": "4148cde4fd6eaaa7b1ea9dd1ec3486249633b4df2a71aec77897a6a46c555d22",
+  "archive": "references/trace-span-step001-source.md",
+  "archive_sha256": "be0b35c363a8767499ebe0711953c58c523ee9341d6279539bbb2eed982915dd",
+  "reason": "旧 trace_span 卡不在 Step 013 的 66 份记录中；从 Step 001 历史回查到本步 02，未加入本步 03 的继承集合。",
+  "personal_understanding_update": false
+}

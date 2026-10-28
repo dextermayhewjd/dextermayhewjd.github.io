@@ -1,0 +1,49 @@
+{
+  "exported_context": {
+    "version": 1,
+    "trace_id": "T3",
+    "sample_id": 9,
+    "group_id": 3,
+    "attempt": 0,
+    "parent_span_id": "C0"
+  },
+  "session": {
+    "session_id": "session-9",
+    "sampling_defaults": {
+      "temperature": 0.7
+    },
+    "max_context_tokens": 4096,
+    "trace_handle": {
+      "trace_id": "T3",
+      "sample_id": 9,
+      "group_id": 3,
+      "attempt": 0,
+      "parent_span_id": "C0"
+    }
+  },
+  "sample_trace": {
+    "version": 1,
+    "trace_id": "T3",
+    "sample_id": 9,
+    "group_id": 3,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "coding_rollout",
+        "ts": 30.0,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "C0"
+      }
+    ]
+  },
+  "new_event_count": 0,
+  "identity": {
+    "bound_carrier_is_sample_trace": true,
+    "session_carrier_is_sample_trace": true,
+    "adapter_target_carrier_is_sample_trace": true
+  }
+}

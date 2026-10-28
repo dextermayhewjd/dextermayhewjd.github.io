@@ -1,0 +1,52 @@
+{
+  "repository": "/home/hongshi/projects/slime",
+  "commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "official_main": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "working_tree_clean": true,
+  "verification": "git rev-parse, git status --porcelain and git ls-remote https://github.com/THUDM/slime.git refs/heads/main; static excerpts only",
+  "excerpts": [
+    {
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 286,
+      "end": 296,
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "e19ce92c6e610b4d2660e6f8c483ab6b6de2d27ae4809ca9c0dc78e4388d17a1"
+    },
+    {
+      "file": "slime/observability/trace_utils.py",
+      "start": 58,
+      "end": 111,
+      "file_sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "excerpt_sha256": "32a1802bc866e8816c5ddd2f2db67b8bcd3bea1883966ec892f63d2c3e748f36"
+    },
+    {
+      "file": "slime/observability/trace_utils.py",
+      "start": 238,
+      "end": 254,
+      "file_sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "excerpt_sha256": "fe04020140aa5a77e46cfaa4fca1b3401b1437a9e34b8344a2819f06b60e8769"
+    },
+    {
+      "file": "slime/observability/trace_utils.py",
+      "start": 344,
+      "end": 425,
+      "file_sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "excerpt_sha256": "35fddfb829af7b954db1b87ba6c788f1bc84e484e8a4b7a02300f63c27191fbd"
+    },
+    {
+      "file": "slime/observability/trace_utils.py",
+      "start": 499,
+      "end": 518,
+      "file_sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "excerpt_sha256": "39968007227985b028a64f1921c7d06c1724051fd1442d56c43b5b51b83f6276"
+    },
+    {
+      "file": "slime/observability/trace_utils.py",
+      "start": 587,
+      "end": 627,
+      "file_sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "excerpt_sha256": "7c8daa96a0d0030936f79366f5c9c9aca39b7487def86b0dc9a468d00e1ea422"
+    }
+  ],
+  "runtime_executed": false
+}

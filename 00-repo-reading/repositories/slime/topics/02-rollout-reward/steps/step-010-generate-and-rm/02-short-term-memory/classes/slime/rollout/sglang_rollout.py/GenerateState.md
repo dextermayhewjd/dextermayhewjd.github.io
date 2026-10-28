@@ -10,12 +10,12 @@
 
 | 字段 | 含义 | 本步用法 |
 | --- | --- | --- |
-| `semaphore` | 生成阶段的并发名额 | `acquire()` 取得，`finally` 中 `release()` 归还 |
-| `generation_pacer` | `AsyncPacer` 对象，分批唤醒等待者 | `wait()` 平滑启动节奏 |
+| `semaphore` | 生成阶段的并发名额 | [acquire](../../../../functions/Lib/asyncio/locks.py/Semaphore.acquire.md) 取得，`finally` 中 `release()` 归还 |
+| `generation_pacer` | `AsyncPacer` 对象，分批唤醒等待者 | [wait](../../../../functions/slime/utils/async_utils.py/AsyncPacer.wait.md) 登记等待并由回调分批放行 |
 | `aborted` | 是否已要求中止，重置时为 `False` | 生成前检查；为真时返回 ABORTED 结果 |
 | `dp_counts`、`dp_rank` | 各 DP rank 的在途计数，以及最近选中的 rank | [dp_rank_context](../../../../functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md)进入时计数加一，退出时减一 |
 | `cancellable_tasks` | 可由中止流程取消的任务集合 | 请求级取消包装器登记、移除当前任务 |
-| `active_server_generations` | 使用服务端中止方式的活跃生成数 | 当前 Coding Agent 使用的包装器在等待前后加减 |
+| `active_server_generations` | 使用服务端中止方式的活跃生成数 | 当前 Coding Agent 使用的 [_run_server_abort_generate](../../../../functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md) 在等待前后加减 |
 
 <details>
 <summary>其余字段先保留位置</summary>
@@ -48,6 +48,12 @@
 
 助手校准：`aborted` 是布尔值，表示是否已经要求中止；已提交组任务登记在 `pendings` 中，元素是 Task，不能混作样本集合。校准尚待反馈。
 
+2026-10-26 对 semaphore 创建的初步理解：
+
+> 简单来说这里的先构建semaphore 来创建一共能够进入的这个生成部分的数量 是我的理解
+
+助手补充：初始化设置名额容量，限制同时占用名额的任务数；不是整次运行的任务总数。具体取得与归还仍由 acquire/release 完成，补充尚待反馈。
+
 - 并发名额的配置、pacer 调度与取消协作尚未逐段展开。
 - DP 计数先按上下文的进入、退出理解，具体请求路由另行核对。
 
@@ -60,7 +66,7 @@
 - [GenerateState:84–155](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L84-L155)、[SingletonMeta:62–76](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/utils/misc.py#L62-L76)。
 - [两种生成包装器：258–285](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L258-L285)、[AsyncPacer:8–42](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/utils/async_utils.py#L8-L42)。
 - 首次接触：Step 010 的执行控制骨架；2026-10-25 首次建立独立类卡。
-- 最近认识更新：2026-10-25，用户初步概括为“群体的状态”；具体共享范围与字段机制继续保留待核对。
+- 最近认识更新：2026-10-26，用户将构造 semaphore 与进入生成部分的数量控制联系起来；此前“群体的状态”表述保留，同时占用上限等校准仍待反馈。
 - [本轮建卡记录](../../../../../../step-010-generate-and-rm/04-flow.md#sample-state-class-cards)。未运行并发或中止实验。
 - [本轮对象区别的复述与校准](../../../../../../step-010-generate-and-rm/04-flow.md#sample-state-user-model)。
 

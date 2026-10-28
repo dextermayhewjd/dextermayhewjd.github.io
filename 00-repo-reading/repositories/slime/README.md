@@ -6,17 +6,17 @@
 
 ## 源码与记录入口
 
-- 源码仓库：`/home/fredkeira/projects/slime`；现有校准材料使用 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`，旧材料保留各自版本。
+- 源码仓库：`/home/hongshi/projects/slime`；历史记录保留当时路径，现有校准材料使用 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`，旧材料保留各自版本。
 - 学习状态只维护在[唯一路线的当前接续](../../../slime_photo/code-reading/repo-reading-route.md#当前接续)，主题与步骤索引不另存一套进度。
-- 后续选读见[当前目标推进的 slime 阅读顺序](slime后续阅读顺序/current-goal-slime-reading-order.md)，完整方案与对照材料见[后续阅读目录](slime后续阅读顺序/README.md)。
+- 后续方向统一按 [2026-10-28 阅读计划与约定](slime后续阅读顺序/current-goal-slime-reading-order.md#reading-agreement-20261028)接续；方案与选题依据见[后续阅读目录](slime后续阅读顺序/README.md)，实际进度只看唯一路线。
 
 ## 阅读主题
 
 | 主题 | 核心问题与源码入口 | 记录入口 |
 | --- | --- | --- |
 | 01 · Coding Agent RL：generate 主线与 agent 组件 | 单题怎样运行、评测并交付样本；`coding_agent_rl/generate.py`、`swe.py` 与 `slime/agent/` | [主题入口与 Step 000–009](topics/01-coding-agent-rl/README.md) |
-| 02 · Rollout 接入与奖励 | 自定义生成与评分怎样接入框架；`generate_and_rm`、`rm_hub` | [主题入口与 Step 010](topics/02-rollout-reward/README.md) |
-| 03 · 批量生成与调度 | 多轨迹怎样并发、排队、取消与交付；`generate_and_rm_group`、`fully_async_rollout` | 规划项，实际展开时建立 |
+| 02 · Rollout 接入与奖励 | 单任务与组级生成、评分、持续调度、完成结果交付与自定义生成接口、训练数据转换；`generate_and_rm`、`generate_and_rm_group`、`AsyncRolloutWorker` | [主题入口与 Step 010–013、015–016](topics/02-rollout-reward/README.md) |
+| 03 · Trace 与运行诊断 | 执行阶段怎样留下可关联的记录，怎样观察耗时和诊断问题；`trace_span` | [主题入口与 Step 014](topics/03-trace-diagnostics/README.md)，暂缓研究；状态见唯一路线 |
 | 04 · 训练数据与更新 | Sample 怎样进入训练，权重怎样交回生成侧；`BatchBuilder`、`RolloutManager`、`train.py` | 规划项，实际展开时建立 |
 
 主题按要解决的问题划分。同一主题可以涉及多个源码目录，同一个源码文件也可以在不同主题中按需阅读。

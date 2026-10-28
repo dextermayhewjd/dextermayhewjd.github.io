@@ -1,0 +1,360 @@
+{
+  "previous_step": "../step-010-generate-and-rm",
+  "rule": "Step 010 的 03 + 02；同名采用包含旧内容的 02，旧 03 保留来源可回查。",
+  "records": [
+    {
+      "record": "classes/examples/coding_agent_rl/generate.py/_AdapterService.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/classes/examples/coding_agent_rl/generate.py/_AdapterService.md",
+      "source_sha256": "f173505ea80469fd849a33405610ed361675e926ad893ac0234acc4c616a437e",
+      "placeholder": false
+    },
+    {
+      "record": "classes/slime/agent/adapters/common.py/Session.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/classes/slime/agent/adapters/common.py/Session.md",
+      "source_sha256": "e9b170c21e941341822cfe9ced9086fd9090a746f6b04798d03bb01d6874cbe1",
+      "placeholder": false
+    },
+    {
+      "record": "classes/slime/agent/harness/common.py/HarnessContext.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/classes/slime/agent/harness/common.py/HarnessContext.md",
+      "source_sha256": "6ca0538193bca3793848a33001cbc6a0f1ac743922d655344b71f9c5ba578464",
+      "placeholder": false
+    },
+    {
+      "record": "classes/slime/agent/sandbox.py/E2BSandbox.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md",
+      "source_sha256": "5ba145e624a36872fcc443ce2d02e48c888359438555af0e20e42d21cff5db8a",
+      "placeholder": false
+    },
+    {
+      "record": "classes/slime/rollout/sglang_rollout.py/GenerateState.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/classes/slime/rollout/sglang_rollout.py/GenerateState.md",
+      "source_sha256": "b2ebef4738d0eb6cd62727a04276a38b27ac640902f80f13c9cf5cd11c69582f",
+      "placeholder": false
+    },
+    {
+      "record": "classes/slime/utils/types.py/Sample.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/classes/slime/utils/types.py/Sample.md",
+      "source_sha256": "56c16e9810ef2fd9799de526c5ffbca344da998b1045d1442b3e50c381d57af9",
+      "placeholder": false
+    },
+    {
+      "record": "functions/Lib/asyncio/locks.py/Semaphore.acquire.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/Lib/asyncio/locks.py/Semaphore.acquire.md",
+      "source_sha256": "40926c403e1c07048a6252769974ffb61f226392b64ccae074d6da6df42c20bd",
+      "placeholder": false
+    },
+    {
+      "record": "functions/Lib/asyncio/locks.py/Semaphore.release.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/Lib/asyncio/locks.py/Semaphore.release.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true
+    },
+    {
+      "record": "functions/aiohttp/web_response.py/json_response.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/aiohttp/web_response.py/json_response.md",
+      "source_sha256": "4e664cec8b5bb84d52616d134e14bd2497d338fde70c1d1d944016298f377b99",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md",
+      "source_sha256": "b09990638ceb585f38040cab8a9db01aa83d253f8ca5b3619bc37b0263810dae",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/_session_id.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_session_id.md",
+      "source_sha256": "956395584eebfea401b868bdad94114928ae76037eb87b012b1eb3aa8f157243",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md",
+      "source_sha256": "be5b0c6f41f86a890fce8b047ecc479d4c2d19d95199cae63e43dd163dd0e5e8",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_apply_diff.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_apply_diff.md",
+      "source_sha256": "f586b2b7c6e006d6aa035eb142f830a2265a1262f0897455513179f9be335c26",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_grade_scaleswe.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_grade_scaleswe.md",
+      "source_sha256": "060e29136acc233cd6a13cf4c682dd90667676d9b1d6d94bebfa36350f95c12f",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_run_eval_cmd.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_run_eval_cmd.md",
+      "source_sha256": "c8c900d9371db1b16f5006ff88b041980fbe41ad6e04b0f10c82bbd1ea690689",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/apply_before_repo_set_cmd.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_before_repo_set_cmd.md",
+      "source_sha256": "b9119eb4c5e24c77f3faee2d0b0b67968001add2b1b755d7fc9d4c5c549bfba4",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md",
+      "source_sha256": "53a386a56556c52cfd87c289bac61d841d27ebe1d6081ed33ff555b7caa3d77a",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/prepare_workspace.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/prepare_workspace.md",
+      "source_sha256": "03f4c5d239c7b23f0ff5796be37924f175f84959b588f6d3bd0c64a8a8b11c84",
+      "placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/run_evaluation.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/run_evaluation.md",
+      "source_sha256": "a043ad01827abc5df001dc5b2a3d708c7659ae7ee6a4b8ff275dce5148b2e452",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._build_reply.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._build_reply.md",
+      "source_sha256": "f421406ccc4fb977075b7ecd190217f88bf159449d0f1b0ff8856c3153e010e3",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._register_routes.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._register_routes.md",
+      "source_sha256": "904e12fb5aa7b175102cc6401de66648eb16fa6885df61d2f33d3702e27453be",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._respond.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._respond.md",
+      "source_sha256": "8f419502194097770a895428f7c2df359da2b5844ead00fefabf17c41157a305",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._translate.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._translate.md",
+      "source_sha256": "79bf07aed3a7d42c59e9584b9dbd031d5d1f9533145d97b100c008dd1b0652b0",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/_render_response.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md",
+      "source_sha256": "5a5b4b73c43751e34608868ab5639e4273ee500f5432e13d43a55ae8dcf7db08",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+      "source_sha256": "3e9da833d28d9f0b80aa8b66be47df93ca4788bbde44245d780e97ed93bb07aa",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md",
+      "source_sha256": "793318434fd1c93b0ee3f91c74e72ac0562a362374db70aa89cf25a391a2f2ee",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._respond.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md",
+      "source_sha256": "2fd49831f3a45ce4e933c4a070b48e83238b9514716524a9a8356e455de4135c",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md",
+      "source_sha256": "c2f4b6c54a6e23e3f621c3ad6aadf78f9049480b93839ad2e38522a01a4a74bf",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._translate.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md",
+      "source_sha256": "746da992b3f40851cfd7ce26125ff2628a0aacc1e4aee9c7aad571f1c5e23f6b",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md",
+      "source_sha256": "9e026f30f33a0f96cdfacd887c5df79ac7225ece33cfbfe50e7675738fe69654",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md",
+      "source_sha256": "19aeee297b47617769bf814459ea66bc04413721c2df972673fc2eb84f08650c",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md",
+      "source_sha256": "a5b31e9be94e519e220cd17d5502da9b52c5cec96dc5bce833f2efdb4763b9c7",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/_render_token_ids.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md",
+      "source_sha256": "82a378a30e397cc748ca46eb65a9f9ca8a0da9a6b4237f7c12e20ac1813cab33",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/call_sglang_generate.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md",
+      "source_sha256": "bd941c1bba273a84bae0bf32658b66753e9f645d859c03e84fff344126ff6412",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/aiohttp_threaded.py/run_app_in_thread.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/aiohttp_threaded.py/run_app_in_thread.md",
+      "source_sha256": "e073bc784b5b6abb8c9e320abb86392070704adf1adad9035be947598bba4bae",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md",
+      "source_sha256": "e42902f629198a9efb13130c9177adcc84c45d582b8943f524fa7689e668268b",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md",
+      "source_sha256": "82d506033d0a5ee1e476e99a9ef6de0cf1f9a993830992c31a193deef0be64f0",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md",
+      "source_sha256": "f4d2c6cf056a686b16e0fefaa7596adf1861a9b1e42632bf51ae199f1e598a62",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/BaseHarness.run.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md",
+      "source_sha256": "7e4301fec1263cd1287b7a27fe3c4d029213f1a376ac5a9152878732de316ff3",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/install_npm_cli.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/common.py/install_npm_cli.md",
+      "source_sha256": "e91f94ad99778dc3ab7dfac3ce49c939b3b13c15ccbc54fde2db3dbe0c316d0a",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/run_agent.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/harness/common.py/run_agent.md",
+      "source_sha256": "35f829075ddf600e825b9dc4e3750be82d97ebbf82f63ef4aa66b19e79d99b3a",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/parsing.py/parse_model_output.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/parsing.py/parse_model_output.md",
+      "source_sha256": "b77705327d664edab80a5b95f070e59204fbade4132f22390a7464bed938a28b",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md",
+      "source_sha256": "c8730583ead4269045f96d19266397ed98985c13283fda31f9328179a30a2fdc",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md",
+      "source_sha256": "0ed47389b84bc133bbb8e801e967738976fc68cf55ca5ea6da10752d06db4298",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "source_sha256": "5d448e43b244ab3a4adbe1d17227cd7f4442e5bedb0425fd9fd051f69d7b120d",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/exec_and_wait.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/sandbox.py/exec_and_wait.md",
+      "source_sha256": "d21deb0d43a9424934db3b4f7857d5afba3fcc307742af0ce41c4343a04d0161",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md",
+      "source_sha256": "e7114e9b2e190f3ae13adb969f7e7de6a9ac7da7c7b149aa4d256e80afaa997d",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md",
+      "source_sha256": "46d9720f00c0c0b103bfcfe1b1883d884b38bde4f0d6dfa0e9fa3b5e7df0bdb5",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/data/transport.py/inherit_queue_context.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/data/transport.py/inherit_queue_context.md",
+      "source_sha256": "ef389c15f9104c199a82a9cc05abdfbabdb134b0d2fff4c787d6adce0c17f975",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md",
+      "source_sha256": "55e8c581b756d94871e5d6f758ecd5fece87784d9ec63507312c76842e4b5c88",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md",
+      "source_sha256": "03a44a93a3fde3bca1fd9269e1882ae65e790b5fed71943adb6a3331497dd442",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md",
+      "source_sha256": "2a8b2046a4a7054274645e0181f10d4c14e47228d86c2b8d086aec2c50baf5fc",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source_sha256": "5a717e50348d440209b0db8e4758e0e42465c28e5091ff30c0bca8b1fc45a654",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source_sha256": "1dc09349510372d2a2d30c07b46f8765694b6738cd529f8c18414574549e84a5",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/utils/async_utils.py/AsyncPacer.wait.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/utils/async_utils.py/AsyncPacer.wait.md",
+      "source_sha256": "3b41c818f80f4d57db48aa1e6f74ddfc688ec38fe5786168da8cb0340caabb9f",
+      "placeholder": false
+    },
+    {
+      "record": "functions/slime/utils/misc.py/load_function.md",
+      "source": "../step-010-generate-and-rm/02-short-term-memory/functions/slime/utils/misc.py/load_function.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true
+    },
+    {
+      "record": "functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+      "source_sha256": "18515503d42da1c3bc7a663aedb1104a89c89ed36528b288c4641c52d8cf23d5",
+      "placeholder": false
+    },
+    {
+      "record": "functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md",
+      "source": "../step-010-generate-and-rm/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md",
+      "source_sha256": "a5de42df988672b73ceb8c456f2e54151997cc990c3cc5fc2a453b20e510074d",
+      "placeholder": false
+    }
+  ]
+}

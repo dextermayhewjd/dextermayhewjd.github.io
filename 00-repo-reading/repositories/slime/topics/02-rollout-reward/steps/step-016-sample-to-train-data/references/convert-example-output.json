@@ -1,0 +1,83 @@
+{
+  "executed_at_utc": "2026-10-28T06:37:58.385397+00:00",
+  "source_root": "/home/hongshi/projects/slime",
+  "source_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "source_sha256": {
+    "slime/utils/types.py": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+    "slime/utils/data.py": "41575cec0ad4d5fd0b61c5b9ee72da6135ebeff785645f1a950cfd7fb9a4ed9e",
+    "slime/data/batch_builder.py": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d"
+  },
+  "execution_scope": "Isolated fixed-source Sample/get_source and BatchBuilder.convert/_post_process_rewards; no full module import, constructor, model, Ray or training run.",
+  "args": {
+    "reward_key": null,
+    "advantage_estimator": "grpo",
+    "rewards_normalization": false,
+    "use_score_centering": false,
+    "rollout_top_p": 1.0,
+    "use_rollout_routing_replay": false
+  },
+  "input": [
+    {
+      "tokens": [
+        101,
+        102,
+        201,
+        202
+      ],
+      "response_length": 2,
+      "reward": 0.75,
+      "loss_mask": null,
+      "index": 7,
+      "rollout_id": 7,
+      "status": "completed"
+    }
+  ],
+  "output": {
+    "tokens": [
+      [
+        101,
+        102,
+        201,
+        202
+      ]
+    ],
+    "response_lengths": [
+      2
+    ],
+    "rewards": [
+      0.75
+    ],
+    "raw_reward": [
+      0.75
+    ],
+    "truncated": [
+      0
+    ],
+    "sample_indices": [
+      7
+    ],
+    "rollout_ids": [
+      7
+    ],
+    "loss_masks": [
+      [
+        1,
+        1
+      ]
+    ],
+    "rollout_mask_sums": [
+      2
+    ],
+    "source_names": [
+      "unknown"
+    ]
+  },
+  "after": {
+    "sample_loss_mask": [
+      1,
+      1
+    ],
+    "sample_reward": 0.75,
+    "tokens_same_object": true
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "changed_section": "01-scope.md#overall-position",
+  "prior_scope_sha256": "021276d0a50a5cf3ce2f8baeba1aced829c0da1d28be094a058a202f8bd15eff",
+  "unchanged_from_section_3_2_sha256": "f51859041df9f88567747b4eeaea1454365ea8a1c4c56a8d4b1289c1d11ecb43",
+  "archive": "scope-before-position-diagram-2026-10-26.md",
+  "source_edges": {
+    "loop_to_task": [
+      214,
+      221
+    ],
+    "loop_registers_returned_callback": [
+      222,
+      246,
+      275
+    ],
+    "callback_puts_result": [
+      254,
+      273
+    ],
+    "caller_invokes_get_completed_groups": [
+      312
+    ],
+    "getter_removes_and_returns": [
+      155,
+      161
+    ],
+    "caller_filters_then_collects": [
+      314,
+      321
+    ]
+  },
+  "verification": "Static source/edge and link review; no renderer or runtime execution.",
+  "representation": "Plain text tree in a fenced text code block, as explicitly requested by the user.",
+  "rejected_mermaid_archive": "scope-mermaid-rejected-2026-10-26.md",
+  "section_3_1_sha256": "087dde9970f3fe4ba9248db24b506008237403d277d4f620f19d809264b90d28",
+  "later_call_context_revision": {
+    "archive": "scope-before-consumer-call-context-2026-10-26.md",
+    "sections": [
+      "2: direct caller",
+      "3.1: whole position and scope roles",
+      "3.2: caller excerpt",
+      "3.3: return navigation"
+    ],
+    "changed_caller_excerpt": true,
+    "prior_from_section_3_2_sha256": "f51859041df9f88567747b4eeaea1454365ea8a1c4c56a8d4b1289c1d11ecb43",
+    "current_from_section_3_2_sha256": "2cd3c185e0ced1acc7d058fd78755c883a5e2f77f2b4e330e0c798edefdb3a60",
+    "note": "The earlier unchanged_from_section_3_2_sha256 records the initial diagram-only edit. This later revision explicitly wraps the consumer excerpt in its real function context."
+  },
+  "inline_line_annotations": {
+    "source": "slime/rollout/fully_async_rollout.py",
+    "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "getter": {
+      "call": 312,
+      "definition": 147,
+      "get": 158,
+      "return": 161
+    },
+    "scope_after_section_3_2_unchanged": true,
+    "visible_locations": [
+      312,
+      147,
+      314
+    ],
+    "display_policy": "Only the current call, method definition, and caller continuation are annotated in the overview."
+  }
+}

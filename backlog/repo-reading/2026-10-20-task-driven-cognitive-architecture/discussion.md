@@ -6,6 +6,49 @@
 
 最新分工见[Step 0 只看骨架，Step 1 逐段读 `_run_turn`](#step-zero-skeleton-step-one-run-turn)。此前[目录纠正](#keep-coding-agent-archive-initial-model)明确保留两个步骤；归并候选与误操作不作为当前安排。
 
+<a id="step010-control-stage-memory-granularity"></a>
+
+## 2026-10-26 · 对象拆出后，控制阶段与机制怎样分别记录
+
+用户澄清本轮问题：
+
+> 我其实比较想要知道的是
+> 我当前已经先吧这里的state和sample 拆分出来的情况下
+> 下一步我应该拆分什么
+> 是这里的组合的逻辑
+>
+> 我在想得是
+> 我应该把这里的第二部分的每一个部分的吗？
+> 例如这里的AsyncPacer？
+> 还有这里的state.dp_rank_context吗？
+> 作为short term 的memory
+
+助手对照现有 scope、短期记忆 skill、父函数卡、DP 方法卡及固定版本 `18868a79` 的源码后，建议区分记录对象与阅读阶段：
+
+- `Sample`、`GenerateState` 类卡保留对象及字段职责。
+- `generate_and_rm` 父函数卡保留第二部分的完整组合：取得名额 → 等待分批放行 → 检查中止 → 在 DP 上下文内生成 → 退出并归还名额。进入条件、嵌套范围、提前返回和先后顺序属于父函数自身，不另造“第二部分”函数卡。
+- `GenerateState.dp_rank_context` 已有独立方法卡，继续承接进入、交出 rank、退出与计数变化；父卡保留调用及返回位置。
+- 若确认继续研究分批启动机制，下一张候选是 `AsyncPacer.wait` 方法卡；必要时在同卡引用 `_release` 的实现与回调关系。`AsyncPacer` 类的 `pending`、`scheduled` 可先作最小对象前置，不要求先建立全类、全部方法的卡片。
+- `semaphore.acquire/release` 的当前用法和 `aborted` 分支先留在父函数中；只有产生独立的原语机制问题时才另行展开。每一条调用都出现，不等于每条都要单独建卡。
+
+建议先在父卡看清第二部分的组合，再按当前疑问进入已有 DP 卡或候选 `AsyncPacer.wait`，读完返回同一段。以上为本轮建议，不表示用户已经确认新函数范围或理解机制。本轮未新建机制卡片、未修改通用 skill、未推进阅读进度，也未新增实际运行证据。
+
+<a id="step010-generator-contract-unit"></a>
+
+## 2026-10-26 · 受控生成阶段还要读清生成器的接入约定
+
+用户继续问：
+
+> 然后应该再多一个这里的generate function也就是这里load_function到底应该些什么对吗？
+> 或者需要满足什么？
+> 这应该是第二步需要了解的内容？
+
+助手核对 `load_function`、`generate_and_rm:338–349` 及 Coding Agent 的真实 `generate`：本轮需要补出的阅读内容是生成器的接入约定，包括路径来源、函数身份、调用参数、可等待的调用结果，以及最终交回的 Sample 或列表。加载器本身仅拆路径、导入和取属性，并不完整检查生成接口。
+
+建议把“选择并调用生成器”保留为第二部分中的一个阅读单元，先写在父函数的阶段内。`load_function` 内部与具体生成器实现分别是按需下钻入口，不自动把这段拆成多张新卡；它也不以读完 pacer、DP 上下文的内部机制为前提。
+
+接入约定已补到[同一份讲解正文](../../../slime_photo/code-reading/chapters/03-strategy-evaluation/walkthrough.md#generator-contract)，对应[本地页面](http://localhost:1313/projects/slime/rollout-reward/#generator-contract)。本轮未新建函数卡片、修改正式 scope 或推进学习状态；接口解释不表示用户已掌握。
+
 ## 2026-10-20：重新梳理步骤与责任边界（讨论中）
 
 用户希望一起逐项恢复和确认步骤约定，并明确表示：
@@ -3094,3 +3137,578 @@ scope 可以随阅读推进补全：开始只列已确认的主线和已知入�
 已保存[具体对照方案](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-by-data-handoffs-proposal.md)：先按生成、后处理、补奖励三项业务结果分块；动态实现先给身份提示；保留 `generate_call`、待评分成员和返回分数这些关键实参，再折叠其余机制。包装器已核对为等待 `generate_call` 并维护活跃计数，名称中的 `abort` 不能代替职责判断。
 
 本轮交付方法说明与候选骨架，正式 scope、函数卡片和 skill 尚未改用候选；没有推进函数阅读或新增个人掌握结论。可读性判断属于助手提出的改进方向，等待用户实际反馈。
+
+
+<a id="step010-stage-navigation-proposal"></a>
+
+## 2026-10-26 · 分支可见不等于主骨架恢复全部源码
+
+用户在补齐 evaluation 分支后进一步提出：
+
+> 我在想是否应该是简写？
+> 就或许不应该这么详细的显示每一个函数？
+> 有没有更好的方法来表达呢？
+
+助手判断：上一轮把 337–349 的整段源码放回主骨架解决了遗漏，却同时带回接口条件和实参细节。建议区分阶段导航与当前展开点：总览保留“选择生成器 → 创建 generate_call（支持时传 evaluation）→ 按 abort_mode 选择等待方式”，只在当前节点展开真实代码。参数适配以短注保留，改变执行机制的分支保持可见。
+
+已保存[可审阅的简写提案](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-stage-navigation-proposal.md)。其中阶段导航明确不是可运行代码；另给当前 Coding Agent/server 路径的真实调用裁剪，并紧邻说明其余路径。正式 scope、函数卡片及通用 skill 暂未替换，未推进阅读或处理 Hugo。
+
+
+<a id="step010-preserve-main-skeleton"></a>
+
+## 2026-10-26 · 保留现有主体，只考虑局部简写
+
+用户进一步明确：
+
+> 但是主体其实还是很好的
+> 没有必要全部换掉是我的理解
+
+据此限定上一份提案：现有 scope 主体继续保留，不能将“是否简写局部条件”扩成“全部换成阶段导航”。需要讨论的范围仅是 with 主体中重复的参数列表、签名判断和分支说明怎样精简；真实函数名、调用顺序、返回值与控制范围继续可见。
+
+已在简写提案开头记录此限定，保留原提案作为对照。正式 scope 未改动，尚未执行局部替换；未调整函数记忆或阅读进度，也未处理 Hugo。
+
+
+<a id="step010-full-skeleton-options"></a>
+
+## 2026-10-26 · 必须在完整大框架中比较选项
+
+用户指出：
+
+> 还是需要整体的比较大的框架的
+> 不应该只是保留这两个函数？
+> 请给出完整的选项
+
+已将提案改为两份完整候选，均包含共享状态、受控生成、结果处理、评分交付。A 保留 evaluation 和等待方式的条件分支，简写长条件及参数；B 保留相同外层，只在 with 内展示当前路径，另外分支列在紧邻表格。推荐 A，保留 B 作完整对照。之前的局部原稿独立归档，正式 scope 未替换。
+
+[完整候选与比较](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-stage-navigation-proposal.md)。本轮仅更新方案，不推进学习状态或处理 Hugo。
+
+
+<a id="step010-architecture-cognition-review"></a>
+
+## 2026-10-26 · 结合架构责任与认知科学评估完整选项
+
+用户提出：
+
+> 按照一个资深的架构师 你会怎么考虑呢？
+> 结合一下认知科学的视角
+
+已保存[架构与认知评估](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-architecture-cognition-review.md)。建议保留完整四段主体，以 A 为基础局部调整：资源生命周期和改变执行机制的分支直接可见，evaluation 的签名适配可短注并按需展开；不把 evaluation 的业务模式本身判作无关。
+
+依据区分一般研究与本例设计推断：Cowan 的组块关系、Chandler 的分散注意/冗余研究，以及复杂学习对先前知识和发展阶段的考虑；不能从研究直接宣称某份 scope 已验证适合该用户，也不以固定工作记忆数字决定函数数量。正式 scope 未改，学习状态不变，未处理 Hugo。
+
+
+<a id="step010-option-a-adopted"></a>
+
+## 2026-10-26 · 采用 A 版完整骨架
+
+用户确认：
+
+> 我也觉得这里的a 更加好一点
+> 那么就按照这个a的方式替换一下 当前的这个scope部分的内容吧？
+
+已采用 A：完整四段主体、真实函数名、输入输出交接与资源范围保留；evaluation 和等待分支继续显示，长条件与实参简写。完整条件和参数在 3.3 折叠回查；原 scope 全文归档。没有改成只显示当前路径的 B，也没有把整体替换成文字导航。
+
+[当前 scope](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/01-scope.md)与[采用前快照](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-before-option-a-2026-10-26.md)。确认的是呈现方式，不升级为掌握函数机制；当前阅读仍在 _run_server_abort_generate，不处理 Hugo。
+
+
+<a id="branch-tree-with-categories"></a>
+
+## 2026-10-26 · 分支型函数的心智模型：图配合分类
+
+用户在 batched_async_rm 的两条评分路径讨论后明确反馈：
+
+> 我觉得心智模型用这个图配合类似的分类性质的话更加合适
+
+已应用到[当前函数卡](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/02-short-term-memory/functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md)：心智模型直接展示分支图，再用短句说明第一层按调用粒度分类、第二层按评分来源分类；实际代码、输入输出和边界保持独立。没有在上下两处重复放同一图。
+
+已确认的是本次“图 + 分类依据”更合适的呈现偏好。后续遇到相似分派/选择结构时可沿用；不据此强制所有函数使用树图，不替代顺序流程、状态变化或数据交接的其他表达。未修改通用 skill，也不把展示偏好等同于源码已掌握。[应用过程](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/04-flow.md#branch-diagram-mental-model)。
+
+
+<a id="branch-tree-skill-reference"></a>
+
+## 2026-10-26 · 将分支图与分类写法纳入短期记忆 skill reference
+
+用户要求：
+
+> 好的把这个也补充在skill里面吧
+> 作为一个reference存在吧
+
+已新增[分支图配合分类依据 reference](../../../.agents/skills/repo-reading-short-term-memory/references/branch-diagram-mental-model.md)，并在 SKILL.md 的函数记录说明和参考目录加入条件入口。保留用户认可的 batched_async_rm 示例、第三项位置、两层分类、下游边界和固定版本来源；既有卡片栏目与适用边界不变。
+
+新增前的独立检索未能从 SKILL.md 发现此类 reference，作为检索基线；新增后检查入口和引用，并以独立读取验证适用场景、示例解释及非分支场景边界。此操作只保存已认可方法，不推进 Slime 学习进度，也未修改 Hugo、模型配置或对外发布。
+
+验证结果：quick_validate.py 通过，新增引用与主 skill 的本地链接有效，git diff --check 通过。独立读取成功发现 reference，正确区分两层分类、下游必要回查及顺序流程的非适用边界；这是一次检索和应用核对，不代表普遍学习效果验证。
+
+
+<a id="step010-scope-navigation-review"></a>
+
+## 2026-10-26 · 复查 Step 010：3.2 之后的 scope 如何收拢
+
+用户反馈与本轮请求：
+
+> 好的那么现在重新看一下这里的scope吧
+> 这里3.2 核心股价之后的内容就太乱了
+> 过去有什么比较好的方式或者skill来处理这种情况的scope吗
+> 看一下已有的几种scope reference吧
+
+本轮按 repo-reading-scope skill 对照已有四份参考，只审阅与提出结构建议，正式 scope 未修改；此前已认可的 A 版四段核心骨架保留。新补入的分支心智模型 reference 面向单函数卡片，不替代 scope 的整体定位与阅读导航。
+
+### 已有参考及适用性
+
+| Reference | 已有组织办法 | 对当前 scope 的用途 |
+| --- | --- | --- |
+| [Coding Agent 整体骨架](../../../.agents/skills/repo-reading-scope/references/coding-agent-scope.md) | 阅读目标 → 指挥官 → 紧凑骨架 → 停止位置 | 保持 3.2 的完整主线；尚未深入时最简，不能独自承接当前多处回查 |
+| [局部导航](../../../.agents/skills/repo-reading-scope/references/local-call-context.md) | 整体定位 → 必要输入来源 → 局部骨架 → 导航与返回 | 区分 queue_input 来源、实际调用和函数卡详情的职责，不把所有讲解追加在骨架后 |
+| [Step 001：模型请求](../../../.agents/skills/repo-reading-scope/references/step-001-reading-path.md) | 实际执行骨架与阅读顺序分开；统一阅读图 + 同编号表 | 最适合作为当前后半部分的主要样式，按四段主线归拢函数入口、当前问题和返回位置 |
+| [Step 002：统计与补丁](../../../.agents/skills/repo-reading-scope/references/step-002-reading-path.md) | 读取结果 → 按需回查写入/配置/初始化 → 回到读取者 | 适合 inherit_queue_context 回查 queue_input，及评分处回查评分入口；不把回查写成实际执行回跳 |
+
+### 当前具体混杂点
+
+1. 3.2 末尾单独插入 queue_input 长说明，3.3 再展开 with 主体分支，3.4 才出现完整阅读表；新增局部说明缺少一致的归属。
+2. 同时保留“本轮展开 _run_server_abort_generate”、表格中“当前先进入 inherit_queue_context”、后文“当前 group_rm”和“当前 batched_async_rm”，历史阅读位置与最新位置混杂。
+3. 执行顺序、推荐阅读顺序、字段讲解、分支源码和实际追问经过挤在同一层。四段主线虽然保留，但后面的材料不能按同一结构检索。
+
+### 建议结构，待用户采用
+
+```text
+3.1 整体位置
+3.2 完整核心骨架（保持 A 版四段）
+3.3 沿四段骨架的统一阅读导航
+    1. 状态与输入上下文：Sample、GenerateState、queue_input
+    2. 受控生成：名额、pacer、中止、DP、生成委派与释放
+    3. 结果后处理：继承上下文、hook、再次继承
+    4. 评分与交付：group_rm、缺分筛选、batched_async_rm、写回
+    图和表使用同一组编号；表写卡片入口、当前问题、深度、返回位置
+3.4 阅读边界与按需回查（详细条件折叠）
+```
+
+具体归位建议：queue_input 在第 1 段保留创建时机、用途与来源入口，第 3 段以回查箭头接回第 1 段，避免只留下名字；with 的分支保留在第 2 段导航，完整条件转至函数卡或折叠回查；原 3.4 的入口与后面追加段落合为同一导航。阅读经过和历史“当前”描述回到既有 04-flow，详细解释回到既有函数卡，原文与来源可回查，不删除历史。
+
+主要采用 Step 001 的统一图表结构，配合 Step 002 的回查规则和 local-call-context 的分工。保持唯一进度记录为 repo-reading-route；scope 只给与之对应的当前导航标记，不再并列多个过期“当前”。本建议尚未应用，也不表示改变当前 batched_async_rm 的学习位置。
+
+
+<a id="step010-unified-scope-candidate"></a>
+
+## 2026-10-26 · 将统一导航 scope 候选放入 references
+
+用户要求：
+
+> 那么请给出一个可能的参考放在references里面？
+
+已建立[完整候选稿](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-010-generate-and-rm/references/scope-unified-reading-navigation-proposal.md)：保留原 A 版四段骨架与对象、上下文、生成、后处理、评分交接，后半部改为同编号的阅读图与表；queue_input 前置、生成分支和其他评分路径各有归属，当前入口只标 batched_async_rm。创建候选是本轮授权范围，尚未替换正式 scope 或推进源码阅读。步骤 README 增加候选入口。
+
+
+<a id="step011-topic-boundary-correction"></a>
+
+## 2026-10-26 · 组级生成作为同一主题中的下一步
+
+> 不对啊
+> 这里为啥是一个新的topic 而不是一个topic中的分开来的step 我比较好奇
+
+此前规划把 generate_and_rm_group 与持续调度列为候选第三主题；助手据此直接新建 topic，没有结合本轮连续的生成与评分交接重新确认。现将 [Step 011](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-011-generate-and-rm-group/README.md) 移回主题 02，与 Step 010 形成单任务到组任务的连续阅读。
+
+主题围绕较大的问题组织多步；step 是该问题下实际展开的阅读单元。函数从被调用者换到调用者，并不自动要求新 topic。后续持续调度与运行治理是否另开主题，按真实范围再讨论。保留所有记忆和来源，当前阅读位置及掌握状态不变。
+
+
+<a id="step011-parent-function-understanding"></a>
+
+## 2026-10-26 · 简单语句组成的编排函数怎样理解与记录
+
+### 用户的条件与疑问
+
+> 请考虑一下 按照你的考虑和我刚才问出来的问题
+> 假设在当前的 对于完整核心骨架的部分我没有异议
+> 但是单独针对于这里的每一步的信息单独开开函数好像也不合适
+> 因为这里面没有什么特别复杂的函数？
+> 那么那么考虑一下 在当前的条件下我应该如何处理这里的函数理解呢？
+> 过往按照short term memory的方式来处理这里的函数好像不太合理
+> 你觉得我应该怎么做这里的理解呢？
+
+### 既有约定与本次判断
+
+[短期记忆 skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md)已有“卡片按函数保存，阅读按当前问题和处理阶段推进”，连续准备、转换和状态更新留在父函数内；内部阶段置于“本场景的输入与输出”。[此前控制阶段粒度讨论](#step010-control-stage-memory-granularity)也将组合关系保留在父卡。它们允许一张函数卡解释多个局部问题，并不要求每个阶段或 API 都产生一张卡。
+
+本次判断：用户当前主要卡在来源、对象归属、前后变化与评分责任的关系。对 generate_and_rm_group，独立拆解 enumerate、copy、list、zip 的接口不足以解释这些问题；应当围绕同一组输入，看这些语句怎样一起完成组级组织。该判断针对本例的阅读需要，不作为普遍学习效果的实证结论。
+
+### 助手建议：一张父函数卡，沿连续例子读关系
+
+保留 generate_and_rm_group 为本步的记录归属；局部阅读以一段有完整交接的语句为单位。scope 的完整骨架继续负责定位，父函数卡按已确认阶段解释具体变化。
+
+| 当前问题 | 需要建立的关系 | 父卡内适合的材料 |
+| --- | --- | --- |
+| 为什么外层和 Coding Agent 都处理 session_id？ | 谁补编号、谁复用、谁登记会话 | 同一个 Sample 的编号从无到有，再进入已有 _session_id 的短链 |
+| 为什么准备 sampling_params？ | 参数从哪里来、每个任务持有什么 | 公共参数字典到各任务副本的对应关系 |
+| 为什么有 results 后还要 list(group)？ | 输入成员、Task、返回值和容器分别是什么 | 同一组的执行前后对照，显示 idx 如何接回结果 |
+| 为什么组级还存在评分入口？ | group_rm 怎样选择框架补分的负责层 | 将两层条件并排；插件内部评分单独注明边界 |
+
+建议先固定教学输入 group=[s0,s1]、缺少 session_id、group_rm=False，并一直跟踪同一组；局部例子沿用这些名字。每个问题只保存：当前疑问 → 解决它所需的代码 → 前后数据变化 → 为何这样交接。浅拷贝等通用机制可以链接已有参考；遇到已有函数只回看当前交接所需的契约。
+
+以第三段为例：调用者的输入列表仍持有 s0、s1；list(group) 建立一个也引用这两个成员的新列表；按 idx 写回后，新列表持有 r0、r1，r0 或 r1 仍可各自是分段列表。需要理解的效果是把结果槽位的替换落到新外层容器，同时保留原位置映射；这不意味着 Sample 对象从未被其他语句修改。
+
+可用一个局部变化检查模型是否可用，例如比较保留或省去 list(group) 后，结果回填会改到哪个外层列表。重点是能预测这几行对数据的影响，不要求先背出所有 API 的内部实现。
+
+只有出现一个需要独立解释、以后会复用的机制问题时才拆卡，例如 AsyncPacer 怎样组织待放行任务、谁负责唤醒。独立拆分不单按代码长短判断；本步无需为了凑阶段而新建“准备成员”“创建任务”等虚构函数记录。
+
+本段是对方法的建议与讨论记录；尚未据此重排正式函数卡、修改通用 skill 或推进到下一阅读步骤。用户已明确完整骨架可继续沿用，其他呈现偏好仍等待实际试读反馈。
+
+
+<a id="step011-code-markers-nearby-explanations"></a>
+
+## 2026-10-26 · 父函数卡中的源码标记与紧邻说明
+
+### 用户继续追问
+
+> 那么作为一个资深的科技大厂架构师和程序员
+> 你会考虑如何处理的这里的一系列内容呢？
+> 我的意思是
+> 如何在这儿父级卡片里好好处理一下这里的一系列信息？
+> 我在想针对于每一个小部分的源码 旁边起码 如果直接写注释太冗余
+> 那么应该写一个标记？
+> 从认知科学的角度出发吧
+> 应该如何处理这一部分的内容呢？
+
+### 工程组织建议
+
+保留完整 scope 骨架作定位。父卡仍归属于 generate_and_rm_group，在既有“本场景的输入与输出”内按阶段展开：阶段标题与一个问题 → 连续局部源码 → 与标记一一对应的短说明 → 必要的旧卡或扩展参考。标记写在教学摘录中，不修改 Slime 源码。
+
+标记负责定位，短说明负责解释数据变化、对象归属、分支责任和下一交接。既有短期记忆 skill 的连续代码与分条逻辑说明已经容纳这种做法；此次只建议强化两者的显式对应。
+
+建议以阶段号加字母建立轻量对应，例如第 3 段使用 [3a]、[3b]、[3c]。只标当前需要解释的数据交接点，一组共同完成一件事的语句共用一个标记；不按每一行、每一次调用机械编号。源文件行号在阶段标题处保留作证据，教学标记不承担源码版本定位。
+
+### 父卡中的局部展示候选
+
+**③ 汇总结果：收齐以后，怎样保持原来的位置对应？**
+
+入口已经有 tasks={原组下标: Task} 和原始 group。下列摘录对应 sglang_rollout.py:427–430，固定版本 18868a79；只增加教学标记。
+
+```python
+results = await asyncio.gather(*tasks.values())       # [3a]
+group = list(group)                                  # [3b]
+for idx, result in zip(tasks, results, strict=True):  # [3c]
+    group[idx] = result
+```
+
+- **[3a] 等齐结果**：results 对应传入 Task 的顺序；后面的 idx 配对依赖这一关系，完成先后不决定结果位置。
+- **[3b] 准备结果容器**：新建外层列表，随后在这份列表里替换槽位；原来的 Sample 对象仍可能共享。需要时从此处进入浅拷贝参考。
+- **[3c] 放回原位置**：tasks 保存的 idx 与 results 一一配对，结果放回自己的位置；未创建任务的旧分段列表留在原处，内层列表保持原形状。
+
+出口得到已经回填结果的 group，继续第④段判断是否由本层评分。
+
+本候选采用源码下方紧邻短说明，适合当前 Markdown。若阅读介质能稳定对齐，说明也可放右侧；不为强求并排而把代码塞进过宽表格。当前必需的解释直接可见，更深的语法、旧卡全文与长例子链接或折叠。这里只保留一套解释，避免长注释和下方正文重复。
+
+### 认知科学依据与推断边界
+
+- **注意提示**：de Koning 等（2007）在心血管系统动画学习实验中观察到视觉提示带来的理解与迁移表现收益。[原始研究](https://onlinelibrary.wiley.com/doi/10.1002/acp.1346)。将少量编号用来指向本次要关注的代码位置，是本例的设计推断；该实验未检验 Python 父函数卡或特定编号样式。
+- **减少对照时的信息分离**：Chandler 与 Sweller（1992）的两个实验分别涉及数控编程图文材料，以及相互参照的文字段落；整合呈现条件的结果支持减少学习时来回寻找与整合分离信息的负担。[原始研究](https://bpspsychub.onlinelibrary.wiley.com/doi/abs/10.1111/j.2044-8279.1992.tb01017.x)。据此建议解释紧邻所属代码段，不把所有编号说明集中到整张长卡末尾。
+- **具体版式属于待试读方案**：研究为提示与相邻呈现提供依据，不规定每段必须几个标记、必须采用字母或双栏，也不证明只加标记就能学会。这里沿用户已认可的阶段边界组织信息，避免为记忆另一套符号而增加额外工作。
+
+本轮核对的是上述原始研究的出版方摘要与已有 scope/父卡，不声称进行了用户学习效果实验。可用能否迅速找到解释对应代码、能否说明一处数据变化来观察本方案的可用性。
+
+### 状态
+
+这是已保存的方法建议与局部预览。用户此前认可完整骨架，本轮提出源码标记的可能性；尚未确认具体编号和摆放方式。本轮没有重排正式父函数卡、修改通用 skill 或将格式讨论记为源码掌握。
+
+
+<a id="step011-code-markers-applied"></a>
+
+## 2026-10-26 · 将标记方案应用到父卡，逐段补齐源码
+
+用户确认：
+
+> 那么请按照这个方式来修改吧
+> 同时我觉得每一个小段落起码有代码吧
+> 否则没有办法对应上我觉得不太好/
+
+已将[前述方案](#step011-code-markers-nearby-explanations)应用到 [generate_and_rm_group 父卡](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-011-generate-and-rm-group/02-short-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm_group.md)：每个阶段均包含问题、连续局部源码、短标记对应说明和下一交接。完整 scope 骨架继续沿用，父卡负责局部理解。
+
+四段为①准备成员、②创建任务、③汇总结果、④评分交付；编号以阶段号加字母保持对应。session_id 的下游复用与 group_rm 的单任务提前返回也展示源码，让跨函数关系可对照。原来只有说明的第①段与代码混在别处的第④段均已补正。
+
+用户认可的是此处记录方式；通用 skill 尚未因本次应用而改写，个人认识与未知仍按真实反馈保存。[应用过程与旧稿](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-011-generate-and-rm-group/04-flow.md#parent-card-markers-applied)可回查。
+
+
+<a id="step011-reward-branch-highlight"></a>
+
+## 2026-10-26 · 保留分支对照表，并突出当前路径
+
+用户认为 group_rm 两层条件的对照表重要，询问是否可以用高亮使两条分支更明显；同时明确反馈结果回填部分仍不能理解。
+
+已在[父函数卡的第④段](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-011-generate-and-rm-group/02-short-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm_group.md#phase-4)前置原有对照表，以“▶ False · 当前”配整行粗体、上方引用块强调本轮路径，True 仍作为对照可见；源码与对应标记继续保留。当前/对照用文字表达，不依赖颜色。
+
+第③段按同一组任务补逐步状态变化，属于具体源码澄清，详细过程及完整用户反馈见[步骤记录](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-011-generate-and-rm-group/04-flow.md#results-walkthrough-and-reward-highlight)。本轮未将展示反馈当作机制已经掌握，也未新增通用 skill 规则。
+
+
+<a id="step011-results-card-version-review"></a>
+
+## 2026-10-26 · 比较结果回填与奖励分支的两版说明
+
+用户问：
+
+> 你个人觉得是当前比较好还是上一次的内容更好呢？
+
+对照当前父卡与 references/group-results-and-reward-before-clarification-2026-10-26.md 后，助手更推荐当前版本作为本轮主读材料。
+
+- 第③段：上一版用“按 idx 回填”“复制外层”等概括说明，适合已理解后的快速回顾；当前版补出 tasks.values() 取任务、直接遍历 tasks 取键，以及复制和两次回填后的状态。用户此前明确仍不能理解这四行，所以当前版本更直接回应已暴露的缺口。
+- 第④段：当前版本先展示两层评分对照并标出 False，能在读条件源码前明确本轮路径；保留该结构比退回末尾的普通表格更适合当前问题。
+- 可进一步精简：当前第③段的长解释与状态表有重复；第④段的顶部提示、粗体行和后续说明多次强调同一个 False 结论。建议保留源码、标记、状态表和分支对照，仅压缩重复文字。
+
+这是针对本次问题的编辑判断，不是已经验证用户读懂或证明当前版普遍更优。本轮只保存比较意见，没有继续重排正式卡片；后续若采用精简建议，以保留关键对应关系为前提。
+
+
+<a id="step012-worker-blackbox-boundary"></a>
+
+## 2026-10-26 · worker 类卡先保留接口，详细依赖暂作黑箱
+
+> 我在想的问题是
+> 这里asyncrolloutworker部分
+> 这里吧sample什么放在这里2是合适的吗？
+> 我只是感觉
+> 在asyncrolloutworker部分这里的内容实在是太复杂或者晦涩难懂了
+> 如果全部放在这里的话 我觉得会变成一个内容的灾难？
+> 因为目前其实或许暂时不需要知道这么多
+>
+> 暂时把一部分留为黑箱 对于人来说比较好定位
+
+用户认为把 Sample、数据源内部和状态协调都展开在 worker 类卡中，容易形成内容堆积；明确要求暂缓部分实现。已收窄[类卡](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-012-async-rollout-worker-loop/02-short-term-memory/classes/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.md)：主读部分保留对象职责、当前字段接口和最短来源，完整字段及实现进入[参考](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-012-async-rollout-worker-loop/references/worker-class-full-context-2026-10-26.md)。
+
+02 是本步记录所在层，不要求把所有依赖都搬进同一张卡。类卡保存本对象的角色和必要接口；Sample 的完整语义继续用自己的已有卡。黑箱仍须说明从哪里来、如何调用、交回什么；内部算法、线程协议、构造与重试细节不自动成为当前前置。已有完整材料、用户原话和未知保留，暂缓不等于已掌握。
+
+
+<a id="step013-position-diagram-revision"></a>
+
+## 2026-10-26 · Step 013 整体位置图区分运行两侧与结果流向
+
+用户认为 scope 3.1 的整体位置图“怪怪的”，要求重点重审这一部分。旧图把回调创建、完成调度和队列数据交接混排为一条树形纵向链，消费方调用链又接在队列下方，难以看出谁主动调用谁。
+
+助手先尝试用 Mermaid 区分调度与结果流向，用户明确要求“正常的放在代码块中的”“和之前的风格类似的图”。因此 [Step 013 的 3.1](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-013-completed-group-handoff/01-scope.md#overall-position)已改回普通 text 树状图，从本地入口展开后台入队与上层取组，标出同一个 output_queue 和本步①②③。局部机制继续由 3.2 与函数卡承担。
+
+已保存两次改图及用户纠正的[过程](../../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-013-completed-group-handoff/04-flow.md#scope-position-diagram-revision)。本次沿用普通代码块图的展示要求已明确，机制理解仍待实际阅读反馈；未扩大范围或修改 skill。
+
+
+<a id="step014-procedure-short-term"></a>
+
+## 2026-10-27 · Step 014 采用 procedure 保存本步执行过程
+
+用户明确提出：
+
+> 我觉得这里的reference 也太笼统了 要不还是在short term中作为procedure的方式存在会比较好一点 reference是用来存放别的内容的
+
+本次在当前步骤落实 [02-short-term-memory/procedures/trace-span-start.md](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/references/history/procedures/trace-span-start.md)：它以一份具体输入串联开始阶段的操作、状态变化和返回位置。函数卡继续解释各函数自身，scope 继续保留整步编号路线；reference 不再承载这份当前执行正文。
+
+本步新增的 procedure 与函数卡同属 02，后续继承时一起进入新步骤的累计记录，保留来源、版本、输入假设和未知。当前先以此例落实用户要求，不追溯重排旧步骤或把全部 reference 改成 procedure。[实际迁移记录](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-procedure-in-short-term)。
+
+<a id="step014-api-mechanism-reading"></a>
+
+## 2026-10-27 · Trace 阅读深度：从接口行为追关键机制
+
+用户在理解 trace_utils 的模块用途后提出：
+
+> 那么是否我其实根本就不应该这么读呢？
+> 更多的应该看这里每一个function 为什么能够完成这样子的一件事情？
+> 否则的话
+> 由地基的话 我感觉重复造轮子是否确实没有太大的意义呢？
+
+本轮建议是调整阅读目标与粒度：先确定一个业务问题和接口承诺，再通过关键实现解释该行为，最后核对必要的失败边界。不是每个函数都要独立深读，也不要求重写通用底层设施来证明理解。
+
+这复用现有 [repo-reading-order](../../../.agents/skills/repo-reading-order/SKILL.md) 的核心动作优先与最小前置，不新增一套流程。Trace 当前候选关注点是开始/结束配对、属性交接和异常清理；UUID 生成细节、未使用的输入分支与其他模式保留回查。已有卡片仍是可用资料，其数量和存在不代表必读清单；必要的语言机制按实际问题学习，不全盘跳过基础。
+
+这是一轮方法讨论与助手建议，尚未把新的具体阅读范围当作用户确认，也未重排 scope 或开启下一步。[本次问题与说明](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-api-mechanism-reading)。
+
+<a id="step014-usage-scope-approved"></a>
+
+## 2026-10-27 · Step 014 已确认改为使用过程与前后数据
+
+用户明确要求重新写当前 scope，重点放在如何使用，以及每个使用环节的数据前后变化。本轮在既有 Step 014 落实，没有开启新步骤或扩为所有 Trace API。
+
+[新 scope](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/01-scope.md)以①进入 with、②执行业务、③补充属性、④离开 with 为主线。每环给出调用前状态、真实调用片段、调用后状态与按需回查入口，示例始终沿用同一个样本和阶段。临时 end_attrs、持久记录位置与上下文恢复分开说明。
+
+原总体业务位置继续保留，旧内部 1–10 编号折叠为回查表，[改写前完整 scope](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/references/scope-before-usage-data-flow.md)单独存档并重算链接。已有函数卡、类卡与 procedure 不删除。该调整只确认了当前步骤的呈现方式，不扩大为所有项目必须使用四段格式的通用规定，也不代表用户已掌握内容。[本轮过程](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-usage-scope-rewrite)。
+
+
+<a id="step014-scope-summary-short-term-usage"></a>
+
+## 2026-10-27 · scope 保存总览，短期记忆保存具体用法
+
+用户要求：
+
+> 我觉得这里应该给一下光放到底给了哪些使用在scope里面只是提及
+> 但是在这里的short term memory这里是真实需要考虑需要使用的
+> 我觉得这个会比较重要
+> 这样子scope为总 然后short memory部分就可以做到为具体的描述 我觉得这样子是否会好很多？
+
+本次在 Step 014 落实，复用现有 scope 与 short-term-memory skill 的分工：[scope](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/01-scope.md)保留模块提供什么、使用角色、整体骨架、阅读入口和停止位置；[02](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/overview.md)保存具体调用场景、代码、使用前后数据、产物与后续消费者。
+
+记录单位按问题选择：有独立用途的官方接口进入函数卡；set/update 留在返回对象的类卡；多个函数共同完成的上下文交接和收集保存进入 procedure。内部辅助函数保留已有回查入口，不因无下划线或可调用就自动提升为业务入口。完整清单也不意味着每个符号都要新建必读卡。
+
+这是对已有学习内容的归属调整，不新增学习步骤或掌握判断。旧 scope 已保存完整快照，原话、来源、未知与长期记忆保留。[实际迁移记录](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-scope-summary-short-term-usage)。本轮未修改通用 skill，也未将本例强制套到所有项目。
+
+
+<a id="step014-real-business-usage"></a>
+
+## 2026-10-27 · 单列使用方法，先找工具模块之外的真实调用
+
+> 我觉得是需要给出这里到底是在做什么这件事情的？
+> 单独在这里给出一个环节 使用方法吧
+> 首先在slime中找到真实的使用案例
+> 这个trace utils里面的不算 这样就能够得到真实的使用场景 以及得到的结果
+
+这次补充的是使用证据要求：scope 继续只做总览，短期卡新增独立“使用方法”环节。先定位目标模块之外的业务调用，再说明当时在做什么、为何需要该工具、输入从哪里来、得到什么以及交给谁。工具内部互调说明实现；教学构造说明接口，两者都不能代替真实业务案例。
+
+真实调用不等于真实运行结果。没有运行日志时标注“固定源码的正常路径推导”，缺少实际调用则明确没有找到，不编造调用点。[本轮落实](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-real-business-usage)采用 Agent 运行、SGLang 生成、组级调用和 Adapter 会话几个已有场景；没有扩展成新的阅读步骤或修改通用 skill。
+
+
+<a id="step014-concrete-examples"></a>
+
+## 2026-10-27 · 具体样例归入短期 examples
+
+> 好的 那么目前只记录给这几个那么给这几个真实有example的 建设一个examples的folder吧 然后给出这几个有官方入口和配套用法
+> 以及在这个slime folder中真的能够找到真实使用的 写成examples  需要给出具体的数据样例
+
+本次在已确认的 Step 014 里增加 [02/examples](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/README.md)，只保存有真实外部业务调用的四组数据案例。函数卡解释职责和用法，examples 给出具体输入与结果，procedure 串起交接，scope 提供总览；不以新增目录扩大必读范围。
+
+样例使用真实字段，构造数据与真实日志分开标记；隔离执行验证也不冒充完整业务运行。examples 后续随 02 继承，保留来源、数据和验证边界。[实际建立过程](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-concrete-examples)。这次约定应用于当前步骤，未修改通用 skill 或重写旧步骤。
+
+
+<a id="step014-procedure-retirement-review"></a>
+
+## 2026-10-27 · examples 建立后复查 procedure 的独立必要性
+
+> 就这里的trace collection到底是什么啊  感觉好奇怪？
+> 你觉得这里的procedures 是否都适合删掉了呢？
+> 我忘记这里是什么时候的产物了
+
+本轮回查 Step 014 的四份 procedure 与原始形成过程。它们先后为开始状态推演、完整 Trace 形成、上下文交接及保存出口服务；增加真实使用章节和 examples 后，继续并列维护会造成重复入口。
+
+当前建议是收掉本步独立 procedures 阅读层：单函数机制归函数卡，具体数据归 examples，保存查看说明作为辅助资料，旧推演归档。合并时仍需保留异常恢复、独立 carrier 边界、保存启用条件等独有内容。此建议尚未实施，用户的评估疑问不代表确认删除，也不作为所有项目的通用新规定。[完整评估](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/04-flow.md#step014-procedure-retirement-review)。
+
+
+<a id="step014-procedures-retired"></a>
+
+## 2026-10-27 · 用户确认移除 procedures，归回卡片和 examples
+
+用户原话：
+
+> 好的那么就删掉吧 我感觉我完全也不是很清楚
+
+沿用上一轮具体归并建议，本次移除 02-short-term-memory/procedures/，不留跳转壳文件。重复的使用过程并入 examples；开始阶段的两套栈变化、结束配对及异常属性/重抛边界归 trace_span 卡；接收容器与会话共享的边界归 bind_trace 卡和案例 C。原四稿已完整归档，保留此前解释、问题与验证边界。
+
+| 当前内容 | 归属 |
+| --- | --- |
+| 一次 agent_run 的四个时刻 | [案例 A](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/trace-span-agent-run/README.md#use-enter) |
+| 局部状态与异常边界 | [trace_span 卡](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/functions/slime/observability/trace_utils.py/trace_span.md#runtime-start-yield)及[异常对照](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/functions/slime/observability/trace_utils.py/trace_span.md#exception-boundary) |
+| Adapter 组合、不同接收容器的边界 | [bind_trace 卡](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/functions/slime/observability/trace_utils.py/bind_trace.md#tool-export)与[案例 C](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/README.md) |
+| 内存记录的保存出口与查看方法 | [Trace 的保存与查看](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/references/trace-output-and-viewing.md)，按需参考 |
+| 旧过程稿及当时安排 | [历史归档](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/references/history/procedures/README.md)，不再作为当前阅读入口 |
+
+scope → 函数/类卡 → examples 是当前导航；本次未开启下一步，也没有把用户的“不清楚”改写成已经理解。旧讨论中创建 procedure 的事实保留，现行继承说明改为卡片与 examples；前序 03 的 66 份记录及原样例输入、预期结果不变。本次无新增 Agent、模型或训练运行。
+
+结构核对：当前与归档入口的 326 个本地链接、154 个段落锚点通过检查；4 份原稿除链接重算外全文保留，8 份示例输入/预期 JSON 的哈希未变。前序 66 份记录与固定源码证据通过原有校验；新迁入的 2 段 Python 示例通过语法检查。本轮只验证文档归并，没有重跑业务。
+
+
+<a id="step014-examples-before-after"></a>
+
+## 2026-10-27 · 按函数定位 examples，并排标注调用前后
+
+用户原话：
+
+> 这里的examples也有问题啊 例如这里的bind trace 应该需要考虑一下 吧这里清晰的标注出来 否则我也不清楚到底是在哪里能够看清楚
+
+随后补充：
+
+> 然后我觉得最好调用前后内容并排 并且标注出来 我觉得会非常清楚？
+
+当前问题是案例虽然展示了整段业务与最终数据，却未把具体函数、执行位置和该函数的变化一一对应。保留原真实调用和完整输入/预期数据，本次将案例 C 的 bind_trace、export_trace、import_trace、open_session 分别标出，再单列后续请求中的 bind_trace_carrier。每处都有可直达的段落、源码位置、局部调用和“观察对象或字段 / 调用前 / 调用后”对照。
+
+其中 bind_trace 返回新 TraceHandle，carrier 复用原 sample.trace；parent_span_id=None。export_trace 才从活动上下文取得 C0，import_trace 再把 C0 放进会话句柄。原容器、两个句柄和导出的字典分别对照，避免把整段组合的最终结果归给 bind_trace 一步。这里只核对已有源码行为，不增加独立函数卡或 procedure。
+
+另外三例沿用相同展示规则：A 区分进入、业务、set、退出；B 区分函数的业务返回值与 Trace 副作用；D 区分整理元信息、update 阶段对象与退出写结束事件。examples 索引中的函数名直接跳到相关段落；scope、bind_trace 卡及短期索引补上明确入口。
+
+主要入口：[bind_trace 的并排对照](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/README.md#bind-trace-step)；[所有案例](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/README.md)。原 input.json、expected.json 和此前隔离运行记录继续保留；本轮是展示与定位修正，未把它记为用户已经理解。
+
+
+<a id="step014-session-usage-narrative"></a>
+
+## 2026-10-27 · 会话案例从逐字段表格改为完整使用说明
+
+用户原话：
+
+> 不是这样子 这样子 还是太丑了 请从资深工程师和认知科学家的角度来处理一下 这里关于bind trace adapter session 给出人能够比较好理解使用方式介绍吧
+
+用户对上一版的反馈是难看且仍不便理解使用方式，不能将先前要求并排就推断为认可每个函数一张字段表。助手重新判断：原稿在交代完整任务前就拆成五个函数，再反复展示未赋值和字段值，使读者需要自己拼回“为什么把 Trace 交给会话”。
+
+本次围绕同一个样本、同一个会话和同一个记录字典 D，按三个问题重写[案例 C](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/README.md)：接好后有什么不同；真实代码怎样写；后续请求怎样使用。调用前后仍并排，但只用一张共享对象图表达整体变化。绑定、导出、导入、保存保持在一段连续代码中，解释紧接代码；完整字段、原嵌套调用与核对边界收进折叠区。
+
+工程上的重点是两项交接：carrier 指向原 sample.trace，parent_span_id 显式携带当前 C0。依据不仅是工具实现，还包括 Adapter 在自己的事件循环中处理请求、选择显式携带 Trace 的源码注释（common.py:410–414）。因此 export/import 的作用放在跨执行上下文的会话交接中解释，避免看起来只是重复包装同一个对象。
+
+表达上采用固定对象、完整任务、邻近代码说明和按需展开的组织判断；没有据此推断用户已经理解，也没有把这一版提前确认为通用模板。参考既有调用导航与共享基础设施资料中的“保留当前职责和返回主线”原则，不照搬多张跳转表。此前逐字段稿已[完整归档](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/references/history/examples/bind-trace-adapter-session-before-usage-guide.md)，现行函数卡、scope、索引都改为指向使用说明。
+
+本轮保留原输入、预期 JSON 与隔离核对记录，重组范围是案例 C 及其入口；无新 Agent 或模型运行。用户是否觉得本版清楚，仍待反馈。
+
+
+<a id="step014-example-tool-naming"></a>
+
+## 2026-10-27 · 案例以实际 Trace 工具命名，使用场景单列
+
+用户原话：
+
+> 纳尼可以简单告诉我 在这个例子里面 bind trace adapter在哪里使用的吗？
+> 这里不应该是以使用的trace utils里面的具体内容来命名的吗？
+
+实际工具是 bind_trace，真实调用在 examples/coding_agent_rl/generate.py:272，位于 adapter.open_session 的 trace 实参中；配套经过 export_trace 和 import_trace。bind_trace_adapter 并不是这里的函数名，旧目录名把工具和场景连在一起造成了歧义。
+
+本次把案例目录改为 [examples/bind-trace](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/README.md)，标题以 bind_trace 开头，主函数、配套工具和 Adapter 会话场景明确分开。保留原用法正文与数据，修复当前和历史材料的链接，verification.json 只更新案例路径并记录改名，没有重跑或改写原验证结果。这次反馈是命名和定位澄清，不计为新增机制理解。
+
+
+<a id="step014-bind-trace-independent-usage"></a>
+
+## 2026-10-27 · 核对官网：bind_trace 不要求固定搭配 export/import
+
+用户原话：
+
+> 也就是说这里的bind trace 一般还会和export trace 和import trace 一起用吗？
+> 我不是很理解？
+> 请看一下官网是如何使用的吧
+> 虽然我知道这里是generate的使用方案
+
+本轮在线核对[官方 Trace Viewer 文档](https://thudm.github.io/slime/developer_guide/trace.html#instrument-custom-code)，页面显示最后更新于 2026-10-19。文档把 bind_trace 独立列为准备入口：在 sample 传给其他 helper 或任务之前确保已有追踪容器。该页没有单独展开 bind_trace 的完整代码例，也没有说明它必须与 export_trace/import_trace 搭配。固定 checkout 中的中英文指南与这一表述一致。
+
+按 18868a79 的实现，bind_trace:238–254 准备或复用 sample.trace，并返回 TraceHandle，本身不调用 export/import。固定仓库的 test_sampler_replay.py:353–359 直接把 bind_trace(sample) 交给 Session；这是测试中的真实用法，不冒称官网示例或生产场景。本轮已本地读取该测试；GitHub/raw 在线源码页抓取未成功，不将失败抓取计作在线验证。
+
+Coding Agent generate.py:272 的链式组合是另一个场景：export/import 将身份和当前父阶段显式带到会话句柄。两个外部调用点不足以统计“一般是否一起用”，但足以反驳“必须固定搭配”。_coerce_handles:620–621 也在 Sample 分支直接调用 bind_trace；这是内部实现证据，不算外部业务示例。
+
+此前只围绕 generate 的组合展示，会让基础入口看起来依赖整套组合。本次在[函数卡](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/functions/slime/observability/trace_utils.py/bind_trace.md#official-basic-usage)与[案例 C](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/README.md#official-basic-usage)的开头补充官方定位和独立调用证据，明确后面的具体 JSON 仍属于 Coding Agent 的组合路径。未新增测试运行，也未将核对结果记为用户已经理解。
+
+<a id="step014-bind-trace-comparison-review"></a>
+
+## 2026-10-28 · 并排展示应按字段关系对齐，并区分返回值与原对象变化
+
+用户原话：
+
+> 我觉得从认知科学或者从大厂资深程序员创建文档的角度你会这么考虑吗？
+
+前一轮已把 bind_trace 的实际输入输出放进案例 README 的同一个代码块。本轮是对这份展示的评估，以下建议尚未作为新约定，也未据此重排正式案例。
+
+已有版本把真实调用、输入与返回值放在一起，共享字典 D 只展开一次，这些应保留。需要改进的是两列仍按各自字段顺序排列：index=9 与 trace_id="T3" 落在同一行，可能暗示不存在的对应关系。prompt 不参与绑定，完整旧事件也分散了对本次结果的注意。
+
+建议按“一句使用目的 → 一行调用 → 字段对应 → 原对象变化”组织。下面是[已有实际结果](../../../00-repo-reading/repositories/slime/topics/03-trace-diagnostics/steps/step-014-agent-run-trace/02-short-term-memory/examples/bind-trace/bind-trace-actual.json)的字段投影，不是可执行 Python，也不表示内部赋值顺序：
+
+```text
+调用：handle = bind_trace(sample)
+本例中 D 是 sample 已有的追踪字典。
+
+输入 sample（相关字段）        返回 handle（完整六字段）
+index = 9                     sample_id = 9
+group_index = 3               group_id = 3
+trace["trace_id"] = "T3"       trace_id = "T3"
+trace["attempt"] = 0           attempt = 0
+trace = D                     carrier = D
+                              parent_span_id = None（默认值）
+
+原对象：sample.trace 仍指向 D
+事件数：1 → 1
+```
+
+Sample 继续存在，函数另建 TraceHandle，两个对象共享原追踪字典。共享引用来自既有运行中的 is 检查，不能只由两个 JSON 值相等推断。已有事件中的 C0 与句柄默认 parent_span_id=None 不同，保留一句邻近说明；后文再解释 export/import 的父阶段交接。完整 D 与实际 JSON 继续可查，建议置于紧邻折叠区或输出链接；本例字段已齐全且编号匹配，不能将内容不变推广到尚无 trace 的新样本。
+
+认知依据：[Mayer 与 Moreno（2003）](https://carpentries.github.io/instructor-training/files/papers/mayer-reduce-cognitive-load-2003.pdf)讨论相关文字与图示靠近、提示结构和排除无关内容，以减少额外处理。用于本代码对照属于设计推断，该研究并未直接验证这份 Markdown 排版。工程参考：[Google 代码示例指南](https://developers.google.com/style/code-samples)建议在示例前提供介绍、明确省略并控制行宽；因此保留目的与数据边界，并避免横向滚动打断对应关系。
+
+已有完整会话案例仍有价值，评估范围只在这一个局部展示。本轮保存格式建议，未修改正式 README、函数卡、实际输出或学习进度，没有新增运行实验，也未替用户填写理解状态。

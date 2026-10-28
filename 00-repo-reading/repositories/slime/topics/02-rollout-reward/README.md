@@ -4,9 +4,9 @@
 
 ## 核心问题
 
-已经读过的 Coding Agent 怎样作为生成函数接入 Slime？它交回的样本由谁接收，什么时候还需要框架评分？
+已经读过的 Coding Agent 怎样作为生成函数接入 Slime？单次与一组生成结果由谁接收，什么时候还需要框架评分？
 
-本主题先沿一个新任务的正常训练路径，接清“选择生成函数 → 等待结果 → 判断奖励归属 → 返回”。生成与评分的可替换接口是本主题重点；成组并发、持续调度和训练消费分别在后续主题展开。
+本主题先沿一个新任务的正常训练路径，接清“选择生成函数 → 等待结果 → 判断奖励归属 → 返回”。生成与评分的可替换接口、单任务到组级结果的交接分别用 Step 010 与 Step 011 展开。Step 012 在同一主题内接到本地 worker 的持续调度，Step 013 继续看完成结果的入队与领取。Step 015 从实现者视角回到已读接口，整理自定义 generate 的输入输出约定并做接入验证；Step 016 接着看生成结果怎样整理成训练数据。Step 014 的 Trace 属于主题 03，保持单独记录。
 
 ## 主入口与源码范围
 
@@ -21,5 +21,10 @@
 | 步骤 | 本步问题 | 入口 |
 | --- | --- | --- |
 | Step 010 | 自定义生成函数怎样接入，生成后谁负责评分 | [阅读范围与记录](steps/step-010-generate-and-rm/README.md) |
+| Step 011 | 一组生成任务怎样并发、汇总和交付 | [阅读范围与记录](steps/step-011-generate-and-rm-group/README.md) |
+| Step 012 | 多组任务怎样持续接纳、回收并应对结果积压 | [阅读范围与记录](steps/step-012-async-rollout-worker-loop/README.md) |
+| Step 013 | 完成回调怎样入队，消费方怎样按需取走组结果 | [阅读范围与记录](steps/step-013-completed-group-handoff/README.md) |
+| Step 015 | 自己接入一个 generate，需要满足什么接口、怎样验证 | [阅读范围与记录](steps/step-015-custom-generate-contract/README.md) |
+| Step 016 | 生成后的 Sample 怎样成为训练所需的数据 | [阅读范围与记录](steps/step-016-sample-to-train-data/README.md) |
 
 [网页讲解](http://localhost:1313/projects/slime/rollout-reward/)随实际阅读补充。步骤编号延续前一主题，前序记忆按上一实际步骤的 `03 + 02` 继承；本页只作主题与步骤索引。

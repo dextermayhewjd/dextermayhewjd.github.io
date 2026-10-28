@@ -1,0 +1,118 @@
+{
+  "status": "passed",
+  "checked_on": "2026-10-27",
+  "repository": "/home/hongshi/projects/slime",
+  "revision": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "data_origin": "teaching fixtures, not production or Agent/model runtime traces",
+  "method": "original Sample class and trace_utils loaded in isolation; original business AST nodes/functions exercised with specified fixtures; compare independently written expected.json",
+  "dependency_boundary": "full application not imported; avoids unrelated numpy and serving dependencies; no CLI, sandbox, model, training, HTTP server, or rollout persistence run",
+  "cases": [
+    {
+      "case": "trace-span-agent-run",
+      "status": "passed",
+      "executed_original_code": [
+        "generate.py original agent_run with node",
+        "trace_span",
+        "TraceSpanContext.set"
+      ],
+      "substitutes_or_fixed_values": [
+        "harness.run returns fixture exit code",
+        "fixed clock/span ID",
+        "preexisting parent context"
+      ]
+    },
+    {
+      "case": "trace-function-generate-and-rm",
+      "status": "passed",
+      "executed_original_code": [
+        "generate_and_rm original decorator and body, completed branch",
+        "trace_function",
+        "trace_span"
+      ],
+      "substitutes_or_fixed_values": [
+        "constructed completed Sample and args",
+        "fixed clock/span ID",
+        "preexisting parent context"
+      ]
+    },
+    {
+      "case": "bind-trace",
+      "status": "passed",
+      "executed_original_code": [
+        "generate.py original open_session call",
+        "original Session and BaseAdapter.open_session",
+        "bind_trace/export_trace/import_trace/bind_trace_carrier"
+      ],
+      "substitutes_or_fixed_values": [
+        "minimal adapter with empty store",
+        "constructed sample and parent context; no server"
+      ]
+    },
+    {
+      "case": "sglang-meta-update",
+      "status": "passed",
+      "executed_original_code": [
+        "sglang_rollout.py original sglang_generate with node",
+        "build_sglang_meta_trace_attrs",
+        "TraceSpanContext.update",
+        "trace_span"
+      ],
+      "substitutes_or_fixed_values": [
+        "post returns fixture server response",
+        "fixed clock/span ID",
+        "preexisting parent context",
+        "read-only state observation after update"
+      ]
+    }
+  ],
+  "fixture_hashes": {
+    "bind-trace/expected.json": "b99d54db2d32cd4118a8f1567be1a584b6ef6883c81e537aa946510dc0a6c507",
+    "bind-trace/input.json": "2ecf58f6f2a1cc0823f847f4289fa0c3206b77b1bb081013301815210e21656e",
+    "sglang-meta-update/expected.json": "971e43e7ed87d6696a03cdbc9d28b95eaaa35f5b59fd1b4f61f28febfa78f013",
+    "sglang-meta-update/input.json": "5e0e3c442eecf3be947c9f4d71ef436e0bec55703cf4ed9db26b46d4e183bb72",
+    "trace-function-generate-and-rm/expected.json": "f828b5f9e6098bef693086ed5d400f56affdf617efabfc86a713f36b87a74761",
+    "trace-function-generate-and-rm/input.json": "5d620932fd2b34d211a9ef5cbd287c1b83412927c475a6cc1b45f3963df7e551",
+    "trace-span-agent-run/expected.json": "15775a877f46db7ef9dbb42c30b11baf550e206b2973dcb8de720b323fab59a4",
+    "trace-span-agent-run/input.json": "565e971121bc25549f762b8358d75104218241a6300ace4f21dde4dc981133e2"
+  },
+  "source_hashes": {
+    "slime/utils/types.py": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+    "slime/observability/trace_utils.py": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+    "examples/coding_agent_rl/generate.py": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+    "slime/rollout/sglang_rollout.py": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+    "slime/agent/adapters/common.py": "afe3b9f728e1b7c4e2860fd0ea8ba27ae3623b8d801788baff8d4a0941eae76c"
+  },
+  "path_renames": [
+    {
+      "date": "2026-10-27",
+      "from": "bind-trace-adapter-session",
+      "to": "bind-trace",
+      "reason": "Name the example after the actual trace_utils entry point; fixture contents and recorded execution are unchanged."
+    }
+  ],
+  "additional_runs": [
+    {
+      "case": "bind-trace/agent-model-turn",
+      "status": "passed",
+      "checked_on": "2026-10-28",
+      "actual_output": "bind-trace/agent-model-turn-actual.json",
+      "reproducer": "bind-trace/run_agent_model_turn.py",
+      "scope": "Original trace implementation and original agent_model_turn with statement; three business dependencies substituted.",
+      "events_before": 1,
+      "events_after": 5,
+      "new_events": 4
+    },
+    {
+      "case": "bind-trace/input-output",
+      "status": "passed",
+      "checked_on": "2026-10-28",
+      "actual_output": "bind-trace/bind-trace-actual.json",
+      "scope": "Only bind_trace called, using original Sample class and complete original trace_utils loaded in isolation; full instance fields captured before and after.",
+      "events_before": 1,
+      "events_after": 1,
+      "new_events": 0,
+      "returned_handle_fields": 6,
+      "carrier_and_events_identity_preserved": true
+    }
+  ]
+}

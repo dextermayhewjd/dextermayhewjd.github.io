@@ -1,0 +1,17 @@
+{
+  "checked_on": "2026-10-26",
+  "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "official_main": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "source_worktree_clean": true,
+  "source_file": "slime/rollout/fully_async_rollout.py",
+  "source_sha256": "4d8bd897b52539060d52d29ac8e1cf205adfd65b5fe33b3f19fb2eb13e51367e",
+  "loop_lines": [
+    178,
+    244
+  ],
+  "normal_skeleton": "try/except/log wrappers and shutdown wait excluded; normal loop order retained",
+  "selected_worker": "AsyncRolloutWorker without reader_config",
+  "example_default_transport": "straw",
+  "example_default_worker": "DistributedRollout",
+  "execution": "static inspection only"
+}

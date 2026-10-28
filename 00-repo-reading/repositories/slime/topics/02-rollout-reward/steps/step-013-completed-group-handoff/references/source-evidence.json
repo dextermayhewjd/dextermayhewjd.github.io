@@ -1,0 +1,36 @@
+{
+  "checked_on": "2026-10-26",
+  "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "official_main": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "source_worktree_clean": true,
+  "source_file": "slime/rollout/fully_async_rollout.py",
+  "source_sha256": "4d8bd897b52539060d52d29ac8e1cf205adfd65b5fe33b3f19fb2eb13e51367e",
+  "symbols": {
+    "AsyncRolloutWorker._make_done_cb": [
+      246,
+      275
+    ],
+    "AsyncRolloutWorker.get_completed_groups": [
+      147,
+      161
+    ]
+  },
+  "registration_line": 222,
+  "consumer_lines": [
+    306,
+    322
+  ],
+  "selected_worker": "AsyncRolloutWorker without reader_config",
+  "example_default_transport": "straw",
+  "example_default_worker": "DistributedRollout",
+  "scope": "Normal completed group: callback factory/registration, callback result publication, bounded nonblocking drain. Retry and cancellation deferred.",
+  "verification": "Static source and link/inheritance checks; no real worker, model, queue service, or training execution.",
+  "documentation_checks": {
+    "inherited_records": 62,
+    "historical_empty_placeholders": 3,
+    "all_inherited_prose_preserved_except_link_targets": true,
+    "local_links_checked": 892,
+    "getter_code_blocks_ast_equivalent_to_original": 2,
+    "fluent_python_section_map_and_verbatim_quote_checked": true
+  }
+}

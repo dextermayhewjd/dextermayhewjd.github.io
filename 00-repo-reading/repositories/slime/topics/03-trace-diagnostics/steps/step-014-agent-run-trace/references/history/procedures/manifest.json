@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-27",
+  "reason": "用户确认取消 Step 014 的 procedures 阅读层",
+  "archives": [
+    {
+      "original": "02-short-term-memory/procedures/trace-span-start.md",
+      "archive": "references/history/procedures/trace-span-start.md",
+      "original_sha256": "0fcb4d430bfb688307e92c747087452a9c11415043807735bb027dcf9303a22d",
+      "archive_sha256": "60b31f47cc76d456ffaeb50fb4e70a0cc049f626de340a9e3b13121fe0683da1",
+      "body_preserved_except_links": true
+    },
+    {
+      "original": "02-short-term-memory/procedures/trace-span-lifecycle.md",
+      "archive": "references/history/procedures/trace-span-lifecycle.md",
+      "original_sha256": "2207dd372808689b0a91e2a3e9f9315249f32b62cb67a22e44716c89952be7d7",
+      "archive_sha256": "614508c7c24259ac29212d1629c236974b146205afe70b9b63f3ce37d97a28a8",
+      "body_preserved_except_links": true
+    },
+    {
+      "original": "02-short-term-memory/procedures/trace-context-handoff.md",
+      "archive": "references/history/procedures/trace-context-handoff.md",
+      "original_sha256": "f2a7ede8420ec9d092bd593cf881adf575b0b4253486be09e7be064a2ca4aae8",
+      "archive_sha256": "e1ea594332fc227043544f73af530887436b556723dafa6a3b9724e49d305473",
+      "body_preserved_except_links": true
+    },
+    {
+      "original": "02-short-term-memory/procedures/trace-collection.md",
+      "archive": "references/history/procedures/trace-collection.md",
+      "original_sha256": "2f05ca037a7afcc2668dd07e8c5ac82474712bc8c50c65518675d898b2851697",
+      "archive_sha256": "2450392ce621d112c33e9507c8856842bcceb9468ed9f1a89475e8bbf4a0758b",
+      "body_preserved_except_links": true
+    }
+  ],
+  "retirement_validation": {
+    "active_and_archive_links": 326,
+    "anchors": 154,
+    "archives_preserved": 4,
+    "unchanged_example_files": 8,
+    "new_python_snippets_valid": 2,
+    "errors": []
+  },
+  "link_maintenance": [
+    {
+      "date": "2026-10-27",
+      "change": "Example directory renamed from bind-trace-adapter-session to bind-trace; archive text preserved, links updated."
+    }
+  ]
+}

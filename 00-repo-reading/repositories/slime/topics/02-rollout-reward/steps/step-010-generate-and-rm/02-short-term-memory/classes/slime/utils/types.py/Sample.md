@@ -27,6 +27,8 @@
 
 **类名 `Sample`、一个实例 `sample`、实例列表 `samples` 要分开看。**
 
+本轮进入第三部分：生成结果列表交给 [apply_rollout_sample_hooks](../../../../functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md) 逐项处理。hook 可以原地更新单个 Sample，也可以返回替换对象；因此同名 sample 不能仅凭名字判断始终是入口处那个对象。
+
 ## 4. 我的直接表述与尚不清楚
 
 本轮对两个对象的初步概括：

@@ -1,0 +1,10 @@
+{
+  "records": [
+    {
+      "record": "classes/slime/utils/types.py/Sample.md",
+      "source": "03-long-term-memory/classes/slime/utils/types.py/Sample.md",
+      "source_sha256": "f087a6cb7d97857051f4322d4234743619105d66c360d73923a74cfa16b30ea0",
+      "reason": "当前转换的输入是 Sample；完整调取已有字段记录，未增加用户理解判断。"
+    }
+  ]
+}

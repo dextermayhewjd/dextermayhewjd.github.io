@@ -1,0 +1,50 @@
+{
+  "sample": {
+    "index": 8,
+    "group_index": 2,
+    "prompt": "计算 1 + 1。",
+    "trace": {
+      "version": 1,
+      "trace_id": "T2",
+      "sample_id": 8,
+      "group_id": 2,
+      "attempt": 0,
+      "events": [
+        {
+          "type": "span_start",
+          "name": "generate_and_rm_group",
+          "ts": 19.0,
+          "trace_id": "T2",
+          "sample_id": 8,
+          "group_id": 2,
+          "attempt": 0,
+          "span_id": "G0",
+          "attrs": {
+            "group_size": 1
+          }
+        }
+      ]
+    },
+    "status": "completed",
+    "response": "2",
+    "reward": 1.0
+  },
+  "args": {
+    "partial_rollout": false,
+    "group_rm": false
+  },
+  "sampling_params": {
+    "temperature": 0.8,
+    "max_new_tokens": 16
+  },
+  "evaluation": false,
+  "active_context": {
+    "trace_id": "T2",
+    "span_id": "G0"
+  },
+  "fixed_observation": {
+    "span_id": "F1",
+    "start_ts": 20.0,
+    "end_ts": 20.01
+  }
+}

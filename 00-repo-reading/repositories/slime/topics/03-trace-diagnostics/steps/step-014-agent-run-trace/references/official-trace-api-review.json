@@ -1,0 +1,61 @@
+{
+  "review_date": "2026-10-27",
+  "fixed_reading_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "official_current_head": "540ea919e45b8b929198abce008a103be9cfc779",
+  "local_checkout_updated": false,
+  "official_repository": "https://github.com/THUDM/slime",
+  "verification": "direct public HTTPS GET; cached browser copy not used for version/path conclusions",
+  "files": [
+    {
+      "path": "docs/zh/developer_guide/trace.md",
+      "sha256": "c4ca042e818c6bf9fefb35254faa21caab43b32956862d2d9a48b3b2e5d9c7cc",
+      "fixed_matches_local": true,
+      "current_matches_fixed": true,
+      "fixed_url": "https://raw.githubusercontent.com/THUDM/slime/18868a79b0b083a093798a94ed0f8cb4f71b9c14/docs/zh/developer_guide/trace.md",
+      "current_url": "https://raw.githubusercontent.com/THUDM/slime/540ea919e45b8b929198abce008a103be9cfc779/docs/zh/developer_guide/trace.md"
+    },
+    {
+      "path": "slime/observability/trace_utils.py",
+      "sha256": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "fixed_matches_local": true,
+      "current_matches_fixed": true,
+      "fixed_url": "https://raw.githubusercontent.com/THUDM/slime/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py",
+      "current_url": "https://raw.githubusercontent.com/THUDM/slime/540ea919e45b8b929198abce008a103be9cfc779/slime/observability/trace_utils.py"
+    }
+  ],
+  "documented_business_entrypoints": [
+    "trace_span",
+    "trace_event",
+    "trace_function",
+    "bind_trace"
+  ],
+  "documented_composition": [
+    "build_sglang_meta_trace_attrs",
+    "TraceSpanContext.update"
+  ],
+  "business_attribute_method_evidence": "examples/coding_agent_rl/generate.py:295 TraceSpanContext.set",
+  "integration_evidence": {
+    "bind_trace_carrier": [
+      "slime/agent/adapters/common.py:413",
+      "slime/agent/adapters/common.py:594"
+    ],
+    "export_trace/import_trace": [
+      "examples/coding_agent_rl/generate.py:272"
+    ]
+  },
+  "not_found_called_in_current_repository": [
+    "trace_next_attempt"
+  ],
+  "search_scope_for_uncalled": "rg over repository Python and Markdown; definition found, no call site found; not a proof of future/external usage",
+  "internal_lifecycle_method_calls": {
+    "TraceSpanContext.build_end_attrs": [
+      401,
+      414
+    ],
+    "TraceSpanContext.finalize": [
+      408,
+      414
+    ]
+  },
+  "classification_is_usage_guidance_not_access_control": true
+}

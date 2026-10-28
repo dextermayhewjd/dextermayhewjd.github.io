@@ -1,0 +1,872 @@
+{
+  "previous_step": "../../../02-rollout-reward/steps/step-013-completed-group-handoff",
+  "rule": "上一实际步骤 03 + 02；完整 02 优先，空白不覆盖完整旧卡。跨主题继承，仅重算链接，保留原话、未知、认识时间与来源。",
+  "records": [
+    {
+      "record": "classes/examples/coding_agent_rl/generate.py/_AdapterService.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/examples/coding_agent_rl/generate.py/_AdapterService.md",
+      "source_sha256": "b592923639426af8d9b35f547092de2a3c48d2f5c2f902ad5fea0dd78cdc48bc",
+      "inherited_sha256": "613441223dd3a8555e04f6bba4f48225a71666f7c1ea856381b054841e7aafe6",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/examples/coding_agent_rl/generate.py/_AdapterService.md",
+          "sha256": "b592923639426af8d9b35f547092de2a3c48d2f5c2f902ad5fea0dd78cdc48bc"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/agent/adapters/common.py/Session.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/adapters/common.py/Session.md",
+      "source_sha256": "f4b1c500827b297872851b7b5ad1ab0e78a6f2a6788e36257ccd8c8f1bc08715",
+      "inherited_sha256": "99748da254b442286600a955d8d0d1fdbd4873aeb2405f065c89687d8c0728aa",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/adapters/common.py/Session.md",
+          "sha256": "f4b1c500827b297872851b7b5ad1ab0e78a6f2a6788e36257ccd8c8f1bc08715"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/agent/harness/common.py/HarnessContext.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/harness/common.py/HarnessContext.md",
+      "source_sha256": "c56f07960aed7b6a435aed3ce54cc0db040496a82e234f8dcacbae9eb82cd1d5",
+      "inherited_sha256": "e14793f8036cedbe3d0f22ad829028a46c25424b87e7d539f6c4587c9557e42b",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/harness/common.py/HarnessContext.md",
+          "sha256": "c56f07960aed7b6a435aed3ce54cc0db040496a82e234f8dcacbae9eb82cd1d5"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/agent/sandbox.py/E2BSandbox.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md",
+      "source_sha256": "a2b13a98add332aa9d822ba3598e8b12f933be3772a5ce34590e2a2c5d66ef9d",
+      "inherited_sha256": "7792fc0305a7e082ab5a23545c7699fa27574b885f7d6f09bcc013867765f1a2",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/agent/sandbox.py/E2BSandbox.md",
+          "sha256": "a2b13a98add332aa9d822ba3598e8b12f933be3772a5ce34590e2a2c5d66ef9d"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/classes/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.md",
+      "source_sha256": "4bfd311f621f4cb4aac862f845be721ee55d241085cec556c1ae7915535aa3e8",
+      "inherited_sha256": "01d1bdc853ab356c68737f9adfb313a0962ea5ff1e210355d5b2d3a4a2926d97",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.md",
+          "sha256": "448b354c07e14bd075018f3a6b1ab0801eef757b6c12d6171560d9c566a38fb8"
+        },
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/classes/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.md",
+          "sha256": "4bfd311f621f4cb4aac862f845be721ee55d241085cec556c1ae7915535aa3e8"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/rollout/sglang_rollout.py/GenerateState.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/rollout/sglang_rollout.py/GenerateState.md",
+      "source_sha256": "5d6145baedc00a550268198392c924718602e9f52bd28e3cdf92355d401db165",
+      "inherited_sha256": "13e4c4d343a918dc9532550e7b55883779045cf7d4090e2e50cb11fe6236b68c",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/rollout/sglang_rollout.py/GenerateState.md",
+          "sha256": "5d6145baedc00a550268198392c924718602e9f52bd28e3cdf92355d401db165"
+        }
+      ]
+    },
+    {
+      "record": "classes/slime/utils/types.py/Sample.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/utils/types.py/Sample.md",
+      "source_sha256": "73a7b8e6417a2e94e2e49912dca8816163a6027da02d52494fb681c3e5f41929",
+      "inherited_sha256": "30fd9c3d136a85707830f5e3614ab8cf9c7ba7acadb33fae93eecb1d34d0ddd2",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/classes/slime/utils/types.py/Sample.md",
+          "sha256": "73a7b8e6417a2e94e2e49912dca8816163a6027da02d52494fb681c3e5f41929"
+        }
+      ]
+    },
+    {
+      "record": "functions/Lib/asyncio/locks.py/Semaphore.acquire.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/Lib/asyncio/locks.py/Semaphore.acquire.md",
+      "source_sha256": "4fefc0db61037f163e242fbeac3d8039c0e1a447f4d7bede90da594d77e425eb",
+      "inherited_sha256": "a29feb325a07261c6cade65f4e3519995b9da0a1523d0add5715b984bc65d70e",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/Lib/asyncio/locks.py/Semaphore.acquire.md",
+          "sha256": "4fefc0db61037f163e242fbeac3d8039c0e1a447f4d7bede90da594d77e425eb"
+        }
+      ]
+    },
+    {
+      "record": "functions/Lib/asyncio/locks.py/Semaphore.release.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/Lib/asyncio/locks.py/Semaphore.release.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inherited_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/Lib/asyncio/locks.py/Semaphore.release.md",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "record": "functions/aiohttp/web_response.py/json_response.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/aiohttp/web_response.py/json_response.md",
+      "source_sha256": "3ac0a5a72ff3f4b39e02c1d7272a604248e11ec9b637744ba89a092ebc6b8d53",
+      "inherited_sha256": "67b425923ee3500b610725a9dec53c74bc246ca7277f33bbacd62f91d677f665",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/aiohttp/web_response.py/json_response.md",
+          "sha256": "3ac0a5a72ff3f4b39e02c1d7272a604248e11ec9b637744ba89a092ebc6b8d53"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md",
+      "source_sha256": "5635c8ce5084f4d3fffa66cded98ba6ec0155abf08c0917d8d0d597826404f84",
+      "inherited_sha256": "b2d96f4444f597979b88e78832b31ec2ca57c90afc6cdec4c1c557e4c9593975",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md",
+          "sha256": "5635c8ce5084f4d3fffa66cded98ba6ec0155abf08c0917d8d0d597826404f84"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/_session_id.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_session_id.md",
+      "source_sha256": "65fdddf656a013b24fa195f8fa81dca038c2b2f21f6b91ccae16d812e0ad2b7a",
+      "inherited_sha256": "32eee3b6ee3e4152e010dfa8b9a6f4c38bbf8d8d790fc00a4a37393bd8825405",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/_session_id.md",
+          "sha256": "65fdddf656a013b24fa195f8fa81dca038c2b2f21f6b91ccae16d812e0ad2b7a"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md",
+      "source_sha256": "93c979d24acf44f0adb9363f41492afe21914925191503a65995bc16f485bda2",
+      "inherited_sha256": "816f821f48eb065befdaac14b917f50787a6b006a857b54842f6cb5184c47605",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/boot_agent_sandbox.md",
+          "sha256": "93c979d24acf44f0adb9363f41492afe21914925191503a65995bc16f485bda2"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inherited_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/generate.py/generate.md",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_apply_diff.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_apply_diff.md",
+      "source_sha256": "5f9a64235b1f179e8caf0e9e66a4a66e2f378fa7c82547ada174e31f232b9951",
+      "inherited_sha256": "8f567265292c041a0c6dbfe6096fe95e1e1c2b2e60f2cd7a7d732a00170b635a",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_apply_diff.md",
+          "sha256": "5f9a64235b1f179e8caf0e9e66a4a66e2f378fa7c82547ada174e31f232b9951"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_grade_scaleswe.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_grade_scaleswe.md",
+      "source_sha256": "9f4fb738920f844b5d446ac32b8ab93bb3fed69250a4648f7ea7fbcd8569e454",
+      "inherited_sha256": "e8648ac3c71bad0614236cd38fea49351182db977f0b9f7409a336cd01bacf29",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_grade_scaleswe.md",
+          "sha256": "9f4fb738920f844b5d446ac32b8ab93bb3fed69250a4648f7ea7fbcd8569e454"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/_run_eval_cmd.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_run_eval_cmd.md",
+      "source_sha256": "361655c3d36a5eacea778b2f4d5b7e805dd6e788e2ee852aa79a45787229bf2e",
+      "inherited_sha256": "029fecbe88631ffbd66f32b57d6a7fd8a1271d701044e2a30baf2f5477f07009",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/_run_eval_cmd.md",
+          "sha256": "361655c3d36a5eacea778b2f4d5b7e805dd6e788e2ee852aa79a45787229bf2e"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/apply_before_repo_set_cmd.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_before_repo_set_cmd.md",
+      "source_sha256": "293df31df68006dab94d119b1aaf6700f86e91eb693bc26865121690232466a3",
+      "inherited_sha256": "ea8fd07381630b5f0a0da4a4225341b85cee9a0b97adb957babfbc386c0152f5",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_before_repo_set_cmd.md",
+          "sha256": "293df31df68006dab94d119b1aaf6700f86e91eb693bc26865121690232466a3"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md",
+      "source_sha256": "f927220c102c3e418da2f081a47157aa222f8c094d81818203bb6abce24422de",
+      "inherited_sha256": "34639724afd8915a0006e116995ff14697a9ef29574ba6eca885120f95d7afe4",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/apply_pre_commands.md",
+          "sha256": "f927220c102c3e418da2f081a47157aa222f8c094d81818203bb6abce24422de"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/prepare_workspace.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/prepare_workspace.md",
+      "source_sha256": "872c2c37252380f650072d7ba8deedaa93b9daa7925ea1cde41061f5079006f2",
+      "inherited_sha256": "f20b66d40e341e1a7400a0c1aa10000790de6c9c96b85c848bc3f01de19511c4",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/prepare_workspace.md",
+          "sha256": "872c2c37252380f650072d7ba8deedaa93b9daa7925ea1cde41061f5079006f2"
+        }
+      ]
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/swe.py/run_evaluation.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/run_evaluation.md",
+      "source_sha256": "c21389460a5e30f1dfc76369414e26bd36be6fa79e5ff57b985c4661054e0cba",
+      "inherited_sha256": "c381dc841f4f3e2d758de2543b100af3766f63c59867206dd6b19fca7b9cebf9",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/examples/coding_agent_rl/swe.py/run_evaluation.md",
+          "sha256": "c21389460a5e30f1dfc76369414e26bd36be6fa79e5ff57b985c4661054e0cba"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._build_reply.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._build_reply.md",
+      "source_sha256": "7f14cd75264c80fc3192c3443d628f964138894df76f1d96913040c0cf2b24b2",
+      "inherited_sha256": "fa65e3815723929f1d4bb7aa8cf528f3106f22f287d5ecbdc3ae13b4567768c3",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._build_reply.md",
+          "sha256": "7f14cd75264c80fc3192c3443d628f964138894df76f1d96913040c0cf2b24b2"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._register_routes.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._register_routes.md",
+      "source_sha256": "2394a3bd56f1c63b812eb90b6f8d5b209fceeb9353dfed70cebabfcf4eb2e7c8",
+      "inherited_sha256": "959349ca4efd9c457d0aae7186831f3f7c79bcf8b8c101be937c6a3870ae9558",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._register_routes.md",
+          "sha256": "2394a3bd56f1c63b812eb90b6f8d5b209fceeb9353dfed70cebabfcf4eb2e7c8"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._respond.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._respond.md",
+      "source_sha256": "094b3e747ea56e5ecc12667b065eb004664d0f546d26af130c60782709c6d25f",
+      "inherited_sha256": "401d2d49c94ea73c828278a1d69b6df15ec1ce61f52dc48e6b771d3a419e7f34",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._respond.md",
+          "sha256": "094b3e747ea56e5ecc12667b065eb004664d0f546d26af130c60782709c6d25f"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._translate.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._translate.md",
+      "source_sha256": "e435976beac9f5c3ed2121e6507b0106ed84a71ed3841be2ff477b4120937519",
+      "inherited_sha256": "9b1fcfd0e364358de495de82fe7e2053fe6015b98475ec9b9c725fb8fbcc2c85",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/AnthropicAdapter._translate.md",
+          "sha256": "e435976beac9f5c3ed2121e6507b0106ed84a71ed3841be2ff477b4120937519"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/_render_response.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md",
+      "source_sha256": "1913a9b551a58fa984147666897818a48d8cb446408342a96331524ecc35bda7",
+      "inherited_sha256": "daab7dab07ec29b3f90b717f7bcfc553b6c0a8523a947fd702c3e90bd2488f15",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_response.md",
+          "sha256": "1913a9b551a58fa984147666897818a48d8cb446408342a96331524ecc35bda7"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+      "source_sha256": "455d1cb275d5367517f3f798ae8f6ad988c796f69bac7976d7449f796222a4ae",
+      "inherited_sha256": "b51679722a117866b196dfb71d40c9a0edc675ac1170c172b9ba08cc4fccc9ac",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/anthropic.py/_render_stream.md",
+          "sha256": "455d1cb275d5367517f3f798ae8f6ad988c796f69bac7976d7449f796222a4ae"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md",
+      "source_sha256": "7a0d7c3fe9484391e1512ee9e3fbfae674c0fd3f4d22a6b9b8e67aa6206395e1",
+      "inherited_sha256": "405c1882e1354db781790b3e15ea7d94d2cc2e4ec27e880e605ffcf248c87b34",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._build_reply.md",
+          "sha256": "7a0d7c3fe9484391e1512ee9e3fbfae674c0fd3f4d22a6b9b8e67aa6206395e1"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._respond.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md",
+      "source_sha256": "1c897b986add0731be559de9be4f7925e31ab62fe3c57518e47ec4dcffdda6de",
+      "inherited_sha256": "3d29f100a0ff84946de51c8e416138c983cb83c7fc49969400baf2aa806e991a",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._respond.md",
+          "sha256": "1c897b986add0731be559de9be4f7925e31ab62fe3c57518e47ec4dcffdda6de"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md",
+      "source_sha256": "4372378d2d6fa115683dc4a9d7f24fecbcba1017972dfb2bdd3de250ad0d9217",
+      "inherited_sha256": "59c40b2a33e544053ec77e8af1dc3d9e08d0d6e573219c13a5d93f632dd642f7",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._run_turn.md",
+          "sha256": "4372378d2d6fa115683dc4a9d7f24fecbcba1017972dfb2bdd3de250ad0d9217"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter._translate.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md",
+      "source_sha256": "0de206a209c839c7399fd6a3fb09d27aaeb7b4b8389f41cb126c82454464018e",
+      "inherited_sha256": "642cd43aeb5a9e9d5d6b686dbd739bed5203b84b174ceff623649b39011d357a",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter._translate.md",
+          "sha256": "0de206a209c839c7399fd6a3fb09d27aaeb7b4b8389f41cb126c82454464018e"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md",
+      "source_sha256": "3838a11ddb9091f498600efba8431dd86a6757a5d6ad162c8831f0bab76e9b87",
+      "inherited_sha256": "8eaeaa1632009b5a6400a0b0a66481265a14efaf2bf8b651ba086ad2e6fdd366",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.finish_session.md",
+          "sha256": "3838a11ddb9091f498600efba8431dd86a6757a5d6ad162c8831f0bab76e9b87"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md",
+      "source_sha256": "d8e5cc8c640bd89532bb24933a040639459980b1d675283a2a48741e4848cc3f",
+      "inherited_sha256": "cb3ba87cbda47a3f2c3b61d5f6211c4ef8d07d9c4e67231a3b6cce4a8e843195",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.open_session.md",
+          "sha256": "d8e5cc8c640bd89532bb24933a040639459980b1d675283a2a48741e4848cc3f"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md",
+      "source_sha256": "a9d296f38465b00a041cdd87097c56f2977b87ad39415a9a10f47eb4667680a1",
+      "inherited_sha256": "e22847d0697580dfa30f953a66cbc2b8305ac2003bcfb61bc42827d6f479d565",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/BaseAdapter.shutdown_session.md",
+          "sha256": "a9d296f38465b00a041cdd87097c56f2977b87ad39415a9a10f47eb4667680a1"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/_render_token_ids.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md",
+      "source_sha256": "b42801ac37e1fe6785e2ff9b1641b87ecb4cc1417a34338a2124f6ee3c22f0a7",
+      "inherited_sha256": "562073083ca180c27c39369b5630e2d909348799935ddeb9a0af9d6beb15343a",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/_render_token_ids.md",
+          "sha256": "b42801ac37e1fe6785e2ff9b1641b87ecb4cc1417a34338a2124f6ee3c22f0a7"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/adapters/common.py/call_sglang_generate.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md",
+      "source_sha256": "afac43b36843009f61b8f04a2d00a6196076218830aac1238ef9f3610538c22c",
+      "inherited_sha256": "1a713e69c414b215814fdb9612c70f46d168735f9a9c555dd7338fe880b386c1",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/adapters/common.py/call_sglang_generate.md",
+          "sha256": "afac43b36843009f61b8f04a2d00a6196076218830aac1238ef9f3610538c22c"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/aiohttp_threaded.py/run_app_in_thread.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/aiohttp_threaded.py/run_app_in_thread.md",
+      "source_sha256": "e6b26438f25aaad3d98c198c1b615a3bc8070c3332100e93b6fc664e7ce4f5b5",
+      "inherited_sha256": "8b6f2c4cb5c3b67d6c28528313ea252fce4a3419193965864c2be03f53c1ac3a",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/aiohttp_threaded.py/run_app_in_thread.md",
+          "sha256": "e6b26438f25aaad3d98c198c1b615a3bc8070c3332100e93b6fc664e7ce4f5b5"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md",
+      "source_sha256": "be2e0815abb7788b842d585e367870b046b3b9f400b014e508c2a2c7682495da",
+      "inherited_sha256": "be3a5150fbf6bb3d0e0d2f76eabae58f78733a04ce6691220222c05f142f3fa2",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.install_cli.md",
+          "sha256": "be2e0815abb7788b842d585e367870b046b3b9f400b014e508c2a2c7682495da"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md",
+      "source_sha256": "a91c43cdca4d079fea293daf3473ab8ba1e75dafacd029852cefb93923ffa8f0",
+      "inherited_sha256": "a36a2f096a7128953faeb7db9057bb4db4de8576e9c1c90fe0bfb303276b061f",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.launch_and_wait.md",
+          "sha256": "a91c43cdca4d079fea293daf3473ab8ba1e75dafacd029852cefb93923ffa8f0"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md",
+      "source_sha256": "7249b208934d680efff11b68acda87b71b55aef38abc5fd4f2468a8ae49e0210",
+      "inherited_sha256": "37c17320c1f5b5ae0742346e0c1d19070de5e877d3d586fd6da4284ae12aa539",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/claude_code.py/ClaudeCodeHarness.write_config.md",
+          "sha256": "7249b208934d680efff11b68acda87b71b55aef38abc5fd4f2468a8ae49e0210"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/BaseHarness.run.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md",
+      "source_sha256": "7b09ba6349338d5b17378ebbcff3e9dbe073ded8fedc00d25b53a08a9509384c",
+      "inherited_sha256": "f4689c655d3a956e9676a2540bd28c11b060d85f9c43e01ca834d6d1a3c2c70d",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/BaseHarness.run.md",
+          "sha256": "7b09ba6349338d5b17378ebbcff3e9dbe073ded8fedc00d25b53a08a9509384c"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/install_npm_cli.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/install_npm_cli.md",
+      "source_sha256": "0f3b61986e8cc23238ecc6541eea690c1673eb17a97c199088310dbc6f0ad55f",
+      "inherited_sha256": "947d9e5a193a877b1aedf86bc661cc835b79493d7b47322e89c47d07e87c0bf9",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/install_npm_cli.md",
+          "sha256": "0f3b61986e8cc23238ecc6541eea690c1673eb17a97c199088310dbc6f0ad55f"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/harness/common.py/run_agent.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/run_agent.md",
+      "source_sha256": "a22ef8abd93fcac94270f1749f186be617e44b99e3e0daf0acb2157a61263c61",
+      "inherited_sha256": "087c506a6e3ec4c48f88fb3b4e274bde8171fef56e174c53e8ca73c6df445519",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/harness/common.py/run_agent.md",
+          "sha256": "a22ef8abd93fcac94270f1749f186be617e44b99e3e0daf0acb2157a61263c61"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/parsing.py/parse_model_output.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/parsing.py/parse_model_output.md",
+      "source_sha256": "bda2b05653d182662658523ef5bd47fa25e24d68e269f49e1374c6abb9ac69fd",
+      "inherited_sha256": "9b2093cf50caa4be90662756f3292a6342806c8772681b036b62eea7c2bc8234",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/parsing.py/parse_model_output.md",
+          "sha256": "bda2b05653d182662658523ef5bd47fa25e24d68e269f49e1374c6abb9ac69fd"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md",
+      "source_sha256": "891d295a3ed17c58ebe1752e0e6b280d85b2b8ef39fd598659998ebab9765cc4",
+      "inherited_sha256": "f0107ea9e72cd53dcd66baa27c3a0fb06be04e5bf373be29dcfb28092574b1c7",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aenter__.md",
+          "sha256": "891d295a3ed17c58ebe1752e0e6b280d85b2b8ef39fd598659998ebab9765cc4"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md",
+      "source_sha256": "41538ac07be6206b6739bd62a1e5be16ee61b7a12ca137468bedc9509ec4a2fe",
+      "inherited_sha256": "b0704713932a5eb94fc73588df514f9815a7b21ef11391ddf4ebdb78d9705e29",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/E2BSandbox.__aexit__.md",
+          "sha256": "41538ac07be6206b6739bd62a1e5be16ee61b7a12ca137468bedc9509ec4a2fe"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "source_sha256": "52cf32e22316fb8f8ab50266884f9f1ca591557e40d160146f01b810fc62d21d",
+      "inherited_sha256": "b537f34075abfb00291a7f00f127846e2d464014da130a3280388a370424b985",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/ensure_agent_user.md",
+          "sha256": "52cf32e22316fb8f8ab50266884f9f1ca591557e40d160146f01b810fc62d21d"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/sandbox.py/exec_and_wait.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/exec_and_wait.md",
+      "source_sha256": "4d043a3c48f61fc8dcfbe30dd11279c57a10a175bbed7f8a1fb09534d46a0893",
+      "inherited_sha256": "178daa81e65a44a1c07ef48613c01591108f5ae993db7b46ddab3cbae5cc22c7",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/sandbox.py/exec_and_wait.md",
+          "sha256": "4d043a3c48f61fc8dcfbe30dd11279c57a10a175bbed7f8a1fb09534d46a0893"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md",
+      "source_sha256": "5b5dfd96966a96478757715f9b262f9ea0baba636b0f2d98d5346e7562028da4",
+      "inherited_sha256": "0f64a6cb5a93ee3c977f57eb688e323d73021d6e51d53e9f2e103ed82071ad7b",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.get_trajectory.md",
+          "sha256": "5b5dfd96966a96478757715f9b262f9ea0baba636b0f2d98d5346e7562028da4"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md",
+      "source_sha256": "387162ef8be74ad8ea290eece9acda9b82e390049bea8050a6151b5e9538f74a",
+      "inherited_sha256": "fdcda826f621ad976933716b5065d6f3e41074d46848d7e4e02742bdd830ab0d",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/agent/trajectory.py/TrajectoryManager.record_turn.md",
+          "sha256": "387162ef8be74ad8ea290eece9acda9b82e390049bea8050a6151b5e9538f74a"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/data/transport.py/inherit_queue_context.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/data/transport.py/inherit_queue_context.md",
+      "source_sha256": "5852102af2cf9c15119bd2029cfb439d2a2438d3ab2927600e3f02f86f45c829",
+      "inherited_sha256": "a30face9f7e609f8383510647898f355ca7154780f2213e80ae6de2f9b83cf15",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/data/transport.py/inherit_queue_context.md",
+          "sha256": "5852102af2cf9c15119bd2029cfb439d2a2438d3ab2927600e3f02f86f45c829"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/filter_hub/base_types.py/call_dynamic_filter.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/filter_hub/base_types.py/call_dynamic_filter.md",
+      "source_sha256": "a65aef13527bd87c785a560f0dea744c26778c1461792e513c36f702170e113e",
+      "inherited_sha256": "ddd58585e1d4825d784f17223d8694348e24a57afdeb58efd8879bcdda16988f",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/filter_hub/base_types.py/call_dynamic_filter.md",
+          "sha256": "a65aef13527bd87c785a560f0dea744c26778c1461792e513c36f702170e113e"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._loop.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._loop.md",
+      "source_sha256": "84ae3ef63d35efb1d88822a0002b2569a6fb43df2e33a089fe5791e2be3a4a00",
+      "inherited_sha256": "6728a94000eb08c4311399ba90f6403bfca4168882083d2d49490583a717bd30",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._loop.md",
+          "sha256": "478bb6d40af3ca189b912878aa836684ad7e1766f65c46f5512a786f6521e234"
+        },
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._loop.md",
+          "sha256": "84ae3ef63d35efb1d88822a0002b2569a6fb43df2e33a089fe5791e2be3a4a00"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._make_done_cb.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._make_done_cb.md",
+      "source_sha256": "8a3ba2fcd63d3b76b234c2616b1bb5e7c3bb12ab5d6921fc592dddca80e6cda2",
+      "inherited_sha256": "7e78020ad09816253c5055f1165881f0d212db2221179661762659751aff9f88",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker._make_done_cb.md",
+          "sha256": "8a3ba2fcd63d3b76b234c2616b1bb5e7c3bb12ab5d6921fc592dddca80e6cda2"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.get_completed_groups.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.get_completed_groups.md",
+      "source_sha256": "45fa1b06266f4e4e343eedf10e89580ec4ad8cceb30abc216c640c020fe62801",
+      "inherited_sha256": "56de9d50a6d544bcc7ff99b10e4483fb48f8be100f63958a73c0fdf17eb7e275",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/AsyncRolloutWorker.get_completed_groups.md",
+          "sha256": "45fa1b06266f4e4e343eedf10e89580ec4ad8cceb30abc216c640c020fe62801"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/fully_async_rollout.py/_generate_rollout_async.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/_generate_rollout_async.md",
+      "source_sha256": "09d36b74e3e0d2484336ca293e76ee85efe1f286072aa748d61baefe38e07001",
+      "inherited_sha256": "8e2c80b661cc87c49e96704fb0d3c85e22a53a7d4883286ce84d87b5ea91d470",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/02-short-term-memory/functions/slime/rollout/fully_async_rollout.py/_generate_rollout_async.md",
+          "sha256": "09d36b74e3e0d2484336ca293e76ee85efe1f286072aa748d61baefe38e07001"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md",
+      "source_sha256": "39127ac87dfa85f48cf20c9153ab3bdfdc2c24008032b51548cb77f94a1653d7",
+      "inherited_sha256": "c1f1262377ba1d6889e59647df56132c40fd3b22a4e0581bdcb2b5ece8ce4993",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/rm_hub/__init__.py/batched_async_rm.md",
+          "sha256": "39127ac87dfa85f48cf20c9153ab3bdfdc2c24008032b51548cb77f94a1653d7"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md",
+      "source_sha256": "ab2c8e5b500ae5bbb7bb7468d9a4cf6433c1c5cea8e68558e2e9c13b846664f0",
+      "inherited_sha256": "a26da0ed9a7d465cd4bd1c115d1ab64491a627779fee0801a6d48ae5263669d3",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sample_hooks.py/apply_rollout_sample_hooks.md",
+          "sha256": "ab2c8e5b500ae5bbb7bb7468d9a4cf6433c1c5cea8e68558e2e9c13b846664f0"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md",
+      "source_sha256": "42c641e17c0b8e816512766fd3328fcd4f39b9d43fb45fcd936f515e78c8166a",
+      "inherited_sha256": "f53edd70a25404d390edef4446b51484a4b200337162588c54bc26b863fe6493",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/GenerateState.dp_rank_context.md",
+          "sha256": "42c641e17c0b8e816512766fd3328fcd4f39b9d43fb45fcd936f515e78c8166a"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source_sha256": "9656fab9a1dcb809942d648dc94153e47f48c5b532d9e32196a92403c8f40331",
+      "inherited_sha256": "1e994aae322f71747c513769f9c2b492dca120febf6e62f6b08a5f5ce7ca4dc3",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+          "sha256": "9656fab9a1dcb809942d648dc94153e47f48c5b532d9e32196a92403c8f40331"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source_sha256": "df0b7a237106b8cde99fcc54b6c1f90b7ec2143c688931ffb2f8ed67ac93c6f4",
+      "inherited_sha256": "93e09aa3c2ee4483ceeb077cc798bfd79b7429d97eeb66c35afe68ffa27d1758",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+          "sha256": "df0b7a237106b8cde99fcc54b6c1f90b7ec2143c688931ffb2f8ed67ac93c6f4"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/generate_and_rm_group.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm_group.md",
+      "source_sha256": "bf6dab11be67fe08b0685ff95405e797048058a386f3cf3bc5970864de56c159",
+      "inherited_sha256": "8a58466164f09b647c47b159495edb72be2cda2daba853c800bc3982e786a394",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm_group.md",
+          "sha256": "bf6dab11be67fe08b0685ff95405e797048058a386f3cf3bc5970864de56c159"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/utils/async_utils.py/AsyncPacer.wait.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/utils/async_utils.py/AsyncPacer.wait.md",
+      "source_sha256": "8409c2c063f9a3a56d2e342dcfd5f0ffa19cd69f252321a17e819ecad6ed1241",
+      "inherited_sha256": "13f056051b3c80f1901248813a61d6de80a5dd72480860b05868096f67673fa6",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/utils/async_utils.py/AsyncPacer.wait.md",
+          "sha256": "8409c2c063f9a3a56d2e342dcfd5f0ffa19cd69f252321a17e819ecad6ed1241"
+        }
+      ]
+    },
+    {
+      "record": "functions/slime/utils/misc.py/load_function.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/utils/misc.py/load_function.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inherited_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "placeholder": true,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/slime/utils/misc.py/load_function.md",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "record": "functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+      "source_sha256": "fe1a3d118477c62ec7126eadc7e4f28d30b04f6d7cad5c0d5cea58dbe3f6d452",
+      "inherited_sha256": "cc9f1b665618dbb4f0e03f94e0d0d720d6c8ffb4014e577bfa5f610a24c844bd",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.apply_chat_template.md",
+          "sha256": "fe1a3d118477c62ec7126eadc7e4f28d30b04f6d7cad5c0d5cea58dbe3f6d452"
+        }
+      ]
+    },
+    {
+      "record": "functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md",
+      "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md",
+      "source_sha256": "c69ce420ce0846ae9f4d5f25010e32f30b31b04e7ea9fb4f8144c18c706860d1",
+      "inherited_sha256": "60165155bd869128d691291c49f5ea1800a1baff2dc53afea9c260cb206ae624",
+      "placeholder": false,
+      "candidates": [
+        {
+          "source": "../../../02-rollout-reward/steps/step-013-completed-group-handoff/03-long-term-memory/functions/src/transformers/tokenization_utils_base.py/PreTrainedTokenizerBase.decode.md",
+          "sha256": "c69ce420ce0846ae9f4d5f25010e32f30b31b04e7ea9fb4f8144c18c706860d1"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "execution": {
+    "status": "passed",
+    "started_at_utc": "2026-10-27T16:23:18.362131+00:00",
+    "source_revision": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "source_file_sha256": {
+      "slime/utils/types.py": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+      "slime/observability/trace_utils.py": "f7414a68ccfbc64bb887eaacaf1f04297289d113993b83b301c745a2057a5df7",
+      "slime/agent/adapters/common.py": "afe3b9f728e1b7c4e2860fd0ea8ba27ae3623b8d801788baff8d4a0941eae76c",
+      "examples/coding_agent_rl/generate.py": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5"
+    },
+    "executed_original_code": [
+      "Sample and Session classes; complete trace_utils implementation",
+      "BaseAdapter.open_session and generate.py's original call expression",
+      "BaseAdapter._run_turn original with statement, lines 412-423"
+    ],
+    "substituted_business_functions": {
+      "self._translate": "returns the input message list and tools=None",
+      "_session_prompt_ids": "returns [51]; no tokenizer run",
+      "call_sglang_generate": "async stub returns output_ids=[52], finish_reason=stop"
+    },
+    "timestamp_source": "original time.time; not fixed or substituted",
+    "span_id_source": "original uuid.uuid4().hex; not fixed or substituted",
+    "initial_state": "input.json's teaching fixture T3/C0 with one preexisting event",
+    "not_executed": "full _run_turn before/after the excerpt, HTTP server, actual tokenizer, model, Agent CLI",
+    "harness_sha256": "9a38a5331a6909d734ec5721a72f333fed6950ac86ee4952a6c24dd0697c63f5",
+    "input_sha256": "2ecf58f6f2a1cc0823f847f4289fa0c3206b77b1bb081013301815210e21656e"
+  },
+  "before_binding": {
+    "version": 1,
+    "trace_id": "T3",
+    "sample_id": 9,
+    "group_id": 3,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "coding_rollout",
+        "ts": 30.0,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "C0"
+      }
+    ]
+  },
+  "after_binding": {
+    "version": 1,
+    "trace_id": "T3",
+    "sample_id": 9,
+    "group_id": 3,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "coding_rollout",
+        "ts": 30.0,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "C0"
+      }
+    ]
+  },
+  "session_trace": {
+    "trace_id": "T3",
+    "parent_span_id": "C0",
+    "carrier_is_sample_trace": true
+  },
+  "observations": [
+    {
+      "stage": "before_request_empty_context",
+      "event_count": 1,
+      "active_stack": []
+    },
+    {
+      "stage": "inside_agent_tokenize",
+      "event_count": 3,
+      "active_stack": [
+        [
+          "T3",
+          "bc1ac40eb43343ac8abe46ceefcf5970"
+        ],
+        [
+          "T3",
+          "924a8eed92f64ad99d31a20901f0baae"
+        ]
+      ]
+    },
+    {
+      "stage": "inside_model_call_stub_after_tokenize",
+      "event_count": 4,
+      "active_stack": [
+        [
+          "T3",
+          "bc1ac40eb43343ac8abe46ceefcf5970"
+        ]
+      ]
+    },
+    {
+      "stage": "after_request_context_restored",
+      "event_count": 5,
+      "active_stack": []
+    }
+  ],
+  "after_agent_model_turn": {
+    "version": 1,
+    "trace_id": "T3",
+    "sample_id": 9,
+    "group_id": 3,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "coding_rollout",
+        "ts": 30.0,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "C0"
+      },
+      {
+        "type": "span_start",
+        "name": "agent_model_turn",
+        "ts": 1793118198.386481,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "bc1ac40eb43343ac8abe46ceefcf5970",
+        "parent_span_id": "C0"
+      },
+      {
+        "type": "span_start",
+        "name": "agent_tokenize",
+        "ts": 1793118198.3865037,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "924a8eed92f64ad99d31a20901f0baae",
+        "parent_span_id": "bc1ac40eb43343ac8abe46ceefcf5970"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_tokenize",
+        "ts": 1793118198.3865213,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "924a8eed92f64ad99d31a20901f0baae"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_model_turn",
+        "ts": 1793118198.3865376,
+        "trace_id": "T3",
+        "sample_id": 9,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "bc1ac40eb43343ac8abe46ceefcf5970"
+      }
+    ]
+  },
+  "new_events": [
+    {
+      "type": "span_start",
+      "name": "agent_model_turn",
+      "ts": 1793118198.386481,
+      "trace_id": "T3",
+      "sample_id": 9,
+      "group_id": 3,
+      "attempt": 0,
+      "span_id": "bc1ac40eb43343ac8abe46ceefcf5970",
+      "parent_span_id": "C0"
+    },
+    {
+      "type": "span_start",
+      "name": "agent_tokenize",
+      "ts": 1793118198.3865037,
+      "trace_id": "T3",
+      "sample_id": 9,
+      "group_id": 3,
+      "attempt": 0,
+      "span_id": "924a8eed92f64ad99d31a20901f0baae",
+      "parent_span_id": "bc1ac40eb43343ac8abe46ceefcf5970"
+    },
+    {
+      "type": "span_end",
+      "name": "agent_tokenize",
+      "ts": 1793118198.3865213,
+      "trace_id": "T3",
+      "sample_id": 9,
+      "group_id": 3,
+      "attempt": 0,
+      "span_id": "924a8eed92f64ad99d31a20901f0baae"
+    },
+    {
+      "type": "span_end",
+      "name": "agent_model_turn",
+      "ts": 1793118198.3865376,
+      "trace_id": "T3",
+      "sample_id": 9,
+      "group_id": 3,
+      "attempt": 0,
+      "span_id": "bc1ac40eb43343ac8abe46ceefcf5970"
+    }
+  ],
+  "new_event_count": 4
+}

@@ -1,5 +1,53 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新展示评估：[bind_trace 并排对照应按字段关系对齐](discussion.md#step014-bind-trace-comparison-review)。建议突出新增句柄、共享字典与原对象变化；当前只保存评估，尚未重排正式案例。
+
+最新展示修正：[案例 C 改为共享对象图与完整使用说明](discussion.md#step014-session-usage-narrative)。用户反馈逐字段表格仍难看难懂，本轮围绕会话为什么接收 Trace 重组；新版效果待反馈。
+
+最新结构调整：[Step 014 已按用户确认移除 procedures 层](discussion.md#step014-procedures-retired)。现行入口为 scope → 函数/类卡 → examples；保存与查看归辅助参考，旧稿仅历史归档。
+
+最新样例归属：[短期 examples 保存真实调用的具体输入和结果](discussion.md#step014-concrete-examples)。Step 014 已建立四例，构造数据与真实运行证据分开标记。
+
+最新用法要求：[先从工具模块之外的真实业务调用解释目的与结果](discussion.md#step014-real-business-usage)。Step 014 的短期卡已单列使用方法；无实际调用与无真实运行结果分别标明。
+
+最新记录分工：[scope 为总、短期记忆写具体用法](discussion.md#step014-scope-summary-short-term-usage)。Step 014 已将详细案例、前后数据和收集过程迁入 02；scope 保留分类、骨架与导航。
+
+最新 scope 落实：[Step 014 使用过程与前后数据](discussion.md#step014-usage-scope-approved)。当前 scope 按四个使用环节改写，每环展示调用前、代码和调用后；既有内部地图保留回查。
+
+最新阅读深度讨论：[围绕接口行为追关键机制](discussion.md#step014-api-mechanism-reading)。建议先确定函数兑现什么行为，再追关键实现和失败边界；不以重写工具或逐个读完辅助函数验收，尚未重排当前 scope。
+
+此前记录归属（已由本轮归并调整）：[Step 014 的执行过程进入短期 Procedure](discussion.md#step014-procedure-short-term)。用户明确要求将当前具体执行从 reference 移入 02；函数卡、procedure 与背景资料分工保留。
+
+最新整体定位：[Step 013 用普通代码块图区分后台入队与上层取组](discussion.md#step013-position-diagram-revision)。按用户要求沿用 text 树状图，只修正 3.1；局部机制留在骨架与函数卡。
+
+最新范围收窄：[worker 类卡保留接口，详细依赖暂作黑箱](discussion.md#step012-worker-blackbox-boundary)。完整字段和来源链移参考，Sample 沿用自身记录，不把全部依赖变成当前必读。
+
+最新两版比较：[当前版适合继续读懂，旧版更接近复习提纲](discussion.md#step011-results-card-version-review)。建议保留状态表与前置分支对照，只压缩重复说明；本轮未重排正文。
+
+最新分支呈现：[保留对照表并突出当前 False 路径](discussion.md#step011-reward-branch-highlight)。采用文字标识、粗体和引用块；结果回填另用逐步状态表澄清，机制理解仍待反馈。
+
+最新父卡落实：[四段均附源码、标记与紧邻说明](discussion.md#step011-code-markers-applied)。按用户确认应用到 Step 011 父函数卡，保留原话、未知及旧稿；完整骨架继续沿用。
+
+最新父卡呈现讨论：[源码标记与紧邻说明](discussion.md#step011-code-markers-nearby-explanations)。建议在阶段内用少量编号对应短解释，附第③段预览及认知研究依据；具体样式尚待试读。
+
+最新理解粒度讨论：[简单编排函数沿数据变化阅读](discussion.md#step011-parent-function-understanding)。建议保留一张父函数卡，用同一组输入解释来源、归属、结果回填和评分责任；尚未重排正式卡片。
+
+最新主题边界校准：[Step 011 归回主题 02](discussion.md#step011-topic-boundary-correction)。组级生成延续单任务生成与评分，改变函数入口不自动要求新 topic。
+
+最新 scope 复查：[Step 010 的 3.2 之后如何收拢](discussion.md#step010-scope-navigation-review)。对照已有四份 reference，建议采用统一阅读图表并区分回查与执行；本轮只审阅，正式 scope 未改。
+
+最新心智模型参考：[分支图配合分类依据已纳入 skill](discussion.md#branch-tree-skill-reference)。保存已认可示例、第三项放置位置和适用边界，分支型函数按需引用。
+
+最新采用：[Step 010 正式采用 A 版完整骨架](discussion.md#step010-option-a-adopted)。保留主体与分支，简写条件和参数；完整条件折叠回查，旧 scope 已归档。
+
+最新评估：[完整 scope 的架构与认知取舍](discussion.md#step010-architecture-cognition-review)。保留主体，以 A 为基础区别呈现执行分支和接口适配；研究原则与本例推断分开，尚未应用。
+
+最新完整选项：[Step 010 两份完整框架对照](discussion.md#step010-full-skeleton-options)。A 已采用到正式 scope，B 保留为对照；两者均保留完整外层。
+
+最新简写讨论：[Step 010 用阶段导航保留分支，当前节点再展开源码](discussion.md#step010-stage-navigation-proposal)。用户已明确保留现有主体，现已采用完整 A 版的局部简写；阶段导航仍仅为对照。
+
+最新粒度讨论：[对象拆出后，控制阶段与机制怎样分别记录](discussion.md#step010-control-stage-memory-granularity)。第二部分的组合保留在 `generate_and_rm` 父卡；DP 方法沿用已有卡，`AsyncPacer.wait` 是按需展开的候选，不按每条语句自动建卡。当前为建议，尚未新建机制卡片。
+
 最新骨架方法讨论：[业务分块与关键实参的对照方案](discussion.md#step010-skeleton-data-handoffs-proposal)。本轮进一步区分减少代码行数与恢复数据交接，保留正式 scope，另存候选写法。
 
 最新 scope 审阅：[Step 010 的真实调用骨架与分支层次](discussion.md#step010-core-skeleton-review)。原稿虽采用三段栏目，但配置、包装和多种返回路径同时进入主干；本轮按既有 skill 固定正常路径，保留连续代码与对应导航。

@@ -1,0 +1,61 @@
+{
+  "agent_exit_code": 0,
+  "sample_trace": {
+    "version": 1,
+    "trace_id": "T1",
+    "sample_id": 7,
+    "group_id": 2,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "coding_rollout",
+        "ts": 9.0,
+        "trace_id": "T1",
+        "sample_id": 7,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "S0"
+      },
+      {
+        "type": "span_start",
+        "name": "agent_run",
+        "ts": 10.0,
+        "trace_id": "T1",
+        "sample_id": 7,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "S1",
+        "parent_span_id": "S0"
+      },
+      {
+        "type": "span_end",
+        "name": "agent_run",
+        "ts": 12.0,
+        "trace_id": "T1",
+        "sample_id": 7,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "S1",
+        "attrs": {
+          "exit_code": 0
+        }
+      }
+    ]
+  },
+  "span_context": {
+    "end_attrs": {
+      "exit_code": 0
+    },
+    "closed": true,
+    "end_event_count": 1
+  },
+  "identity": {
+    "handle_carrier_is_sample_trace": true,
+    "end_event_is_stored_event": true
+  },
+  "active_context_after": {
+    "trace_id": "T1",
+    "span_id": "S0"
+  }
+}

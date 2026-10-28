@@ -1,0 +1,128 @@
+{
+  "repository": "/home/hongshi/projects/slime",
+  "commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "runtime_executed": false,
+  "excerpts": [
+    {
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 289,
+      "end": 380,
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "bead6320e05d2f9a3609385231983ed11219638f31d477db2e21baee58282dc0"
+    },
+    {
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 277,
+      "end": 285,
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "0d0f898754b05b36759efdbdb18a8219d94a5c335e0a119c0242f30dfeb2b10e"
+    },
+    {
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 225,
+      "end": 251,
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "fe0cb97d5d7d320374a7e4172f19b45313809f9a51ef57e0043022996894e963"
+    },
+    {
+      "file": "tests/plugin_contracts/test_plugin_generate_contracts.py",
+      "start": 74,
+      "end": 103,
+      "file_sha256": "49994745730b286d93a6850d4aedaad11579e178e586d94a1d4ed59032cf1014",
+      "excerpt_sha256": "5c4c7bcf697092ec8557e31b59d15059d1bdb87eb6f8e5d0b5d0e516c7396535"
+    },
+    {
+      "file": "tests/plugin_contracts/test_plugin_generate_contracts.py",
+      "start": 148,
+      "end": 162,
+      "file_sha256": "49994745730b286d93a6850d4aedaad11579e178e586d94a1d4ed59032cf1014",
+      "excerpt_sha256": "1eb1e55eab10b9eb91a1c5e88d6f4a03198a34862ee20e7787f97f055c569f22"
+    },
+    {
+      "file": "slime/utils/misc.py",
+      "start": 51,
+      "end": 59,
+      "file_sha256": "6678a7028bc57e9e9191c3657e0ff6b3f5975ab7f720990016d4194578133c6d",
+      "excerpt_sha256": "c8bdc8d7a9e824671da93d39a7389438f95aca9b58d1d02fd1cb2038f9ad299a"
+    },
+    {
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 300,
+      "end": 367,
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "132f804594f77bd7664b0322179ba2bdb432fd3ba3f8a04c61d9c089f794f315"
+    },
+    {
+      "file": "slime/agent/adapters/common.py",
+      "start": 314,
+      "end": 345,
+      "file_sha256": "afe3b9f728e1b7c4e2860fd0ea8ba27ae3623b8d801788baff8d4a0941eae76c",
+      "excerpt_sha256": "e567551f373df06be7adcacb62f400575bd59d01e1644070716ae2ab938e64f2"
+    },
+    {
+      "file": "slime/agent/trajectory.py",
+      "start": 325,
+      "end": 341,
+      "file_sha256": "2eeca7bc196d26444106e518ba48a4cec140c40e54b0d270d2e4232dcb904131",
+      "excerpt_sha256": "8b92a2defbec168afe9c762af50fc743a8435118cdf806af871f5b935aa5986e"
+    },
+    {
+      "file": "slime/agent/trajectory.py",
+      "start": 437,
+      "end": 442,
+      "file_sha256": "2eeca7bc196d26444106e518ba48a4cec140c40e54b0d270d2e4232dcb904131",
+      "excerpt_sha256": "5557c7c575c09aab895bd0b33b035b303741d8b5fc641953bb2f9da902e4f390"
+    },
+    {
+      "file": "slime/utils/types.py",
+      "start": 128,
+      "end": 158,
+      "file_sha256": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+      "excerpt_sha256": "8271c45f64f25a67f2ae1ea1a4854c9f0f21b8e7f09d799c0e0552fae6bd8497"
+    },
+    {
+      "file": "slime/rollout/rm_hub/__init__.py",
+      "start": 99,
+      "end": 110,
+      "file_sha256": "bbfcb71820abbb44b2b8946726a31b2d7bc54b27e36f52c38e8b6422808507bc",
+      "excerpt_sha256": "f6db38ba5ed1744b43ce4c4cdbccb2f3d2b9642c95f3d30ee2808ae60b24c98e"
+    },
+    {
+      "file": "tests/plugin_contracts/test_plugin_generate_contracts.py",
+      "start": 25,
+      "end": 34,
+      "file_sha256": "49994745730b286d93a6850d4aedaad11579e178e586d94a1d4ed59032cf1014",
+      "excerpt_sha256": "0e51de26afce99f0e35aed191f76487066138ad1c23e8c91fffd6350023645a2"
+    },
+    {
+      "file": "tests/plugin_contracts/test_plugin_generate_contracts.py",
+      "start": 41,
+      "end": 71,
+      "file_sha256": "49994745730b286d93a6850d4aedaad11579e178e586d94a1d4ed59032cf1014",
+      "excerpt_sha256": "fe6fc7b9ed4c80c9baf64da3c31c925c0a3dfb487fb995d3a07d5e24feded98f"
+    },
+    {
+      "file": "tests/plugin_contracts/test_plugin_generate_contracts.py",
+      "start": 106,
+      "end": 112,
+      "file_sha256": "49994745730b286d93a6850d4aedaad11579e178e586d94a1d4ed59032cf1014",
+      "excerpt_sha256": "c8cc46d764af04fc418e0a559493da6fcc461dd68c57bca333f5e36013c88400"
+    },
+    {
+      "file": "tests/plugin_contracts/_shared.py",
+      "start": 12,
+      "end": 47,
+      "file_sha256": "57dc8acc67a59416359a3528e3db68c996a146564967d1b10aa96619eeaba4a5",
+      "excerpt_sha256": "0e833dce7598c2d373d0779c6e552cf6dce51df0ae0199b58833616d219a4c03"
+    },
+    {
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 442,
+      "end": 465,
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "3f5fa9415bd9220640635e0ca2582238f4b16fe181b37b1528c7a1aac890a4ec"
+    }
+  ],
+  "official_main_observed": "540ea919e45b8b929198abce008a103be9cfc779",
+  "version_note": "Local fixed revision differs from official main; no fetch or pull performed."
+}

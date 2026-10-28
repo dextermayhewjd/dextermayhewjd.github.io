@@ -2,11 +2,168 @@
 
 [阅读目录](README.md) · [完整路线](repo-reading-route.md) · [源码入口清单](source-map.json)
 
-目标岗位：[腾讯 · 混元 Agent 强化学习框架工程师（深圳/北京/上海）](https://careers.tencent.com/jobdesc.html?postId=2061654749727600640)，岗位 ID `2061654749727600640`。2026-10-10 核对官网时标注更新日期为 2026-09-30。当前学习目标以用户在 2026-10-19 会话中提供的 JD 为准，其文本标注更新于 2026-10-12；不把这次用户提供的文本冒称重新核实的招聘官网状态，也不因官网后续变化自动更换已确认目标。
+目标岗位：[腾讯 · 混元 Agent 强化学习框架工程师（深圳/北京/上海）](https://careers.tencent.com/jobdesc.html?postId=2061654749727600640)，岗位 ID `2061654749727600640`。当前学习目标以用户在 2026-10-28 重新提供的[完整 JD](job-evidence/2026-10-28-user-provided-jd.md)为准。历史来源保留：2026-10-10 核对官网时标注更新日期为 2026-09-30，用户在 2026-10-19 提供的文本标注更新于 2026-10-12。不把用户提供的文本冒称当天重新核实的招聘官网状态，也不因官网后续变化自动更换已确认目标。
 
 阅读目标：先能说明每个模块做什么、输入输出与扩展边界在哪里，再能把一个新策略、评测或运行问题映射到源码、验证和部署动作。这份对照供本目录阅读使用，公开网页保持技术路线表述。
 
 Python 原生异步与并发的专项学习范围统一维护在 [学习规划](../../python-async-reference/learning-plan.md) 第 4.3–4.5 节：只展开原生机制，不承担完整岗位或通用工程化课程。三库 API 频次用于选例与检查遗漏；阶段性调用覆盖比例不作为岗位能力验收。既有源码阅读顺序仍以本目录的唯一路线为准。
+
+<a id="jd-settled-plan-20261028"></a>
+
+## 2026-10-28：现行阅读方向与投入边界
+
+用户已要求敲定后续计划，统一入口为[现行阅读计划与约定](../../00-repo-reading/repositories/slime/slime后续阅读顺序/current-goal-slime-reading-order.md#reading-agreement-20261028)。复用已读 Coding Agent、生成/评分、worker loop 与结果交付，按“生成接口接入与验证 → Sample 到训练数据 → 生成训练闭环 → 关键失败处理”推进。Step 015 负责生成接口与验证；具体阅读和运行状态只由[唯一路线](repo-reading-route.md#当前接续)维护。
+
+生成接入重点对应职责 2、3 和工程验证；数据与训练交接对应职责 5 及要求 4；失败处理对应职责 4 和并发、稳定性要求。评估配置、产物与复跑结合已有实现做验证；Kubernetes 继续作为明确的独立实践要求。Trace 按用户要求保持暂缓，不从能力范围中删除。QueueReader/straw、底层存储/恢复、完整训练算法内部与其他框架不列为当前必读，由具体问题触发。
+
+已有阅读、独立实现和实际运行分别记录。下方是此前的复核与修正过程，保留其证据和当时判断，不作为另一套当前计划。
+
+<a id="jd-full-role-review-20261028"></a>
+
+## 2026-10-28：依据用户重新提供的完整岗位职责复核
+
+本轮依据为[用户贴出的完整 JD](job-evidence/2026-10-28-user-provided-jd.md)，包含五条职责、六条要求和四条加分项；不冒称当天官网核验。此前“两块重点与一块概览”只足以表达近期入口，不能单独作为完整岗位准备清单。
+
+[最新范围与检验目标](../../00-repo-reading/repositories/slime/slime后续阅读顺序/current-goal-slime-reading-order.md#full-jd-review-20261028)明确四部分：复用已读 Agent 主链来解释可替换组件的边界；完成一个策略/评估接入并能复跑比较；验证并发、资源与失败时的行为；理解 Sample 关键字段及生成、训练、权重更新和评估的交接。训练部分从“只扫调用顺序”修正为“说明关键数据的用途与对齐”，仍不要求通读算法、优化器或并行通信内部。实验复现不能只用队列恢复代表。
+
+Trace 继续暂缓、待后续用真实诊断场景补齐；Kubernetes 是独立实践要求。加分项按实际成果呈现，不增加整仓或多语言必读清单。用户随后质疑队列优先级是否受粘贴内容影响；[本轮纠正](../../00-repo-reading/repositories/slime/slime后续阅读顺序/current-goal-slime-reading-order.md#step015-jd-priority-correction)将 QueueReader 保留为可选案例，优先候选改为生成扩展的接入与验证，直接对应职责 2、3。尚未确认或开启新 step；唯一状态仍见[当前接续](repo-reading-route.md#当前接续)。本轮为静态源码和范围核对，无新增运行或掌握判断。以下保留此前建议及其历史依据。
+
+<a id="jd-straw-queue-review-20261028"></a>
+
+2026-10-28 较早的剩余范围建议（已由上方完整 JD 复核补充）：用户再次询问还需阅读哪些代码。当时建议在已读 Agent、生成/评分和正常结果交付之上，集中于“队列生命周期与故障处理”“接口扩展及契约测试”两块重点，另对 BatchBuilder 与 train 主循环做交接层概览。[当时的具体文件、函数与停止位置](../../00-repo-reading/repositories/slime/slime后续阅读顺序/current-goal-slime-reading-order.md#remaining-code-scope-20261028)保留作快照；不将目录或建议当作新 step 已获确认。
+
+## 2026-10-28：用户提出 straw 队列调度的选题评估
+
+用户要求暂缓整个 Trace Step 014，并提供 PR #2426 的队列调度文档差异，询问其与岗位的对应。[具体评估及源码入口](../../00-repo-reading/repositories/slime/slime后续阅读顺序/straw-queue-jd-assessment-2026-10-28.md)已保存。
+
+建议将下一处候选限定为 Slime Python 层“领取 group → 归还 partial → 另一 worker 续跑”，直接对应 JD 的并发编程、任务执行、模块化与稳定性治理。以一个跨 reader 续跑测试及一个丢回复场景核对行为；staleness 与训练背景按需补充，WAL、pack/GC 和完整训练恢复的内部实现暂不列入首轮。Kubernetes 仍需独立的部署与排障实践，Ray/straw 阅读不能替代它。
+
+本次是用户主动提出方向后的评估，不将完整持久队列系统升级为所有候选人都必须深读的要求。用户尚未确认新的具体 step；暂停与后续确认只由[唯一路线](repo-reading-route.md#当前接续)维护。以下 2026-10-26 的岗位范围约束继续保留。
+
+<a id="jd-primary-focus-20261026"></a>
+
+## 2026-10-26：按用户重贴的任职要求收窄主要内容
+
+用户指出上一轮推荐明显多于 JD 的主要要求，要求重新抓重点。上一版把“沿 Slime 完成训练与分布式实现闭环”提升成了近期必读，依据不足。本节修正投入顺序；下方旧方案保留为历史候选，不继续作为必读清单。
+
+以用户本轮提供的六条任职要求和四条加分项为依据：Python/asyncio、Agent 核心链路、模块化与测试/日志/稳定性是主要源码学习方向；Kubernetes/容器及集群经验是独立的主要实践方向。第 4 条只要求了解所列训练或自动化评估方向中的至少一类，不能推出必须深读 advantage/loss、权重同步实现或所有分布式恢复细节。既有职责中的训练视角仍保留全景认识，深度按实际任务决定。
+
+<a id="jd-minimum-sufficient-scope-20261026"></a>
+
+### 范围复核：三项新增阅读放回完整岗位范围
+
+用户进一步要求“不需要变多，但也不能变少”。三项是近期新增的深入阅读，不代表整个岗位只需读这三个局部。稳定范围为：复用已读 Agent 主链 + 三项新增深入 + 训练/评估的背景认识 + Kubernetes 实践。各项以可解释和可验证的行为判断是否充分，不按函数数量或阅读完成率推断胜任。
+
+| 必须保留的范围 | 准备深度与检验方式 | 阅读处理 |
+| --- | --- | --- |
+| Agent 端到端链路 | 能从任务、上下文、模型/工具调用说到结果评估，说明 Harness、Adapter、外部 CLI 与环境的职责边界；知道替换一个组件会影响哪些输入输出 | 复用已读记录，暴露缺口才回查，不假定已读等于掌握 |
+| Python 并发与任务治理 | 能解释限流、任务登记、完成结果、错误传播、取消与资源归还；用一个受控慢/失败任务检查实际行为 | 近期第 1 项；正常交付之后补关键失败场景，内部线程/队列细节按需 |
+| 可维护的接口、Trace 与验证 | 能把一个小需求落为生成/评分接口改动，写有针对性的测试；从 Trace/日志定位一个问题并说明修正依据 | 近期第 2、3 项；阅读与动手一起完成，不以读懂测试文件代替编程能力 |
+| 自动化评估及训练背景 | 能解释任务输入、评估依据、失败计入方式与结果复现；能概括轨迹/奖励如何交给训练、更新怎样影响后续生成 | 评估复用已读场景。训练只核对 BatchBuilder.convert 的输入输出与 train.py 主干，不逐字段展开，不深入 loss/权重同步实现 |
+| 容器与 Kubernetes | 能实际部署同一最小服务/worker，并定位一次资源、服务连接或重启问题，保留操作与恢复证据 | 独立实践；理解服务/进程/Actor/Pod 的边界，完整 Ray 内部实现不作为前置 |
+
+同一个小项目可以同时承载接口修改、测试、慢/失败任务、Trace 与容器部署，并留下需求、取舍、验证和复盘来支持第 6 条要求。加分项用于呈现已有 AI 编程工具/框架经验，跨语言阅读由具体问题触发，不另加必修范围。上述是覆盖主要要求的准备边界，不能保证仅凭读完材料就满足实际招聘标准。
+
+### 近期只保留三项源码重点
+
+| 建议顺序 | 入口 | 对应要求与停止位置 |
+| --- | --- | --- |
+| 1. 接完当前并发任务的结果交付 | `slime/rollout/fully_async_rollout.py`：`AsyncRolloutWorker._make_done_cb`、`get_completed_groups`；必要时短接 `_generate_rollout_async` 的收集段 | 对应要求 1、2、5。先跟踪正常结果从 Task 到队列再被取走；再选一个异常/取消场景理解影响与收尾，不扩成完整重试和队列系统。 |
+| 2. 看任务怎样被追踪 | `slime/observability/trace_utils.py`：`trace_span`，按需回查 `bind_trace`；参考 `tests/observability/test_trace_utils.py:104` | 对应要求 2、5。用同一任务看阶段关联、耗时及异常结束的记录；能定位一个慢或取消案例即停，不读全部追踪设施。 |
+| 3. 看扩展怎样被验证 | `tests/plugin_contracts/test_plugin_generate_contracts.py` 与 `test_plugin_path_loading_contracts.py`，回接已读的生成/评分接口 | 对应要求 1、5、6及框架经验加分项。选一个已有接口，说明输入输出和替换边界，再围绕一个小接入验证结果及失败行为；不重读所有奖励模型。 |
+
+Coding Agent 的模型调用、工具、上下文、任务执行与评估已经有实际阅读记录，是岗位主线的一部分。按问题复用这些记录，补缺口即可；不把已读自动当作已掌握，也不重新开整套阅读。
+
+### 与这三项并行的实践及选读边界
+
+- Kubernetes/容器仍是正式要求，不能降成加分项。沿用已有 kubectl/简单部署基础，选一个小服务或 worker 完成部署和一次故障定位；在实际问题需要时再查 Slime 的资源/服务代码，避免先读完整 Ray 调度和 GPU 部署。
+- 第 4 条优先围绕已读 Coding Agent 的自动化评估说明输入任务、执行、评估标准与结果；训练部分保留上表的交接层背景认识，不作为进入 Trace/测试的前置。
+- `BatchBuilder` 深层转换、advantage/loss、权重同步实现、DistributedRollout/队列持久化恢复、TP/PP/EP 改为问题驱动选读。示例默认 straw 与本地 worker 不同仍是正确的边界事实，但不能因此把默认实现全量升级为岗位必读。
+- AI 编程工具、跨语言和研发效能工具按已有项目经验说明及具体任务补充，不据加分项新增一整套课程。问题分析、协作与 owner 意识通过上述小任务的需求、取舍、验证和复盘呈现。
+
+本节保存根据用户纠正提出的范围建议，不另维护实时步骤状态；实际已读位置、范围确认与实践证据只见[唯一进度](repo-reading-route.md#当前接续)。
+
+<a id="jd-after-step012-20261026"></a>
+
+## 2026-10-26：Step 012 之后的扩展方案（历史，已收窄）
+
+> 该版投入范围已由[主要内容修正](#jd-primary-focus-20261026)收窄；下列训练内部和分布式实现作为候选参考，不是当前必读顺序。
+
+用户再次要求核对腾讯混元岗位，并据此判断剩余的 Slime 阅读范围。本次重新获取[腾讯官方职位接口](https://careers.tencent.com/tencentcareer/api/post/ByPostId?postId=2061654749727600640&language=zh-cn)，HTTP/API 均为 200，职位仍为“混元Agent强化学习框架工程师（深圳/北京/上海）”，更新日期为 2026年10月20日。响应 SHA256 仍为 `ac5b276dc06fe3d204ffd23615691878761427d1d558aa6b8affde084c184c39`，与[当日原始证据](job-evidence/2026-10-26-tencent-2061654749727600640.raw.json)一致。源码 checkout 干净，本地 HEAD 与本次查询的官方 main 均为 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`。
+
+JD 的职责 2、3、4 明确涉及复用组件、策略/评估接口与验证、并发资源及行为一致性；职责 5 要求结合训练视角，要求 3 单独提出 Kubernetes/容器集群经验。因此建议继续补齐数据与控制交接，再围绕一次具体扩展和故障深入。以下是助手的岗位映射建议，不是腾讯指定的源码书单，也不将源码核对记作用户已经阅读。
+
+### 主线：先完成结果交接，再接通训练
+
+| 顺序 | 固定版本源码入口 | 为什么读、读到哪里停 |
+| --- | --- | --- |
+| 1. 完成结果交付 | [AsyncRolloutWorker._make_done_cb:246](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L246) → [get_completed_groups:147](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L147) → [_generate_rollout_async:278](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L278) | 接上已读的 Task 注册点，跟踪一组正常结果从 Task 到队列再被限量取走。先停在正常交付；之后单独补一次异常或中止，不同时展开所有重试、线程和数据源实现。 |
+| 2. 训练数据契约 | [BatchBuilder.convert:256](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/batch_builder.py#L256)，必要时回查 [_post_process_rewards:207](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/batch_builder.py#L207)，接回 [RolloutManager._generate:335](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/rollout.py#L335) | 用一个样本看 tokens、response_length、reward、rollout_log_probs、loss_mask 怎样成为训练字段；再用同一 rollout 的两个片段理解分组身份与掩码。先看数据契约，存储与 DP 分发内部保留黑箱。奖励后处理/归一化不等同于再次调用奖励模型，避免与已读 group_rm 混淆。 |
+| 3. 训练与生成闭环 | [train.py::train:13](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/train.py#L13)，按需进入 [MegatronTrainRayActor.train_actor:450](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/backends/megatron_utils/actor.py#L450) 与 [update_weights:629](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/backends/megatron_utils/actor.py#L629) | 第一轮接通取批次、训练、training_completed、暂停接纳、同步权重、恢复后续生成。下一轮只追一个当前配置的 advantage/loss 分支，回答哪些 token 参与优化、采样 logprob 怎样被使用；不读全后端。运行时完成与持久 checkpoint 提交是不同边界，恢复专题再细看。 |
+| 4. 默认分布式路径与结果一致性 | [DistributedRollout.__init__:504](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_distributed.py#L504)、[RolloutScheduler._run:98](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_distributed.py#L98)、[_GenerationActor._produce:330](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_distributed.py#L330)；再按任务交接进入 [QueueReader.get_samples:1050](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/queue_data_source.py#L1050) 与 [publish_rollout_async:335](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/transport.py#L335) | 先画清 Ray Actor 之间与 Actor 内 asyncio 的边界，再沿一个 group 跟踪领取、生成、提交、消费；随后选 worker 退出或重试案例，检查身份与结果如何保留。队列完整存储实现暂缓。此处补读是因为示例默认 straw 走这条路径，并非 JD 点名要求 Ray。 |
+
+第 4 项是第一轮闭环之后明确需要补的范围，不再只含糊标为“分布式按需”。但不把它提前变成第 1 项的前置。当前 Step 012 的本地 worker 模型仍然有用，不能据此声称已覆盖示例默认路径。以上各项可以按一个问题拆成多个 step；表中的序号不预占步骤或主题编号。
+
+训练侧的定点入口是 [compute_advantages_and_returns:725](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/backends/megatron_utils/loss.py#L725) 与 [policy_loss_function:1128](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/backends/megatron_utils/loss.py#L1128)。它们在第 3 项完成控制骨架后另作局部阅读，不要求从 train 一次向下钻到底。当前先不展开各算法、TP/PP/EP、通信内核和所有权重传输实现。
+
+### 配套：跟一个扩展或故障一起读
+
+| 岗位能力 | 源码与验证入口 | 有限目标 |
+| --- | --- | --- |
+| 策略/评估接口与验证（职责 3；要求 5） | 已读 generate_and_rm、batched_async_rm 和 sample hooks；[test_plugin_generate_contracts.py](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/plugin_contracts/test_plugin_generate_contracts.py)、[test_plugin_path_loading_contracts.py:333](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/plugin_contracts/test_plugin_path_loading_contracts.py#L333) | 选一个自定义评分或生成插件，用真实调用链检查签名、结果类型、数量/顺序、已有 reward 及错误行为。已有测试是起点，新增验证围绕实际改动；不以运行旧测试冒充完成新接入。 |
+| Trace 与故障定位（职责 1、2、4） | [bind_trace:238](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L238)、[trace_span:345](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/observability/trace_utils.py#L345)，跨进程时再看 export_trace/import_trace；[test_trace_closes_cancelled_spans_and_jsonl_roundtrips:104](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/tests/observability/test_trace_utils.py#L104) | 用一次慢或取消任务连接 sample、阶段 span、错误与导出的记录。配合第 1/4 项展开；需要恢复时定点回查 test_fully_async_rollout.py、test_straw_fully_async_recovery.py、test_training_recovery.py，不通读全部追踪设施。 |
+| 资源与部署（职责 4；要求 3） | [ServingCluster:35](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/serving.py#L35)、[create_placement_groups:123](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/placement_group.py#L123)、[start_rollout_servers 所在模块](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/backends/sglang_utils/deployment.py)、[docker/Dockerfile](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/docker/Dockerfile) | 先辨清谁拥有模型服务、队列、资源与清理责任，再做一个容器/Kubernetes 部署及服务连接或资源故障案例。Ray 的资源调度阅读不能代替 JD 要求的集群实际经历。 |
+
+### 已读复用、黑箱与实践边界
+
+Coding Agent 单任务、Harness/Adapter/轨迹转换、generate_and_rm、batched_async_rm、generate_and_rm_group 的既有记录按当前问题调用，不整套重读；group_rm 和所有内置 rm_type 不再作为继续主线的前置。某个接口已讲解与是否亲手完成接入分别记录。
+
+沿用无本地 GPU 的条件：契约测试、受控慢/失败任务和最小容器服务可先用 CPU/替身完成，并明确其覆盖边界；完整模型训练、权重同步与 GPU 集群行为不能由此声称已验证。当前只是源码核对与阅读建议，没有运行这些新增案例。
+
+近期首选仍是第 1 项的正常完成交付；唯一进度与范围确认见[当前接续](repo-reading-route.md#当前接续)。本次不创建 Step 013，不预写函数卡或已掌握状态。
+
+<a id="jd-reading-decision-20261026"></a>
+
+## 2026-10-26：重新核对 JD 后的具体阅读决策
+
+用户指出 group_rm 两层评分条件已经讨论，要求具体按混元岗位决定接下来怎么读。本轮重新读取腾讯官方公开接口，HTTP/API 均为 200；职位仍为“混元Agent强化学习框架工程师（深圳/北京/上海）”，岗位更新日期为 2026年10月20日，要求一年以上工作经验。原始响应哈希与 2026-10-25 完全一致。[本轮字段及原文证据](job-evidence/2026-10-26-tencent-2061654749727600640.json)，[原始响应](job-evidence/2026-10-26-tencent-2061654749727600640.raw.json)，[官方职位入口](https://careers.tencent.com/jobdesc.html?postId=2061654749727600640)。
+
+### 从职责推导投入重点
+
+| JD 中的明确方向 | 对阅读与实践的含义 |
+| --- | --- |
+| 职责 2、3：统一组件，支持策略和评估接入，维护接口及验证 | 能说明扩展入口、Sample/reward 契约，并用一个实际接入和检查证明；不需要按目录通读所有评分算法 |
+| 职责 4，要求 1、5：并发、资源、链路一致性、性能与稳定性 | 当前优先读持续调度、结果收集、背压、失败与取消；通过小实验验证行为 |
+| 职责 1、2，要求 2、5：Trace、自动评估、实验复现 | 将追踪、日志与版本/配置保存用于前述实验；围绕一次慢或失败任务看证据 |
+| 职责 5，要求 4：训练视角与工程化 | 继续连接 Sample、训练批次、训练调用与权重同步，第一轮不展开全部训练后端 |
+| 要求 3：容器/Kubernetes 集群开发、部署或排障经历 | 源码阅读不能替代操作经历，需单独完成部署与一次故障恢复案例 |
+
+这些是基于 JD 的阅读判断，不是对腾讯面试题目或内部实现的保证。加分项中的 AI 编程工具、Agent/Coding CLI、研发效能与跨语言能力保留原文依据，不将其全部升级为本轮必读课程。
+
+### 对评分接入的明确收束
+
+group_rm 的两层归属已经多次讲解，batched_async_rm 的自定义/默认分派也已有记录，后续直接复用这些卡片。未知可以继续保留，但不能因为“尚未亲手接入并验证”就把整段源码阅读重新退回评分入口。
+
+修正上一条“先补评分接入例子再读 _loop”的推荐：**下一源码入口仍为 _loop；自定义评分与契约测试安排为配套实践。** async_rm 的优先级、单条/批量参数和具体评分器只在实践遇到缺口时定点回查，不作为进入调度主线的统一门槛。学习者的“大概理解”不被改记为全部机制掌握。
+
+### 接下来的有限源码顺序
+
+| 次序 | 源码入口 | 本轮要看清什么 | 停止位置 |
+| --- | --- | --- | --- |
+| 1 | [AsyncRolloutWorker._loop:178](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L178) | 怎样持续取组、限制在途组数量，并根据完成结果积压暂停接纳 | 能解释一次补任务和一次回收；线程启动与完整取消留后续 |
+| 2 | [_make_done_cb:246](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L246) → [get_completed_groups:147](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/fully_async_rollout.py#L147) | 成功结果怎样排队，失败/中止怎样影响后续，消费后怎样腾出容量 | 跟踪一组成功结果，再补一种失败或取消情形 |
+| 3 | [BatchBuilder.convert:256](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/batch_builder.py#L256)，接回 [RolloutManager._generate:335](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/rollout.py#L335) | reward、tokens、loss_mask 等怎样被整理并交付训练侧 | 追踪一个样本的字段与形状，不铺开全部自定义转换 |
+| 4 | [train.py::train:13](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/train.py#L13) | 取得 rollout 数据、调用训练、通知完成、同步权重与后续生成怎样相接 | 第一轮能串起闭环；优化器、Megatron 通信等按问题再展开 |
+
+本轮开启 Step 012 时进一步核对实现选择：Coding Agent 示例脚本默认 ROLLOUT_DATA_TRANSPORT=straw，_get_worker 对带 reader_config 的数据源选择 DistributedRollout。本步按已确认入口先读本地 AsyncRolloutWorker._loop 作为持续调度的基础；上述顺序不表示该函数是默认 straw 配置的执行体。分布式对应关系后续按实际部署范围回查，见 [Step 012 的分支边界](../../00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-012-async-rollout-worker-loop/01-scope.md)。
+
+### 与主线配套的实际证据
+
+- 在前两项阅读期间或收束后，选一个小的策略/评分扩展，验证可配置加载、单条或批量接口、结果数量与顺序、已有 reward 的处理。已有参考函数和 plugin_contracts 测试可作起点；当前没有完成这项实践。
+- 用同一个任务制造一次慢、失败或取消，检查活跃任务、结果完整性和名额回收，并读相关 Trace。保存输入、配置、提交、运行命令和结果；没有测量时不声称吞吐提升。
+- 在可用 Kubernetes 环境部署同一个最小 worker/服务，验证一次资源或服务连接问题及恢复。可先使用 CPU 任务或受控服务替身，和真实 GPU 训练证据区分。
+
+不再因一次追问把“已读接口”“当前必读源码”“待做实践”混成新的长前置链。当前进度与是否开始下一步仍由[唯一路线](repo-reading-route.md#当前接续)维护；本段是岗位评估与建议，未自动开启后续步骤。
 
 <a id="next-month-job-plan-20261025"></a>
 
@@ -83,6 +240,14 @@ Python 原生异步与并发的专项学习范围统一维护在 [学习规划](
 - Dressage 继续作为定点设计对照，岗位没有指定必须使用这个框架；一个月内优先利用已有 Slime 基础形成一项可验证扩展。
 
 本轮核对了对应 Slime `18868a79` 的代码与测试文件，没有运行这些测试或替用户创建下一步。这里只记录评估和建议，未直接改写被评估 README 的四项主顺序。
+
+<a id="hunyuan-priority-20261026"></a>
+
+## 2026-10-26：评分接口之后优先补运行治理
+
+用户再次明确“重点是为了对标腾讯的混元这个岗位”。继续沿用已确认 JD 与 2026-10-25 取证，不声称重新核查招聘状态。学习深度按岗位要求决定，不能由当前函数还调用了多少子函数决定。
+
+评分部分优先掌握自定义评分的输入输出、批量/单条约定、已有奖励处理和失败传播；内置 math、F1 等算法实现按具体接入需要回查。生成与评分接口初步串起后，优先补成组并发、持续调度、背压、取消与结果一致性，并配套实际扩展或故障验证。具体下一入口及确认状态仍见[唯一进度](repo-reading-route.md#当前接续)，本段不另存学习进度。
 
 <a id="current-reading-job-relevance"></a>
 

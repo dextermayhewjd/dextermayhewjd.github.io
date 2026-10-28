@@ -1,0 +1,332 @@
+{
+  "checked_at_utc": "2026-10-28T06:38:54.679982+00:00",
+  "source_root": "/home/hongshi/projects/slime",
+  "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "worktree_clean": true,
+  "official_main": "540ea919e45b8b929198abce008a103be9cfc779",
+  "official_check": "git ls-remote https://github.com/THUDM/slime.git refs/heads/main; no fetch/pull",
+  "runtime_executed": true,
+  "runtime_scope": "Isolated source methods with one constructed Sample; see convert-example-output.json. No model, Ray, training, normalization branch or Step 015 pytest execution.",
+  "excerpts": [
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 207,
+      "end": 254,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "2c0b903b864688e65f94e555d1a089f338aa281ceaf9d1c56a3a8a7999735641"
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 256,
+      "end": 443,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "695ff09a17025fb2f4d12b0c72ec16a333715ff0ece1dcd6334d3f191418796f"
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 445,
+      "end": 455,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "d693d96a60926f44b6da02cade78454bc88bc309b48ce7bd2d0267d9f4b0c632"
+    },
+    {
+      "path": "slime/ray/rollout.py",
+      "start": 335,
+      "end": 390,
+      "file_sha256": "4b2cc58e04e583d5fd3d34d3a6f2ffbed79f37e52fefceaef95e63b8aa666304",
+      "excerpt_sha256": "214892db9a6471714a6c91ca27ec0acbd4091105f48df2e0dae875019fb2dc0a"
+    },
+    {
+      "path": "slime/ray/rollout.py",
+      "start": 545,
+      "end": 570,
+      "file_sha256": "4b2cc58e04e583d5fd3d34d3a6f2ffbed79f37e52fefceaef95e63b8aa666304",
+      "excerpt_sha256": "608747b72c20c1f87a86761da49b1034d9c7ee960f73d74119fb5eea62299d27"
+    },
+    {
+      "path": "slime/utils/types.py",
+      "start": 106,
+      "end": 167,
+      "file_sha256": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+      "excerpt_sha256": "dca86a6e84d3352b0c309a348625416b3980733573084d2d5c857db27a71eebf"
+    },
+    {
+      "path": "slime/utils/types.py",
+      "start": 270,
+      "end": 271,
+      "file_sha256": "0843363f908b219fa5f91f013da3dcb25704f3cd3609ef1da04b0de691d8b66e",
+      "excerpt_sha256": "9755f38f893c6c4d2f7bded7937997fe3dcd17beec42b3efdec6afec22edd29c"
+    },
+    {
+      "path": "slime/utils/data.py",
+      "start": 344,
+      "end": 350,
+      "file_sha256": "41575cec0ad4d5fd0b61c5b9ee72da6135ebeff785645f1a950cfd7fb9a4ed9e",
+      "excerpt_sha256": "45f3a3e0903bdb90ed49baee7292b10e2d0c38e11801bd2a86e2bce22ec6ab5a"
+    },
+    {
+      "path": "slime/ray/rollout.py",
+      "start": 317,
+      "end": 333,
+      "file_sha256": "4b2cc58e04e583d5fd3d34d3a6f2ffbed79f37e52fefceaef95e63b8aa666304",
+      "excerpt_sha256": "73b4c6c16a77e8a0ea6c42b4d122a2b8fb11929ff0143135fcbb0857e3ea77c4"
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 48,
+      "end": 120,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "548b0fce20ae68ffbef41ef5836c3685a8199f622952b28d74038025ce022401"
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 497,
+      "end": 530,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "865ce2896cfa4a881fbd4560404fc9ac25ec9a5e04e69ff327061d8c369bf6c5"
+    },
+    {
+      "path": "tests/test_grouped_rewards.py",
+      "start": 20,
+      "end": 99,
+      "file_sha256": "1ac8e4f1530ad2f8288794312a23e366c0c4bd812d9261522ea64448c67a1df3",
+      "excerpt_sha256": "ac9eb149941d5e2178eb9fde8c65e82ded8fa3a2a6fd23e4f7fb64cf32eb9009"
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "start": 445,
+      "end": 530,
+      "file_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "excerpt_sha256": "2ad5ce0e0416c266e4b578dc3c9482047072a0a69a70a46bbda2993657e8f494"
+    },
+    {
+      "path": "slime/utils/dp_schedule.py",
+      "start": 82,
+      "end": 117,
+      "file_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+      "excerpt_sha256": "4f4adb6fcb6fd68aa24cd2e23200e250794d2c812ee23440b904a55cb923f685"
+    },
+    {
+      "path": "slime/observability/rollout_data_utils.py",
+      "start": 13,
+      "end": 60,
+      "file_sha256": "ca3b95b29415d127451bb699d5a48778093a4124dfefd84b4accad0b51f19055",
+      "excerpt_sha256": "afd225605e878a8a2274ce8f7d5f4155dd3caa295339b9f76c1908d1194ce3f1"
+    },
+    {
+      "path": "slime/utils/misc.py",
+      "start": 143,
+      "end": 149,
+      "file_sha256": "6678a7028bc57e9e9191c3657e0ff6b3f5975ab7f720990016d4194578133c6d",
+      "excerpt_sha256": "660d8cd644aa130417e4863fd04b6e56f76fe23ae53356f7a5e70528079cee93"
+    },
+    {
+      "path": "slime/utils/dp_schedule.py",
+      "start": 82,
+      "end": 209,
+      "file_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+      "excerpt_sha256": "94e973965bf360c9900c84fbea1694e2a4a543e14023d4ef2855e2aca9699b14"
+    },
+    {
+      "path": "slime/utils/dp_schedule.py",
+      "start": 55,
+      "end": 79,
+      "file_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+      "excerpt_sha256": "ad4b40c1269204b8b6b965383dac01315593599a0f10ac4112764fb6c9343e43"
+    },
+    {
+      "path": "slime/utils/seqlen_balancing.py",
+      "start": 159,
+      "end": 177,
+      "file_sha256": "1a4f675ef6379d9775f08e74faeaaa9017e5cd4321296fed40fd5a3e80d83bad",
+      "excerpt_sha256": "17f67c0fbe33c561e8b3d5ac99d21c50514542b7cbd69b752dca79623a83b255"
+    },
+    {
+      "path": "tests/test_dp_schedule.py",
+      "start": 54,
+      "end": 90,
+      "file_sha256": "334316d08b2210c01ec377dde5167e234dd491208e04823d5d20d867704c6678",
+      "excerpt_sha256": "39448a71b1f164a104e33b3731f4f607e63b4bb58dbac1206f81332cdfa7030a"
+    },
+    {
+      "path": "tests/test_dp_schedule.py",
+      "start": 145,
+      "end": 190,
+      "file_sha256": "334316d08b2210c01ec377dde5167e234dd491208e04823d5d20d867704c6678",
+      "excerpt_sha256": "1c214ebdbedbc7a2410068629f55705d8c59f409a38f101fbafaa6b1781281eb"
+    }
+  ],
+  "manager_handoff_review": {
+    "runtime_executed": false,
+    "scope": "Static normal-path generate → _generate; begin raw_ref=None branch; split_by_dp return shape only. No Manager/Ray run."
+  },
+  "reward_postprocess_review": {
+    "method": "slime/data/batch_builder.py:207-254",
+    "normalization_runtime_executed": false,
+    "tests_read": "tests/test_grouped_rewards.py:20-99",
+    "tests_run": false,
+    "example_basis": "Static source derivation for raw rewards [1, 3]; arithmetic checked with Python standard library, not a PyTorch execution.",
+    "official_std_reference": "https://docs.pytorch.org/docs/2.14/generated/torch.std.html",
+    "std_default_correction": 1,
+    "scope": "Algorithm/configuration branches, unique rollout group statistics and mapping back to Sample order. Existing runtime evidence covers normalization disabled only."
+  },
+  "field_assembly_review": {
+    "checked_at_utc": "2026-10-28T07:53:14.333419+00:00",
+    "method_range": "slime/data/batch_builder.py:263-288",
+    "runtime_executed": false,
+    "example_basis": "Static continuation of the two-rollout reward example; GRPO, rewards_normalization=True, grpo_std_normalization=False; raw=[1,3], processed=[-1,1].",
+    "scope": "Reward handoff, rollout IDs and seven initial train_data fields; intermediate dictionary before loss masks and optional fields.",
+    "source_head_unchanged": true,
+    "official_main_unchanged": true
+  },
+  "response_mask_review": {
+    "checked_at_utc": "2026-10-28T07:59:13.314354+00:00",
+    "method_range": "slime/data/batch_builder.py:292-304",
+    "runtime_executed": false,
+    "excerpt_changes": "Whitespace/comments and assertion error text only; behavior retained.",
+    "example_basis": "Static continuation of the two-Sample example with response lengths 2 and 3; remove_sample variation is static.",
+    "scope": "Response mask filling, length checking, zeroing and collection; subsequent branches described by purpose only."
+  },
+  "split_by_dp_review": {
+    "checked_at_utc": "2026-10-28T08:09:48.118999+00:00",
+    "runtime_executed": false,
+    "transport": "object-store",
+    "dp_size": 2,
+    "example_basis": "Constructed data continuing the convert example; assumed legal schedule, static field selection and return-shape analysis.",
+    "assumed_schedule": {
+      "partitions": [
+        [
+          0
+        ],
+        [
+          1
+        ]
+      ],
+      "micro_batch_indices": [
+        [
+          [
+            0
+          ]
+        ],
+        [
+          [
+            0
+          ]
+        ]
+      ],
+      "num_microbatches": [
+        1
+      ],
+      "global_batch_sizes": [
+        2
+      ]
+    },
+    "scope": "Length preparation, schedule interface, rank-local field selection, global metadata preservation, tensorization effects and Box(ObjectRef) return. No scheduler algorithm walkthrough or runtime execution."
+  },
+  "build_dp_schedule_scope_review": {
+    "runtime_executed": false,
+    "scope": "Mainline overview and proposed reading boundary only; no separate method card yet."
+  },
+  "build_dp_schedule_concrete_review": {
+    "checked_at_utc": "2026-10-28T08:36:05.926594+00:00",
+    "runtime_executed": true,
+    "method": "AST extraction of unmodified build_dp_schedule and _pack_step_into_mbs bodies from the fixed local source.",
+    "source_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+    "script": "run-dp-schedule-example.py",
+    "output": "dp-schedule-example-output.json",
+    "input": {
+      "args": {
+        "use_dynamic_batch_size": false,
+        "micro_batch_size": 1,
+        "balance_by_flops": false,
+        "balance_data": false
+      },
+      "train_parallel_config": {
+        "dp_size": 2,
+        "cp_size": 1,
+        "vpp_size": 1,
+        "microbatch_group_size_per_vp_stage": 1
+      },
+      "total_lengths": [
+        3,
+        4
+      ],
+      "global_batch_size": 2,
+      "rollout_indices": [
+        10,
+        20
+      ]
+    },
+    "result": {
+      "partitions": [
+        [
+          0
+        ],
+        [
+          1
+        ]
+      ],
+      "micro_batch_indices": [
+        [
+          [
+            0
+          ]
+        ],
+        [
+          [
+            0
+          ]
+        ]
+      ],
+      "num_microbatches": [
+        1
+      ],
+      "global_batch_sizes": [
+        2
+      ]
+    },
+    "scope": "Unmodified function bodies; static micro-batches, no workload balancing. No split_by_dp, Ray, tensors or training execution.",
+    "parent_handoff": "Static source inspection of split_by_dp:457-463 and 498-523; parent function not executed."
+  },
+  "batching_vs_dp_assignment_review": {
+    "checked_at_utc": "2026-10-28T08:52:33.748307+00:00",
+    "runtime_executed": false,
+    "scope": "Static inspection of fixed-count vs token-budget micro-batching and optional FLOPs-based rank assignment; tests inspected but not run.",
+    "example": {
+      "lengths": [
+        8,
+        8,
+        2,
+        2
+      ],
+      "max_tokens_per_gpu": 10,
+      "dp_size": 2,
+      "cp_size": 1,
+      "vpp_size": 1,
+      "global_batch_size": 4,
+      "use_dynamic_batch_size": true,
+      "balance_by_flops": false,
+      "balance_data": false,
+      "derived_microbatches": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "derived_partitions": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    }
+  }
+}

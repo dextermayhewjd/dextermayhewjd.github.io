@@ -23,3 +23,17 @@
 | aborted 为布尔值；DP 上下文选择最少计数并在退出减回 | [reset 与 DP 上下文:123–140](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L123-L140)、[abort:442–448](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L442-L448) |
 
 本轮未执行生成或评分契约测试；并发、取消、评分插件、失败结果及真实环境仍需各自的行为证据。文档构建与链接检查只用于验证阅读材料。
+
+
+## 2026-10-26 · Semaphore.acquire 补充核对
+
+- Slime 本机 `/home/hongshi/projects/slime`，HEAD `18868a79b0b083a093798a94ed0f8cb4f71b9c14`，工作区干净；没有改写上方历史核对时记录的路径。
+- 标准库为本地 Python 3.12.3 的 `/usr/lib/python3.12/asyncio/locks.py`，Semaphore.acquire 在 363–397 行；对照 [CPython v3.12.3](https://github.com/python/cpython/blob/v3.12.3/Lib/asyncio/locks.py#L363-L397) 与 [Python 3.12 接口文档](https://docs.python.org/3.12/library/asyncio-sync.html#asyncio.Semaphore.acquire)。在线维护版文档与固定实现版本分开。
+- 使用 Semaphore(1) 和两个本地任务确认等待、释放后取得、返回 True 与最终归还；没有执行真实 Slime 生成。等待者次序和取消分支没有完整实验验证。
+
+
+## 2026-10-26 · AsyncPacer.wait 与放行回调
+
+- 固定 Slime `18868a79`：`async_utils.py:24–31` 为 wait，`33–42` 为 `_release`；调用处为 `sglang_rollout.py:332`，返回后接到 `333`。
+- 本地实验从真实源码 AST 提取 AsyncPacer 类，记录子类只观察回调前后队列长度：130 个等待调用按 `[64, 64, 2]` 放行，全部 wait 返回 None，全部任务仍停在下游 Event，队列清空且 scheduled=False。没有模型、网络或沙箱运行，取消及实际调度延迟未测试。
+- 语义参考为 Python 3.12 的 call_soon、call_later 与 Future.set_result 官方文档；实验解释器为 Python 3.12.3。

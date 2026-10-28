@@ -1,0 +1,110 @@
+{
+  "repository": "/home/hongshi/projects/slime",
+  "revision": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "checked_on": "2026-10-27",
+  "scope": "trace_utils.py 外的真实业务调用；实现只用于核对输出合同",
+  "runtime_executed": false,
+  "result_status": "normal-path static derivation; no actual Agent/model outputs collected",
+  "caller_excerpts": [
+    {
+      "purpose": "agent_run 与 set",
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 286,
+      "end": 296,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L286-L296",
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "e19ce92c6e610b4d2660e6f8c483ab6b6de2d27ae4809ca9c0dc78e4388d17a1",
+      "excerpt": "                with trace_span(base_sample, \"agent_run\", record_error=False) as span:\n                    agent_exit_code = await harness.run(\n                        sb,\n                        workdir=md[\"workdir\"],\n                        session_id=session_id,\n                        adapter_url=adapter_url,\n                        time_budget_sec=CONFIG.agent_time_budget_sec,\n                        prompt=swe.SWE_PROMPT,\n                    )\n                    span.set(\"exit_code\", agent_exit_code)\n                agent_metrics = await harness.collect_metrics(sb, workdir=md[\"workdir\"])\n"
+    },
+    {
+      "purpose": "外层 coding_rollout",
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 225,
+      "end": 231,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L225-L231",
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "c236c4c9b9d4926e29219d7346515465457d599e982314a84e50567aea4157fe",
+      "excerpt": "async def generate(args, base_sample: Sample, sampling_params: dict[str, Any], evaluation: bool = False):\n    \"\"\"Trace every trajectory, including those later rejected by group filtering.\"\"\"\n    samples = []\n    try:\n        with trace_span(base_sample, \"coding_rollout\", record_error=False):\n            samples = await _generate(args, base_sample, sampling_params, evaluation)\n        return samples\n"
+    },
+    {
+      "purpose": "bind/export/import 的会话组合",
+      "file": "examples/coding_agent_rl/generate.py",
+      "start": 269,
+      "end": 279,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/examples/coding_agent_rl/generate.py#L269-L279",
+      "file_sha256": "974fa90dd781fc77c27e8d6447c1487c919ed3b3d97de4cebef7793b7f2000e5",
+      "excerpt_sha256": "3a9676a336d57c4c28ee87132a6536a77d3df1b539af235eda4fffa5935dfb6c",
+      "excerpt": "    session_id = base_sample.session_id = _session_id(base_sample, instance_id)\n    adapter.open_session(\n        session_id,\n        trace=import_trace(export_trace(bind_trace(base_sample)), base_sample.trace),\n        sampling_defaults=sampling_params,\n        max_context_tokens=state.max_context_len,\n        apply_chat_template_kwargs={\n            **(getattr(args, \"apply_chat_template_kwargs\", None) or {}),\n            **(base_sample.apply_chat_template_kwargs or {}),\n        },\n    )\n"
+    },
+    {
+      "purpose": "Adapter 接收 trace",
+      "file": "slime/agent/adapters/common.py",
+      "start": 275,
+      "end": 292,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L275-L292",
+      "file_sha256": "afe3b9f728e1b7c4e2860fd0ea8ba27ae3623b8d801788baff8d4a0941eae76c",
+      "excerpt_sha256": "763a39f28a4b3cca4bd48096da43aff4692a2f34c6bed5e1534329f12375cfbd",
+      "excerpt": "    def open_session(\n        self,\n        sid: str,\n        *,\n        sampling_defaults: dict | None = None,\n        max_context_tokens: int = 0,\n        apply_chat_template_kwargs: dict | None = None,\n        trace: TraceHandle | None = None,\n    ) -> None:\n        \"\"\"Register a fresh per-sid Session; sids must be unique.\"\"\"\n        if sid in self.store:\n            raise ValueError(f\"session_id {sid!r} already exists; sids must be unique per agent run\")\n        self.store[sid] = Session(\n            sampling_defaults=dict(sampling_defaults or {}),\n            max_context_tokens=int(max_context_tokens or 0),\n            apply_chat_template_kwargs=dict(apply_chat_template_kwargs or {}),\n            trace=trace,\n        )\n"
+    },
+    {
+      "purpose": "Adapter 使用 carrier",
+      "file": "slime/agent/adapters/common.py",
+      "start": 405,
+      "end": 423,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/agent/adapters/common.py#L405-L423",
+      "file_sha256": "afe3b9f728e1b7c4e2860fd0ea8ba27ae3623b8d801788baff8d4a0941eae76c",
+      "excerpt_sha256": "0b692a3c50b1e6166e6f85326258d849bda7577530121edd19aa3e336f54b793",
+      "excerpt": "        s = self.store.setdefault(sid, Session())\n        task = asyncio.current_task()\n        self.inflight.setdefault(sid, set()).add(task)\n        t0 = time.monotonic()\n        try:\n            # HTTP handlers run on the adapter's event loop, so carry the\n            # rollout trace explicitly rather than relying on contextvars.\n            with trace_span(s.trace, \"agent_model_turn\", record_error=False) if s.trace else nullcontext():\n                target = bind_trace_carrier(s.trace.carrier) if s.trace else None\n                with trace_span(target, \"agent_tokenize\", record_error=False) if target else nullcontext():\n                    translated, tools_schema = self._translate(body)\n                    prompt_ids = _session_prompt_ids(\n                        translated,\n                        tok,\n                        tools=tools_schema,\n                        session=s,\n                    )\n\n                turn = await call_sglang_generate(prompt_ids, s, body, adapter=self, session_id=sid)\n"
+    },
+    {
+      "purpose": "trace_function 的装饰声明",
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 288,
+      "end": 294,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L288-L294",
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "7c1fd7581e5f417ac7551d2958b6b13465328d0cd214c45505355fa0b1eae0c8",
+      "excerpt": "@trace_function(\"generate_and_rm\", target=\"sample\")\nasync def generate_and_rm(\n    args: Namespace,\n    sample: Sample | list[Sample],\n    sampling_params: dict[str, Any],\n    evaluation: bool = False,\n) -> Sample | list[Sample]:\n"
+    },
+    {
+      "purpose": "被装饰函数的提交与结果回填",
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 418,
+      "end": 430,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L418-L430",
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "73b5798a0a9735a9aa6d10de8aa7a1a3a51e98dc99d73f7d833c3baf49e1e6f4",
+      "excerpt": "    for idx, sample in enumerate(group):\n        if isinstance(sample, list):\n            continue\n        current_sampling_params = sampling_params.copy()\n        if getattr(args, \"sglang_enable_deterministic_inference\", False):\n            seed = state.group_sampling_seeds[idx]\n            current_sampling_params[\"sampling_seed\"] = seed\n        tasks[idx] = asyncio.create_task(generate_and_rm(args, sample, current_sampling_params, evaluation=evaluation))\n\n    results = await asyncio.gather(*tasks.values())\n    group = list(group)\n    for idx, result in zip(tasks, results, strict=True):\n        group[idx] = result\n"
+    },
+    {
+      "purpose": "SGLang 元信息与 update",
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 219,
+      "end": 230,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L219-L230",
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "1f3901b920b6cf9b96bdc1590d75afe583b4cb843c8f397465d5c40c16e9629a",
+      "excerpt": "    with trace_span(sample, \"sglang_generate\", attrs={\"max_new_tokens\": sampling_params[\"max_new_tokens\"]}) as span:\n        output = await post(\n            url,\n            payload,\n            headers=headers,\n            score_centering_top_k=(\n                (0 if args.rollout_top_p < 1 else args.score_centering_top_k)\n                if getattr(args, \"use_score_centering\", False)\n                else None\n            ),\n        )\n        span.update(build_sglang_meta_trace_attrs(output[\"meta_info\"]))\n"
+    },
+    {
+      "purpose": "模型结果写入样本",
+      "file": "slime/rollout/sglang_rollout.py",
+      "start": 240,
+      "end": 255,
+      "url": "https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L240-L255",
+      "file_sha256": "ccca29acba0ebbcc759c1e26d80218bba9011d68eca04e3bc404050026f6bee6",
+      "excerpt_sha256": "ed7cb765781ef953ceb2c758cc42be265dac599bcb5c07a877132fe942b40752",
+      "excerpt": "    if \"output_token_logprobs\" in output[\"meta_info\"]:\n        new_response_tokens = [item[1] for item in output[\"meta_info\"][\"output_token_logprobs\"]]\n        new_response_log_probs = [item[0] for item in output[\"meta_info\"][\"output_token_logprobs\"]]\n    else:\n        new_response_tokens, new_response_log_probs = [], []\n\n    sample.append_response_tokens(\n        args,\n        tokens=new_response_tokens,\n        log_probs=new_response_log_probs,\n        trainable=True,\n        meta_info=output[\"meta_info\"],\n        text=output[\"text\"],\n    )\n\n    return sample\n"
+    }
+  ],
+  "negative_search": {
+    "symbol": "trace_event",
+    "searched": "repository Python and Markdown excluding trace_utils.py",
+    "python_occurrences_outside_implementation": [],
+    "documentation_occurrences": [
+      "docs/zh/developer_guide/trace.md:47",
+      "docs/en/developer_guide/trace.md:47"
+    ],
+    "qualification": "未找到调用，不证明仓库之外无人使用；旧 tool_started 例子为教学构造"
+  }
+}

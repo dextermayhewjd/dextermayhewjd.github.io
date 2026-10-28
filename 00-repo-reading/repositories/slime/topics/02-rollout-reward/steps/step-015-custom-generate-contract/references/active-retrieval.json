@@ -1,0 +1,31 @@
+{
+  "note": "Preserve inherited cards in 03; only 02 receives current observations. The generate placeholder is filled from verified source, not treated as a prior complete card.",
+  "records": [
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source": "03-long-term-memory/functions/slime/rollout/sglang_rollout.py/generate_and_rm.md",
+      "source_sha256": "df0b7a237106b8cde99fcc54b6c1f90b7ec2143c688931ffb2f8ed67ac93c6f4",
+      "inherited_placeholder": false
+    },
+    {
+      "record": "functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source": "03-long-term-memory/functions/examples/coding_agent_rl/generate.py/generate.md",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inherited_placeholder": true
+    },
+    {
+      "record": "classes/slime/utils/types.py/Sample.md",
+      "source": "03-long-term-memory/classes/slime/utils/types.py/Sample.md",
+      "source_sha256": "73a7b8e6417a2e94e2e49912dca8816163a6027da02d52494fb681c3e5f41929",
+      "inherited_placeholder": false,
+      "reason": "Step 015: reuse the existing class card for the returned-sample field view; no inherited snapshot edits."
+    },
+    {
+      "record": "functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source": "03-long-term-memory/functions/slime/rollout/sglang_rollout.py/_run_server_abort_generate.md",
+      "source_sha256": "9656fab9a1dcb809942d648dc94153e47f48c5b532d9e32196a92403c8f40331",
+      "inherited_placeholder": false,
+      "reason": "Step 015: distinguish the normal waiting wrapper and interface errors from an actual abort request."
+    }
+  ]
+}

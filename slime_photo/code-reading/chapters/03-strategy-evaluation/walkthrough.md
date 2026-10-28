@@ -145,7 +145,104 @@ finally:
 
 **1. acquire：为当前任务取得生成名额。** 名额用完时，当前协程在这里等待；其他任务释放名额后，它才能继续。这一行不从队列取出下一个 Sample，也不表示生成下一个 token。Coding Agent 的一次生成任务内部可以发起多次模型请求，名额在这段任务结束后归还。
 
+<a id="semaphore-acquire"></a>
+
+### acquire 的输入、返回值与等待范围
+
+`state.semaphore` 是标准库 `asyncio.Semaphore`。构造 `Semaphore(N)` 时设置的是 **N 个可重复使用的名额**：在正确配对取得和归还的前提下，同一时刻最多 N 个任务占用名额，并非整次运行只能生成 N 条。`acquire()` 取得一个名额，生成段结束后的 `release()` 将它归还。
+
+调用 `await state.semaphore.acquire()` 时，没有把 Sample 传进去；当前任务已经带着 Sample 来到这里，正在申请进入后续生成段的名额。
+
+- **可以立即取得名额**：减少可用名额，成功返回 `True`。
+- **暂时不能取得名额**：登记等待并挂起当前任务，事件循环仍可推进其他任务；得到名额后返回 `True`。
+- **返回之后**：Slime 没有接收这个布尔值，直接进入 `try`，继续 `pacer.wait()`。名额在后续生成段结束时归还。
+
+Python 3.12.3 的实现还会考虑已有等待者，因此立即取得的条件以 `locked()` 为准，不能只看计数是否大于零。方法不返回下一个 Sample，也不开始生成 token。
+
+局部验证使用 Python 3.12.3 的 `Semaphore(1)`：A 先取得，B 等待，A 释放后 B 取得并归还；这是标准库实验，没有运行 Slime rollout。接口可核对 [Python 3.12 官方文档](https://docs.python.org/3.12/library/asyncio-sync.html#asyncio.Semaphore.acquire)，实现绑定 [CPython v3.12.3](https://github.com/python/cpython/blob/v3.12.3/Lib/asyncio/locks.py#L363-L397)。
+
+### 回到后续控制
+
 **2. pacer.wait：让拿到名额的任务分批继续。** 它每批最多释放 64 个等待者；仍有等待者时，用 `call_later(0.001, ...)` 安排后续批次。后续批次不需要等待上一批完成生成。semaphore 管进入生成段的数量，pacer 让大量任务的启动不要集中在一次事件循环调度中。
+
+<a id="generation-pacer-wait"></a>
+
+### pacer.wait：当前任务怎样等到分批放行
+
+到这一行时，当前任务已经取得 semaphore 名额。pacer 再控制它何时继续：大量任务取得名额后，也可以分批进入后续代码。
+
+先看实际的 wait 方法：
+
+```python
+async def wait(self):
+    loop = asyncio.get_running_loop()
+    future = loop.create_future()
+    self.pending.append(future)
+    if not self.scheduled:
+        self.scheduled = True
+        loop.call_soon(self._release)
+    await future
+```
+
+每个调用创建自己的 Future，放入共享的 pending 队列。Future 在这里表示“这一次调用还在等放行”；pending 里保存的不是 Sample，也不是另建的生成 Task。scheduled 表示已经安排了放行回调链，后来的调用只需入队，不重复启动。
+
+`call_soon(self._release)` 请事件循环稍后调用 `_release`，当前任务则在 `await future` 等待。`_release` 的关键动作是：
+
+```python
+for _ in range(min(64, len(self.pending))):
+    future = self.pending.popleft()
+    if not future.done():
+        future.set_result(None)
+```
+
+完成 Future 后，对应的等待任务便可以恢复。每次回调最多取 64 个队列项；还有剩余时用 `call_later(0.001, self._release)` 安排后续批次，清空时把 scheduled 设回 False。实际执行间隔由事件循环调度决定，不保证精确 1 毫秒。
+
+```text
+当前任务：wait → Future 入队 → 等待 ───────────→ 返回 None → 检查 aborted
+事件循环：                 _release → set_result(None)
+```
+
+这里有三个边界：
+
+- **放行后，名额仍在。** pacer.wait 不归还 semaphore 名额；父函数离开生成段时才归还。
+- **每批数量不等于并发上限。** 后批不等待前批生成完成，生成阶段的名额上限仍由 semaphore 管。
+- **两种 release 不同。** AsyncPacer._release 完成等待 Future；Semaphore.release 归还并发名额。
+
+<a id="pacer-queue-and-loop"></a>
+
+### 谁把等待者放到一起，loop 控制多少个
+
+当前任务运行到 `wait()` 后，先创建 Future，**立即执行 `self.pending.append(future)`**，然后才到 `await future` 等待。这几行之间没有 await，不需要先等事件循环检查 pending 或批准入队。pending 是 pacer 自己的队列，事件循环负责调度任务和回调。
+
+多个调用者共用队列的来路是：同一进程内的生成任务通常取得同一个 GenerateState，并使用其中同一个 generation_pacer；任务陆续执行 wait，把各自的 Future 加进共同的 pending。Sample 仍由各自任务持有，没有被移进 pacer。
+
+```text
+输入 group 中的 Sample → 各自的 generate_and_rm Task
+                               ↓ 取得 semaphore 名额
+                               ↓ 调用同一个 pacer.wait
+                        各自的 Future → 同一个 pending
+                                           ↓
+                               _release 每次最多取 64 项
+```
+
+上游 `generate_and_rm_group` 在所选的新样本路径中创建这些 Task，最后用 gather 等待结果。**输入 group、pacer 的放行批次、事件循环的一次调度是不同的边界。** gather 收集这组任务的结果，不要求它们同时起跑。
+
+- **并发名额数**由 semaphore 容量决定；任务在 pacer 等待时也占着名额。
+- **一次放行项数**由 `min(64, len(self.pending))` 决定。只有 3 项就处理 3 项，不必凑满 64。
+- **输入样本组**来自上游传入的 group；pacer 不把样本重新组合成一次模型请求，也不保证同组任务同批放行。
+
+这是一批任务先后获得继续执行的机会，不是在某个物理时刻同时执行。上游调用证据见 [generate_and_rm_group:417–427](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L417-L427)，共享对象见 [SingletonMeta:62–76](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/utils/misc.py#L62-L76)。
+
+本地控制实验让 130 个任务先经过 pacer，再统一等待下游 Event，观察到放行批次为 64、64、2；此时 130 个任务都仍未完成。这验证了分批放行不需要等待前一批结束，未测量真实性能，也未运行模型。
+
+<details>
+<summary>源码与接口依据</summary>
+
+- [Slime 固定实现：AsyncPacer:8–42](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/utils/async_utils.py#L8-L42)。
+- [调用与返回位置：sglang_rollout.py:329–335](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/rollout/sglang_rollout.py#L329-L335)。
+- Python 3.12 官方接口：[call_soon](https://docs.python.org/3.12/library/asyncio-eventloop.html#asyncio.loop.call_soon)、[call_later](https://docs.python.org/3.12/library/asyncio-eventloop.html#asyncio.loop.call_later)、[Future.set_result](https://docs.python.org/3.12/library/asyncio-future.html#asyncio.Future.set_result)。实验使用本地 Python 3.12.3。
+
+</details>
 
 **3. aborted：检查是否已经要求中止。** 它是一个布尔值，重置时为 `False`，中止入口将其置为 `True`。此处为真，就把当前 `sample.status` 设为 ABORTED 并返回；外层 finally 仍然会归还名额。
 
@@ -162,6 +259,36 @@ finally:
 | 离开 with | `[2, 0, 1]` | 本次占用已归还 |
 
 这个上下文交出的 rank 编号在调用处被 `_` 接住；本段没有直接把编号传给模型请求。当前先确认计数和生命周期，实际请求如何路由需要另外核对。
+
+<a id="dp-context-entry-exit"></a>
+
+### DP 计数为何进入加一、退出减一
+
+这里统计的是每个 rank 当前登记的、尚未退出上下文的生成数量。它不累计已经完成的任务，也不通过这个方法计算一共有多少个 DP 副本。
+
+选择时先找当前计数最小的 rank，并列时随机选择，不是按 rank 编号依次轮流分配。
+
+contextmanager 把同一次使用分成前后两段：
+
+```text
+进入 with → yield 前：选 rank，计数 +1
+         → yield 交出 rank，开始执行 with 内的生成代码
+退出 with → finally：给先前选中的 rank -1
+```
+
+<a id="contextmanager-yield"></a>
+
+### @contextmanager：yield 分界与退出清理
+
+这里确实利用了生成器（也是迭代器）暂停与继续的能力：进入 with 时运行到 yield，离开时恢复。**分界点是 yield；try/finally 不是 contextmanager 自动生成的，而是源码显式写出的。** 本例选 rank、加一在 try 之前；try 围住 yield，finally 负责减一，确保正常或异常离开时都清理这次登记。
+
+调用 `state.dp_rank_context()` 得到的是上下文管理器；它内部驱动生成器，yield 交出的整数 rank 才绑定给 `_`。生成器暂停时，执行的是调用方 with 主体中的生成代码。正常离开主体时继续推进生成器；异常离开时将异常送回 yield 处，本例都会经过显式 finally 撤销计数。
+
+进入表示“本次生成开始占用一份登记”，退出表示“本次登记结束”，两者操作相反。退出时不重新选择 rank；减一放在 finally 中，正常结束或异常离开时都执行清理。若只加不减，已经结束的生成会继续被统计，后续看到的占用就会失真。
+
+例如没有其他调用同时修改时，`[2, 0, 1]` 在本次进入后变成 `[2, 1, 1]`，离开后回到 `[2, 0, 1]`。这个计数过程不等于已经验证模型请求被路由到该 rank。
+
+[Python 官方 contextmanager 说明](https://docs.python.org/3.12/library/contextlib.html#contextlib.contextmanager)解释了 yield 时运行 with 主体、离开后恢复生成器的时机；具体加减操作来自本节 Slime 源码。
 
 <a id="two-kinds-of-context"></a>
 
@@ -241,6 +368,26 @@ else:
 - **准备调用**：Coding Agent 的 `generate` 接收 `evaluation`，因此走第一条调用分支。本例值为 `False`。
 
 此时 `generate_call` 是本次调用创建的协程对象，尚未取得任务结果。随后才由 `_run_request_abortable_generate` 或 `_run_server_abort_generate` 接手等待。把“选哪个函数”和“等待它交回什么”分开，下一段的返回值就容易跟踪。
+
+<a id="generator-contract"></a>
+
+### 生成函数需要满足什么约定
+
+这是受控生成阶段内值得单独看清的一项：框架怎样找到生成器，以及生成器怎样接住任务、交回结果。`load_function` 是加载工具；加载出来的 `generate_func` 才是执行生成的函数。
+
+| 交接 | 当前调用要求 | 本例 |
+| --- | --- | --- |
+| 路径 → 函数 | 路径最后一段是属性名，前面是可导入模块；取出的对象要能被调用 | `examples.coding_agent_rl.generate.generate` |
+| 调用参数 | 接收按位置传入的 `args`、`sample`、`sampling_params` | Coding Agent 用 `base_sample` 命名第二个参数，参数名不必相同 |
+| 可选评估参数 | 自定义函数的签名含 `evaluation` 时，框架另用关键字传入它 | 本例支持，当前传入 `False` |
+| 调用后 | 返回可供包装器 `await` 的对象 | 本例的 `async def generate` 调用后得到协程对象 |
+| 等待完成后 | 交回 `Sample` 或 `list[Sample]`，供后续 hook 与评分逻辑使用 | Coding Agent 的正常训练路径返回样本列表；后续读取 `status` 与 `reward` |
+
+`load_function` 本身只拆分路径、导入模块、取出属性，没有校验上面这整套生成接口，也不负责执行生成。路径取到一个对象，只完成了加载；它是否能按这些参数调用、能否被等待、最终结果是否符合后续处理，由实际调用链决定。
+
+奖励也不是必须由生成器填写：非组评分路径会补 `reward is None` 的结果；本例的 Coding Agent 已在内部完成评测，因此通常返回已有奖励的样本。
+
+阅读记录中，这段先保留为 `generate_and_rm` 父函数的“选择并调用生成器”阶段，记录路径、实参、等待与结果的交接。只有需要单独研究动态加载机制时，再展开 `load_function`；需要研究具体 Agent 怎么生成时，则回到已有 Coding Agent 记录。它与 pacer、DP 上下文同属受控生成阶段，不要求先读完这两个机制的内部实现才能理解接口。
 
 <details>
 <summary>本段源码位置</summary>
