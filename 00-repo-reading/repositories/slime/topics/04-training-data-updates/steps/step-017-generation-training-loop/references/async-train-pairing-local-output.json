@@ -1,0 +1,79 @@
+{
+  "python": "3.12.3",
+  "source": "18868a79:slime/ray/actor_group.py:148-166",
+  "method_extracted_unchanged": true,
+  "remote_calls_are_recording_stubs": true,
+  "real_ray_or_training_executed": false,
+  "cases": [
+    {
+      "external_data": [
+        "extra0",
+        "extra1"
+      ],
+      "calls_before_return": [
+        {
+          "worker": "worker0",
+          "rollout_id": 7,
+          "rollout_data_ref": [
+            "mock-Box<data0>",
+            "mock-Box<data1>"
+          ],
+          "external_data": "extra0",
+          "returns": "mock-ObjectRef<worker0>"
+        },
+        {
+          "worker": "worker1",
+          "rollout_id": 7,
+          "rollout_data_ref": [
+            "mock-Box<data0>",
+            "mock-Box<data1>"
+          ],
+          "external_data": "extra1",
+          "returns": "mock-ObjectRef<worker1>"
+        }
+      ],
+      "return_type": "list",
+      "return_value": [
+        "mock-ObjectRef<worker0>",
+        "mock-ObjectRef<worker1>"
+      ]
+    },
+    {
+      "external_data": null,
+      "calls_before_return": [
+        {
+          "worker": "worker0",
+          "rollout_id": 7,
+          "rollout_data_ref": [
+            "mock-Box<data0>",
+            "mock-Box<data1>"
+          ],
+          "external_data": null,
+          "returns": "mock-ObjectRef<worker0>"
+        },
+        {
+          "worker": "worker1",
+          "rollout_id": 7,
+          "rollout_data_ref": [
+            "mock-Box<data0>",
+            "mock-Box<data1>"
+          ],
+          "external_data": null,
+          "returns": "mock-ObjectRef<worker1>"
+        }
+      ],
+      "return_type": "list",
+      "return_value": [
+        "mock-ObjectRef<worker0>",
+        "mock-ObjectRef<worker1>"
+      ]
+    },
+    {
+      "external_data": [
+        "extra0"
+      ],
+      "error": "AssertionError",
+      "calls_before_error": []
+    }
+  ]
+}

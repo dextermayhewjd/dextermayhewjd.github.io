@@ -1,0 +1,59 @@
+{
+  "returned_sample": {
+    "index": 8,
+    "group_index": 2,
+    "status": "completed",
+    "response": "2",
+    "reward": 1.0
+  },
+  "sample_trace": {
+    "version": 1,
+    "trace_id": "T2",
+    "sample_id": 8,
+    "group_id": 2,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "generate_and_rm_group",
+        "ts": 19.0,
+        "trace_id": "T2",
+        "sample_id": 8,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "G0",
+        "attrs": {
+          "group_size": 1
+        }
+      },
+      {
+        "type": "span_start",
+        "name": "generate_and_rm",
+        "ts": 20.0,
+        "trace_id": "T2",
+        "sample_id": 8,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "F1",
+        "parent_span_id": "G0"
+      },
+      {
+        "type": "span_end",
+        "name": "generate_and_rm",
+        "ts": 20.01,
+        "trace_id": "T2",
+        "sample_id": 8,
+        "group_id": 2,
+        "attempt": 0,
+        "span_id": "F1"
+      }
+    ]
+  },
+  "identity": {
+    "returned_sample_is_input": true
+  },
+  "active_context_after": {
+    "trace_id": "T2",
+    "span_id": "G0"
+  }
+}

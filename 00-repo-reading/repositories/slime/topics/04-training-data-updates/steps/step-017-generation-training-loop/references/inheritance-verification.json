@@ -1,0 +1,15 @@
+{
+  "checked_local_links": 1703,
+  "source_content_hashes_checked": 100,
+  "preserved_historical_duplicate_anchors": [
+    {
+      "target": "03-long-term-memory/functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "source": "00-repo-reading/repositories/slime/topics/02-rollout-reward/steps/step-016-sample-to-train-data/03-long-term-memory/functions/slime/agent/sandbox.py/ensure_agent_user.md",
+      "anchors": [
+        "prior-evaluation-sandbox-protocol",
+        "sandbox-protocol"
+      ]
+    }
+  ],
+  "new_link_or_markup_issues": []
+}

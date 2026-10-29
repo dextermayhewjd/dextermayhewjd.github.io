@@ -137,7 +137,7 @@ def split_by_dp(self, data):
     return result                                 # 530：每个 rank 一项
 ```
 
-骨架按实际执行顺序排列。阅读时，本轮先看 [520 行对应的实际数据前后](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md#data-before-after)，明确各 rank 得到哪些 tokens 和 reward，再按需回查 457 行的 [build_dp_schedule 具体例子](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md#two-sample-example)。调度函数返回后接回 498–523 行选择字段、附上安排，最后确认包装引用的交付；动态装箱、负载均衡和传输实现继续保留黑箱。
+骨架按实际执行顺序排列。阅读时，先看 [520 行对应的实际数据前后](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md#data-before-after)，明确各 rank 得到哪些 tokens 和 reward；457 行的子调用单独保存在 [build_dp_schedule 函数卡](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md)，包含配置准备、输入输出与调度主干。调度函数返回后接回 498–523 行选择字段、附上安排，最后确认包装引用的交付；动态装箱、负载均衡和传输实现继续保留黑箱。
 
 <details>
 <summary>调用方背景：此前的 Manager / begin 回查，本轮不展开</summary>
@@ -177,7 +177,7 @@ return self.batch_builder.split_by_dp(data)                  # 390：分配并�
 | **第二步：响应段的 loss_mask** | [convert 卡：响应 mask 简读](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.convert.md#response-loss-mask)，源码 292–304，再定位至 321 | 先看补齐、长度检查、remove_sample 清零与收集；按用户的简读要求，rollout 内汇总先保留用途，读后回到 `train_data`。 |
 | **第三步：已有奖励怎样后处理** | [调用处 263](/home/hongshi/projects/slime/slime/data/batch_builder.py:263) → [_post_process_rewards 方法卡](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder._post_process_rewards.md#algorithm-outputs) | 本轮按用户问题展开算法与开关的输出对照，解释 rollout 去重、组内处理与映射回 Sample；读完返回字典的 rewards / raw_reward。不扩展完整 RL loss。 |
 | **第四步：补充生成信息并返回** | [源码 335](/home/hongshi/projects/slime/slime/data/batch_builder.py:335)与 [443](/home/hongshi/projects/slime/slime/data/batch_builder.py:443) | 定位 rollout_log_probs 的携带用途和可选字段边界；回到调用方 385，再定位 390 的 split_by_dp。 |
-| **第五步：把数据交给各 DP rank** | [先看 split_by_dp 的实际数据前后](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md#data-before-after)，对应源码 520；需要回查分配表时，再看 457 行的 [build_dp_schedule 具体例子](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md#two-sample-example) | 先看 tokens 与 reward 如何成对进入各 rank，再定位分配表来源和引用返回；本轮调整的是理解顺序，实际执行顺序仍按骨架。复杂调度算法和传输内部不展开。 |
+| **第五步：把数据交给各 DP rank** | [split_by_dp 的 A–H 收尾](02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md#closing-eight-samples)：按计划取字段、附安排、返回引用；此前 457 行的子调用已在 [build_dp_schedule 核心骨架](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md#schedule-flow)及[四项返回值](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md#schedule-return-values)展开；概念按需回查 [reference](references/parallelism-primer.md) | 接清索引计划如何成为各 rank 的配套数据和引用。张量化先认识用途与类型变化，传输和训练内部不展开。 |
 
 连续语句按各自父函数的阶段组织。奖励后处理、split_by_dp 和本轮询问的 build_dp_schedule 已按独立问题建立方法卡；其余辅助调用先保留接口，不继续拆卡。调度子卡属于第五个阅读入口，不另开 Step。源码入口不代表已经全部读过。
 

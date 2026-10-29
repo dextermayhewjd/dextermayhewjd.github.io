@@ -28,3 +28,5 @@
 | Step 016 | 生成后的 Sample 怎样成为训练所需的数据 | [阅读范围与记录](steps/step-016-sample-to-train-data/README.md) |
 
 [网页讲解](http://localhost:1313/projects/slime/rollout-reward/)随实际阅读补充。步骤编号延续前一主题，前序记忆按上一实际步骤的 `03 + 02` 继承；本页只作主题与步骤索引。
+
+训练数据交付后的主循环接续见 [主题 04 · 训练数据与更新](../04-training-data-updates/README.md)。

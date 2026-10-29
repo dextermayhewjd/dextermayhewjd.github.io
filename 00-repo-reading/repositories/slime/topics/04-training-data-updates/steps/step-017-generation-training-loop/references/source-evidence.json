@@ -1,0 +1,171 @@
+{
+  "checked_date": "2026-10-29",
+  "source_root": "/home/hongshi/projects/slime",
+  "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+  "worktree_clean": true,
+  "official_main": "540ea919e45b8b929198abce008a103be9cfc779",
+  "official_check": "git ls-remote https://github.com/THUDM/slime.git refs/heads/main; read-only; no fetch/checkout",
+  "runtime_executed": true,
+  "reading_scope": "Step 017: prior training submission and completion notification; current phase 3 reads pause/update/resume orchestration and the non-full-disk RayTrainGroup.update_weights branch. Weight transport internals and evaluation implementation remain unexpanded.",
+  "excerpts": [
+    {
+      "path": "train.py",
+      "sha256": "9ab1d9a987182dc5ae57d19ca82a3807fd18adee8cecf0afe118cadbd8939939",
+      "line_ranges": [
+        [
+          13,
+          25
+        ],
+        [
+          47,
+          99
+        ],
+        [
+          102,
+          112
+        ]
+      ]
+    },
+    {
+      "path": "slime/ray/actor_group.py",
+      "sha256": "ded0c12645992c7ab5c7034a91b418f195a6109dda02c3af0d0548804f39340c",
+      "line_ranges": [
+        [
+          148,
+          167
+        ],
+        [
+          105,
+          134
+        ],
+        [
+          178,
+          190
+        ],
+        [
+          241,
+          246
+        ]
+      ]
+    },
+    {
+      "path": "slime/ray/rollout.py",
+      "sha256": "4b2cc58e04e583d5fd3d34d3a6f2ffbed79f37e52fefceaef95e63b8aa666304",
+      "line_ranges": [
+        [
+          317,
+          333
+        ],
+        [
+          385,
+          390
+        ],
+        [
+          430,
+          431
+        ],
+        [
+          545,
+          558
+        ],
+        [
+          151,
+          158
+        ]
+      ]
+    },
+    {
+      "path": "slime/ray/placement_group.py",
+      "sha256": "514502378e1bcb29f214fa02b8351edd7e4c1d4ca26015e7098711918e6d014a",
+      "line_ranges": [
+        [
+          203,
+          240
+        ]
+      ]
+    },
+    {
+      "path": "slime/data/batch_builder.py",
+      "sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+      "line_ranges": [
+        [
+          498,
+          530
+        ],
+        [
+          32,
+          38
+        ],
+        [
+          48,
+          57
+        ],
+        [
+          144,
+          148
+        ]
+      ]
+    },
+    {
+      "path": "slime/backends/megatron_utils/actor.py",
+      "sha256": "9f0e0cd3119c8354cd76c1972c908143b7f933b2653a1f53a2a898b1f8b13739",
+      "line_ranges": [
+        [
+          400,
+          420
+        ],
+        [
+          629,
+          678
+        ]
+      ],
+      "scope": "Locate default worker entry only; training computation remains unexpanded."
+    },
+    {
+      "path": "slime/data/queue_data_source.py",
+      "sha256": "919d302b5cf870fa38d3cd630fc08c886535120b963115546541384001feda22",
+      "line_ranges": [
+        [
+          814,
+          827
+        ]
+      ],
+      "scope": "Read-only verification that finish_batch is implemented and performs completion bookkeeping; helper internals and full queue behavior not studied."
+    },
+    {
+      "path": "slime/rollout/fully_async_rollout.py",
+      "sha256": "4d8bd897b52539060d52d29ac8e1cf205adfd65b5fe33b3f19fb2eb13e51367e",
+      "line_ranges": [
+        [
+          114,
+          126
+        ]
+      ],
+      "scope": "Read only to verify admission pause, drain=False and previous pause state; no full worker reread."
+    },
+    {
+      "path": "slime/rollout/fully_async_distributed.py",
+      "sha256": "8ca5cc70b7881a38fc119ada95af9db7f98c04a3cbabd32565cbc37fe5f8470c",
+      "line_ranges": [
+        [
+          209,
+          231
+        ]
+      ],
+      "scope": "Read only to verify admission pause, drain=False and previous pause state; no full worker reread."
+    }
+  ],
+  "data_transport": "object-store",
+  "runtime_scope": "Isolated unmodified async_train method with recording remote stubs only; no real Ray, model or training execution.",
+  "real_ray_or_training_executed": false,
+  "local_control_flow_check": {
+    "output": "async-train-pairing-local-output.json",
+    "cases": [
+      "per-worker external_data list",
+      "external_data=None",
+      "mismatched lengths"
+    ],
+    "python": "3.12.3"
+  },
+  "latest_reading": "2026-10-29: phase 3 interfaces checked statically; no new runtime."
+}

@@ -9,7 +9,7 @@
 ## 从哪里读
 
 1. [01 · scope](01-scope.md#reading-order)：整体位置、默认转换骨架和固定阅读编号。
-2. [02 · 短期记忆](02-short-term-memory/overview.md)：转换、奖励后处理、DP 交接方法卡，以及调取的完整 Sample 类卡；Manager 交接卡保留为背景。
+2. [02 · 短期记忆](02-short-term-memory/overview.md)：转换、奖励后处理、DP 交接方法卡，以及调取的完整 Sample 类卡；其中 [build_dp_schedule 独立函数卡：源码骨架与输入输出](02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md#schedule-flow)保存调度输入、约束、主干和输出。Manager 交接卡保留为背景。
 3. [03 · 前序记录](03-long-term-memory/overview.md)：完整继承 Step 015 的 03 + 02，共 78 份函数／类记录、17 份配套文件，保留 2 份历史空白占位。
 4. [04 · 理解形成过程](04-flow.md)：范围确认、首个观察点及证据边界。
 
@@ -25,3 +25,5 @@
 - 首轮读到 `convert` 返回字典；后续按用户确认简读 `split_by_dp` 的字段分配与返回引用，并用 `build_dp_schedule` 的固定配置补清索引来源。动态装箱、负载均衡、训练算法、张量打包、持久化和 Trace 内部继续留在边界外；不处理 Hugo。
 
 源码核对与材料建立不代表用户已理解整个转换。本步暂不生成完成总结。
+
+后续已按用户确认开启 [Step 017 · 生成训练闭环](../../../04-training-data-updates/steps/step-017-generation-training-loop/README.md)，承接本步的数据引用；本步原有源码与理解记录保留。

@@ -1,0 +1,86 @@
+{
+  "metadata_attrs": {
+    "prompt_tokens": 12,
+    "completion_tokens": 1,
+    "cached_tokens": 0,
+    "e2e_latency": 0.2,
+    "finish_reason": "stop",
+    "sglang_request_id": "req-10"
+  },
+  "sample_trace": {
+    "version": 1,
+    "trace_id": "T4",
+    "sample_id": 10,
+    "group_id": 3,
+    "attempt": 0,
+    "events": [
+      {
+        "type": "span_start",
+        "name": "generate_and_rm",
+        "ts": 39.0,
+        "trace_id": "T4",
+        "sample_id": 10,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "F0"
+      },
+      {
+        "type": "span_start",
+        "name": "sglang_generate",
+        "ts": 40.0,
+        "trace_id": "T4",
+        "sample_id": 10,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "S4",
+        "parent_span_id": "F0",
+        "attrs": {
+          "max_new_tokens": 16
+        }
+      },
+      {
+        "type": "span_end",
+        "name": "sglang_generate",
+        "ts": 40.2,
+        "trace_id": "T4",
+        "sample_id": 10,
+        "group_id": 3,
+        "attempt": 0,
+        "span_id": "S4",
+        "attrs": {
+          "prompt_tokens": 12,
+          "completion_tokens": 1,
+          "cached_tokens": 0,
+          "e2e_latency": 0.2,
+          "finish_reason": "stop",
+          "sglang_request_id": "req-10"
+        }
+      }
+    ]
+  },
+  "after_update": {
+    "end_attrs": {
+      "prompt_tokens": 12,
+      "completion_tokens": 1,
+      "cached_tokens": 0,
+      "e2e_latency": 0.2,
+      "finish_reason": "stop",
+      "sglang_request_id": "req-10"
+    },
+    "closed": false,
+    "end_event_count": 0
+  },
+  "after_exit": {
+    "end_attrs": {
+      "prompt_tokens": 12,
+      "completion_tokens": 1,
+      "cached_tokens": 0,
+      "e2e_latency": 0.2,
+      "finish_reason": "stop",
+      "sglang_request_id": "req-10"
+    },
+    "closed": true,
+    "end_event_count": 1
+  },
+  "business_response_unchanged": true
+}

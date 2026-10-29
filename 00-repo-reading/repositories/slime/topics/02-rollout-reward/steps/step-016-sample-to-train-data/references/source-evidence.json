@@ -154,6 +154,41 @@
       "end": 190,
       "file_sha256": "334316d08b2210c01ec377dde5167e234dd491208e04823d5d20d867704c6678",
       "excerpt_sha256": "1c214ebdbedbc7a2410068629f55705d8c59f409a38f101fbafaa6b1781281eb"
+    },
+    {
+      "path": "slime/utils/dp_schedule.py",
+      "start": 112,
+      "end": 125,
+      "file_sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02",
+      "excerpt_sha256": "ed406a98c322f78bded01d57d68e5d9ee71f308eb27cbc44e76b6359fafad291"
+    },
+    {
+      "path": "slime/backends/megatron_utils/actor.py",
+      "start": 107,
+      "end": 119,
+      "file_sha256": "9f0e0cd3119c8354cd76c1972c908143b7f933b2653a1f53a2a898b1f8b13739",
+      "excerpt_sha256": "3c6e025d55a9388c07c5dbe88399bf29be254665478c9dd27074ef3386447446"
+    },
+    {
+      "path": "slime/ray/train_actor.py",
+      "start": 123,
+      "end": 126,
+      "file_sha256": "d0cf7f65982f96b605f294a740b5a768843af01596c9ad1bfa7aabaa0c082675",
+      "excerpt_sha256": "783f69e748b0fb1382559caeeaa54288859df483dbe6929a005ed8466f3fa3f8"
+    },
+    {
+      "path": "slime/ray/rollout.py",
+      "start": 572,
+      "end": 573,
+      "file_sha256": "4b2cc58e04e583d5fd3d34d3a6f2ffbed79f37e52fefceaef95e63b8aa666304",
+      "excerpt_sha256": "9f1d74c16530954252d3bf977b677370e90a7494e8b1375c000e2b0ce58fea6c"
+    },
+    {
+      "path": "tests/test_dp_schedule.py",
+      "start": 227,
+      "end": 249,
+      "file_sha256": "334316d08b2210c01ec377dde5167e234dd491208e04823d5d20d867704c6678",
+      "excerpt_sha256": "273744a3eba492c91bfbbca2f546649de3fe362a5c9dcfad2a04f2eec36b2825"
     }
   ],
   "manager_handoff_review": {
@@ -328,5 +363,812 @@
         ]
       ]
     }
+  },
+  "guided_rank_loop_review": {
+    "checked_at_utc": "2026-10-29T01:42:23.280496+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "official_main": "540ea919e45b8b929198abce008a103be9cfc779",
+    "worktree_clean": true,
+    "runtime_executed": false,
+    "scope": "Static reread of batch_builder.py:445-530, focusing on rank=1, partition=[1], selecting paired fields into value and returning wrapped references. No new scheduling, tensorization, Ray or training run."
+  },
+  "parallel_config_preparation_review": {
+    "checked_at_utc": "2026-10-29T01:54:11.243410+00:00",
+    "runtime_executed": false,
+    "scope": "Definitions and source-specific use of dp_size, cp_size, vpp_size and microbatch_group_size_per_vp_stage; total_lengths is per-sample full length, not a batch sum. Static inspection and arithmetic examples only.",
+    "official_semantic_references": [
+      "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/parallelism-guide.html",
+      "https://docs.nvidia.com/megatron-core/developer-guide/latest/apidocs/core/core.parallel_state.html",
+      "https://docs.nvidia.com/megatron-core/developer-guide/0.18.1/apidocs/core/core.model_parallel_config.html"
+    ],
+    "version_boundary": "Official documents establish terminology. Exact scheduling constraints and config handoff are verified against Slime 18868a79; no claim that all Megatron schedules require the same divisibility.",
+    "tests_inspected": "tests/test_dp_schedule.py:227-249",
+    "tests_run": false
+  },
+  "parallelism_primer_review": {
+    "checked_at_utc": "2026-10-29T02:26:52.794415+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": false,
+    "source_ranges_inspected": [
+      "slime/utils/dp_schedule.py:55-209"
+    ],
+    "primer": "references/parallelism-primer.md",
+    "scope": "Conceptual prerequisites: sample, micro-batch, DP replica, PP stage, per-stage VPP chunks, microbatch group, and CP token-position cooperation. PP/VPP diagrams are teaching illustrations, not an execution trace.",
+    "official_semantic_references": [
+      "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/parallelism-guide.html",
+      "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/context_parallel.html",
+      "https://docs.nvidia.com/megatron-core/developer-guide/latest/apidocs/core/core.parallel_state.html",
+      "https://docs.nvidia.com/megatron-core/developer-guide/0.18.1/apidocs/core/core.model_parallel_config.html"
+    ],
+    "static_example": {
+      "runtime_executed": false,
+      "sample_labels": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "total_lengths": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "rollout_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "global_batch_size": 8,
+      "micro_batch_size": 2,
+      "use_dynamic_batch_size": false,
+      "balance_by_flops": false,
+      "balance_data": false,
+      "train_parallel_config": {
+        "dp_size": 2,
+        "cp_size": 1,
+        "vpp_size": 2,
+        "microbatch_group_size_per_vp_stage": 2
+      },
+      "derived_microbatches": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "derived_rank_microbatch_ids": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "derived_partitions": [
+        [
+          0,
+          1,
+          4,
+          5
+        ],
+        [
+          2,
+          3,
+          6,
+          7
+        ]
+      ],
+      "derived_alignment": 4
+    },
+    "version_boundary": "Microbatch-count divisibility is verified for this Slime implementation; it is not asserted as a universal Megatron restriction. No CP/PP/VPP runtime or additional schedule execution was performed."
+  },
+  "parallelism_baseline_review": {
+    "checked_at_utc": "2026-10-29T02:34:42.571426+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": false,
+    "source_ranges_inspected": [
+      "slime/utils/dp_schedule.py:112-125",
+      "slime/utils/dp_schedule.py:168-209",
+      "slime/backends/megatron_utils/actor.py:107-119"
+    ],
+    "scope": "Add a non-parallel teaching baseline, preserve samples A-H with 4 tokens each and an 8-layer model, then show configuration deltas. PP is explanatory background, not a direct build_dp_schedule argument. VPP configuration explicitly includes its microbatch-group value. CP comparison branches from DP, with static packing unchanged.",
+    "teaching_reference": "https://ies.ed.gov/ncee/wwc/PracticeGuide/1",
+    "teaching_evidence_boundary": "The guide supports integrating concrete/abstract representations and graphics/text. This particular baseline and progression are an instructional design choice, not an empirically validated sequence.",
+    "fixed_inputs": {
+      "sample_count": 8,
+      "tokens_per_sample": 4,
+      "model_layers_for_diagram": 8,
+      "micro_batch_size": 2,
+      "use_dynamic_batch_size": false,
+      "balance_by_flops": false,
+      "balance_data": false
+    },
+    "derived_not_executed_scenarios": [
+      {
+        "name": "baseline",
+        "dp_size": 1,
+        "cp_size": 1,
+        "pp_background": 1,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 4
+      },
+      {
+        "name": "dp",
+        "dp_size": 2,
+        "cp_size": 1,
+        "pp_background": 1,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 2
+      },
+      {
+        "name": "pp",
+        "dp_size": 2,
+        "cp_size": 1,
+        "pp_background": 2,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 2
+      },
+      {
+        "name": "vpp",
+        "dp_size": 2,
+        "cp_size": 1,
+        "pp_background": 2,
+        "vpp_size": 2,
+        "mb_group": 2,
+        "microbatches_per_dp_rank": 2
+      },
+      {
+        "name": "cp_branch_from_dp",
+        "dp_size": 2,
+        "cp_size": 2,
+        "pp_background": 1,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 2
+      }
+    ]
+  },
+  "batch_size_baseline_review": {
+    "checked_at_utc": "2026-10-29T02:38:25.262256+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": false,
+    "supersedes_baseline_only": "parallelism_baseline_review",
+    "reason": "User knows batch size but explicitly does not understand micro-batches. The previous baseline already split the batch into four parts; it is now the second teaching scenario.",
+    "intro_scope": "Eight samples form one batch, all passed to a complete model on one GPU, followed by one parameter update. Micro-batching and parallel configuration names are not introduced in section 0.",
+    "later_bridge": "A hypothetical capacity limit motivates splitting the same batch into four groups of two, accumulating gradients and updating once. Details of accumulation and normalization are deferred.",
+    "source_ranges_inspected": [
+      "slime/utils/dp_schedule.py:77-79",
+      "slime/utils/dp_schedule.py:144-151"
+    ],
+    "gradient_accumulation_reference": "https://docs.pytorch.org/docs/main/notes/amp_examples.html#gradient-accumulation",
+    "derived_not_executed_scenarios": [
+      {
+        "name": "whole_batch",
+        "sample_count": 8,
+        "micro_batch_size": 8,
+        "dp_size": 1,
+        "cp_size": 1,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 1
+      },
+      {
+        "name": "later_split_batch",
+        "sample_count": 8,
+        "micro_batch_size": 2,
+        "dp_size": 1,
+        "cp_size": 1,
+        "vpp_size": 1,
+        "mb_group": 1,
+        "microbatches_per_dp_rank": 4
+      }
+    ],
+    "version_boundary": "Batch-size wording is conceptual. Slime global_batch_size counts rollouts; these examples have one training sample per distinct rollout. No training run or numerical equivalence claim."
+  },
+  "inline_baseline_presentation_review": {
+    "checked_at_utc": "2026-10-29T02:42:16.986320+00:00",
+    "runtime_executed": false,
+    "file": "02-short-term-memory/functions/slime/utils/dp_schedule.py/build_dp_schedule.md",
+    "anchor": "batch-size-baseline",
+    "scope": "Display the whole-batch baseline directly in the function card. Fold the existing overview and detailed scheduling material; preserve their content and source evidence. Route the README, scope and index to the visible baseline.",
+    "evidence_boundary": "Documentation presentation only. The baseline is a teaching illustration of training, not execution by build_dp_schedule or evidence of user mastery."
+  },
+  "microbatch_to_dp_examples_review": {
+    "checked_at_utc": "2026-10-29T02:49:10.461268+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": false,
+    "source_ranges_inspected": [
+      "slime/utils/dp_schedule.py:112-125",
+      "slime/utils/dp_schedule.py:145-209",
+      "slime/backends/megatron_utils/actor.py:107-119"
+    ],
+    "semantic_reference": "https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html",
+    "scope": "Inline three-stage example with title-level GPU counts and relevant parameters, followed by an Example per stage. Distinguish grouping whole samples from splitting one sample; DP replicas equal GPU count only under the one-GPU-per-replica assumption.",
+    "fixed_inputs": {
+      "sample_labels": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
+      ],
+      "global_batch_size": 8,
+      "rollout_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "total_lengths": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "use_dynamic_batch_size": false,
+      "balance_by_flops": false,
+      "balance_data": false,
+      "cp_size": 1,
+      "vpp_size": 1,
+      "mb_group": 1
+    },
+    "derived_not_executed_stages": [
+      {
+        "name": "whole_batch",
+        "gpu_count": 1,
+        "dp_size": 1,
+        "micro_batch_size": 8,
+        "microbatches_per_rank": 1
+      },
+      {
+        "name": "one_gpu_microbatches",
+        "gpu_count": 1,
+        "dp_size": 1,
+        "micro_batch_size": 2,
+        "microbatches_per_rank": 4
+      },
+      {
+        "name": "two_dp_replicas",
+        "gpu_count": 2,
+        "dp_size": 2,
+        "micro_batch_size": 2,
+        "microbatches_per_rank": 2,
+        "rank_microbatch_ids": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "partitions": [
+          [
+            0,
+            1,
+            4,
+            5
+          ],
+          [
+            2,
+            3,
+            6,
+            7
+          ]
+        ]
+      }
+    ],
+    "execution_boundary": "Diagram describes logical data assignment and gradient synchronization, not exact communication timing. No new scheduling run, gradient accumulation run or two-GPU training run."
+  },
+  "pp_complete_layers_review": {
+    "checked_at_utc": "2026-10-29T03:03:34.783293+00:00",
+    "local_head": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": false,
+    "source_ranges_inspected": [
+      "slime/utils/dp_schedule.py:112-125",
+      "slime/backends/megatron_utils/actor.py:105-123"
+    ],
+    "official_semantic_reference": "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/parallelism-guide.html",
+    "scope": "PP splits a single model replica by layer depth; each illustrated stage owns four complete layers. Distinguish this from splitting internals of one layer. Titles and opening outline explicitly name Batch, Micro-batch, DP and PP.",
+    "illustrative_layout": {
+      "dp_size": 2,
+      "pp_stages_per_replica": 2,
+      "gpus_per_stage": 1,
+      "total_gpus": 4,
+      "layers_per_model": 8,
+      "micro_batch_size": 2,
+      "global_sample_count": 8,
+      "dp_replicas": [
+        {
+          "replica": 0,
+          "microbatches": [
+            0,
+            2
+          ],
+          "stages": [
+            {
+              "gpu_label": 0,
+              "layers": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "gpu_label": 2,
+              "layers": [
+                5,
+                6,
+                7,
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "replica": 1,
+          "microbatches": [
+            1,
+            3
+          ],
+          "stages": [
+            {
+              "gpu_label": 1,
+              "layers": [
+                1,
+                2,
+                3,
+                4
+              ]
+            },
+            {
+              "gpu_label": 3,
+              "layers": [
+                5,
+                6,
+                7,
+                8
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "boundary": "GPU labels and layer placement are teaching illustrations, not observed runtime placement. build_dp_schedule does not take pp_size or split model layers; no model or multi-GPU training was run."
+  },
+  "vpp_fixed_layout_review": {
+    "date": "2026-10-29",
+    "source_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "kind": "static source and documentation review",
+    "runtime_executed": false,
+    "local_source": [
+      "slime/backends/megatron_utils/actor.py:107-119",
+      "slime/utils/dp_schedule.py:112-125"
+    ],
+    "official_reference": "https://docs.nvidia.com/megatron-core/developer-guide/latest/apidocs/core/core.parallel_state.html#core.parallel_state.initialize_model_parallel",
+    "illustrative_layout": {
+      "transformer_layers_per_replica": 8,
+      "dp_size": 2,
+      "pp_size": 2,
+      "gpus_per_physical_stage": 1,
+      "total_gpus": 4,
+      "vpp_before": 1,
+      "vpp_after": 2,
+      "micro_batch_size": 2,
+      "total_samples": 8,
+      "dp_replicas": [
+        {
+          "replica": 0,
+          "microbatches": [
+            0,
+            2
+          ],
+          "stages": [
+            {
+              "gpu_label": 0,
+              "physical_stage": 0,
+              "before_chunks": [
+                [
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              ],
+              "after_chunks": [
+                [
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  6
+                ]
+              ]
+            },
+            {
+              "gpu_label": 2,
+              "physical_stage": 1,
+              "before_chunks": [
+                [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              ],
+              "after_chunks": [
+                [
+                  3,
+                  4
+                ],
+                [
+                  7,
+                  8
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "replica": 1,
+          "microbatches": [
+            1,
+            3
+          ],
+          "stages": [
+            {
+              "gpu_label": 1,
+              "physical_stage": 0,
+              "before_chunks": [
+                [
+                  1,
+                  2,
+                  3,
+                  4
+                ]
+              ],
+              "after_chunks": [
+                [
+                  1,
+                  2
+                ],
+                [
+                  5,
+                  6
+                ]
+              ]
+            },
+            {
+              "gpu_label": 3,
+              "physical_stage": 1,
+              "before_chunks": [
+                [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              ],
+              "after_chunks": [
+                [
+                  3,
+                  4
+                ],
+                [
+                  7,
+                  8
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "scope": "Compare layer placement on the same GPUs and the forward path of the same microbatch. PP can already hold several layers per stage; VPP adds multiple chunks per physical stage. Total layers per GPU and physical device count remain unchanged in this example.",
+    "boundary": "Uniform layer assignment is a teaching example, omitting embeddings and output head. Layer count is not an input to build_dp_schedule. No GPU run or new schedule execution. The full VPP example also selects microbatch_group_size_per_vp_stage=2; interleaved forward/backward scheduling remains outside this explanation."
+  },
+  "mb_group_tradeoff_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "kind": "static source review; no model execution or performance measurements",
+    "upstream_url": "https://raw.githubusercontent.com/NVIDIA/Megatron-LM/core_v0.18.0/megatron/core/pipeline_parallel/schedules.py",
+    "upstream_sha256": "946a71d2fd69dfebaceab461bd8e01a37cc4797221651d64943c2c5c9c4e6f0a",
+    "raw_source_lines": {
+      "warmup": [
+        822,
+        870
+      ],
+      "schedule_table": [
+        882,
+        909
+      ],
+      "valid_group_sizes": [
+        1068,
+        1085
+      ],
+      "forward_and_communication": [
+        1529,
+        1582
+      ]
+    },
+    "findings": [
+      "Grouping changes the order of microbatch/chunk work items, not the required model boundaries for each microbatch.",
+      "The reviewed conventional path communicates individual forward outputs; grouping does not itself coalesce microbatches into one payload.",
+      "Group size affects warmup work, supporting a qualitative intermediate-activation memory tradeoff; no throughput or peak-memory result was measured.",
+      "The current illustration has PP=2 and two microbatches per replica, so only group size 2 is legal under the reviewed upstream checks."
+    ],
+    "boundary": "Upstream tag used as explicit reference only; no claim that the installed backend has been executed. Existing eight samples and model layout remain unchanged."
+  },
+  "context_parallel_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "kind": "static source review and token-position derivation; no CP function or GPU training executed",
+    "official_doc": "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/context_parallel.html",
+    "local_sources": [
+      {
+        "path": "slime/utils/dp_schedule.py",
+        "sha256": "ed87386712ecc0e296f038354878c9dd6f8ab5561832febe0f5f272caa9cfd02"
+      },
+      {
+        "path": "slime/backends/megatron_utils/actor.py",
+        "sha256": "9f0e0cd3119c8354cd76c1972c908143b7f933b2653a1f53a2a898b1f8b13739"
+      },
+      {
+        "path": "slime/backends/megatron_utils/data.py",
+        "sha256": "b01a78b17b7d9ed93666982af378b6d2d74951473cad85f432e44d4cb8f926c8"
+      },
+      {
+        "path": "slime/backends/megatron_utils/cp_utils.py",
+        "sha256": "824139d155eb8041c67cf93f95c3d6a1fcb4d28191535edbe47566ab1be48af4"
+      }
+    ],
+    "entry_lines": {
+      "cp_configuration_and_dynamic_budget": [
+        113,
+        120
+      ],
+      "get_batch_normal_cp_slice": 88,
+      "slice_with_cp": 194
+    },
+    "illustration": {
+      "samples": "A-H",
+      "global_batch_size": 8,
+      "micro_batch_size": 2,
+      "dp_size": 2,
+      "model_layers": 8,
+      "pp_size": 1,
+      "vpp_size": 1,
+      "mb_group": 1,
+      "cp_comparison": [
+        1,
+        2
+      ],
+      "total_gpu_comparison": [
+        2,
+        4
+      ],
+      "token_positions_one_based": {
+        "cp_rank_0": [
+          1,
+          4
+        ],
+        "cp_rank_1": [
+          2,
+          3
+        ]
+      }
+    },
+    "boundary": "DP-only branch of the earlier illustration; GPU labels are illustrative. allgather_cp=False path only. Packing, subsequent padding, alternate CP modes and attention internals omitted. Static batching keeps the same sample groups and DP ownership."
+  },
+  "cp_attention_scope_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "kind": "official documentation and static source review; no training or communication execution",
+    "official_doc": "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/features/context_parallel.html",
+    "findings": [
+      "CP partitions network inputs and intermediate activations along token positions; the partition is used beyond attention.",
+      "Token-wise MLP operations can compute their local positions; attention needs information from other positions and a CP-compatible communication/compute implementation.",
+      "The local build_dp_schedule function uses cp_size for the dynamic token budget; it does not implement distributed attention."
+    ],
+    "example_boundary": "Same four-token example and GPU labels; only attention and MLP are compared. Residuals, full layer execution and concrete communication algorithms are not expanded."
+  },
+  "return_to_schedule_function_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_executed": true,
+    "runtime_artifact": "dp-schedule-eight-samples-output.json",
+    "runtime_scope": "AST-extracted original _pack_step_into_mbs and build_dp_schedule; eight samples; static batching and no workload balancing. No tensors, CP/VPP execution, Ray or training.",
+    "presentation": "Function card owns source flow and input/output. Full conceptual progression is maintained once in parallelism-primer.md. Previous full card archived with rebased links.",
+    "current_reading_lines": [
+      112,
+      125
+    ]
+  },
+  "schedule_dataflow_presentation_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "new_runtime_executed": false,
+    "existing_runtime_artifact": "dp-schedule-eight-samples-output.json",
+    "method": "Static expansion of source lines 112-209 on the existing eight-sample input; final outputs checked against the previous execution artifact.",
+    "intermediate_values": {
+      "sample_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "step_mbs": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "target_K": 4,
+      "rank_mbs_idx": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ]
+    },
+    "presentation": "Separate source statements, intermediate values and the final return tuple; move full example construction and execution-method explanation to the sources fold."
+  },
+  "schedule_return_count_units_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "new_runtime_executed": false,
+    "source_lines": {
+      "rollout_count_contract": [
+        100,
+        105
+      ],
+      "per_step_global_count": [
+        135,
+        150
+      ],
+      "per_rank_microbatch_count": [
+        187,
+        189
+      ],
+      "partition_and_local_indices": [
+        198,
+        209
+      ]
+    },
+    "findings": [
+      "partitions and micro_batch_indices have outer DP-rank axes.",
+      "num_microbatches and global_batch_sizes have outer training-step axes.",
+      "For this input each rank has two microbatches of two samples; the single global step has eight distinct rollouts, each producing one sample.",
+      "PP stages do not multiply the count of distinct rollout samples."
+    ]
+  },
+  "schedule_parent_handoff_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "new_runtime_executed": false,
+    "parent_source": "slime/data/batch_builder.py",
+    "parent_source_lines": {
+      "schedule": [
+        498,
+        504
+      ],
+      "select_and_tensorize": [
+        520,
+        523
+      ],
+      "return_references": [
+        527,
+        530
+      ]
+    },
+    "future_candidate": {
+      "source": "train.py",
+      "lines": [
+        51,
+        99
+      ],
+      "status": "recommendation only; no new reading step opened"
+    },
+    "scope": "Reconnect existing function cards. DP replica is the allocation unit; physical GPU layout is provided by the training configuration."
+  },
+  "split_by_dp_eight_sample_closing_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "runtime_artifact": "split-by-dp-eight-samples-fields.json",
+    "source_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+    "executed_source_lines": [
+      499,
+      503,
+      520,
+      521,
+      522
+    ],
+    "runtime_scope": "Executed original field-list and schedule assignments, field selection and dictionary updates only; stops before tensorization. Uses the already recorded eight-sample plan. No complete split_by_dp, torch, Ray, GPU or training execution.",
+    "read_only_sources": {
+      "tensorize": "slime/observability/rollout_data_utils.py:14-60",
+      "box": "slime/utils/misc.py:143-149",
+      "publish_and_return": "slime/data/batch_builder.py:527-530"
+    },
+    "next_step_status": "Training loop remains a candidate; no new step created."
+  },
+  "split_by_dp_box_objectref_review": {
+    "date": "2026-10-29",
+    "local_slime_commit": "18868a79b0b083a093798a94ed0f8cb4f71b9c14",
+    "new_runtime_executed": false,
+    "local_sources": {
+      "split_by_dp": "slime/data/batch_builder.py:498-530",
+      "box": "slime/utils/misc.py:143-149"
+    },
+    "official_ray_doc": "https://docs.ray.io/en/latest/ray-core/api/doc/ray.put.html",
+    "findings": [
+      "ray.put(value) is evaluated before Box construction and list append.",
+      "Box only stores its argument and exposes it through inner.",
+      "result entries are organized by DP rank; physical node/GPU placement is a separate deployment relation."
+    ],
+    "boundary": "Official API meaning checked; no Ray initialization, object-store call or training execution."
   }
 }

@@ -1,0 +1,14 @@
+{
+  "step": "Step 017",
+  "date": "2026-10-29",
+  "records": [
+    {
+      "record": "functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md",
+      "source": "../03-long-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md",
+      "target": "../02-short-term-memory/functions/slime/data/batch_builder.py/BatchBuilder.split_by_dp.md",
+      "source_sha256": "0df61c10ea1ac021459feff54cf16606e73f7daada9fcca3862e764f61e8db9d",
+      "target_sha256": "ce65413c1f59941f8beedaea9f4b53f8f5ae6809cd4391a04dc63e63a20140fc",
+      "reason": "Recall the list of Box-wrapped per-DP data references received by train.py:51; no new interpretation or timestamp change to the existing card."
+    }
+  ]
+}

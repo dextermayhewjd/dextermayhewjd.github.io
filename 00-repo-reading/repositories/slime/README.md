@@ -17,7 +17,7 @@
 | 01 · Coding Agent RL：generate 主线与 agent 组件 | 单题怎样运行、评测并交付样本；`coding_agent_rl/generate.py`、`swe.py` 与 `slime/agent/` | [主题入口与 Step 000–009](topics/01-coding-agent-rl/README.md) |
 | 02 · Rollout 接入与奖励 | 单任务与组级生成、评分、持续调度、完成结果交付与自定义生成接口、训练数据转换；`generate_and_rm`、`generate_and_rm_group`、`AsyncRolloutWorker` | [主题入口与 Step 010–013、015–016](topics/02-rollout-reward/README.md) |
 | 03 · Trace 与运行诊断 | 执行阶段怎样留下可关联的记录，怎样观察耗时和诊断问题；`trace_span` | [主题入口与 Step 014](topics/03-trace-diagnostics/README.md)，暂缓研究；状态见唯一路线 |
-| 04 · 训练数据与更新 | Sample 怎样进入训练，权重怎样交回生成侧；`BatchBuilder`、`RolloutManager`、`train.py` | 规划项，实际展开时建立 |
+| 04 · 训练数据与更新 | 训练数据引用怎样进入训练，完成后怎样更新生成侧权重；`train.py`、训练组与 `RolloutManager` | [主题入口与 Step 017](topics/04-training-data-updates/README.md) |
 
 主题按要解决的问题划分。同一主题可以涉及多个源码目录，同一个源码文件也可以在不同主题中按需阅读。
 

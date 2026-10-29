@@ -1,0 +1,36 @@
+{
+  "base_sample": {
+    "index": 7,
+    "group_index": 2,
+    "prompt": "修复仓库中失败的单元测试。",
+    "trace": {
+      "version": 1,
+      "trace_id": "T1",
+      "sample_id": 7,
+      "group_id": 2,
+      "attempt": 0,
+      "events": [
+        {
+          "type": "span_start",
+          "name": "coding_rollout",
+          "ts": 9.0,
+          "trace_id": "T1",
+          "sample_id": 7,
+          "group_id": 2,
+          "attempt": 0,
+          "span_id": "S0"
+        }
+      ]
+    }
+  },
+  "active_context": {
+    "trace_id": "T1",
+    "span_id": "S0"
+  },
+  "fixed_observation": {
+    "span_id": "S1",
+    "start_ts": 10.0,
+    "end_ts": 12.0
+  },
+  "assumed_agent_exit_code": 0
+}

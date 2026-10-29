@@ -1,6 +1,6 @@
 # Slime 后续阅读入口
 
-现行安排统一见 **[2026-10-28 阅读计划与约定](current-goal-slime-reading-order.md#reading-agreement-20261028)**。按生成接入验证、训练数据、训练闭环、关键失败处理的顺序推进；Trace 继续暂缓，Kubernetes 单列实践，队列与底层恢复按需选读。
+现行剩余范围见 **[2026-10-29 综合基础审查](2026-10-29-existing-foundation-and-remaining-scope.md)**：完成当前训练闭环，补一段中断处理，再对已有接口做接入与复跑验证。原始路线见 [2026-10-28 阅读约定](current-goal-slime-reading-order.md#reading-agreement-20261028)。Trace 继续暂缓，已有 Kubernetes 基础用于补排障证据；队列与底层恢复按需选读。
 
 本目录保存计划与选题依据；实际开始、暂缓和运行状态只维护在[唯一阅读路线](../../../../slime_photo/code-reading/repo-reading-route.md#当前接续)。已读 Agent、generate_and_rm、worker loop 与结果交付记录继续复用，不重开整条主线。
 

@@ -1,0 +1,460 @@
+{
+  "source": "/home/hongshi/projects/slime/slime/data/batch_builder.py",
+  "source_sha256": "328ad4eb90ab839ed62766443c5cc5065f53d244e5e3dc5f675c71e3f9577d3d",
+  "source_lines": [
+    499,
+    503,
+    520,
+    521,
+    522
+  ],
+  "runtime_scope": "Executed original field-list and schedule assignments, field selection and dictionary updates only; stops before tensorization. Uses the already recorded eight-sample plan. No complete split_by_dp, torch, Ray, GPU or training execution.",
+  "sample_labels": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H"
+  ],
+  "input": {
+    "tokens": [
+      [
+        101,
+        201,
+        301,
+        401
+      ],
+      [
+        101,
+        202,
+        302,
+        402
+      ],
+      [
+        101,
+        203,
+        303,
+        403
+      ],
+      [
+        101,
+        204,
+        304,
+        404
+      ],
+      [
+        101,
+        205,
+        305,
+        405
+      ],
+      [
+        101,
+        206,
+        306,
+        406
+      ],
+      [
+        101,
+        207,
+        307,
+        407
+      ],
+      [
+        101,
+        208,
+        308,
+        408
+      ]
+    ],
+    "response_lengths": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "rewards": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "loss_masks": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "sample_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "rollout_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "rollout_mask_sums": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "raw_reward": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0,
+      8.0
+    ],
+    "total_lengths": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ]
+  },
+  "schedule_input": {
+    "partitions": [
+      [
+        0,
+        1,
+        4,
+        5
+      ],
+      [
+        2,
+        3,
+        6,
+        7
+      ]
+    ],
+    "micro_batch_indices": [
+      [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    ],
+    "num_microbatches": [
+      2
+    ],
+    "global_batch_sizes": [
+      8
+    ]
+  },
+  "values_before_tensorization": [
+    {
+      "tokens": [
+        [
+          101,
+          201,
+          301,
+          401
+        ],
+        [
+          101,
+          202,
+          302,
+          402
+        ],
+        [
+          101,
+          205,
+          305,
+          405
+        ],
+        [
+          101,
+          206,
+          306,
+          406
+        ]
+      ],
+      "response_lengths": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "rewards": [
+        1.0,
+        2.0,
+        5.0,
+        6.0
+      ],
+      "loss_masks": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "sample_indices": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "rollout_ids": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "rollout_mask_sums": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "raw_reward": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0
+      ],
+      "total_lengths": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "partition": [
+        0,
+        1,
+        4,
+        5
+      ],
+      "global_batch_sizes": [
+        8
+      ],
+      "num_microbatches": [
+        2
+      ],
+      "micro_batch_indices": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    },
+    {
+      "tokens": [
+        [
+          101,
+          203,
+          303,
+          403
+        ],
+        [
+          101,
+          204,
+          304,
+          404
+        ],
+        [
+          101,
+          207,
+          307,
+          407
+        ],
+        [
+          101,
+          208,
+          308,
+          408
+        ]
+      ],
+      "response_lengths": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "rewards": [
+        3.0,
+        4.0,
+        7.0,
+        8.0
+      ],
+      "loss_masks": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "sample_indices": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "rollout_ids": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "rollout_mask_sums": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "raw_reward": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0
+      ],
+      "total_lengths": [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "partition": [
+        2,
+        3,
+        6,
+        7
+      ],
+      "global_batch_sizes": [
+        8
+      ],
+      "num_microbatches": [
+        2
+      ],
+      "micro_batch_indices": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ]
+    }
+  ]
+}
