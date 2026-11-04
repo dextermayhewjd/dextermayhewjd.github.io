@@ -45,6 +45,7 @@
 - [单步文件夹模板](templates/step/README.md)：本步范围、短期记忆、前序长期记忆和理解过程。
 - [逐函数记录模板](templates/function.md)：分别指向短期、长期 reference 模板；按认可样例依次保留原话、简短场景、输入输出、LLM 模型、未知和来源，省去重复归纳。
 - [Slime 的应用记录](repositories/slime/README.md)：本方法的第一个应用；不把 Slime 的岗位目标套给其他仓库。
+- [Dressage 的应用记录](repositories/dressage/README.md)：基于 Slime 构建的 Agentic RL 训练框架阅读记录。
 
 ```text
 00-repo-reading/

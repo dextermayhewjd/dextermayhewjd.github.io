@@ -45,7 +45,8 @@ description: Use when choosing or explaining which function or module to read ne
 
 ## Reference 与交接
 
-- [用户原文与方法说明](references/inside-out-method.md)：应用推荐方法时阅读，保留原始理由及其适用边界。
+- [用户原文与方法说明（向心跳跃法）](references/inside-out-method.md)：应用推荐方法时阅读，保留原始理由及其适用边界。
+- [认知心理学阅读法（情节锚定与契约脚手架）](references/cognitive-anchoring-method.md)：在编排执行器与抽象接口之间选择阅读顺序时的判断依据。
 - [Coding Agent 推荐实例](references/coding-agent-order.md)：解释为什么可先读 Harness、如何回查前置，以及不同问题怎样改变入口。
 
 用户确认后，交给 [scope skill](../repo-reading-scope/SKILL.md)限定本步范围；具体函数认识由 [短期 memory skill](../repo-reading-short-term-memory/SKILL.md)保存。这个 skill 不代替长期继承，也不将推荐标为学习完成。
