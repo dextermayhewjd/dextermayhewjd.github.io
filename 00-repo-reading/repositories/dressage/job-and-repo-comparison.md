@@ -1,6 +1,6 @@
 # 腾讯混元 Agent 强化学习框架工程师：Slime vs Dressage 仓库区别与核心必读模块指南
 
-[返回 Dressage 阅读入口](README.md) · [Step 0 · 核心骨架](steps/step-000-slime-bridge-and-interfaces/README.md) · [Step 1 · 接口契约与执行器分离](steps/step-001-contracts-and-executors/README.md) · [Slime 岗位对照](../../../slime_photo/code-reading/job-alignment.md)
+[返回 Dressage 阅读入口](README.md) · [Step 0 · 核心骨架](topics/01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/README.md) · [Step 1 · 接口契约与执行器分离](topics/01-native-agent-rollout/steps/step-001-contracts-and-executors/README.md) · [Slime 岗位对照](../../../slime_photo/code-reading/job-alignment.md)
 
 记录日期：2026-10-22（同步核对腾讯招聘官方接口 `postId=2061654749727600640`，岗位名称：**混元Agent强化学习框架工程师（深圳/北京/上海）**，所属部门：**TEG · 混元-模型算法**，最新更新时间：**2026年10月20日**）。
 

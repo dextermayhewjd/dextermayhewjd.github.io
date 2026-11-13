@@ -1,0 +1,234 @@
+{
+  "date": "2026-11-07",
+  "verification": "Static source inspection and official package hash verification; no services, clusters, model calls or behavior tests were executed.",
+  "versions": {
+    "dressage": "3e3142fe8ea07e4504c3b20a936a4c201a3de44c",
+    "agent_sandbox": "37ced32b5d500f1c4baf4eaa38d5cfaedd2998e1",
+    "agentlab": "151db30d1f4533773948695f4033ebe4353521d8",
+    "harbor": "0.18.0",
+    "harbor_commit": "527d50deb63a5d279e8c20593c18a2cbc7f61f9e"
+  },
+  "harbor_wheel_sha256": "e436f04fca35bb3705be603b8c123d0472418d10120cfd7e5ba8dc902e56bc32",
+  "harbor_environment_abstract_methods": [
+    {
+      "name": "type",
+      "line": 645,
+      "parameters": ""
+    },
+    {
+      "name": "_validate_definition",
+      "line": 720,
+      "parameters": "self"
+    },
+    {
+      "name": "start",
+      "line": 892,
+      "parameters": "self, force_build: bool"
+    },
+    {
+      "name": "stop",
+      "line": 896,
+      "parameters": "self, delete: bool"
+    },
+    {
+      "name": "upload_file",
+      "line": 908,
+      "parameters": "self, source_path: Path | str, target_path: str"
+    },
+    {
+      "name": "upload_dir",
+      "line": 918,
+      "parameters": "self, source_dir: Path | str, target_dir: str"
+    },
+    {
+      "name": "download_file",
+      "line": 928,
+      "parameters": "self, source_path: str, target_path: Path | str"
+    },
+    {
+      "name": "download_dir",
+      "line": 938,
+      "parameters": "self, source_dir: str, target_dir: Path | str"
+    },
+    {
+      "name": "exec",
+      "line": 1119,
+      "parameters": "self, command: str, cwd: str | None=None, env: dict[str, str] | None=None, timeout_sec: int | None=None, user: str | int | None=None"
+    }
+  ],
+  "sources": [
+    {
+      "repository": "dressage",
+      "path": "pyproject.toml",
+      "sha256": "5e1076c1270f178c77c979f6c53cba57b4879e1ad4f9270c954548cfbd5b061d",
+      "lines": 53
+    },
+    {
+      "repository": "dressage",
+      "path": "examples/harbor/run_harbor_rollout_qwen3.5_4b.sh",
+      "sha256": "e21ffd3a6669fce3193b713602cf21152051bf82882ba8b5bd08b70892cce37a",
+      "lines": 112
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/integrations/harbor/plugin.py",
+      "sha256": "0951f4299224dcb87715bd9c793a88b615f554d3a90dad01427ff9ed74fd0b15",
+      "lines": 1372
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/integrations/harbor/compat.py",
+      "sha256": "12817456cfdb589be09e66f8c0c1f00c0996096d0518925dfb4afb92d8473f15",
+      "lines": 244
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/integrations/harbor/artifacts.py",
+      "sha256": "aeed8bed02294bedd67cb0a5653034538ea7c1e27c587d5c9502506bb9aa6e2b",
+      "lines": 1189
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/proxy/proxy_client.py",
+      "sha256": "844ea40899d86fd924fe612d0b17ca756f7aa6a5c7e93eb7fb0f9eaa55c9becb",
+      "lines": 194
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/proxy/sglang_client.py",
+      "sha256": "f4106b8ecfa1bfe23d9c08a12f337063f2c0169659b22606c6fe51ab730adc0d",
+      "lines": 747
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/rollout/prewarm/config.py",
+      "sha256": "282d8a981de3cb8e11f08d6563bc832f45f822cfad9c853d8f248cf0d668d21c",
+      "lines": 46
+    },
+    {
+      "repository": "dressage",
+      "path": "dressage/rollout/fully_async_rollout.py",
+      "sha256": "dd0c738722463958dbce5bbc83498457c5ab240da0e407602b4b2eb5d6192350",
+      "lines": 622
+    },
+    {
+      "repository": "agent_sandbox",
+      "path": "examples/harbor-terminal-bench/README.md",
+      "sha256": "a1c2d7de103e93a3480f531742f4c073916678db2f0047e36f26063223fe95f2",
+      "lines": 260
+    },
+    {
+      "repository": "agent_sandbox",
+      "path": "extensions/controllers/sandboxwarmpool_controller.go",
+      "sha256": "44dd659f779536908feec43cc69c2ef381d4a7379c65aee94e8f069a8b83ec5d",
+      "lines": 1516
+    },
+    {
+      "repository": "agent_sandbox",
+      "path": "extensions/controllers/sandboxclaim_controller.go",
+      "sha256": "0754eee72fb7ccbd2389f2bb4eda3a23fddf0e212d3ea0531dc361abb13754a5",
+      "lines": 3133
+    },
+    {
+      "repository": "agent_sandbox",
+      "path": "clients/python/agentic-sandbox-client/k8s_agent_sandbox/commands/command_executor.py",
+      "sha256": "2890ba7385a81691ef6878e444289e5b9067e4c6b3ca4d36b1806be27650c4c1",
+      "lines": 306
+    },
+    {
+      "repository": "agentlab",
+      "path": "src/agentlab/sandboxes/k8s/adapter.py",
+      "sha256": "d184bc2aef05dde24b68cba07105c251e31640d0dcc14ff2f9943825d93c6b29",
+      "lines": 283
+    },
+    {
+      "repository": "agentlab",
+      "path": "src/agentlab/models/api_backend.py",
+      "sha256": "6a62df151d4b8d7aa72c4421b98b55eca1e197fe8e2c73cfb157224f216094b5",
+      "lines": 310
+    },
+    {
+      "repository": "agentlab",
+      "path": "src/agentlab/orchestration/prewarm.py",
+      "sha256": "9dfd70ea189794c5c1ec81f6609c5f1500c4fdd4d8a0b475528c8cadded4a149",
+      "lines": 318
+    },
+    {
+      "repository": "agentlab",
+      "path": "src/agentlab/orchestration/runner.py",
+      "sha256": "f599a16db8aa3043f53a3d746367664aca4e084d5ae4e7dbb58049a72967c8c7",
+      "lines": 343
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/job.py",
+      "sha256": "6e5bb7f8dde3f6ee3afbe5e2fdb3678fb2719678636ad19eab26d84356d5b910",
+      "lines": 976
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/trial/trial.py",
+      "sha256": "15a40691a5aa03152de4f6878347272503aaa3f976cf3eb22a1ec0e5d62609c9",
+      "lines": 1190
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/trial/single_step.py",
+      "sha256": "15deae31efe1287e3db4a4f57d7732eeffd28a8c4fd385e86193e81a3c944218",
+      "lines": 114
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/environments/base.py",
+      "sha256": "4f450044322989fffa0d15bc7579af3b756f4dc5199f03b28baafaef121f74cf",
+      "lines": 1376
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/environments/factory.py",
+      "sha256": "6256908d48cd9e3206258aaa83c75c9db15d16356639de220a8be01229df9f0d",
+      "lines": 365
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/agents/installed/base.py",
+      "sha256": "fc715cbb5addf6088e370563f9b5ed11d16f30b76ca5185e702e62810312571b",
+      "lines": 521
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/agents/installed/claude_code.py",
+      "sha256": "b993881c9fd77e37203c17cab57319bc244ae3b5a9493512d212860016316f1f",
+      "lines": 1451
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/agents/installed/codex.py",
+      "sha256": "2256beced90f81e63dfdd2de403752834169741011940f4671b88fa77dd5ab08",
+      "lines": 1134
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/verifier/verifier.py",
+      "sha256": "7110e7b854ec216f9bbef2e3b03712f2fd2614d5d0dc8a9a1768c0e887e129fc",
+      "lines": 238
+    },
+    {
+      "repository": "harbor",
+      "path": "harbor/cli/job_plugins.py",
+      "sha256": "280e94c6a3f9b4f4abcd5f5567f5cb5d7460a2969fcaa2600a47c6ab0f40b4b3",
+      "lines": 69
+    }
+  ],
+  "unavailable_on_research_date": [
+    {
+      "url": "https://api.github.com/repos/kubernetes-sigs/agent-sandbox/contents/clients/integrations/harbor",
+      "http_status": 404
+    },
+    {
+      "url": "https://pypi.org/pypi/k8s-agent-sandbox-harbor/json",
+      "http_status": 404
+    }
+  ],
+  "local_missing": "/home/fredkeira/projects/agent-sandbox/clients/integrations/harbor"
+}

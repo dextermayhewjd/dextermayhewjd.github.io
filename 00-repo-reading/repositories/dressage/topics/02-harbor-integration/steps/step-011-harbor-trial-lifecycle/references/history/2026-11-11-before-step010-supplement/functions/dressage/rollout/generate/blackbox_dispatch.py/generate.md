@@ -1,0 +1,977 @@
+> Step 011 继承：来自 [Step 010 完整记录](../../../../../../../../../step-010-harbor-rollout-entry/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)。保留原话、来源、日期及未深入边界；继承不代表本步已读。
+
+> Step 010 跨主题继承：来自 [Step 009 完整记录](../../../../../../../../../../../01-native-agent-rollout/steps/step-009-rollout-cleanup/02-short-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)。保留既有原话、认识时间、来源与未知；不代表本步重复阅读或新增掌握。
+
+# blackbox_dispatch.generate · Step 009 退出与清理
+
+- 源码：Dressage 3e3142fe8ea07e4504c3b20a936a4c201a3de44c，blackbox_dispatch.py:349–412。
+- 本步调取：[前序完整记录](generate.md)；首次接触、原话、旧认识与未知完整保留在文末。
+- 本轮说明：2026-11-08；先看正常返回路径，不提前展开取消、失败与后台回收内部。
+
+## LLM 整理：使用场合、具体内容与心智模型
+
+1. **使用场合**：前一步已经得到 Sample 列表 result，generate 准备把结果交回外部调用者。
+2. **具体内容**：generate 整体编排任务、轨迹和样本；本步接出口与 finally，按责任标记处理会话上下文并安排 Paddock 清理。
+3. **建议构建的心智模型**：
+
+   > 准备好返回结果后，先走完 finally 中本次仍负责的收尾，再真正交回结果。
+
+4. **调用与接续位置**：本轮从本函数 :349 的 `return result` 接到 :389–412 的 finally。外部调用关系沿用前序完整记录，不重新展开 Slime 调用方。
+
+## 本场景的输入与输出
+
+输入仍是本函数此前持有的 result、context_owned、initialized、paddock 等状态；这不是新函数参数。当前正常路径中，finalize 已完成，所以 context_owned=False；已有环境初始化成功，initialized=True，paddock 非 None。
+
+正常返回输出仍为同一个 Sample 列表 result。finally 的回收安排不代表远端环境已经被实际删除。
+
+<a id="normal-return"></a>
+
+### 1. 当前只看正常 return 为什么接到 finally
+
+下面是正常路径教学裁剪：省略样本日志、所有 except 分支和嵌套取消保护；完整出口源码留待逐段展开。
+
+```python
+try:
+    ...  # result 已经由前一步构建好。
+    return result  # 先准备返回值，退出之前仍要执行 finally。
+finally:
+    try:
+        if context_owned:
+            await _discard_session_context(...)
+    finally:
+        if initialized and paddock is not None:
+            schedule_terminate_paddock(...)
+```
+
+当前成功路径：context_owned=False，跳过会话上下文清理；initialized=True 且有 paddock，进入安排环境回收的调用。本轮已进入 [schedule_terminate_paddock 函数卡](../../../paddock/lifecycle.py/schedule_terminate_paddock.md)，先区分安排任务与等待实际释放；跟踪和后台执行体随后逐段看。
+
+这一步先理解 Python 的交接：`return result` 不绕过 finally。若收尾代码另有异常，可能影响返回；当前只讨论正常收尾的路径，不宣称所有情况下都会返回原结果。
+
+### 2. 后续入口，暂不逐个展开
+
+先继续本函数 finally 的责任判断，再看 schedule_terminate_paddock；普通失败与取消出口按 scope 后续接清。当前不为这些尚未展开的 helper 建卡。
+
+## 我的直接表述（原话）
+
+用户在 Step 008 收束时明确要求保存 task flow 并进入 step009；原话完整保留在前一步卡片与形成过程。本轮尚无对 finally 或资源回收的独立复述。
+
+## 尚不清楚
+
+- 后台环境回收怎样调度与跟踪，尚未展开。
+- 失败、取消与 finally 相遇时怎样保留取消语义，后续再读。
+
+<details>
+<summary>来源与前序完整 generate 记录</summary>
+
+本轮静态核对 :349–412，未实际运行清理或删除环境。形成过程：[Step 009](../../../../../../../../../../../01-native-agent-rollout/steps/step-009-rollout-cleanup/04-flow.md#start-step009)。以下为前序完整卡片与旧快照；仅继承，不表示本轮重复阅读。
+
+# blackbox_dispatch.generate · Step 008 当前片段
+
+- 源码：Dressage `3e3142fe8ea07e4504c3b20a936a4c201a3de44c`，blackbox_dispatch.py:322–331。
+- 本步调取：[前序完整记录](../../../../../../../../../../../01-native-agent-rollout/steps/step-008-segments-to-samples/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)。首次接触、既有原话与未知保留在文末前序记录中。
+- 本步说明：2026-11-08；本步已沿主线接清取段、逐段转换与 Sample 列表返回，其他可选路径保留未知。
+
+## LLM 整理：使用场合、具体内容与心智模型
+
+1. **使用场合**：Step 007 已取得 Proxy 读取回复 trajectory_payload，现在需要将其中的轨迹段交给样本转换函数。
+2. **具体内容**：整个 generate 组织一份任务的执行并最终返回样本；本步片段先从回复字典取 data，再把段列表、原 sample 和任务信息交给 expand_segments_to_samples，由 result 接住 Sample 列表。
+3. **建议构建的心智模型**：
+
+   > 取出已经分好的轨迹段，把它们交给转换函数，生成训练使用的 Sample。
+
+4. **当前调用位置**：
+
+   ```python
+   segments = trajectory_payload.get("data") or []
+   # 原代码这里还复制 metadata 供后续日志使用，本轮折叠。
+   result = multi_segment.expand_segments_to_samples(
+       sample,
+       segments,
+       args=args,
+       agent_response=agent_response,
+       session_id=session_id,
+       instance_id=instance_id,
+   )
+   ```
+
+## 本场景的输入与输出
+
+<a id="extract-segments"></a>
+
+### 1. 取出段列表——当前只看这里与下一次交接
+
+```python
+segments = trajectory_payload.get("data") or []
+```
+
+trajectory_payload 是上一阶段的整个 HTTP 回复字典；data 才是轨迹段列表。这里没有重新切段或拼 token，只是取出列表。data 缺失、为 None 或空列表时，该表达式得到空列表；后续怎样处理空列表留到转换函数再看。它不是对任意数据类型的校验。
+
+静态形状示意，不是可运行的完整训练数据：
+
+```python
+trajectory_payload = {"success": True, "data": [segment_a, segment_b], ...}
+# 取出后：
+segments = [segment_a, segment_b]
+```
+
+### 2. 交给谁——已接续转换入口
+
+调用 expand_segments_to_samples 时，segments 提供轨迹段数据，sample 提供原任务样本模板；args、agent_response、会话与任务标识也一并传入。result 将接住转换结果。本轮已接续 [expand_segments_to_samples 准备与复制段](../../../../../../../../../../../01-native-agent-rollout/steps/step-008-segments-to-samples/02-short-term-memory/functions/dressage/rollout/multi_segment.py/expand_segments_to_samples.md#prepare-and-copy)；具体字段写入和奖励处理仍待继续。
+
+整个 generate 最终返回样本列表前仍执行 finally；本步当前这句赋值不代表生成样本或清理已经完成。
+
+<a id="receive-samples"></a>
+
+### 3. 返回 generate：本步终点
+
+expand_segments_to_samples 的 return out 回到上面的 result 赋值处。此时 result 是 Sample 列表，原始 sample 仍是模板。后续源码先记录样本日志，再 return result；finally 在结果真正交给外部调用者前仍会执行，留给 Step 009。
+
+## 我的直接表述（原话）
+
+> 好的那么现在一点点看吧
+
+本轮按前一步已说明的 Step 008 范围开始，只进入 generate 的取段语句；尚无具体字段转换的个人复述。
+
+## 尚不清楚
+
+- expand_segments_to_samples 如何处理每段并保留任务归属，下一处再读。
+- 轨迹字段怎样映射到 Sample，尚未展开。
+
+<details>
+<summary>本轮来源与前序完整 generate 记录</summary>
+
+本轮静态核对源码 322–331 行，未调用模型或运行转换。形成过程：[Step 008](../../../../../../../../../../../01-native-agent-rollout/steps/step-008-segments-to-samples/04-flow.md#start-step008)。以下完整保留前序卡片及其来源，不代表本轮重新阅读。
+
+# blackbox_dispatch.generate
+
+[Step 007 scope](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/01-scope.md#reading-navigation) → **当前只读 after_agent 阶段命令执行** → 后续会话收尾与轨迹读取留作定位。
+
+## 函数定位
+
+- 固定源码：[blackbox_dispatch.py:293–309](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/rollout/generate/blackbox_dispatch.py#L293)。
+- 首次接触：Step 000；原始认识时间、原话和未知完整保留在文末继承记录。
+- 本步调取：2026-11-08，从本步 03 调入，接续 Step 006 的结果处理；调取不算个人新增掌握。
+
+## LLM 整理：使用场合、具体内容与心智模型
+
+1. **使用场合**：整个 generate 组织一次任务，交回训练样本。本轮从 Agent 调用正常结束后继续。
+2. **具体内容**：本步执行配置好的后置命令，请 Proxy 给会话收尾，再读取轨迹；轨迹转 Sample 与最终资源清理留在后续范围。
+3. **建议构建的心智模型**：
+
+   > Agent 已经做完任务；generate 接着完成后置操作，再向 Proxy 取得这次模型交互的轨迹。
+
+4. **接回的位置**：Step 006 已取得 call_payload 并完成结果字符串与失败状态处理，源码接着调用下面的 after_agent。
+
+## 本场景的输入与输出
+
+进入时仍持有 paddock、state、metadata、命令计划、Proxy 客户端和会话/任务标识。本步的最终交接物是 trajectory_payload；它不是此前的 CLI 调用结果，也还不是 Sample 列表。整个 generate 的历史输入输出模型保存在文末。
+
+<a id="after-agent"></a>
+
+### 1. 先回顾 after_agent：同一个命令执行函数
+
+```python
+await execute_blackbox_cmds_for_stage(
+    paddock,
+    state,
+    metadata,
+    schedule=execute_cmd_schedule,
+    session_id=session_id,
+    stage="after_agent",  # 这次取 Agent 执行后的命令。
+)
+```
+
+1. 从已有计划中取 after_agent 命令，逐条执行；没有配置就直接继续。
+2. 它不会再次运行 Agent，具体动作由配置决定。
+3. 正常返回后，下一行进入 ProxyClient.finalize_session。
+
+[本步调取的阶段执行卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/02-short-term-memory/functions/dressage/paddock/blackbox/execute_hooks.py/execute_blackbox_cmds_for_stage.md)保留完整函数与前序说明，不重复下钻所有命令辅助函数。
+
+<a id="finalize-call"></a>
+
+### 2. 当前：向 Proxy 发送会话收尾请求
+
+```python
+await proxy_client.finalize_session(
+    session_id,
+    instance_id=instance_id,
+    label=getattr(sample, "label", None),
+)
+```
+
+请求发往 Dressage Proxy。Agent 执行期间的模型交互已由 Proxy 记录，此处通知它收尾；请求正文没有重新发送题目或 CLI 输出。本轮进入 [ProxyClient.finalize_session 函数卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/02-short-term-memory/functions/dressage/proxy/proxy_client.py/ProxyClient.finalize_session.md)。
+
+调用正常返回后，generate 才继续更新 context_owned，再读取轨迹。这里没有用变量接住 finalize 的响应字典；轨迹正文将在下一次调用取得。
+
+<a id="read-trajectory"></a>
+
+### 3. 返回后读取轨迹：当前入口
+
+```python
+context_owned = False
+trajectory_payload = await proxy_client.read_trajectory(
+    trajectory_id=session_id,
+    instance_id=instance_id,
+    drain=True,
+)
+```
+
+context_owned=False 表示正常收尾后不再承担该上下文的清理责任。本轮进入 [ProxyClient.read_trajectory 函数卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/02-short-term-memory/functions/dressage/proxy/proxy_client.py/ProxyClient.read_trajectory.md)，接清请求与返回字典；Sample 转换仍留在 Step 008。
+
+## 我的直接表述（原话）
+
+> 好的接着看一下这里的这个step 007吧
+
+本次为进入本步的请求，尚无对会话收尾机制的独立复述。
+
+## 尚不清楚
+
+- 服务端怎样把活跃会话里的模型交互整理并发布为轨迹。
+- context_owned 的更新与后续异常清理怎样配合。
+- read_trajectory 的查找与 drain 语义，后续按实际阅读继续。
+
+<details>
+<summary>来源与本步记录</summary>
+
+- [Step 007 形成过程](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/04-flow.md#start-step007)。本次静态核对，没有执行后置命令、HTTP 请求或模型调用。
+- [本步 03 快照](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)保留前序完整模型与来源。
+
+</details>
+
+<details>
+<summary>完整前序记录：Step 006 及更早的原话、模型与未知</summary>
+
+# blackbox_dispatch.generate
+
+> Step 007 继承：来自 [Step 006 的 02-short-term-memory 记录](../../../../../../../../../../../01-native-agent-rollout/steps/step-006-agent-execution/02-short-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)；保留原话、来源与未知，继承不表示新增掌握。
+
+[Step 006 阅读导航](../../../../../../../../../../../01-native-agent-rollout/steps/step-006-agent-execution/01-scope.md#current-reading) → 从 Paddock.call_agent 返回 → **当前：接住调用结果，整理 agent_response**。
+
+## 函数定位
+
+- 源码：[blackbox_dispatch.py:116–412](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/rollout/generate/blackbox_dispatch.py#L116)。本轮只接续 259–291 行。
+- 首次接触：Step 000；原有认识时间、原话及未知保留在文末完整前序记录。
+- 本步调取：2026-11-08，从本步 03 调入完整记录，前序内容折叠保存；调取不表示新增掌握。
+- 本轮认识：用户已概括结果包含标识和输出，经 _poll_turn 返回，并要求继续看 generate；字符串整理与状态检查尚待反馈。
+
+## LLM 整理：使用场合、具体内容与心智模型
+
+1. **使用场合**：为一份任务组织黑盒 Agent 执行，并向训练流程交回样本。本轮已跟随环境准备和调用，现在从调用结果处返回。
+2. **具体内容**：整个函数取得环境、注册并调用 Agent、读取 Proxy 轨迹、转换训练样本并安排清理。当前只看调用返回后的字符串整理和结构化失败检查。
+3. **建议构建的心智模型**：
+
+   > generate 接住各组件交回的资料，再组织后续处理；这次看它怎样接住 Agent 调用结果。
+
+4. **当前接回的位置**：
+
+   ```python
+   call_payload = await maybe_await(paddock.call_agent(...))
+   call_succeeded = True
+   ```
+
+   这里省略调用参数。成功结果由 [_committed_call_payload](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._committed_call_payload.md) 整理，经 _poll_turn、客户端 call_agent、Paddock.call_agent 返回；此处不会再次执行 Agent。
+
+## 本场景的输入与输出
+
+整个 generate 的输入与最终样本输出保留在下方前序记录。本段入口已有包含调用标识、outputs、backend、usage 等字段的 call_payload；正常离开本段时得到字符串 agent_response，并通过结构化失败状态检查。这还不是 generate 的最终返回。
+
+<a id="return-agent-result"></a>
+
+### 1. 接住结果后，执行成功路径（283–291）
+
+以下是本段完整源码，仅添加注释：
+
+```python
+if call_succeeded:
+    agent_response = agent_response_text(call_payload)  # 将调用结果整理成字符串。
+    if agent_failure := failure_from_payload_state(
+        call_payload,
+        agent_response=agent_response,
+    ):  # 若回复的结构化状态表示失败，记录后抛出。
+        record_agent_failure_metadata(metadata, agent_failure)
+        raise agent_failure
+```
+
+### 2. 字符串实际上怎么取
+
+下面是本轮按需核对的小辅助函数全文；不为它另开新的阅读路线：
+
+```python
+def agent_response_text(payload: Any) -> str:
+    if isinstance(payload, dict):
+        for key in ("response", "content", "message", "text", "output"):
+            if key in payload and payload[key] is not None:
+                return str(payload[key])
+    return "" if payload is None else str(payload)
+```
+
+1. 按顺序寻找这五个顶层字段，找到第一个非 None 值就转成字符串返回。
+2. 当前 _committed_call_payload 返回的是复数 outputs，没有上述五个字段，所以沿这条路径会得到 str(call_payload)，即整个字典的字符串形式。
+3. 因此不能把这行理解为已经提取了 outputs 中的最终回答。这是当前固定版本的行为，不在本轮修改源码。
+
+**为什么查多个 key？** 它们是候选返回字段名，不是多轮执行。这个共用函数接受几种字典形状，按优先顺序取一个值；Agent 此次执行结束后，仍需要把已有结果整理给上层使用。下面是格式示意，不是两次真实 Agent 运行：
+
+```python
+{"text": "done"}      # 文字放在 text 中。
+{"response": "done"}  # 文字放在 response 中。
+```
+
+两种输入都会得到字符串 "done"。这说明函数允许不同字段名，不表示每个后端各对应一个 key，也不表示当前结果必须包含五个字段。当前路径明确返回 outputs，因此仍按上文走整个字典字符串化。调用已结束与返回格式是否统一是两个不同问题。
+
+**call_agent 返回的是完整结果还是片段？** 当前成功路径会等待本次 Agent 调用完成，才返回这次调用约定的结果字典；不是逐个把 stdout 片段交给 generate。agent_response_text 读取这一个已经拿到的对象，不拼接流式片段。这里已经结束的是 Agent 调用；如果 rollout 指整个 blackbox_dispatch.generate，它还没有结束，后面仍有 after_agent、读取 Proxy 轨迹和转换 Sample。
+
+### 3. 检查状态后，停在本步边界
+
+failure_from_payload_state 检查回复中的结构化状态；识别到失败时，上面两行记录失败资料并抛异常。这里不是评估答案正确性，也不是计算奖励。详细错误分类暂不展开。
+
+正常通过后将进入 after_agent 命令和轨迹处理；本步按原 scope 停在 after_agent 之前。说明已保存不表示用户已确认理解，也不自动开始下一 Step。
+
+## 我的直接表述（原话）
+
+> 好的简单来说就是这里 除了当前是什么request 是什么session 之外还有output什么的把之前的全部算上了
+> 一次性返回的是这里的poll turn
+> 好的 那么我们可以看一下下一个部分需要了解的内容了对吗?
+> 也就是这里的generate?
+
+助手校准：返回的是选取后的调用结果字段，不是整份 GET 回复原样返回；随后沿已有调用链由 generate 接住。
+
+后续追问：
+
+> 好的 我大概理解了
+> 那么继续吧
+> 我还需要读什么呢?
+> 以及为什么这里是写了这么多key
+> 一般来说上面的内容不是应该是这一轮已经结束了吗?
+> 我没有特别理解为什么为什么要这么多的key?
+
+助手说明候选字段名与执行轮次无关；当前 Agent 调用结束后，本段仍整理结果并检查结构化失败状态。下一处是第 3 段的 failure_from_payload_state，先读其职责及返回关系即可，不自动展开所有异常辅助函数。
+
+用户进一步问：
+
+> 但是这里的call agent 不是得到的是一个完整的片段吗?
+> 我不是特别理解?
+> 这里只有在rollout结束了之后才会整理这里的一系列内容吧
+
+助手确认 call_agent 交回完整的本次调用结果字典，并区分 Agent 调用完成与整个 generate 返回训练样本这两个结束位置。多个 key 是读取这份对象时的备选字段，不是等待拼接的多个输出片段。
+
+## 尚不清楚
+
+- 本轮 agent_response 的实际取值和结构化失败检查，尚待用户反馈。
+- Proxy 轨迹读取与训练样本转换尚未在当前步骤展开；前序未知继续保留在下方记录中。
+
+<details>
+<summary>来源与本次验证</summary>
+
+- 固定版本：Dressage 3e3142fe8ea07e4504c3b20a936a4c201a3de44c。
+- 字符串函数：[failures.py:52–57](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/paddock/blackbox/failures.py#L52)；结构化状态检查：同文件 60 行起。
+- 字符串回退行为已用从真实源码提取的两个纯函数、人工构造的最小回复核对；没有运行 Agent、HTTP 请求或训练。
+- [本次形成过程](../../../../../../../../../../../01-native-agent-rollout/steps/step-006-agent-execution/04-flow.md#generate-result-return)。
+- [本步 03 中的原始快照](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)。下面完整保留原记录，仅重算相对链接以回到原资料。
+
+</details>
+
+<details>
+<summary>完整前序记录：原话、整体模型、已读准备段与未知</summary>
+
+# blackbox_dispatch.generate
+
+> Step 006 继承：来自 [Step 005 的 03-long-term-memory 记录](../../../../../../../../../../../01-native-agent-rollout/steps/step-005-agent-registration/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)；保留前序原话、认识时间和未知，不表示本步新增掌握。
+
+[本步 scope](../../../../../../../../../../../01-native-agent-rollout/steps/step-001-task-identity-and-parameters/01-scope.md#reading-navigation) · [当前采样配置片段](#sampling-seed) · [函数索引](../../../../../../../../../../../01-native-agent-rollout/steps/step-001-task-identity-and-parameters/02-short-term-memory/overview.md)
+
+- 源码定位：[dressage/rollout/generate/blackbox_dispatch.py:116–412](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/rollout/generate/blackbox_dispatch.py#L116)，由助手静态核对。
+- 首次接触：Step 000；2026-10-23 定位主流程，2026-11-05 用户明确要求建立本函数卡。
+- 最近认识更新：2026-11-05，用户已复述环境取得、Agent 执行、轨迹读取与退出清理的主线，并明确清楚 Slime 的 generate_and_rm；对象身份及数据方向的精确区别仍待反馈。本轮保留原讲解结构，进入 init 回查环境来路。
+
+- 本步调取：2026-11-06，从 [Step 000 原卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/02-short-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md)保留整体职责、历史原话、未知与源码依据；本步只增加准备阶段的局部解释。原卡及其他步骤未修改。
+- 本轮重点：generate:126–180；局部赋值和 sampling_seed 分支归在本卡，已有子函数只保留跳转。调取与整理不表示新的理解确认。
+
+- Step 002 调取：2026-11-06，从前序完整记录回顾上层调用。当前只展开 get_proxy_client；下文 Step 001 的准备过程及认识时间保留其历史语境。
+- [本步 scope](../../../../../../../../../../../01-native-agent-rollout/steps/step-002-proxy-client-and-prewarm-claim/01-scope.md#reading-navigation) · [当前客户端函数卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/runtime.py/get_proxy_client.md)
+
+- Step 003 调取：从前步累计模型保留整卡；当前按用户指定先读 [get_paddock_from_env](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/runtime.py/get_paddock_from_env.md)，不重读后续执行/轨迹部分。
+
+## LLM 整理：使用场合、具体内容与心智模型
+
+以下由 LLM 根据固定版本源码整理，作为本轮理解参考。
+
+1. **使用场合**：Slime 要为一份 sample 执行自定义生成时，通过配置加载这个函数。它接入的是一次黑盒 Agent 任务；Agent 内部可以有多轮模型与工具交互。
+
+2. **具体内容**：根据 sample 的任务信息取得环境，注册并调用 Agent，从调用结果提取回答，再从 Proxy 收集训练轨迹，将轨迹分段转换成 Sample 列表交回 Slime。退出时安排环境回收；预热、失败和取消有各自分支。
+
+3. **建议构建的心智模型**：
+
+   > 把 generate 看作“一份任务进入，训练样本交出”的编排入口。
+   >
+   > 1. Paddock 提供环境及调用 Agent 的操作。
+   > 2. Agent 执行任务；执行期间的模型请求经过 Proxy 留下轨迹。
+   > 3. generate 分别收回答文本和轨迹，再调用转换函数生成 Sample。
+   > 4. Sample 交回 Slime，环境回收交给后台生命周期任务。
+   >
+   > 本轮先看清这些交接。具体 Agent 如何解题、Proxy 如何记录 token、Sample 如何参与训练，分别由后续组件承担。
+
+4. **调用代码**：Slime 留出的是可配置的调用位置；这里的 generate 就是放入该位置的函数。
+
+   Dressage 的配置入口：
+
+   ```bash
+   --custom-generate-function-path \
+     dressage.rollout.generate.blackbox_dispatch.generate
+   ```
+
+   Slime 的 generate_and_rm 中，实际分派代码如下。只摘录分派部分，保留原变量名；版本采用 Dressage 锁定的 Slime 提交。
+
+   ```python
+   custom_func_path = getattr(sample, "generate_function_path", None) or args.custom_generate_function_path
+
+   if custom_func_path is not None:
+       custom_generate_func = load_function(custom_func_path)
+       # if signature has evaluation, pass evaluation
+       if "evaluation" in inspect.signature(custom_generate_func).parameters:
+           sample = await custom_generate_func(args, sample, sampling_params, evaluation=evaluation)
+       else:
+           sample = await custom_generate_func(args, sample, sampling_params)
+   else:
+       sample = await generate(args, sample, sampling_params)
+   ```
+
+   1. 本场景配置路径指向 blackbox_dispatch.generate，加载后由 custom_generate_func 调用。
+   2. 它声明了 evaluation 参数，因此会走传入 evaluation 的分支。
+   3. 最后 else 中的 generate 是 Slime 自带的默认路径。配置 Dressage 后，不需要先执行这条默认路径再进入 Dressage。
+   4. 返回值重新赋给 Slime 的 sample 变量；这个变量此时也可以是 Sample 列表。
+
+## 本场景的输入与输出
+
+沿用 scope 的正常路径：evaluation=False，没有领取到预热 handle，Agent 调用正常完成，Proxy 返回可转换的非空轨迹分段。provider 由配置选择，不假定一定创建 Kubernetes Pod。以下为静态源码说明，未运行任务，未取得实际 session ID、回答或 token 数值。
+
+**输入**：
+
+| 参数 | 本场景携带什么 | 在函数中交给哪里 |
+| --- | --- | --- |
+| sample | prompt、metadata，以及 index、label 等相关任务字段 | prompt 交给 Agent；metadata 提供环境与后端设置；原 sample 作为分段样本的模板 |
+| args | 本次运行设置 | 用于准备 backend_options，并交给样本转换函数 |
+| sampling_params | 采样参数字典 | 本函数显式读取 sampling_seed（如果提供），用于后端代理配置；其他字段不在这里逐项展开 |
+| evaluation | 本场景为 False | True 会在主 try 之前抛出 ValueError；本函数不承接评估模式 |
+
+**输出与状态变化**：
+
+| 结果 | 本场景的内容 | 去向 |
+| --- | --- | --- |
+| 返回值 result | list[Sample]；转换函数按轨迹分段构造样本，携带 token、mask、logprob 及归属信息等训练材料 | 返回到 Slime 的自定义生成调用处，后续再进行评分、奖励处理与训练数据交接 |
+| 输入 sample 的状态 | metadata 会被清理和更新；本次选定的预热未命中路径还会更新 session_id | 供当前执行、样本构造和失败追踪使用 |
+| 环境生命周期 | 正常取得环境后，finally 安排后台终止或释放 | 安排完成时，远端资源可能尚未释放 |
+
+**两条结果不能合并理解**：
+
+1. call_payload → agent_response：Agent 给出的回答文本。
+2. trajectory_payload → segments → result：Proxy 保存的轨迹经过转换后成为训练样本。
+
+例如一次任务产生两段有效轨迹，转换入口可返回两个 Sample；它们仍属于同一条原始任务轨迹。这里的“两个”是说明返回形状的假设，不是一次运行结果，也不能直接当成两次独立答题。
+
+<a id="session-id-on-miss"></a>
+
+### Step 003：预热未命中后，换用新初始化的会话标识（207–214）
+
+**为什么这里再处理 ID**：最初的 session_id 用来领取预热记录。handle 为 None 后，接下来会另行初始化环境；这段让后续初始化与先前的预热尝试使用不同的会话标识。任务本身没换，instance_id 不在这里修改。
+
+本段输入是已有的 session_id、sample、metadata 和前面从 metadata 读取的 deterministic_session_id；只在 handle is None 的分支执行。连续源码如下，去掉外层缩进：
+
+```python
+previous_session_id = session_id
+if isinstance(deterministic_session_id, str):
+    session_id = f"{previous_session_id}-miss"
+    sample.session_id = session_id
+else:
+    sample.session_id = None
+    session_id = ensure_blackbox_session_id(sample)
+metadata["session_id"] = session_id
+```
+
+1. **确定性 ID**：原会话标识后追加 -miss，并同步到 sample.session_id。例如原来为 "bbs-task7-retry-2"，现在为 "bbs-task7-retry-2-miss"。
+2. **普通 ID**：先把 sample.session_id 清空，再调用已读的 ensure_blackbox_session_id。因为没有确定性 ID 且旧属性已清空，函数才会生成新 UUID；不清空就会复用旧 ID。函数内部同时写回 sample.session_id。
+3. **同步记录**：metadata["session_id"] 保存新值。此后局部变量、sample 属性与 metadata 中的会话标识一致，init、注册和轨迹操作继续使用新标识。
+
+**离开本段**：接着取得 Paddock，将更新后的 session_id、metadata 中的 env_type 和已有 env_args 交给 paddock.init。get_paddock_from_env 只负责返回操作对象；实际初始化是随后单独调用的方法。
+
+**预热没完成会不会误判 miss？** 不会仅因未完成就回退：记录在 start 时已经登记，claim 找到记录后等待已有 Task。新 ID 只区分真正回退后的新尝试，不代替旧环境清理。去重、正常调度顺序与晚到资源的处理边界见[预热进行中与 miss 的区别](../../../../../../../../../../../01-native-agent-rollout/steps/step-003-paddock-selection/references/prewarm-pending-versus-miss.md)。
+
+这段不是重新寻找预热，也不是重新抽取题目。它只调整未命中后这次初始化所用的会话身份；命中预热时不会执行。
+
+源码证据：blackbox_dispatch.py:207–228；已有测试 test_blackbox_dispatch_prewarm_miss_uses_new_session_id 与 test_blackbox_dispatch_uses_deterministic_retry_miss_and_sampling_seed 核对这两条路径。本轮只阅读测试断言，没有运行完整测试或环境。
+
+### 函数内部怎样完成这次处理
+
+下面六段对应同一个 generate 调用。本步展开第 1 段；第 2–6 段保留 Step 000 的整体背景并折叠。代码节选保持实际顺序，已有子函数链接本步卡片，片段不是独立运行入口。
+
+#### 1. 本步：准备身份、环境参数与执行配置（126–180）
+
+这一段的产物是局部变量和更新后的 metadata，不是 generate 的最终返回值；整个函数仍在后面返回训练样本。本段不创建沙箱、不执行命令、不调用模型。
+
+##### 1.1 身份与环境参数（126–152）
+
+先确保 sample.metadata 是字典，清除上一次的错误标记并初始化 execute_cmds 记录。下面连续摘录主要数据交接：
+
+```python
+deterministic_session_id = metadata.get("dressage_deterministic_session_id")
+session_id = ensure_blackbox_session_id(sample)
+instance_id = _instance_id(sample)
+metadata["session_id"] = session_id
+metadata["instance_id"] = instance_id
+blackbox_type = normalize_blackbox_type(
+    metadata.get("blackbox_type") or DEFAULT_BLACKBOX_TYPE
+)
+
+extra_env_args = None
+if "blackbox_type" in metadata or blackbox_type != DEFAULT_BLACKBOX_TYPE:
+    extra_env_args = {"blackbox_type": blackbox_type}
+env_args = paddock_env_args_from_metadata(
+    metadata,
+    extra_env_args=extra_env_args,
+)
+```
+
+1. 两个 ID 函数返回的值由 generate 写回 metadata。session_id 关联执行会话，instance_id 关联任务实例。
+2. 规范化 blackbox_type。若任务显式提供类型或得到非默认类型，generate 将其装入 extra_env_args；这个条件属于调用者。
+3. 环境参数函数从 metadata 筛选配置，并合入 extra_env_args，返回 env_args。下游环境初始化会使用它；预热命中时则采用 handle 中的参数。
+
+| 子函数卡 | 返回后继续做什么 |
+| --- | --- |
+| [ensure_blackbox_session_id](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/prewarm/store.py/ensure_blackbox_session_id.md)、[instance_id](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/artifacts/samples.py/instance_id.md) | 写回 metadata 的两个 ID 字段 |
+| [normalize_blackbox_type](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/paddock/blackbox/common/defaults.py/normalize_blackbox_type.md) | 按条件准备 extra_env_args |
+| [paddock_env_args_from_metadata](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/runtime.py/paddock_env_args_from_metadata.md) | 接住 env_args，继续准备局部状态 |
+
+<a id="local-state"></a>
+
+##### 1.2 局部状态初值（153–159）
+
+```python
+paddock = None
+state = None
+initialized = False
+proxy_client = None
+context_owned = False
+original_cancelled_error = None
+agent_response = ""
+```
+
+1. paddock、state、proxy_client：尚未取得对应的操作对象、环境访问资料和客户端，先置为 None。
+2. initialized、context_owned：分别记录环境初始化完成情况和本次调用是否承担 Proxy 会话上下文的清理责任，初始均为 False。
+3. original_cancelled_error：留待记录取消异常。agent_response：留待保存 Agent 回答文本。
+
+这里只给本次调用设初值，不创建对象。后续在实际赋值和清理处继续理解；当前不要求预先展开完整生命周期。
+
+##### 1.3 准备命令计划与后端选项（160–168）
+
+```python
+try:
+    execute_cmd_schedule = parse_blackbox_execute_cmds(
+        metadata.get("blackbox_execute_cmds")
+    )
+    backend_options = _backend_options_for_register(
+        args=args,
+        metadata=metadata,
+        blackbox_type=blackbox_type,
+    )
+    ...  # The same try continues with sampling configuration below.
+```
+
+1. execute_cmd_schedule 接住按 before_agent、after_agent 分类的命令计划，后续交给执行 hook。
+2. backend_options 接住按 Agent 类型与本次覆盖项合并的选项，下面的种子分支还可能补充它，随后传给 register_agent。
+
+| 子函数卡 | 返回后继续做什么 |
+| --- | --- |
+| [parse_blackbox_execute_cmds](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/paddock/blackbox/execute_hooks.py/parse_blackbox_execute_cmds.md) | 保存计划，继续准备后端选项 |
+| [_backend_options_for_register](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/_backend_options_for_register.md) | 接住选项，进入下面的种子分支 |
+
+<a id="sampling-seed"></a>
+
+##### 1.4 当前片段：补充采样配置（169–181）
+
+**进入前**：已有 sampling_params、metadata 和上一函数返回的 backend_options。本段处在上面的同一个 try 内；为便于阅读，下面统一去掉 try 内缩进，连续源码没有省略分支。
+
+```python
+sampling_seed = sampling_params.get("sampling_seed")
+if sampling_seed is not None:
+    metadata["rollout_sampling_seed"] = int(sampling_seed)
+    if isinstance(backend_options, dict):
+        backend_options = dict(backend_options)
+        proxy_options = backend_options.get("proxy")
+        if not isinstance(proxy_options, dict):
+            proxy_options = {}
+        backend_options["proxy"] = {
+            **proxy_options,
+            "sampling_mode": "force",
+            "sampling_seed_base": int(sampling_seed),
+        }
+```
+
+1. **取种子**：读取 sampling_params 中的 sampling_seed。没有值或值为 None 时，整段跳过；0 也会进入处理。
+2. **记到任务记录**：有值就转为整数，写入 metadata["rollout_sampling_seed"]。这里没有设置 Python 全局随机种子。
+3. **补后端配置**：只有 backend_options 为字典时才继续。复制外层字典，取出 proxy 子配置；它不是字典则按空字典处理。
+4. **保留其他选项并覆盖种子字段**：新 proxy 字典先展开原选项，再写 sampling_mode="force" 和 sampling_seed_base。因此这两个同名字段采用本段设置的值。
+
+**执行前后示例**（教学构造，backend_options 仅列出相关字段）：
+
+```python
+# Before
+sampling_params = {"sampling_seed": 42}
+metadata = {"instance_id": "task-7"}
+backend_options = {"proxy": {"default_temperature": 0.7}}
+
+# After
+metadata = {"instance_id": "task-7", "rollout_sampling_seed": 42}
+backend_options = {
+    "proxy": {
+        "default_temperature": 0.7,
+        "sampling_mode": "force",
+        "sampling_seed_base": 42,
+    }
+}
+```
+
+metadata 被原地更新；backend_options 局部变量指向新字典，其 proxy 也换成新字典。原后端选项字典及其原 proxy 字典不会被这段原地修改。若 backend_options 不是字典，仅记录 metadata，不注入 proxy 选项。
+
+**这里的 proxy 是什么**：backend_options["proxy"] 是配置字典，不是 get_proxy_client 返回的客户端。它经 Agent 注册交给 BlackboxServer 一侧的模型请求代理，影响转发给推理服务的请求参数。
+
+| 字段 | 当前只需理解的含义 |
+| --- | --- |
+| default_temperature | 请求缺少 temperature 时补入的默认温度；前面示例的 0.7 是教学取值，不是统一固定默认值。默认配置可从 args.rollout_temperature 取得，任务配置可以覆盖 |
+| sampling_mode="force" | 对已配置的采样覆盖项，采用代理的设置，即使请求已经提供相应值；它不表示将所有参数都强制重设 |
+| sampling_seed_base | 种子基数；该代理用基数加内部请求序号形成 seed，而不是让每条请求都使用相同 seed |
+
+本片段明确设置 mode 和种子基数，没有设置 sampling_temperature。因此原请求已有温度时，default_temperature 并不会仅因 force 模式而覆盖它。这里是 rollout 内模型推理请求的采样控制，不是训练优化器参数。
+
+字段语义静态核对：blackbox_server/proxy/rollout_llm_proxy.py:537–558、blackbox_server/core/models.py 的 ProxyOptions；本轮只核对配置用途，没有展开代理实现或执行推理。
+
+**离开片段**：后面执行 get_proxy_client（Step 002）。带种子的 backend_options 稍后交给 paddock.register_agent；force 和 seed_base 的字段语义见上方，完整请求处理留待 Proxy 阅读。本段不会发起模型请求，也不保证整条 Agent 轨迹完全可复现。
+
+本步只到上述准备阶段。下面保留完整任务的已有模型，供需要时回查。
+
+<details>
+<summary>Step 000 已有背景：取得环境 → 注册和调用 Agent → 轨迹转换 → 清理</summary>
+
+<a id="paddock-selection"></a>
+
+**Step 003 当前交接**：handle 为 None 后，generate 先[更新 session_id](#session-id-on-miss)（本轮已补连续片段），再调用 [get_paddock_from_env](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/runtime.py/get_paddock_from_env.md) 取得操作对象。返回之后，session_id、env_type、env_args 传入同一对象的 init；本轮停在调用 init 之前。下方历史背景保留完整环境取得过程供定位。
+
+<a id="environment-init"></a>
+
+#### 2. 领取预热环境；本场景未命中，再调用 init（182–229）
+
+```python
+proxy_client = get_proxy_client()
+...  # Read prewarm_requested and start wait-time measurement.
+handle = await claim_prewarm(session_id)
+...  # Measure prewarm_wait.
+if handle is not None:
+    paddock = handle.paddock
+    state = handle.state
+    env_args = handle.env_args
+    initialized = True
+    ...  # Hit metrics and logs.
+else:
+    ...  # Miss metrics; renew session_id and update sample/metadata.
+    paddock = get_paddock_from_env(allow_whitebox_mode=False)
+    state = await maybe_await(
+        paddock.init(
+            session_id,
+            metadata.get("env_type"),
+            env_args,
+        )
+    )
+    initialized = True
+```
+
+1. proxy_client 是访问 Proxy 服务的客户端，随后用于会话收尾和读取轨迹。本步从 [get_proxy_client](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/rollout/generate/runtime.py/get_proxy_client.md) 展开：返回后接着按 session_id 领取预热结果。
+2. claim_prewarm 用 session_id 领取预热结果。命中时直接取得 paddock、state 和 env_args。
+3. 本场景走 else：先更新会话标识，再取得 Paddock 对象，调用 init 得到 state。确定性会话标识会加上 `-miss`；其他情况清空后重新生成，后续调用都使用更新后的标识。
+4. Paddock 是环境操作与交互协调对象；state 是初始化返回的访问状态，下一段注册 Agent 时还要带上它。
+5. initialized=True 表示 init 已正常返回，供退出时判断是否安排回收。这里还没有执行题目。
+
+| 需要回查时进入 | 读完返回哪里 |
+| --- | --- |
+| [get_paddock_from_env](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/rollout/generate/runtime.py#L165) | 回到 222 行，用取得的 paddock 调用 init |
+| [BlackboxAgentPaddock.init：Step 004（原 001） 展开](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/paddock/blackbox/paddock.py/BlackboxAgentPaddock.init.md) | 接住 state，继续下面的 register_agent |
+
+<a id="agent-registration"></a>
+
+#### 3. 为环境配置 Agent，并登记执行所需的会话（232–255）
+
+```python
+await maybe_await(
+    paddock.register_agent(
+        state,
+        instance_id=instance_id,
+        session_id=session_id,
+        router_url=proxy_url(),
+        blackbox_type=blackbox_type,
+        backend_options=backend_options,
+    )
+)
+await execute_blackbox_cmds_for_stage(
+    paddock,
+    state,
+    metadata,
+    schedule=execute_cmd_schedule,
+    session_id=session_id,
+    stage="before_agent",
+)
+register_session_context = getattr(
+    proxy_client, "register_session_context", None
+)
+if callable(register_session_context):
+    context_owned = True
+    await maybe_await(register_session_context(session_id))
+```
+
+1. register_agent 接收前一段的 state，同时带入题目、会话、Agent 类型、后端设置和 Proxy 地址，为随后调用 Agent 准备会话。
+2. before_agent 命令属于可配置的前置操作，没有配置时可以为空；实际解题调用在下一段。
+3. Proxy 客户端支持 register_session_context 时，先设置 context_owned，再登记会话。这个标志使退出路径能够清理尚未正常收尾的上下文。
+4. 到这里，环境状态、Agent 会话和代理上下文已经接好，下一步才把 sample.prompt 交入 Agent。
+
+| 需要回查时进入 | 读完返回哪里 |
+| --- | --- |
+| [BlackboxAgentPaddock.register_agent](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/paddock/blackbox/paddock.py#L153) | 回到前置命令及 Proxy 会话登记，随后进入 call_agent |
+
+#### 4. 调用 Agent，等待本次执行，取得回答文本（256–291）
+
+```python
+call_payload: Any = None
+call_succeeded = False
+try:
+    call_payload = await maybe_await(
+        paddock.call_agent(
+            state,
+            session_id=session_id,
+            messages=_chat_messages_from_prompt(sample.prompt),
+            metadata={"source": "dressage", **metadata},
+        )
+    )
+    call_succeeded = True
+except Exception as exc:
+    ...  # Harvest selected early-stop cases or raise the failure.
+
+if call_succeeded:
+    agent_response = agent_response_text(call_payload)
+    ...  # Check for failure encoded in the returned payload.
+```
+
+1. sample.prompt 整理为 messages，连同 state、session_id 和 metadata 交给 call_agent。
+2. await 等待本次 Agent 调用完成。Agent 的多轮模型与工具交互发生在这段等待期间，generate 不在本页逐轮组织这些动作。
+3. Agent 发出的模型请求经过代理；Proxy 在执行期间记录轨迹。下图只是职责边界，不是额外的源码调用列表。
+
+   ```text
+   ╔════════════════════════════════════════════════════╗
+   ║ generate: await paddock.call_agent(...)             ║
+   ║           -> call_payload -> agent_response         ║
+   ╚════════════════════════════════════════════════════╝
+          | delegated execution while awaiting
+          v
+   Agent <-> BlackboxServer LLM proxy <-> Dressage Proxy <-> SGLang
+                                              |
+                                              v
+                                        trajectory data
+   ```
+
+4. 正常返回后，agent_response_text 从 call_payload 提取回答。此时尚未读取 Proxy 中的训练轨迹。
+5. call_agent 返回说明这次调用结束，不等同于整个 Agent 进程退出或环境已释放。
+
+| 需要回查时进入 | 读完返回哪里 |
+| --- | --- |
+| [BlackboxAgentPaddock.call_agent](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/paddock/blackbox/paddock.py#L184) | 回到 259 行接住 call_payload，继续提取回答和下面的轨迹收集 |
+
+#### 5. 收尾会话，读取轨迹，再转换并交回 Sample（293–349）
+
+```python
+await execute_blackbox_cmds_for_stage(
+    paddock,
+    state,
+    metadata,
+    schedule=execute_cmd_schedule,
+    session_id=session_id,
+    stage="after_agent",
+)
+await proxy_client.finalize_session(
+    session_id, instance_id=instance_id, label=getattr(sample, "label", None)
+)
+context_owned = False
+trajectory_payload = await proxy_client.read_trajectory(
+    trajectory_id=session_id,
+    instance_id=instance_id,
+    drain=True,
+)
+...  # Write optional trajectory artifacts; log write failures.
+segments = trajectory_payload.get("data") or []
+base_metadata_for_logs = dict(metadata)
+result = multi_segment.expand_segments_to_samples(
+    sample,
+    segments,
+    args=args,
+    agent_response=agent_response,
+    session_id=session_id,
+    instance_id=instance_id,
+)
+...  # Write optional sample artifacts; log write failures.
+return result
+```
+
+1. 先执行 after_agent 后置命令；它和第 3 段的前置命令位于 Agent 调用两侧。
+2. finalize_session 请求 Proxy 收尾本会话。成功后将 context_owned=False，正常退出时无需再丢弃未完成的上下文。
+3. read_trajectory 按本次 session_id 与 instance_id 读取轨迹；本次调用保留 drain=True。
+4. 从 trajectory_payload 的 data 字段取出 segments。这一份数据来自 Proxy，不是把回答文本直接当成轨迹。
+5. expand_segments_to_samples 接收原 sample、segments 和 agent_response 等信息，得到 result。分段样本会保留共同的原轨迹归属；本轮只读输入输出，分段算法与奖励广播留待后续。
+6. return result 走正常返回路径；Python 会先执行下面的 finally，然后才把结果交回 Slime。Slime 仍可能为需要 reward 的样本调用评分路径；不是到这里就完成训练更新。
+
+| 需要回查时进入 | 读完返回哪里 |
+| --- | --- |
+| [ProxyClient.finalize_session](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/proxy/proxy_client.py#L64) / [read_trajectory](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/proxy/proxy_client.py#L115) | 回到 305 行接住 trajectory_payload，提取 segments |
+| [expand_segments_to_samples](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/rollout/multi_segment.py#L118) | 回到 324 行接住 result，沿返回路径进入 finally |
+
+#### 6. 退出时安排环境回收（389–412）
+
+```python
+finally:
+    ...  # Preserve the active cancellation error.
+    try:
+        if context_owned:
+            try:
+                await _discard_session_context(
+                    proxy_client,
+                    session_id=session_id,
+                    metadata=metadata,
+                )
+            except asyncio.CancelledError:
+                if original_cancelled_error is None:
+                    raise
+    finally:
+        if initialized and paddock is not None:
+            schedule_terminate_paddock(
+                paddock,
+                session_id=session_id,
+                env_args=env_args,
+            )
+```
+
+1. 本场景 finalize_session 已成功，context_owned=False，因此跳过上下文丢弃操作。
+2. 初始化已成功且 paddock 存在，调用 schedule_terminate_paddock 安排后台清理。
+3. 本函数没有在这里 await 远端环境清理完成；返回 Sample 和资源实际释放可以发生在不同时刻。
+4. 读完回到 Slime 的 custom_generate_func 调用处，接住 Sample 列表，再继续外层处理。
+
+| 需要回查时进入 | 读完返回哪里 |
+| --- | --- |
+| [schedule_terminate_paddock](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/paddock/lifecycle.py#L175) | 返回 generate 的 finally，随后完成本次返回 |
+
+<details>
+<summary>其他路径的边界：先知道返回形状，不展开恢复机制</summary>
+
+1. 预热命中：使用 handle 中已有的环境状态，跳过本次 init，随后接回 register_agent。
+2. 某些 Agent 提前停止：代码允许继续收集已有轨迹，不能把所有 call_agent 异常都理解成马上丢弃样本。
+3. 主 try 捕获的普通失败：记录失败，调用 mark_aborted_no_grad，将状态设为 ABORTED，返回单个 sample。因此整个函数并非所有路径都返回列表。
+4. 取消：记录并重新抛出 CancelledError，同时进入 finally。取消不是一个正常返回的奖励或回答。
+5. 空 segments：转换函数会抛出 ValueError，进入普通失败路径；本页选择的是有可用分段的正常场景。
+6. 初始化尚未正常返回时 initialized 可能仍为 False；不能只凭本函数 finally 推断底层没有清理，Paddock/provider 还有自己的取消处理。
+
+</details>
+
+</details>
+
+## 我的直接表述（原话）
+
+Step 002 本轮回填关系的表述：
+
+> 那么这里的内容做的差不多了吗?
+> 总结就是如果拿到了这个prewarm的handle了之后
+> 就是通过这个handle来设置之前的一系列的内容是我的理解
+> 那么之后呢?
+> 我还需要做什么呢?
+
+助手校准：这里是复用已有环境资料并设置初始化完成标记；命中后继续注册，未命中则进入后续身份更新与初始化路径。
+
+
+本步新增（2026-11-06）：
+
+> 我其实不是特别理解
+> 这里的内容当前代表的是什么
+> 但是之后应该是需要围绕这里看的是我的理解
+> 那么我们现在需要看清一下这里的sampling seed吗 还是看什么呢?
+
+用户随后要求：
+
+> 好的那么补充一下本步的generate卡吧
+
+以上分别是对局部状态的疑问和建卡授权，不表示已理解采样配置分支。下面保留 Step 000 的原始表述。
+
+
+2026-11-05，用户确认首读入口并请求建卡：
+
+> 好的那么我第一个需要看的函数是哪一个呢?
+> 先看一下这里的slime留出来的钩子也就是这里的generate
+> 然后需要看一下这里的blackbox dispatch 对吗?
+> 那么先生成一下
+> 这里的这个blackbox_dispatch.py
+> 的generate的short term memory吗
+
+这段是首次的阅读顺序问题与建卡请求。随后用户已给出主线复述，以下保留节选：
+
+> 我清楚slime的generate and rm
+
+> 这里通过session id还有instance id能够获得到这里的轨迹结果是我的理解
+
+> 最后在推出的时候再考虑推出这里的环境部分的内容
+> 因为创建的sandbox的内容就不再需要被使用了?
+> 所以需要终结是我的理解
+
+完整原话与助手逐项校准见[本次讨论参考](../../../../../../../../../../../01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/references/generate-memory-revision-proposal.md#user-feedback)。用户随后表示原卡也挺好，重点是下一处读什么；本轮沿原卡进入 init，没有采用参考中的改版候选。上面的技术解释与用户已经表达的认识继续分开。
+
+本轮补充表述与问题：
+
+> 简单来说就是metadata里面继续加入rollout的samling seed
+> 然后这里的proxy部分耕读的偶尔是proxy具体是什么样子的?
+> 也就是default是什么 和rollout的inference 部分相关还有这里的sampling mode是什么?
+> 那么这一步step算是结束了对吧
+
+用户已表达 metadata 记录种子的理解；proxy 配置字段语义由助手核对补充，不视为用户已掌握代理机制。
+
+Step 003 的本轮追问：
+
+> 这里还是确定session id什么的 我还需要继续看吗?
+> 我不是特别理解
+> 如果你觉得需要看清楚那么就继续看
+
+助手补充上述未命中 ID 更新片段；仍待用户对其作用表达理解确认。
+
+## 尚不清楚
+
+本步当前未知：局部状态变量的后续使用仍需结合实际调用理解；采样种子只展开配置写入，Proxy 的种子策略及实际可复现程度未验证。下面是 Step 000 调取时的未知快照，旧步骤编号沿用当时语境，不当作本步进度。
+
+
+1. 用户已明确清楚 Slime 的 generate_and_rm；当前问题转为 Paddock、实际沙箱与 state 的关系。
+2. init 怎样从 provider 取得环境，state 具体保存什么，已归入 Step 001 的[独立函数卡](../../../../../../../../../../../01-native-agent-rollout/steps/step-007-proxy-finalization-and-trajectory/03-long-term-memory/functions/dressage/paddock/blackbox/paddock.py/BlackboxAgentPaddock.init.md)展开，理解反馈待记录。
+3. register_agent 与 call_agent 如何调用具体后端，尚未展开。
+4. Proxy 如何记录每次模型请求、形成 segments，尚未展开。
+5. 分段样本的奖励、mask 和训练权重如何保持原任务含义，以及失败重试与取消清理的完整机制，留作后续问题。
+
+<details>
+<summary>来源、验证与阅读记录</summary>
+
+- Dressage 固定提交：3e3142fe8ea07e4504c3b20a936a4c201a3de44c；本机路径 /home/fredkeira/projects/Dressage。2026-11-05 核对 HEAD 与干净工作区。
+- 主函数：blackbox_dispatch.py:116–412。环境路径:182–229；注册和调用:232–291；轨迹与正常返回:293–349；失败和 finally:350–412。
+- 配置依据：[docs/rollout.md:373](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/docs/rollout.md#L373)。
+- 调用者依据：[Slime generate_and_rm](https://github.com/THUDM/slime/blob/aaf5c2092b01219fa0d5c2d323741d409086ca32/slime/rollout/sglang_rollout.py#L224)。采用 Dressage 锁定的 Slime aaf5c2092b01219fa0d5c2d323741d409086ca32；子模块未初始化，从本机另一 Slime 仓库的 Git 对象库只读取得该版本，不用其较新工作区替代。
+- 正常返回形状与空轨迹边界：multi_segment.py:118–196。后续奖励和训练转换仅定位接口，没有在本卡展开。
+- 版式沿用 BaseAdapter._translate 的栏目与 BaseAdapter._run_turn 的连续阶段、紧邻解释及返回导航；只创建当前 generate 的卡片。
+- 本步记录与片段说明：[Step 001 过程](../../../../../../../../../../../01-native-agent-rollout/steps/step-001-task-identity-and-parameters/04-flow.md)。
+- [Step 000 本次实际讨论](../../../../../../../../../../../01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/04-flow.md#generate-first-function-card)。scope 继续保存完整主线与面包屑，03 暂无前序继承。
+- 验证范围：静态调用和摘录核对；未启动沙箱、Agent、Proxy 或训练，没有真实输出数值。
+
+</details>
+
+
+</details>
+
+
+</details>
+
+</details>
+
+</details>

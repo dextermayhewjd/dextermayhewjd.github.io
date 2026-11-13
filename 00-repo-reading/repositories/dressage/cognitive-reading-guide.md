@@ -1,5 +1,7 @@
 # Dressage 源码阅读指南：认知心理学心智构建与两段式骨架心法
 
+> 本文保留 2026-10-22 的方法讨论与旧步骤安排。2026-11-05 用户指定的后续选题、首读入口和停止标准见[现行学习指南](references/design-on-slime.md#reading-guide)，当前进度见[项目 README](README.md)。下文旧 Step 编号不作为新步骤的自动创建依据。
+
 [返回 Dressage 阅读入口](README.md) · [两仓区别与必读模块清单](job-and-repo-comparison.md) · [通用工作流](../../workflow.md) · [认知顺序 Skill 规范](../../../.agents/skills/repo-reading-order/SKILL.md)
 
 记录日期：2026-10-22。
@@ -78,7 +80,7 @@
 ### 2. 物理与逻辑双重隔离，绝不冲突
 - **文件目录物理隔离**：
   - Slime 的全部步骤与累计记忆保存在：`00-repo-reading/repositories/slime/steps/`
-  - Dressage 的全部步骤与累计记忆保存在：`00-repo-reading/repositories/dressage/steps/`
+  - Dressage 的全部步骤与累计记忆保存在：`00-repo-reading/repositories/dressage/topics/01-native-agent-rollout/steps/`
 - **阅读主线独立接续**：
   - Slime 的唯一接续点在 `slime_photo/code-reading/repo-reading-route.md#当前接续`（当前在 Step 7 研究跨组件通信）；
   - Dressage 的唯一接续点在 `00-repo-reading/repositories/dressage/README.md#步骤索引`；
