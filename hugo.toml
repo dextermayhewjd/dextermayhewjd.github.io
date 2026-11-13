@@ -54,6 +54,11 @@ weight = 10
   url = "/projects/"
   weight = 16
 [[menu.main]]
+  identifier = "books"
+  name = "书籍"
+  url = "/books/"
+  weight = 17
+[[menu.main]]
 identifier = "archives"
   name = "归档"
   url = "/archives/"

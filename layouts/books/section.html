@@ -1,0 +1,34 @@
+{{- define "main" }}
+{{- $books := .Pages.ByWeight }}
+<header class="page-header">
+  {{ partial "breadcrumbs.html" . }}
+  <h1>{{ .Title }}</h1>
+  {{- with .Description }}<div class="post-description">{{ . }}</div>{{ end }}
+</header>
+
+<div class="books-intro">
+  <div class="post-content">{{ .Content }}</div>
+  <p class="books-count">{{ len $books }} 本书</p>
+</div>
+
+<ul class="book-shelf" aria-label="书籍列表">
+  {{- range $books }}
+  <li>
+    <a class="book-card" href="{{ .RelPermalink }}" aria-labelledby="book-{{ .File.ContentBaseName }}-{{ .Weight }}">
+      <span class="book-cover book-cover--{{ .Params.bookTheme }}" aria-hidden="true">
+        <span class="book-cover__author">{{ .Params.bookAuthor }}</span>
+        <span class="book-cover__title">{{ .Params.bookCoverTitle | default .Title }}</span>
+        <span class="book-cover__year">{{ .Params.bookYear }}</span>
+      </span>
+      <div class="book-card__body">
+        <p class="book-card__topic">{{ .Params.bookTopic }}</p>
+        <h2 id="book-{{ .File.ContentBaseName }}-{{ .Weight }}">{{ .Title }}</h2>
+        <p class="book-card__author">{{ .Params.bookAuthor }} · {{ .Params.bookYear }}</p>
+        <p class="book-card__description">{{ .Description }}</p>
+        <span class="book-card__open">打开这本书 <span aria-hidden="true">→</span></span>
+      </div>
+    </a>
+  </li>
+  {{- end }}
+</ul>
+{{- end }}

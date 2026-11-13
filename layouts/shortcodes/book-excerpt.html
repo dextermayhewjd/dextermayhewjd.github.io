@@ -1,0 +1,11 @@
+{{- $source := .Get "source" -}}
+{{- with .Page.Resources.Get $source -}}
+<details class="book-excerpt">
+  <summary>展开本节英文原文</summary>
+  <div class="book-excerpt__content" lang="en">
+    {{ .Content | markdownify }}
+  </div>
+</details>
+{{- else -}}
+  {{- errorf "Book excerpt %q not found on %s" $source .Position -}}
+{{- end -}}

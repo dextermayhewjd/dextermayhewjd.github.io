@@ -1,0 +1,26 @@
+{{- define "main" }}
+<article class="post-single">
+  <header class="post-header">
+    {{ partial "breadcrumbs.html" . }}
+    <h1 class="post-title">{{ .Title }}</h1>
+    {{- with .Description }}<div class="post-description">{{ . }}</div>{{ end }}
+  </header>
+
+  {{- with .RegularPages.ByWeight }}
+  <section class="book-chapters" aria-labelledby="book-chapters-title">
+    <h2 id="book-chapters-title">章节</h2>
+    {{- range . }}
+    <a class="book-chapter-entry" href="{{ .RelPermalink }}">
+      <strong>{{ .Title }}</strong>
+      {{- with .Description }}<span class="book-chapter-entry__description">{{ . }}</span>{{ end }}
+      <span class="book-chapter-entry__open">进入章节 <span aria-hidden="true">→</span></span>
+    </a>
+    {{- end }}
+  </section>
+  {{- end }}
+
+  <div class="post-content md-content">
+    {{ partial "anchored_headings.html" .Content }}
+  </div>
+</article>
+{{- end }}

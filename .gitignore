@@ -4,3 +4,6 @@ resources/_gen/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Local book reading material is not committed to the public source repository.
+/content/books/12-rules-for-life/chapter-*/
