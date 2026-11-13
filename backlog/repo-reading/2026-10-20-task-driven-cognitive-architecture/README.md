@@ -1,5 +1,53 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新样例落实：[_run_round 调用上下文样例已纳入短期记忆 skill](discussion.md#run-round-caller-context-reference-applied)。保存完整 reference，正文补适用条件和交接检查，不固定表格或段数。
+
+最新共享资料落实：[Kubernetes 基础已提取为跨仓库专题](discussion.md#shared-kubernetes-topic-applied)。保留八类目录与 20 份原资料，补已遇到的基础；Agent Sandbox 的下一步仅建立 Pod 创建 scope，函数卡与个人进度仍归各项目。
+
+最新目录整理：[Agent Sandbox 旧 Fleet 步骤已归入 topics](discussion.md#agent-sandbox-fleet-topic-migrated)。两步共 61 个文件整体迁移，编号和内容保留，链接同步；Kubernetes 主题仍独立。
+
+最新主题落实：[Agent Sandbox 独立 Kubernetes 主题](discussion.md#agent-sandbox-independent-k8s-topic)。用户授权独立编号和按需引用旧资料；本主题 Step 000 scope 已建立，旧步骤原位保留。
+
+最新主题建议：[Agent Sandbox 的 Fleet 使用与 Kubernetes 控制分主题](agent-sandbox-topic-grouping-proposal.md)。保留原 Step 000、001 及未完成状态；下一主题建议从 Step 002 接续，目录尚未迁移。
+
+最新导航落实：[Agent Sandbox 的 3.2 改为面包屑](discussion.md#agent-sandbox-stable-scope-feedback)。用户明确函数解释归短期卡，scope 只保留必要展开、入口和返回位置；3.1 全图保留。
+
+最新归属落实：[SandboxFleet 初始化的方法卡分工](discussion.md#sandboxfleet-init-record-ownership)。用户已确认：类卡保留对象状态和入口，具体初始化流程集中到独立方法卡；原有 __init__ 卡已调入本步短期记忆。
+
+最新范围落实：[Step 000 当前函数与备用材料归位](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md#step000-current-only)。用户保留现有结构，未采用项目级资料库；main 与 run_naive 留在 02，其余已有记录保存在本步 references/reserve。
+
+最新卡片调整：[build_job_spec 的总问题与连续阶段](discussion.md#build-job-spec-total-and-parts)。参考 `_run_turn` 与面包屑样例，先显示整体场景，再把 env、镜像和地址说明放回所属阶段；效果待用户反馈。
+
+最新结构落实：[八类 Kubernetes 目录已按腾讯岗位目标建立](discussion.md#role-aligned-k8s-structure)。保留通用正文与项目岗位对照的分工，先补起步主线，后续细项按实际阅读补充。
+
+此前结构评估：[主题目录与整体任务总览配合](discussion.md#k8s-folder-mental-model-review)。保留当时的取舍与官方资料依据。
+
+最新基础目录修正：[Kubernetes 核心、客户端生态与项目代码分别归位](discussion.md#pure-k8s-hierarchy)。`k8s/` 改为四层通用知识目录，Gateway、应用控制器和项目配置进入项目参考。
+
+最新资料分工：[实际接触后建卡，Kubernetes 基础集中保存](discussion.md#k8s-basics-folder-and-card-timing)。已清理未读卡片的当前索引及失效入口，基础解释与函数调用记录互相链接。
+
+最新面包屑落实：[按既有 reference 修改当前函数卡](discussion.md#breadcrumb-function-card-applied)。父骨架持续可见，子函数从调用处打开，并指明携带什么结果返回；旧版与个人记录保留。
+
+最新 reference 核对：[已有“骨架 + 函数面包屑”的直接样例](discussion.md#breadcrumb-function-focus-reference)。用户再次明确一次只打开一个函数；以 `run_agent / exec_and_wait` 的双向跳转和 `_run_turn` 的父骨架为依据，区别于只折叠同卡阶段。
+
+最新函数卡试读：[_reconcile_once 按三段数据关系组织](discussion.md#reconcile-memory-segmentation)。保留完整函数模型、同一个例子与当前阅读段，合并重复讲解；效果待用户反馈，不改变已确认的理解状态。
+
+最新入口核对：[periodic loop 与单轮协调的阅读问题不同](discussion.md#periodic-loop-reading-entry)。已对照 Slime 实际过程和 reading-order skill；用户随后澄清输入有误，明确恢复 [1] `_reconcile_once` 并开始阅读。不把父函数优先设为通用规则。
+
+最新分工落实：[scope 保留骨架和导航，函数展开进入 02](discussion.md#scope-function-notes-to-memory)。Agent Lightning 原 3.3 已拆入四张函数卡，原 3.4 导航顺移；来源与未精读状态保留。
+
+最新导航落实：[同一编号贯穿骨架、源码入口与短期记录](discussion.md#numbered-scope-memory-map)。已在 Agent Lightning scope 保留认可的两张图，并标明当前首读与后续分组；未来记录仅注明归属，不生成空卡片。
+
+最新阅读纠正：[先有完整 Reconciler 骨架，再选择函数深入](discussion.md#agent-lightning-scope-before-functions)。Agent Lightning 已参照 Slime 既有 scope 补齐任务、Job 与状态交接，局部提问暂缓；这是落实已有方法，不新增一套步骤格式。
+
+最新阅读反馈：[以 scope 的连续骨架承接整轮复述](discussion.md#step017-continuous-scope-restatement)。默认先沿一轮执行顺序建立关系，主次控制回查深度；不再引导跳过中间交接只看重点。
+
+最新表达建议：[主骨架、局部交接与结果去向](discussion.md#step017-task-flow-cognitive-engineering-review)。从回顾负担和执行关系准确性评估 Step 017，保留面包屑与注释，以明确调用图替代跨函数深缩进伪代码；尚未采用为正式稿。
+
+最新 task flow 审阅：[Step 017 与三份旧总结的比较](discussion.md#step017-task-flow-reference-review)。保留四段结构，按旧稿补清数据变化、等待与返回，候选沿用同行注释；当前只完成审阅。
+
+最新短期记忆审阅：[Step 017 完成通知卡的具体评审与对照稿](step-017-training-completion-memory-review.md)。轻量核对批次状态变化，保留原话与来源；候选稿尚未覆盖正式卡片。
+
 最新展示评估：[bind_trace 并排对照应按字段关系对齐](discussion.md#step014-bind-trace-comparison-review)。建议突出新增句柄、共享字典与原对象变化；当前只保存评估，尚未重排正式案例。
 
 最新展示修正：[案例 C 改为共享对象图与完整使用说明](discussion.md#step014-session-usage-narrative)。用户反馈逐字段表格仍难看难懂，本轮围绕会话为什么接收 Trace 重组；新版效果待反馈。

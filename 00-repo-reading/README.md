@@ -46,6 +46,9 @@
 - [逐函数记录模板](templates/function.md)：分别指向短期、长期 reference 模板；按认可样例依次保留原话、简短场景、输入输出、LLM 模型、未知和来源，省去重复归纳。
 - [Slime 的应用记录](repositories/slime/README.md)：本方法的第一个应用；不把 Slime 的岗位目标套给其他仓库。
 - [Dressage 的应用记录](repositories/dressage/README.md)：基于 Slime 构建的 Agentic RL 训练框架阅读记录。
+- [Agent Lightning 的应用记录](repositories/agent-lightning/README.md)：本地仓库、固定源码版本与首步候选；当前进度在项目入口维护。
+- [Agent Sandbox 的应用记录](repositories/agent-sandbox/README.md)：本地仓库、固定源码版本与资料入口；具体阅读范围待确定，当前进度在项目入口维护。
+- [Kubernetes 共享基础](repositories/kubernetes/README.md)：从多个源码项目遇到的概念中积累通用知识，保留八类职责；这是基础专题，不是 Kubernetes 核心源码阅读项目。
 
 ```text
 00-repo-reading/

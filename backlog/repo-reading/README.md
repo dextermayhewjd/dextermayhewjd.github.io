@@ -1,5 +1,43 @@
 # 源码阅读与认知记录制度：讨论与待办
 
+最新样例落实：[_run_round 调用上下文样例已纳入短期记忆 skill](2026-10-20-task-driven-cognitive-architecture/discussion.md#run-round-caller-context-reference-applied)。保存完整 reference，正文补适用条件和交接检查，不固定表格或段数。
+
+最新共享资料落实：[Kubernetes 基础提取与 Pod 创建 scope](2026-10-20-task-driven-cognitive-architecture/discussion.md#shared-kubernetes-topic-applied)。通用正文维护在 repositories/kubernetes；各项目保留具体函数、来源与个人进度。
+
+最新范围落实：[Step 000 只保留当前两个函数，其余同目录备用](../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md#step000-current-only)。用户明确保留现有结构，项目级函数资料库方案未采用；当前 02 保留 main 与 run_naive，其他记录移入本步 references/reserve。
+
+最新卡片调整：[build_job_spec 先总问题、后连续阶段](2026-10-20-task-driven-cognitive-architecture/discussion.md#build-job-spec-total-and-parts)。按已认可的 `_run_turn` 和面包屑 reference 重排当前卡片，保留个人原话与未知；尚待阅读反馈。
+
+最新结构落实：[按腾讯岗位采用八类 Kubernetes 知识目录](2026-10-20-task-driven-cognitive-architecture/discussion.md#role-aligned-k8s-structure)。已迁移现有资料、补齐总览/对象模型/协调循环，岗位深度与实践证据单独保存，未新增未读函数卡。
+
+此前结构评估：[Kubernetes 目录怎样支撑整体心智模型](2026-10-20-task-driven-cognitive-architecture/discussion.md#k8s-folder-mental-model-review)。评估原稿与当时建议保留，后续已按用户确认落实。
+
+最新基础目录修正：[通用 Kubernetes 分层，项目映射移出正文](2026-10-20-task-driven-cognitive-architecture/discussion.md#pure-k8s-hierarchy)。用户要求可独立复习的纯基础目录；现按架构、资源组织、工作负载、客户端工具四层整理。
+
+最新资料分工：[未接触不建卡，Kubernetes 基础另设目录](2026-10-20-task-driven-cognitive-architecture/discussion.md#k8s-basics-folder-and-card-timing)。用户确认主动撤回提前生成的卡片；Agent Lightning 的已讨论基础集中到 `k8s/`，函数记录链接回查。
+
+最新面包屑落实：[_reconcile_once 已恢复父函数骨架和下钻／返回导航](2026-10-20-task-driven-cognitive-architecture/discussion.md#breadcrumb-function-card-applied)。按用户确认修改当前卡片，并补齐已有子卡的返回位置；源码学习状态保持。
+
+最新 reference 核对：[骨架保持可见，沿面包屑一次打开一个函数](2026-10-20-task-driven-cognitive-architecture/discussion.md#breadcrumb-function-focus-reference)。已找到短期 memory 中用户认可的 `run_agent → exec_and_wait` 与 `_run_turn` 样例；阶段折叠不能代替函数间来路、下钻和返回导航。
+
+最新函数卡试读：[同一例子贯穿取得记录、配对与决策](2026-10-20-task-driven-cognitive-architecture/discussion.md#reconcile-memory-segmentation)。用户反馈 `_reconcile_once` 内容过密；现收拢重复解释，默认展示当前段，后续细节折叠，原话与完整历史保留。
+
+最新入口核对：[阅读问题与用户纠正](2026-10-20-task-driven-cognitive-architecture/discussion.md#periodic-loop-reading-entry)。Slime 历史与 skill 都按当前问题选入口，不要求机械按调用层级；用户随后澄清函数名输入有误，明确从 `_reconcile_once` 开始，当前已进入两份数据来源。
+
+最新分工落实：[函数内部说明从 scope 移入短期记忆](2026-10-20-task-driven-cognitive-architecture/discussion.md#scope-function-notes-to-memory)。保留 Agent Lightning 已认可的整体图和编号导航，原 3.3 的代码、分支与局部交接按函数保存；迁移不表示完成阅读。
+
+最新导航落实：[骨架编号对应代码、步骤与短期函数](2026-10-20-task-driven-cognitive-architecture/discussion.md#numbered-scope-memory-map)。用户认可 Agent Lightning 的 3.1、3.2，要求看清从哪里读、如何回到主线；已统一 [1]–[5]，并区分当前记录和未来步骤的建议落点。
+
+最新阅读纠正：[Agent Lightning 先补完整 Reconciler 骨架，再选函数深入](2026-10-20-task-driven-cognitive-architecture/discussion.md#agent-lightning-scope-before-functions)。对照 Slime Step 001、012、017，已修正只展示启动函数就进入局部提问的安排；本阶段继续在本地 Markdown 试读。
+
+最新阅读反馈：[scope 的连续骨架更清楚，Step 017 已有整轮复述](2026-10-20-task-driven-cognitive-architecture/discussion.md#step017-continuous-scope-restatement)。reference 默认沿执行顺序回顾，主次只控制展开深度；完整原话与技术校准已保存。
+
+最新表达建议：[Step 017 以主骨架和局部交接支持回顾](2026-10-20-task-driven-cognitive-architecture/discussion.md#step017-task-flow-cognitive-engineering-review)。面包屑和注释继续保留，跨函数关系改用明确的调用图；这是待使用检验的建议，正式 task flow 尚未替换。
+
+最新 task flow 审阅：[Step 017 对照 Step 004、008、013 的交接表达](2026-10-20-task-driven-cognitive-architecture/discussion.md#step017-task-flow-reference-review)。四段职责保留，建议补清就近注释、等待和返回位置；已提供局部候选，正式 task flow 本轮未替换。
+
+最新短期记忆审阅：[Step 017 完成通知 reference 已按编号与面包屑分层](2026-10-20-task-driven-cognitive-architecture/step-017-training-completion-memory-review.md#numbered-breadcrumb-revision)。3.1–3.3 跟随调用下潜，3.3.1–3.3.3 展开局部阶段，3.4 逐层返回；原话与来源保留，正式卡片尚未覆盖。
+
 最新展示评估：[bind_trace 并排对照应按字段关系对齐](2026-10-20-task-driven-cognitive-architecture/discussion.md#step014-bind-trace-comparison-review)。建议突出新增句柄、共享字典与原对象变化；当前只保存评估，尚未重排正式案例。
 
 最新展示修正：[案例 C 改为共享对象图与完整使用说明](2026-10-20-task-driven-cognitive-architecture/discussion.md#step014-session-usage-narrative)。用户反馈逐字段表格仍难看难懂，本轮围绕会话为什么接收 Trace 重组；新版效果待反馈。

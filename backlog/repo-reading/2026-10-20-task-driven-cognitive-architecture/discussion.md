@@ -1,5 +1,199 @@
 # 讨论记录：任务驱动的认知架构
 
+<a id="build-job-spec-total-and-parts"></a>
+
+## 2026-11-03 · build_job_spec：总问题与连续阶段需要共同清楚
+
+用户反馈函数卡难以直接理解，要求先讲清楚解释目标、调整详略和总分排版，并查找已有短期记忆 reference。[本次原话与实施记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-002-build-job-spec/04-flow.md#total-and-parts-layout)保存在当前步骤。
+
+对应依据是 [BaseAdapter._run_turn](../../../.agents/skills/repo-reading-short-term-memory/references/base-adapter-run-turn.md) 的整体场景与阶段交接，以及[面包屑 reference](../../../.agents/skills/repo-reading-short-term-memory/references/breadcrumb-navigation-and-shared-infra.md) 的进入/返回关系。当前卡虽然已有函数骨架，但整体输入输出被折叠，后续又按追问主题堆叠 env、URL 和镜像，未让每段都服务于一次配置构造的总问题。
+
+本次应用：整体问题和成对输入输出直接可见；内部按“模板到配置字典、补身份与运行约束、补容器连接信息”组织连续阶段，每段先写要解释的问题，再给源码和交接。第一段作为当前焦点，后两段保留用途并折叠详细回查。数据旁注、已有面包屑、个人原话和未知继续保留，Kubernetes 的既有正文不重复生成。
+
+这是对已确认规则的应用和版面试读，不修改通用 skill，也不宣布理解效果已验证。后续根据用户阅读反馈继续调整。
+
+随后用户要求给“模板怎样成为 Job 字典”等段落增加 1.1、2、2.1 一类的层级编号，或在开头给出层次。已在当前卡片同时加入页首可点击目录与对应的正文编号；“整体数据—处理阶段—返回调用方”成为三组，处理阶段位于 2.1–2.3。编号是卡内导航，不是新 Step，也不改变源码和个人理解。[本次具体反馈](../../../00-repo-reading/repositories/agent-lightning/steps/step-002-build-job-spec/04-flow.md#numbered-card-outline)。
+
+<a id="role-aligned-k8s-structure"></a>
+
+## 2026-11-03 · 用户确认按腾讯岗位落实八类目录与起步正文
+
+用户强调目标是腾讯混元岗位，要求重新核对 JD，并贴出上一轮建议确认“就写这个吧”。完整确认记录见 [Step 000 的本轮记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#role-aligned-k8s-structure)。
+
+本轮将已确认的八类结构落实到 `k8s/`，保留通用知识边界。原 `02-resources` 迁为 `02-resource-model`，`04-clients` 迁为 `90-clients`；新增总览、运行环境、安全与隔离、运维入口。起步正文补齐 Job 生命周期、对象模型与协调循环，其他主题只先明确归属与问题，不预生成未读函数卡或学习完成记录。
+
+岗位依据与深度单独写入 [Kubernetes 岗位对应范围](../../../00-repo-reading/repositories/agent-lightning/references/tencent-k8s-scope.md)：聚焦集群开发、部署、排障或性能优化的实际经验，同时服务于任务执行、资源/链路一致性和软件工程要求。没有将所有 Kubernetes 内部实现或自研沙箱运行时列为岗位必需。
+
+当前 [通用知识入口](../../../00-repo-reading/repositories/kubernetes/README.md)与函数卡的链接已同步；旧结构保留快照，函数阅读和运行状态不因目录建设而改变。
+
+<a id="k8s-folder-mental-model-review"></a>
+
+## 2026-11-03 · Kubernetes 目录能否支撑整体心智模型
+
+> 后续状态：用户已确认采用本节八类建议，并要求结合腾讯 JD 落实。见[实施记录](#role-aligned-k8s-structure)；下文保留当时的评估过程。
+
+用户问：
+
+> 你是一个多年的大型科技公司k8s运维,也是沙箱方面的专家
+> 我想要知道的是当前的k8s相关的folder架构合理吗?
+> 是你觉得适合作为folder 理清楚k8s的心智模型的folder架构吗
+
+### 当前判断
+
+现有“架构、资源组织、工作负载、客户端”作为已涉及内容的分类是合理的：通用知识与项目映射已分开，Job/Pod、Namespace、标签和 Python 客户端各有位置。但它还只是起步目录，尚不足以独立承载完整 Kubernetes 心智模型。这四项是主题分类，不是系统运行时依次经过的四层。
+
+关键缺口是关系与执行链：对象怎样表达期望和观测，控制器怎样持续协调，Pod 怎样被分配到节点并交给运行时执行，运行依赖与隔离边界在哪里，以及失败时怎样定位。只有 API Server 与若干资源名，容易形成“认识名词，但接不起来”的状态。
+
+### 两种组织方式及建议
+
+| 方式 | 有帮助的地方 | 局限 |
+| --- | --- | --- |
+| 按主题分类，沿用当前方式 | 查找和长期维护稳定，同一概念可只保留一份正文 | 目录本身不显示因果与数据交接 |
+| 按一次任务的生命周期组织全部笔记 | 初读容易跟随创建、调度、运行、回报与清理 | 同一概念会在多处出现，容易重复维护 |
+
+建议结合两者：**主题目录负责知识归属，整体总览用一条真实任务链连接这些主题。** 读某个函数或概念时仍采用当前的面包屑方式；返回总览可恢复它在系统中的位置。总览只连接，不复制各主题的完整定义。
+
+### 长期分类建议（尚未实施）
+
+```text
+k8s/
+├── 00-overview/
+├── 01-architecture/
+├── 02-resource-model/
+├── 03-workloads/
+├── 04-runtime-environment/
+├── 05-security-and-isolation/
+├── 06-operations/
+└── 90-clients/
+```
+
+| 归属 | 要能回答的问题 | 逐步容纳的内容 |
+| --- | --- | --- |
+| 整体总览 | 从声明一个任务到容器运行，发生了哪些交接？ | 一次 Job 生命周期、组件与资源两张关系图 |
+| 架构 | 谁负责哪项工作，运行在哪里？ | 控制平面与节点、API Server、etcd、控制器、Scheduler、kubelet、运行时的角色与协作 |
+| 资源模型 | 怎样表达、标识、观察和关联系统中的对象？ | metadata/spec/status、Namespace、Labels/Selectors、对象关联与生命周期 |
+| 工作负载 | 不同运行目标用什么对象表达？ | Pod、Job，以及后续实际涉及的其他工作负载类型 |
+| 运行环境 | 工作正常执行需要哪些条件？ | 计算资源、网络与发现、存储、配置与环境；主题增多时再设子目录 |
+| 安全与隔离 | 谁能访问什么，执行边界在哪里？ | 身份权限、网络与进程/运行时隔离、沙箱相关的 RuntimeClass 等 |
+| 运维与排查 | 运行到哪一步，哪里出了问题，怎样验证恢复？ | 状态、事件、日志，以及具体故障案例 |
+| 客户端工具 | 怎样从命令行或程序操作上述概念？ | kubectl、Python/kr8s 等，链接同一份概念正文 |
+
+这是建议的信息归属，不是新增必读课程，也不要求现在建立空目录或写完所有主题。现有三类核心内容可继续使用，`02-resources` 将来用 `resource-model` 表意更明确；客户端作为工具层可在扩展时移到 `90-clients`，避免中间插入主题反复改号。
+
+近期最有用的补充是整体总览、对象的 spec/status 关系和 Controller 的协调闭环。其他主题在实际阅读或实验出现相应问题时再补；当前用户的函数阅读进度不因这份建议改变。
+
+### 技术依据与沙箱边界
+
+Kubernetes 对象用 spec 表达期望，status 反映系统观察；控制器观察资源并请求改变，持续推进期望状态。这为总览提供了贯穿各目录的主轴。[Objects In Kubernetes](https://kubernetes.io/docs/concepts/overview/working-with-objects/)、[Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)。
+
+以 Job 为例，Job 控制器通过 API 创建/管理 Pod，Scheduler 为未绑定节点的 Pod 选择节点，kubelet 与容器运行时负责节点上的执行。这些组件主要通过资源状态协作，不能画成一个普通函数逐级直接调用的同步链。[Kubernetes Components](https://kubernetes.io/docs/concepts/overview/components/)、[Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)。
+
+沙箱相关学习需要单独辨认管理范围与执行隔离：Namespace 并不独自提供完整的隔离，普通容器通常共享宿主内核；运行不可信代码时还涉及运行时隔离等机制。RuntimeClass 表达运行时配置选择，实际隔离能力取决于底层运行时与部署。这是需要学习的边界，不是本轮部署方案。[Multi-tenancy](https://kubernetes.io/docs/concepts/security/multi-tenancy/)、[RuntimeClass](https://kubernetes.io/docs/concepts/containers/runtime-class/)。
+
+本轮查阅了上述官方资料，记录的是目录评估和助手建议；没有更改当前 `k8s/` 目录、创建未读章节、修改函数卡或开展集群实践。
+
+<a id="pure-k8s-hierarchy"></a>
+
+## 2026-11-03 · 基础目录应能脱离具体项目独立复习
+
+用户指出此前 `k8s/` 仍混入了 Agent Lightning Gateway、应用控制器与项目配置，要求保存纯 Kubernetes 内容并建立分层目录；认可 Job/Pod、标签选择器的重要性，并询问 kr8s 是否属于 Python 客户端层。完整原话见[本步记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#pure-k8s-hierarchy)。
+
+本轮将资料分为：Kubernetes 架构、资源组织、工作负载、客户端工具。前三层解释原生概念，第四层明确是通过语言库使用 Kubernetes 的生态知识。Gateway 与 K8sReconciler 的对应关系移至项目 `references/kubernetes-integration.md`，基础正文不再承载项目执行链或变量说明。
+
+旧内容在基础目录外保留历史，新目录之间与函数卡的链接同步更新。这是内容归属与导航修正，未改变用户的源码理解或实际运行记录。
+
+<a id="k8s-basics-folder-and-card-timing"></a>
+
+## 2026-11-03 · 实际接触后建卡，基础内容单独汇总
+
+用户澄清，Agent Lightning 中缺失的四张卡片是因尚未接触却已提前生成而主动删除的，并要求单独建立 `k8s` folder 保存 Kubernetes 基础。完整原话与实施记录见 [Step 000 的本轮记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#k8s-basics-folder)。
+
+本轮落实既有边界：骨架中出现一个调用，或助手提前准备过解释，都不能代替实际阅读。未读卡片不恢复，当前索引撤下相关项目，未读调用继续提供源码定位；历史保留并修正失效链接。
+
+新增 [Agent Lightning k8s 基础目录](../../../00-repo-reading/repositories/kubernetes/README.md)，只先整理已讨论的 API/客户端、Job/Pod、Namespace、Labels/Selector 与 kr8s 资源对象。基础目录承担概念解释，短期函数卡保留具体场景、输入输出、个人表述与返回位置。两者互相链接，基础目录不另设一套学习进度。
+
+<a id="breadcrumb-function-card-applied"></a>
+
+## 2026-11-03 · 按既有面包屑 reference 修改当前函数卡
+
+用户确认按前述 reference 修改 `_reconcile_once` 短期函数记录。本次将卡片从主要依靠阶段折叠，调整为顶部调用链、完整父函数骨架、子函数入口与返回接续表。已有 `_create_job` 卡补齐对应的上游链接和返回说明，其他未独立阅读的函数先链接源码。
+
+[本次落实与用户原话](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#breadcrumb-card-applied) · [当前函数卡](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/02-short-term-memory/functions/agentlightning/controller/k8s_reconciler.py/K8sReconciler._reconcile_once.md)。本轮保留旧版、原话和未知，没有把呈现调整记为用户新的源码理解，也没有新增子函数阅读步骤。
+
+<a id="breadcrumb-function-focus-reference"></a>
+
+## 2026-11-03 · 骨架与函数间面包屑已有直接 reference
+
+用户进一步明确：需要骨架，同时每次像面包屑一样打开一个函数，并要求查看短期 memory skill 的旧 reference。[完整原话与核对记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#breadcrumb-reference-confirmation)。
+
+最直接的既有依据是 [breadcrumb-navigation-and-shared-infra](../../../.agents/skills/repo-reading-short-term-memory/references/breadcrumb-navigation-and-shared-infra.md)，于 2026-10-23 获用户认可；例子为 `run_agent → exec_and_wait`。它要求顶部显示当前函数、调用来源和下游入口，父卡只解释自身直接行为，子函数独立展开，并说明返回结果和接续位置。
+
+另一个配套依据是 [BaseAdapter._run_turn](../../../.agents/skills/repo-reading-short-term-memory/references/base-adapter-run-turn.md)：保持父函数的完整组合、输入输出和调用位置，读者需要时进入单个子函数卡，再带着结果返回父函数。两者组合覆盖用户当前强调的阅读方式，无需另立一套模板。
+
+前一版按数据阶段分段、折叠后续内容，只处理了单张卡的显示密度；尚未完整落实函数间的面包屑导航。后续应以这些既有 reference 为准，保留当前函数骨架和独立子卡的职责边界。一次只打开一个函数是焦点控制，不意味着每个辅助调用都必须预先建卡；实际下钻仍由问题决定。
+
+<a id="reconcile-memory-segmentation"></a>
+
+## 2026-11-03 · 函数卡应恢复关系，而不是累加每次解释
+
+用户反馈 `_reconcile_once` 的内容太多，要求从认知与资深程序员的角度考虑读法和短期记忆构建。[原话与具体修改](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#reconcile-memory-segmentation)保存在本步过程。
+
+本次问题不只在篇幅：同一数据读取在整体骨架和局部代码中重复，辅助函数实现、对象字段、Kubernetes 术语与尚未读到的状态分支同时进入默认正文。对当前还在确认两份数据含义的读者，这些关系尚未形成可复用的整体，需要额外维持上下文。这个判断依据用户反馈与实际版面，不把它归因于个人能力，也不声称经过了实验验证。
+
+采用的组织方式：
+
+1. **按数据依赖分段**：取得两份记录 → 为当前任务查到 Job 或 None → 按两边状态决定动作。三段来自本函数的职责结构，不以固定工作记忆容量推导段数。
+2. **同一例子贯穿**：先沿排队任务 r1、对应 Job 缺失的正常路径走通，再一次改变一个条件补充分支，减少例子切换。
+3. **正文突出当前段**：总纲和一个完整输入输出始终可见，当前 1.1 默认展开，后续 1.2、1.3 折叠；代码与就地说明相邻。辅助接口保留当前会用到的合同。
+4. **按知识前置提问**：对象和来源尚未清楚时，不提前要求判断终态或失败。原来的缺失 Job 判断题延后到决策阶段。
+5. **记录按阶段合并**：追问形成的技术解释合并回对应阶段，完整对话留在 flow；个人原话、未知和源码来源继续保留。主函数负责组合关系，子函数内部按独立问题展开。
+
+这些做法沿用既有记录中的[整体任务与逐渐增加复杂度](https://doi.org/10.1207/S15326985EP3801_2)、[分散注意与信息整合](https://ro.uow.edu.au/articles/journal_contribution/Cognitive_Load_Theory_and_the_Format_of_Instruction/27778410)的一般依据；从这些原则到本函数的三段布局属于设计应用，不是研究直接验证的具体格式。
+
+已按此方式试改[当前函数卡](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/02-short-term-memory/functions/agentlightning/controller/k8s_reconciler.py/K8sReconciler._reconcile_once.md)，完整旧版保留在历史快照。仍满足短期 memory 的既有栏目与来源要求，没有修改通用 skill，也没有把精简或折叠计为理解进度。
+
+<a id="periodic-loop-reading-entry"></a>
+
+## 2026-11-03 · 入口选择先说明当前问题，并对照实际阅读历史
+
+> 同日后续：用户澄清前一条函数名输入有误，明确要求从 `_reconcile_once` 开始。当前恢复它为 [1]，外层循环只保留调用背景，已经进入函数开头两份数据的观察；见[最新原话与阅读记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#reconcile-once-start)。下文保留此前基于输入所作的比较，不作为新的强制阅读顺序。
+
+用户要求核对此前 Slime 的读法与 skill 是否存在出入，并提出当前是否应先看 `_periodic_reconcile_loop`。[完整核对](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#reading-order-audit)保存在当前步骤。
+
+Slime Step 001 根据用户问题追踪 Harness 到 Adapter 的连接；Step 012 先给 `_loop` 的完整骨架，再从任务创建接回已有知识，回看回收与等待。两者与 reading-order 的“按当前问题选核心、按需补前置”一致，不推出必须按调用树从顶到底读。先看单轮协调并非规则上错误，但此前没有充分区分“控制器怎样持续运行”与“单轮怎样匹配 Job”两个问题。
+
+当前建议先用 [1] `_periodic_reconcile_loop` 建立重复执行、等待与退出的语境，再进 [1.1] `_reconcile_once`，返回外层完成连接。后续编号保持；本次不新增函数卡或机制理解。另明确 scope skill 允许必要的局部骨架，具体函数说明进入 `02`；没有将“scope 不能出现任何代码”写成新规则。
+
+<a id="scope-function-notes-to-memory"></a>
+
+## 2026-11-03 · scope 中的函数内部说明应进入短期记忆
+
+用户指出 Agent Lightning scope 的 3.3 不应留在范围文档，所展开的函数应进入 short-term memory。[原话及处理记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#function-notes-out-of-scope)。
+
+本次区分的是记录职责：scope 保留整体位置、核心骨架、范围、阅读编号和函数跳转；具体函数的代码、状态分支、场景与输入输出放在 `02` 的函数卡。原 3.3 已经在展开后者，因此按四个实际函数迁入短期记录，而不继续在 scope 中重复维护。必要的整体调用骨架仍保留，未改成没有源码关系的目录清单。
+
+原 3.4 的编号导航现为 3.3，锚点保持，并链接已经存在的函数卡。后续步骤尚未开始，迁移只保存 Step 000 中已经写出的助手说明，不预填个人理解。原稿保留历史，已有 `03` 不变；当前继续本地 Markdown 试读。
+
+<a id="numbered-scope-memory-map"></a>
+
+## 2026-11-03 · 骨架编号必须对应阅读入口、步骤与短期函数
+
+用户认可 Agent Lightning scope 的 3.1、3.2，但指出缺少 1、2、3、4、5 的路标，无法知道当前从哪里看，以及各入口对应当前或后续哪一步的短期函数。[完整原话与落实记录](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#numbered-reading-map)。
+
+本轮沿用 Slime scope 的同号图表方式：执行图保留原结构，在节点上标阅读编号，导航表用同号连接实际源码、当前问题、记录归属和返回位置。A/B 的并发执行关系与 [1]–[5] 的阅读顺序分别说明，共用函数在多个调用处使用同一编号和同一记录落点。
+
+当前 Step 000 从 [1] `_reconcile_once` 的主流程进入；[2]–[3] 的 Job 创建、[4]–[5] 的状态观察与回写分别提出后续一步的分组建议。已有卡片直接链接；未展开的函数先链接源码，并写清预计在哪一步、以哪个完整函数名建卡。未生成未来步骤、空卡片或个人理解。详细导航统一在 [scope 3.4](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/01-scope.md#reading-navigation) 维护。
+
+<a id="agent-lightning-scope-before-functions"></a>
+
+## 2026-11-03 · 先有完整 Reconciler 骨架，再选函数深入
+
+用户在 Agent Lightning Step 000 明确要求先给 `K8sReconciler` 的骨架，再考虑从函数下钻，并要求参考 Slime 过去的 scope。[原话与本次调整](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/04-flow.md#scope-first-revision)保存在本步过程记录。
+
+助手对照 Slime Step 001、012、017 后确认：既有方法先保留整体任务位置、连续工作关系或协作路径，再提供局部入口、阅读深度和返回位置。此前只给 `run()` 的两个并发调用就问调用次数，尚未展示 rollout、Job 创建及状态回写的完整关系，属于应用既有方法时遗漏整体层。
+
+本轮已修订 [Agent Lightning scope](../../../00-repo-reading/repositories/agent-lightning/steps/step-000-k8s-controller-entry/01-scope.md)：先显示周期协调与事件观察的完整骨架，再显示关键调用和分支，最后列出局部候选。`run` 的既有卡片与旧稿保留，不新增其他函数卡，也不把范围纠正视为技术理解已经形成。继续采用用户确认的本地 README / Markdown 试读方式，不建立 Hugo 网页。
+
 日期：2026-10-20。
 
 [返回讨论入口](README.md)。本页保存实际表述、助手建议与研究依据；已确认事项和待讨论方案的区别见入口页。
@@ -3712,3 +3906,336 @@ Sample 继续存在，函数另建 TraceHandle，两个对象共享原追踪字�
 认知依据：[Mayer 与 Moreno（2003）](https://carpentries.github.io/instructor-training/files/papers/mayer-reduce-cognitive-load-2003.pdf)讨论相关文字与图示靠近、提示结构和排除无关内容，以减少额外处理。用于本代码对照属于设计推断，该研究并未直接验证这份 Markdown 排版。工程参考：[Google 代码示例指南](https://developers.google.com/style/code-samples)建议在示例前提供介绍、明确省略并控制行宽；因此保留目的与数据边界，并避免横向滚动打断对应关系。
 
 已有完整会话案例仍有价值，评估范围只在这一个局部展示。本轮保存格式建议，未修改正式 README、函数卡、实际输出或学习进度，没有新增运行实验，也未替用户填写理解状态。
+
+<a id="step017-training-completion-memory-review"></a>
+
+## 2026-10-30 · training_completed 的短期记忆应怎样组织
+
+用户在重复区分完成通知、批次收尾与其他生成任务后提出：
+
+> 如果需要看的话应该是这里的rolloutqueuecontroller的部分对吗?
+> 我觉得需要简单的看一下吧?
+> 要不继续下潜一下?
+> 但是这里的关于rolloutmanager training completed的部分我觉得是否还是太过于不是特别清晰了?
+> 请你从认知角度和资深科技公司大厂员工的做法来看一下这里是否应该是样子的呢?
+> 我说的是这里的short term memory部分
+
+本轮判断是需要检查卡片组织，而不只再补一句解释。原卡的默认无批次路径、队列路径、编号来源、层间委派和历史澄清反复穿插，缺少一份集中展示的状态前后对照。认知上的问题是读者需要自行整合这些段落；工程阅读上则难以快速找到调用前提、成功后的具体变化和边界。
+
+已给出[具体审阅](step-017-training-completion-memory-review.md)与[阅读版对照稿](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/training-completed-card-proposal.md)。候选保留原栏目，在同一父卡中以“前提 → 两条路径 → 三层责任 → ref_A/ref_B 状态变化 → 三句实现”组织；原有个人记录、未知与来源完整复制并重算相对链接。没有以短期卡应简短为由删除学习历史。
+
+用户本轮允许轻量下潜，已静态核对 RolloutQueueController.finish_batch 的正常路径及 state 的含义；只追 `_advance`、过滤 batches、保存状态的职责，未展开锁、租约、存储和 GC 的算法。当前采用在父卡内解释局部机制的方案，不按委派层级机械拆成多张卡。
+
+这是一份待比较的候选，正式函数卡内容未覆盖。六个相关源码方法与原固定版本一致，没有新运行，也没有将准备材料或版式建议记为用户已经掌握。
+
+<a id="step017-numbered-breadcrumb-revision"></a>
+
+## 2026-10-30 · 完成通知 reference 需要编号层次、分论点和面包屑
+
+用户认为第一版 reference 仍不合适，明确要求展示代码怎样下潜，并采用 3.1、必要时 3.1.1 这样的数字层级。完整原话与落实见[本轮格式修订](step-017-training-completion-memory-review.md#numbered-breadcrumb-revision)。
+
+已修改原对照稿：3.1–3.3 分别定位三层真实调用，每层有自己的面包屑、论点、源码和返回位置；3.3.1–3.3.3 展开同一个 finish_batch 方法内部的阶段；3.4 串起返回到主循环的路径。原个人表述与来源保留，第一版候选归档；未覆盖正式卡片或新增掌握结论。
+
+<a id="step017-task-flow-reference-review"></a>
+
+## 2026-10-31 · Step 017 的 task flow 需要对照以前的交接总结
+
+用户要求：
+
+> 你确定这里的task flow是合适的吗?
+> 是否需要参考一下别的task flow的内容呢?
+> 看一下以前的
+
+本轮对照当前 Step 004 的样本导出、Step 008 的启动与等待、Step 013 的完成队列交付。判断是四部分职责与已有结构一致，但当前第 2 节的主树偏向函数清单，输入变化、等待方和逐层返回主要散在表格中。旧稿会把这些关系写在相应节点旁；Step 013 还明确区分事件触发与普通直接调用。
+
+已保存[具体对照与第 2 节候选](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-review-2026-10-31.md)。候选沿用用户已认可的编号、调用缩进、同行注释和段后整体说明，区分训练外层等待、发布内部等待与暂停确认；后台 _loop 单独说明，不放成 pause 的子调用。建议结果表补接收方，收束节链接已有岗位复核，减少计划讨论的重复。
+
+当前请求是审阅，正式 task flow 尚未替换；本轮也未改写短期函数卡、长期快照或学习进度。技术关系为静态核对，没有新增真实训练或用户机制理解的证据。
+
+<a id="step017-task-flow-breadcrumb-comments"></a>
+
+## 2026-10-31 · task flow 能否结合面包屑与注释高亮
+
+用户问：
+
+> 以往有没有面包屑的方式 但是带上绿色注释的方式来解决解决这里的task flow呢?
+
+本轮查到 training_completed 正式函数卡已经结合面包屑、分层 Python 伪代码和 # 旁注；Step 006 task flow 第 3 节也使用带旁注的 Python 骨架，但检索到的旧 task flow 没有整篇统一采用该组合。不能把这次提出的完整 task flow 版式冒称为此前已采用。
+
+已在[现有对照稿第 4 节](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-review-2026-10-31.md#breadcrumb-comment-option)补入局部候选：主线保留一次，每个展开分支用当前位置面包屑、带 # 旁注的小段伪代码和末行返回说明。Python 标签提供注释语义高亮，具体是否为绿色由阅读器主题决定。本轮不改颜色配置或正式 task flow，也不把展示偏好视为新增源码理解。
+
+<a id="step017-task-flow-cognitive-engineering-review"></a>
+
+## 2026-10-31 · 从认知负担与工程准确性判断 task flow 的形式
+
+用户进一步问：
+
+> 你个人觉得这个是最好的形式来处理吗?
+> 请从资深认知学家和程序员的角度
+> 你会怎么处理这里的task flow的部分
+
+本轮没有把此前的面包屑和绿色注释组合宣称为普遍最优。针对当前“读过之后找回一轮整体关系”的目标，建议保留四部分结构，以连续主骨架承接整体、短小局部调用图解释交接、结果表汇总状态去向。跨函数关系的伪代码缩进容易混淆 self 归属及进程边界，因此改用明确命名的调用图；真实源码片段各自标注所属函数。
+
+认知方面的依据是减少读者同时维持的上下文、使解释贴近对象，并让同一编号用于总览和局部定位；工程方面保留普通/Ray 调用、等待方、条件路径、返回位置与后台独立运行。这是基于当前任务的设计判断，没有宣称经过学习实验验证或用户已经认可。
+
+最新推荐及完成登记示例保存在[对照稿第 5 节](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-review-2026-10-31.md#recommended-two-level-flow)，开头增加最新入口，前两版保留过程。正式 task flow、函数卡与 skill 本轮未改写。
+
+<a id="step017-complete-task-flow-reference"></a>
+
+## 2026-10-31 · 用户要求按建议写出完整 task flow reference
+
+用户原话：
+
+> 那么按照你觉得合适的方式 写一下这里的task flow吧
+> 给一个你觉得认知上面最符合人类前额叶认知理论和带宽 以及学习方式的task flow的reference吧
+
+已写出[完整参考稿](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-reference.md)：沿用四部分职责，主骨架保持真实控制结构，局部按同一编号展开带面包屑的短调用图；每段接清结果与返回，独立后台通过请求与确认说明，最后汇总参数、引用和控制状态的去向。
+
+研究依据单独折叠：Baddeley 的工作记忆综述、Mayer/Moreno 的分段与邻近解释、Roediger/Karpicke 的延迟回忆研究。明确这些提供设计原则，不直接验证 Slime 阅读或某种配色，也不能把“前额叶带宽”转换成固定函数数目。可选回顾问题不成为继续阅读的验收门槛。
+
+本轮允许只读并行审查，分别核对源码交接与研究依据。特别明确了 eval 使用独立配置的评估函数、本地暂停不是所有后台的共同实现、完成登记按是否有批次记录分支。完整 reference 的生成与技术核对不等于用户已经认可学习效果；原任务总结、函数卡、长期快照及唯一进度未被改写。
+
+<a id="step017-task-flow-reading-priorities"></a>
+
+## 2026-10-31 · 层级之外还需要阅读与认知的主次
+
+用户反馈：
+
+> 阅读和认知是需要主次的 认知带宽也是
+
+前一版虽然已有主骨架、面包屑和局部段落，但几乎将全部子调用与机制平行展开，仍把阅读精力的分配留给读者。本轮将[完整 reference](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-reference.md)改为按当前任务突出主线：数据交给训练 → 训练侧新参数 → 发布给生成侧。两处等待默认展开，因为它们直接决定主线何时继续。
+
+登记、暂停、恢复仍在实际执行顺序中，默认保留作用与继续条件；其内部委派和确认、评估内部子调用、启动背景与其他状态表折叠。主次不仅写在导航里，还体现为默认可见的内容、展开深度和回查条件。阅读主次不等于系统重要性排名，也不允许从真实骨架中删除必要控制动作。
+
+修订前全文已归档，相对链接按历史目录重算。此次是基于明确反馈修正已有 reference，未改变正式函数卡、学习范围或用户机制理解；实际阅读效果仍待反馈。
+
+<a id="step017-task-flow-short-code"></a>
+
+## 2026-10-31 · 保留主次，把 2.2 之后的默认讲解写成短代码
+
+用户原话：
+
+> 我觉得差不多了
+> 但是这里的2.2 之后的部分考虑一下 是否可以也通过简单的代码块写清楚吧
+
+已修改[完整 reference 的 2.3–2.5](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/references/task-flow-reference.md#completion-handoff)：默认显示源码裁剪、同行注释及整段作用；配套动作各保留短块，权重发布作为主线另显组方法内部等待。调用方与被调函数片段分别标明归属，不重新拼成跨函数的深缩进伪代码。
+
+主次和按需展开继续保留，内部调用图仍放在折叠区；2.2 与结果表不作机械转换。已有完整稿归档，原话、技术边界和来源保持。这次反馈是对展示形式的进一步确认和修订，不增加函数理解或真实运行结论。
+
+<a id="step017-continuous-scope-restatement"></a>
+
+## 2026-11-01 · 用户认为 scope 更清楚，并完成整轮复述
+
+用户反馈 task flow 仍未很好地帮助理解，scope 3.1、3.2 则比较清楚；随后从 Topic 02 的数据来路一直复述到本轮训练、完成通知、暂停、权重更新、恢复和周期评估。完整原话与技术校准保存于 [Step 017 的过程记录](../../../00-repo-reading/repositories/slime/topics/04-training-data-updates/steps/step-017-generation-training-loop/04-flow.md#whole-loop-restatement-20261101)，个人技术表述同时进入 train 函数卡。
+
+本轮判断：scope 先给整体位置，再让读者一直停在 train 的视角，按“上一步结束后到下一步”建立关系。reference 前次把主次转成了优先跳读①与③b、再看结果表的指引，可能打断这条连续线索。该原因是助手对这次反馈的解释，不冒称已验证的普遍认知结论。
+
+只作局部修正：默认先沿连续主骨架读完；在骨架前补回启动上下文，明确 Topic 02 与 Step 016 的数据来路；具体机制继续按需回查。主次控制展开深度，不重排实际执行顺序。scope 3.1、3.2 的结构保留，只清除过时的“当前精读”标签。未再次生成一套并列方案或重写全部 task flow；表现是否改善仍待反馈。
+
+
+<a id="sandboxfleet-init-record-ownership"></a>
+
+## 2026-11-04 · SandboxFleet 的初始化记录归类卡还是方法卡
+
+用户澄清询问的是记录归属：“这个class的init是否适合作为一个function还是应该放荡在class里面呢?”，要求先回查过往 skill 与合适 reference。
+
+1. [短期记忆 skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md)以独立职责、输入输出与当前是否单独阅读为判断条件，没有规定所有 __init__ 都必须自动建卡。
+2. 既有 [BaseAdapter 讨论](#class-memory-object-map-proposal)明确提出：“__init__ 的字段结果可以先在类卡说明，具体初始化流程在需要时单独阅读。”该句来自当时建议；其后类卡分工已有具体试用，不应冒称它是单独的通用硬性规则。
+3. 最直接的已落地例子是 [_AdapterService.__init__](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-005-agent-preparation/02-short-term-memory/functions/examples/coding_agent_rl/generate.py/_AdapterService.__init__.md)：方法卡保存构造输入、依赖准备和初始化流程，并链接独立类卡。另有 [SunabakoSandbox.__init__](../../../00-repo-reading/repositories/slime/topics/01-coding-agent-rl/steps/step-006-agent-sandbox/02-short-term-memory/functions/examples/coding_agent_rl/sunabako_sandbox.py/SunabakoSandbox.__init__.md)，虽只是短小的字段初始化，也因当时已作为独立阅读对象而建方法卡。不能单按行数决定归属。
+
+针对 SandboxFleet 的建议：保留类卡中的对象职责、字段初始状态、初始化的一句概括与方法入口；具体配置复制、运行标识、客户端准备、顺序与分支，集中在已有 __init__ 方法卡。当前该方法卡在备用区，若继续以初始化为主攻对象，应调回 02/functions，而不是重新创建第二份。上一轮将六段流程直接补入类卡只回答了内容缺项，未先回答用户关心的归属。
+
+本轮仅保存依据与建议，未移动方法卡、未删改类卡正文，也未修改通用 skill。
+
+
+### 2026-11-04 · 用户确认并落实初始化方法卡分工
+
+用户要求按上述方式修改。SandboxFleet.__init__ 已调入本步 02/functions，集中初始化的六段流程与配置复制说明；类卡保留状态、摘要与入口。main、scope 及索引同步引用，原记录已归档。具体见 [Agent Sandbox 本次落实](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md#fleet-init-method-separated)。通用 skill 不变。
+
+
+<a id="agent-sandbox-stable-scope-feedback"></a>
+
+## 2026-11-04 · Agent Sandbox 的 scope 局部窗口反复替换
+
+用户指出 3.2 一直变化，并难以从当前 scope 找到助手声称的准备、执行和清理关系。核对发现，助手在 main 与 Fleet.run 之间切换阅读时覆盖了同一局部段落，虽然保留历史快照，但削弱了正文位置的稳定性；本轮停止点与整个 Step 000 的结束标准也未清晰区分。
+
+建议保持本步局部交接的正文稳定，函数详细展开放各自短期卡；阅读位置用指向标记更新。此为针对本次反馈的建议，未改写 scope 或通用 skill。具体证据与源码关系见 [Step 000 的诊断](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md#scope-window-instability)。
+
+
+### 2026-11-04 · 用户确认 3.2 的职责是简单展开与面包屑导航
+
+用户明确要求将 Agent Sandbox 的 3.2 改为入口导航，具体函数解释放在各自短期记忆中。已落实 main → SandboxFleet.run → run_naive 的面包屑、最小调用片段以及入口/问题/返回位置表；3.1 与函数卡保持原内容。详细说明见 [本次修改记录](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md#scope-breadcrumb-applied)。未新建步骤或改写通用 skill。
+
+
+### 2026-11-04 · 导航应保留此前走过的完整路径
+
+用户指出上一版面包屑省略了此前的构造和任务加载。已修正 Agent Sandbox 的 3.2：所有已接触的入口持续显示，当前标记只提示位置，不裁掉前半条阅读路径。详细函数记录保持不变。[实际修正](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md)。
+
+
+### 2026-11-04 · Agent Sandbox 短期卡参照 Slime 的实际写法
+
+用户要求参照 Slime 或其他已有材料改进短期记忆。此次以 E2BSandbox.__aenter__ 的对象状态/返回值区分为主要参考，结合 BaseAdapter._run_turn 的数据交接与 SunabakoSandbox.__init__ 的短函数呈现，微调 run_naive 卡；未另造模板或改动 scope。对照细节与保存范围见 [Step 000 本轮记录](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-000-warmpool-reconcile/04-flow.md)。
+
+
+### 2026-11-04 · setup 的完整源码与逐项说明合并
+
+用户认可四段调用说明，并要求短函数的源码对照无需压缩。Agent Sandbox Step 001 的 setup 卡曾同时保留简版四步与折叠七步，导致编号和查找位置重复。本次合并为默认展开的完整代码及单一七段说明，仅辅助方法细节按需折叠；scope 的面包屑导航不变。[本轮记录](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/steps/step-001-start-warmpools/04-flow.md#setup-section3-unified)。这属于当前卡片的明确版式选择，不据此要求所有长函数全部展开。
+
+
+<a id="agent-sandbox-topic-grouping"></a>
+
+## 2026-11-04 · Agent Sandbox 转向 Kubernetes 是否另分主题
+
+用户问：
+
+> 那么原先的这个step还算数吗?
+> 还是说应该参考一下slime
+> 算不同的topic呢?
+
+对照 Slime 已采用规则后，建议保留 Step 000、001 的实际阅读历史，归入“训练侧怎样使用和编排沙箱环境”；后续 Kubernetes 控制器单列主题，并从 Step 002 接续。Step 001 的未展开部分保持未完成，不因换主题冒称已掌握。跨主题仍继承前一步 03 + 02，项目进度保持单一来源。
+
+[完整方案](agent-sandbox-topic-grouping-proposal.md)提供主题边界、拟议目录、状态和继承规则。本次未移动任何步骤、未改 scope、未建立新主题或新步骤。
+
+
+### 2026-11-05 · Kubernetes 应成为新主题，具体阅读仍使用 Step
+
+用户问是否需要像 Slime 那样新开 topic，而不是单纯加 step。此次明确两者是父子关系：Topic 02 表达 Kubernetes 沙箱工程这类问题，其第一份具体阅读记录使用 Step 002；原 Step 000、001 归入 Topic 01，编号、原话、未知和跨步骤继承继续保留。当前只确认组织建议，尚未移动文件。[既有具体方案](agent-sandbox-topic-grouping-proposal.md)。
+
+
+<a id="agent-sandbox-independent-k8s-topic"></a>
+
+## 2026-11-05 · Agent Sandbox 独立开启 Kubernetes 主题
+
+用户明确允许不延续 Slime 的跨主题规则，并委托选择结构及首步范围。已创建 [Kubernetes 主题](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/README.md)和[本主题 Step 000 scope](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/steps/step-000-sandbox-reconcile/01-scope.md)。原 Fleet 步骤不迁移、不删除；新主题独立编号，按需引用旧材料，首步 03 不整套继承旧卡。
+
+首步看核心 Reconcile 的普通运行路径；完整事件主线与局部面包屑保留，尚未实际阅读的函数不预建卡。具体约定写入本项目 AGENTS.md，不改变其他仓库的阅读规则。
+
+
+<a id="agent-sandbox-fleet-topic-migrated"></a>
+
+## 2026-11-05 · 旧 Fleet 记录也整理到 topics 下
+
+用户要求：
+
+> 好的 在那个之前把之前的也作为一个topic整理在topics下面吧
+
+已将原 agent-sandbox/steps 下的 Step 000、001 整体迁入 topics/fleet-environment-orchestration/steps，共 61 个 Markdown 文件，含函数卡、类卡、长期快照、讨论、历史和备用材料。原记录正文只调整必要链接，步骤编号、原话、认识时间和完成状态保持。项目内外引用一并按实际目标重算。
+
+新增 [Fleet 主题入口](../../../00-repo-reading/repositories/agent-sandbox/topics/fleet-environment-orchestration/README.md)，项目入口与局部 AGENTS 规则同步。Kubernetes 主题的编号与不自动跨主题继承的规则保持；本次没有重新开启旧步骤、删除未知或修改源码。
+
+迁移验证：61 个原文件的非链接正文逐字保持；749 处原链接目标经路径变换后仍指向相同内容；项目 Markdown 链接未发现缺失文件。旧根 steps 目录已整体移动，不保留重复副本。
+
+
+## 2026-11-05 · Dressage 首步借鉴 Kubernetes scope 的整体与局部分工
+
+用户指定 Agent Sandbox 的 Kubernetes Step 000 scope 作为对照。Dressage 在保留原目标、源码版本和首轮正常分支的前提下，重组为目标、入口/场景/边界、3.1 完整主线和 3.2 面包屑导航；跨进程模型请求与后台清理分支显式区分，不照搬 Kubernetes 的事件循环语义。旧稿归档，参考文件与两层 memory 未改。[本次落实](../../../00-repo-reading/repositories/dressage/topics/01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/04-flow.md)。
+
+<a id="agent-sandbox-child-resources-layout-proposal"></a>
+
+## 2026-11-05 · 子资源函数卡：开头骨架与分段标题对应
+
+用户在辨认 PVC、Pod、Service 和状态计算的职责后，询问是否把分类写入 3.x 标题，或先在开头建立理解骨架，并要求给出可能方案。
+
+建议两者配合：开头一句函数主旨，第 3 部分一张按执行顺序排列的导航表，下面各段采用完全相同的编号与动作标题。将原 3.2 拆为“协调 Pod”和“记录 Pod 地址与节点名称”，用标题明确资源操作与字段摘取的差别；辅助标记与错误记录继续留在所属段，不增加独立课程。
+
+[具体展示方案](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/steps/step-000-sandbox-reconcile/references/reconcile-child-resources-reading-layout-proposal.md)保存在当前步骤的 references。当前为待反馈建议，未替换正式函数卡、未改变 scope 或学习进度，也未修改通用 skill。
+
+### 2026-11-05 · 按确认增补骨架，保留原有主体
+
+用户确认：“好的那么就在原来的基础上加这些东西吧 / 主体不需要删除什么的”。
+
+已在[正式函数卡](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/steps/step-000-sandbox-reconcile/02-short-term-memory/functions/controllers/sandbox_controller.go/SandboxReconciler.reconcileChildResources.md#stage-framework)增加整体骨架与同名六段导航，把原 Pod 段分成协调对象和记录信息两段。保留原有代码、主体解释、示例、个人原话、未知及来源；只调整标题、分段、序号和必要的段落指代。原命名锚点保持，新段落增加锚点，原来的父子卡返回关系不变。
+
+scope、项目唯一进度与 03 未改动，展示调整不记为个人技术认识更新。方案文件保留提案内容，并追加确认与实施记录。
+
+<a id="shared-kubernetes-topic-proposal"></a>
+
+## 2026-11-05 · 将 Kubernetes 基础从单个项目提取为共享专题
+
+用户反馈 Agent Sandbox 当前问题已差不多，询问下一处源码入口，并提出将 Agent Lightning 的 k8s 移到 repositories 同级，以容纳跨仓库遇到的基础概念。
+
+核对现有 k8s 的 20 份 Markdown 后，建议保留已确认的八类职责结构，提取到 repositories/kubernetes，入口注明它是共享知识专题而非 Kubernetes 核心源码阅读项目。通用概念维护一份正文；项目函数卡保留原场景、代码、原话和未知，并引用基础；项目特有策略与岗位投入继续在各自 references。已有正文、版本与进度不因迁移改变。
+
+[具体建议与本轮知识归属](../../../00-repo-reading/repositories/agent-sandbox/references/shared-kubernetes-topic-proposal.md)同时记录了迁移链接与保留方式。下一处源码建议为 reconcilePod 的普通创建路径，仍待用户选择具体行动；本次未迁移目录、未建新步骤、未把建议标为完成。
+
+<a id="shared-kubernetes-topic-applied"></a>
+
+### 2026-11-05 · 按用户确认提取共享基础，并建立 Pod 创建 scope
+
+用户确认“好的 那么就按照这个方式来处理吧”。原 k8s 的 20 份 Markdown 已整体迁到 [repositories/kubernetes](../../../00-repo-reading/repositories/kubernetes/README.md)，保留八类结构；迁移阶段只重定位 147 处链接，非链接正文保留。旧 k8s/README.md 留迁移入口，项目特有的函数记录、岗位范围和历史仍在各项目。
+
+随后按已遇到的问题增补对象状态与版本、归属、Pod 就绪、PVC 和 Service 的基础说明，来源与学习状态单独登记；通用正文不绑定某个项目的特殊策略。Agent Sandbox 原函数卡主体不删，增加共享基础回查入口。
+
+Agent Sandbox Step 000 按已确认骨架深度收束；[Step 001](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/steps/step-001-pod-creation/01-scope.md)只建立正常 Pod 创建的范围与导航。前一步两张函数卡完整继承到本步 03，原话、认识时间及未知保留，不预建未读函数卡。没有将整理或迁移计为掌握，也没有运行集群实验。
+
+<a id="agent-sandbox-inheritance-vs-duplication"></a>
+
+## 2026-11-05 · 父子函数的交接重复与跨步继承
+
+用户询问：
+
+> 有一个问题
+> 1.当前的这里的step000里面的两个short term function是否需要修改?
+> 因为两个reconcile 和reconcilechild resources好像有点重复?
+> 2. 其次这里step 000的short term函数不应该转移到step001里面的long term memory里面了吗?
+
+核对实际文件后确认：Step 000/02 保存 Reconcile 与 reconcileChildResources 原件，Step 001/03 已完整继承同样两张卡，除继承提示和链接重定位外正文一致。Step 001/02 当前包含新读的 reconcilePod 与调取的直接调用方 reconcileChildResources。这三处分别是历史原件、进入本步时的累计快照、本步使用的工作记录；采用复制继承，不从旧步骤删除原件。
+
+两张旧卡有少量必要的交接说明重复，但各自解释不同层级：Reconcile 接收协调请求，负责读取、旧状态/版本、委托子资源、重排与状态写回；reconcileChildResources 接收 Sandbox，展开 PVC/Pod/Service 协调、字段摘取和条件计算，返回延迟与错误。父卡第 3.2 段已经按输入、副作用、返回和子卡链接组织，不需要为消除相同术语而合并两张卡或删除主体。
+
+本轮只在 Step 001 的 02/03 索引中补清来源与职责，方便直接进入当前 reconcilePod；没有修改历史函数正文、移动或删除原件、清空未知，亦未推进源码阅读。后续新增认识继续写入当前 02，下一步再按函数路径合并有效内容。
+
+## 2026-11-05 · reconcilePod 卡代码可见，长说明折叠
+
+用户要求“展开式这里所有的代码的部分吧 / 缩进别的部分比较好?”。针对当前 reconcilePod 函数卡，将已经展示的代码片段全部移出折叠，保留必要目的与交接提示，较长的分条说明、补充例子和原话按需展开。原正常路径的范围和代码节选不变，不据此展开所有失败分支。
+
+同时按用户实际问题，在调用处旁增加 resolvePodName 的短定义并说明返回位置；它服务于当前函数理解，不另建辅助函数卡。原正文留存于 [调整前快照](../../../00-repo-reading/repositories/agent-sandbox/topics/kubernetes-sandbox-control/steps/step-001-pod-creation/references/history/2026-11-05-reconcile-pod-before-code-visible.md)。本次展示偏好只落实于当前卡片，不自动改写其他步骤或通用 skill。
+
+<a id="step003-reconcile-code-visible"></a>
+
+## 2026-11-05 · 当前 Reconcile 卡：代码展开、阶段标题突出
+
+用户要求：
+
+> 先把这里的所有reconcile部分的缩进去的代码都展开吧
+> 但是需要更加醒目的标出这里的3.2 .3.3 3.1这里的标题吧 不要再缩进了
+
+本轮应用于 Step 003 当前 02 中调取的 Reconcile 卡：将所有已展示代码片段移出折叠，3.1–3.4 改为顶格三级加粗标题，并加分隔线。Go 代码自身必要的缩进保留；长解释、补充背景和原始讨论继续按需展开。原代码、正文、未知与来源保留，调整前全文放在当前步骤 references/history。
+
+本次未回改旧步骤或本步 03 快照，也未改变 updateStatus 的学习范围。仅调整当前工作副本的展示，不记录为个人技术认识更新。
+
+
+<a id="run-round-caller-context-reference-proposal"></a>
+
+## 2026-11-10 · _run_round 卡片：作为调用上下文 reference 的建议
+
+用户反馈：
+
+> 我觉得这样子的这个short term memory函数的格式很好
+> 你觉得是需要用来修正当前的这个skill?
+> 还是把这个作为reference 作为实现的一种呢?
+
+已获认可的是 [Dressage Step 010 的 _run_round 当前卡片](../../../00-repo-reading/repositories/dressage/topics/02-harbor-integration/steps/step-010-harbor-rollout-entry/02-short-term-memory/functions/dressage/integrations/harbor/rollout.py/_run_round.md#caller-context) 的呈现方式，不据此推定所有函数都应采用同样段数和表格。
+
+助手建议采用“reference 为主，skill 小幅补充”的方式：保留既有统一栏目；将这张卡作为从调用方进入子函数的完整样例；skill 只在现有父子交接规则附近补充适用条件与引用。适用于读者从父函数进入子函数时易丢失上下文的场景，先交代调用前已有的数据、这次委派的问题、返回结果及父函数继续位置，再展开本函数的数据变化与调用。字段全集和辅助机制按需折叠，真实执行关系必须保留。
+
+现有 skill 已要求说明实参来源和返回用途，因此不另造一套平行模板。应保留的增量是“先恢复调用现场，再看局部实现”的具体范例和可检查标准，而非要求固定四行表、三阶段，或所有函数都出现并发教学。定义/调度/等待的区分属于此样例的机制，按实际函数需要使用。
+
+当前只保存认可反馈与建议，未修改 skill 或创建正式 skill reference，等待用户决定实施。
+
+
+<a id="run-round-caller-context-reference-applied"></a>
+
+## 2026-11-10 · 调用上下文样例已纳入短期记忆 skill
+
+用户确认：
+
+> 好的 那么按照这个方法修改这个skill吧
+
+已按“reference 为主、skill 小幅补充”落实：
+
+- [短期记忆 skill](../../../.agents/skills/repo-reading-short-term-memory/SKILL.md) 在现有父子交接规则后补充适用条件：从调用方下钻、需要恢复上下文时，在场景输入输出开头说明已有数据、当前委派的问题、预期返回和调用方继续的位置；保存前增加相应检查。
+- [调用上下文 reference](../../../.agents/skills/repo-reading-short-term-memory/references/caller-context-run-round.md) 保存认可的 _run_round 完整卡片快照，重算原卡、父子卡及形成过程链接；开头简述何时使用和应参考的做法。
+- 保留统一栏目、其他样例及全部已有规则。不强制四行表格、三个阶段或并发讲解；未修改项目函数卡、历史快照和学习进度。
+
+依据是本轮真实使用反馈：原卡直接进入分区/额度，缺少清晰调用现场；补充父函数上下文与返回位置后用户明确认可格式。此次检查以格式、链接、源码/原话快照完整性为范围，没有新增独立模型行为实验，也不将一次认可描述成跨场景效果已验证。

@@ -9,6 +9,7 @@
 - 创建或修订本步单函数短期记录时，使用 [repo-reading-short-term-memory skill](.agents/skills/repo-reading-short-term-memory/SKILL.md)；整体记忆分工与长期继承继续从 [repo-reading-memory skill](.agents/skills/repo-reading-memory/SKILL.md)进入。两者不替代各项目的阅读路线，也不自动将普通代码问答扩展为记录工作。
 - 创建或修订阅读后的 `05-task-flow.md` 时，使用 [repo-reading-task-flow skill](.agents/skills/repo-reading-task-flow/SKILL.md)，以 Step 003 为主要 reference；按位置、交接、结果和收束组织总结，保留源码及函数卡片导航，图示形式按实际执行关系选择。
 - 每个 step 开始前，先与用户讨论“这一步准备读哪个函数、围绕它要弄清什么、短期 memory 准备保留什么”。助手可以根据当前问题提出候选函数及理由，由用户确认后再展开源码、创建对应函数记忆和更新阅读进度。这里确认的是本步范围和记录重点，不要求预先给出答案。用户已明确指定时直接沿用，不重复询问；核心范围变化时重新讨论确认。不能把候选、目录顺序、旧阅读历史或已准备的材料当作确认。结构纠错和保存已发生讨论可继续在已授权范围内完成。
+- 2026-11-03 用户再次明确：未实际接触的函数不能因出现在骨架或助手已准备材料就提前建短期卡。Agent Lightning 中用户主动删除的未读卡片不恢复；未读调用只保留源码定位。`00-repo-reading/repositories/kubernetes/`（2026-11-05 经用户确认从 Agent Lightning 提取为共享专题）按已确认的八类职责组织：总览、架构、资源模型、工作负载、运行环境、安全与隔离、运维、客户端工具，保持可独立复习的通用内容；`kr8s` 属于 Python 客户端生态。腾讯岗位对应的范围放在项目 `references/tencent-k8s-scope.md`，Gateway、K8sReconciler 与变量映射放在 `references/kubernetes-integration.md` 或函数卡，不混入通用正文。先补总览、对象模型与协调循环，其他细节随实际阅读扩充；目录建立不表示掌握或实践完成。
 - 首轮源码阅读采用用户提供的[代码阅读指南：剪枝三步法](00-repo-reading/code-reading-guide.md)：先找组织主流程的函数，提取正常路径，暂时折叠配置、检查、日志、异常与失败包装；本轮调用下钻不超过两层，弄清输入输出后返回主线。按实际源码核对符号和接口，不把教学省略视为实际代码不存在或已掌握。
 - 阅读时的记录参照指南的[第二条方法](00-repo-reading/code-reading-guide.md#方法二读代码时记录什么)，优先保存数据变化、当前追踪路径、设计疑问与依据；沿用既有函数记忆和过程记录，不逐行转述代码，也不因临时草稿可丢弃而删除正式历史。
 - 全景从该项目的阅读目标与最小端到端职责建立；读过哪些函数属于历史记录，只影响回顾深度，不预设整体框架已理解。每次进入新模块都接回已有整体模型。
@@ -47,6 +48,7 @@ Use Hugo Extended **0.166.0**.
 
 ## 开发前的本地预览
 
+- 2026-11-03 用户明确 Agent Lightning 阅读先在本地 README 中快速试读、修改，暂不建立 Hugo 网页。本阶段直接维护 `00-repo-reading/repositories/agent-lightning/` 的 Markdown，不以 Hugo 预览或构建为前置；用户另行要求网页时再接入。其他网站开发仍遵循下列预览约定。
 - 每次开始网站开发、页面修改或阅读材料开发时，先启动或确认本地 Hugo 预览，再进行改动，让用户能够随时查看正在开发的内容。
 - 先检查 `http://localhost:1313/` 是否已经服务于当前项目；已有正确服务时复用，并验证本次相关页面可访问。仅发现端口占用不能当作预览验证成功。
 - 没有可用服务时，在本仓库根目录运行 `hugo server -D --bind 127.0.0.1 --port 1313 --noHTTPCache --disableFastRender`。核对构建输出和 HTTP 响应后，向用户提供相关页面的本地链接，并保持服务运行供其查看。
