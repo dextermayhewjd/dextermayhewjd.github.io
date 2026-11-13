@@ -1,108 +1,165 @@
 # RolloutManager.training_completed
 
-- 源码定位：[slime/ray/rollout.py:430](/home/hongshi/projects/slime/slime/ray/rollout.py:430)，固定版本 `18868a79`；调用方为 [train.py:71](/home/hongshi/projects/slime/train.py:71)。
+> **采用版本**：2026-10-31 按用户确认采用第二版：分层伪代码、同行注释和段后整体说明。
+>
+> **面包屑**：[Step 017](../../../../../01-scope.md#completion-notification) → [train.py 的完成通知](../../../train.py/train.md#training-completion) → **本函数** → [2.3 分层伪代码](#mental-model) → [3 输入输出](#input-output)。
+
+- 源码定位：[slime/ray/rollout.py:430](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/rollout.py#L430)；调用方为 train.py:71；固定证据沿用 `18868a79`。
 - 首次接触：Step 017，2026-10-29。
-- 最近认识更新：2026-10-29，用户将 finish_batch 的职责概括为得知这批数据已完成并修改管理状态，并明确不继续精读 lock、receipt、state。当前保留职责层模型；它接收完成通知而非自行探测训练进度的说明待反馈。
-- 导航：[scope 的②](../../../../../01-scope.md#completion-notification) → **本卡：完成通知** → [返回 train 父卡](../../../train.py/train.md#training-completion)。
+- 最近认识更新：2026-10-31，用户已概括 Manager → BatchBuilder → Controller 的转交关系，以及更新消费进度、登记数据已用过的整体作用；“回收”进一步限定为移除未完成登记，实际文件回收另受 GC 配置控制。该细化尚待反馈。
+- 本次整理：采用第二版的分层伪代码、同行注释和段后整体说明；保留全部原话、未知与来源。本轮总体理解按下方用户原话记录，不扩展为全部细节已掌握。
 
-## LLM 整理：使用场合、具体内容与心智模型
+## 1. 定位：本轮训练已结束，接着处理数据侧登记
 
-1. **使用场合**：主循环已经在 67 行等待本轮训练成功结束，现在把本轮编号交回生成侧管理器，执行训练后的批次收尾。
+调用前，train.py:67 的 `ray.get` 已经等本轮训练完成。现在进入第 71 行，通知数据管理侧“这批已经使用完”，并等待这次完成登记处理结束。
 
-2. **具体内容**：转交 `rollout_id` 给 `self.batch_builder.training_completed`。下游只有在存在 batch_id 时才校验轮次并调用 controller.finish_batch；当前默认 object-store 正常路径没有这个批次记录，直接结束。
+本卡只展开完成通知这一条链。后面的暂停新任务接纳、权重同步分别属于主循环的其他调用。
 
-3. **建议构建的心智模型**：
+## 2. LLM 整理：使用场合、具体内容与心智模型
 
-   > training_completed 是训练结束后的条件式完成登记入口。
-   >
-   > 当前默认路径没有批次记录，直接返回；队列路径有批次记录时，核对轮次后通知 finish_batch 完成登记。
-   >
-   > finish_batch 已有实现：推进消费记录、从未完成批次列表移除该批次并保存状态。当前未触发这个分支，不表示功能尚未实现。读到这层职责即可，后续回主循环看权重更新。
+### 2.1 使用场合
 
-4. **调用代码**（train.py:67、71，省略无关空行和注释）：
+训练完成后，让数据管理侧更新本轮数据的消费状态，知道哪些批次已处理、哪些仍等待完成登记。
 
-   ```python
-   ray.get(actor_model.async_train(rollout_id, rollout_data_ref))
-   ray.get(rollout_manager.training_completed.remote(rollout_id))
-   ```
+### 2.2 具体内容
 
-## 本场景的输入与输出
+RolloutManager 转交 `rollout_id`；BatchBuilder 检查是否有登记批次、轮次是否匹配；有批次时委派 Controller 更新消费进度、移除该批未完成登记并保存状态。没有登记批次时直接结束。
 
-沿用本步 use_critic=False、默认 object-store、无恢复分支的正常路径。输入是刚训练完成的外层 rollout_id，管理器持有 BatchBuilder；本例 BatchBuilder.batch_id=None。
+<a id="mental-model"></a>
 
-**输出**：方法正常返回 None；调用方的 ray.get 等待这次通知处理完。在当前分支中，没有批次状态更新，也不调用 finish_batch。
+### 2.3 建议构建的心智模型：分层伪代码
 
-### 管理器转交通知（rollout.py:430–431）
+以下是阅读用伪代码，`python` 代码块用于注释高亮。箭头表示调用下潜，自然语言语句概括具体动作；整段不作为可运行程序。
 
-```python
-def training_completed(self, rollout_id):
-    self.batch_builder.training_completed(rollout_id)
-```
+> 训练已结束，通知数据侧处理本轮完成登记；有登记批次时标记已消费并收尾，没有则直接返回。调用方等待这次处理完成，再继续主循环。
 
-这里没有重新提交训练。实际批次收尾判断由 BatchBuilder 完成，下面只回查这一层。
+<a id="layer-purpose"></a>
+<a id="call-and-notification-boundary"></a>
 
-### BatchBuilder 判断是否有批次要收尾（batch_builder.py:144–148）
+#### 2.3.1 第一层：先看整体职责
 
 ```python
-def training_completed(self, rollout_id):
-    if self.batch_id is not None:
-        if rollout_id != self.rollout_id:
-            raise ValueError("Training completion does not match the current batch")
-        ray.get(self.controller.finish_batch.remote(self.batch_id))
+# 前提：本轮训练已结束
+ray.get(  # 等待这次完成登记处理结束
+    rollout_manager.training_completed.remote(rollout_id)  # 发送本轮完成通知
+)
 ```
+
+**这一段完成什么**：训练主循环通知数据侧“这一轮训练已经结束”，并等整个完成登记调用处理完，再继续下面的流程。
+
+<a id="layer-delegation"></a>
+
+#### 2.3.2 第二层：展开通知经过的对象
+
+```python
+RolloutManager.training_completed(rollout_id)  # 接收本轮训练完成的通知
+  → BatchBuilder.training_completed(rollout_id)  # 转交；下面的 self 指 BatchBuilder
+      if self.batch_id is None: return None  # 没有登记批次，直接结束
+      if rollout_id != self.rollout_id: raise ValueError(...)  # 轮次不符，报错
+      ray.get(  # 等 Controller 真正处理完
+          self.controller.finish_batch.remote(self.batch_id)  # 交出要收尾的批次编号
+      )
+```
+
+**这一段完成什么**：Manager 转交通知，BatchBuilder 确认当前有没有需要登记的批次、轮次是否匹配，然后把具体批次交给 Controller，并等待它处理完成。
+
+[源码：RolloutManager.training_completed](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/ray/rollout.py#L430) · [BatchBuilder.training_completed](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/batch_builder.py#L144)。
+
+<a id="layer-state"></a>
+
+#### 2.3.3 第三层：只展开 Controller 的状态变化
+
+```python
+RolloutQueueController.finish_batch(batch_id)  # 只处理指定的这一批
+    batch = self.batch(batch_id)  # 取得批次登记
+    if not batch or not batch["ready"]: 报错  # 批次需存在且准备就绪
+    receipt = 该批结果的回执  # 提供结果所在位置 receipt.position
+    state = self._training_state()  # 读取消费进度和待完成登记
+    self._advance(state, [receipt.position])  # 登记该结果位置已消费
+    state["batches"] = 去掉当前 batch 对应的引用  # 例：[A, B] → [B]
+    self._save_training_state(state)  # 保存更新后的进度与批次登记
+    return None  # 本层处理结束，逐层返回到 train.py:71
+```
+
+<a id="controller-whole-logic"></a>
+
+**这一段完成什么**：为这批已经训练完的数据做完成登记。找到该批次及其结果位置，把对应数据记为已消费，从未完成批次列表中移除它的引用，并保存新的状态。这样，数据管理侧就不再把这一批记作“还等训练完成确认”。返回表示本次登记处理结束。
+
+这里的收尾首先是**消费登记与未完成记录的更新**。实际存储回收只在 `rollout_queue_online_gc` 等相关条件下触发；不能把移除登记理解成数据文件已被立即删除，也不表示释放 GPU 或停止其他 rollout。
+
+[源码：RolloutQueueController.finish_batch](https://github.com/THUDM/slime/blob/18868a79b0b083a093798a94ed0f8cb4f71b9c14/slime/data/queue_data_source.py#L814)。A、B 是批次引用的示意名称。
+
+**边界**：本次处理的是已训练数据的登记；暂停新任务是主循环第 88 行的另一条调用。
+
+### 2.4 调用代码与返回位置
+
+真实调用已在 2.3.1 展示：`train.py:71` 的外层 `ray.get` 等待通知调用处理完。正常路径返回后，主循环才继续后面的保存、资源管理及权重同步安排。
+
+<a id="input-output"></a>
+
+## 3. 本场景的输入与输出
 
 <a id="completion-id-matching"></a>
 
-### 两个 rollout_id 从哪里来，比较的是谁
+### 3.1 输入：哪一轮，以及管理侧已有的批次记录
 
-上面的 self 属于 **BatchBuilder 对象**。传入参数 rollout_id 表示调用方通知“哪一轮训练完成了”；self.rollout_id 是这个对象此前保存的当前轮次。后者在 [RolloutManager.generate:319–320](/home/hongshi/projects/slime/slime/ray/rollout.py:319) 中设置：
-
-```python
-self.rollout_id = rollout_id                # 管理器记录当前生成轮次
-self.batch_builder.rollout_id = rollout_id  # BatchBuilder 同时记录该轮次
-```
-
-假设正在生成第 7 轮：生成时保存 self.batch_builder.rollout_id=7；同一轮训练结束后，主循环把 7 交给 training_completed。进入 BatchBuilder 后，比较的就是传入的 7 与对象保存的 7。
-
-| 名字 | 用途 |
+| 输入或已有状态 | 作用 |
 | --- | --- |
-| rollout_id 参数 | 这次通知声称完成了哪一轮 |
-| BatchBuilder.self.rollout_id | 管理侧当前记录的是哪一轮 |
-| BatchBuilder.self.batch_id | 要提交给 finish_batch 收尾的批次记录编号 |
-
-**只有 batch_id 不为 None 才做编号比较。** 在这一前提下，通知 7、记录 7 时继续完成该批次；通知 6、记录 7 时抛错，避免把另一轮的完成消息算到当前批次。这个检查核对的是轮次，不是本机/远端机器身份或 GPU 编号。
-
-rollout_id 用于防止完成通知对应错轮；真正传给 finish_batch 的是 self.batch_id，用它定位要收尾的批次记录。
-
-| 进入时的状态 | 本次行为 | 返回 |
-| --- | --- | --- |
-| **batch_id=None，当前路径** | 最外层 if 条件不成立，不进行编号比较，走到函数末尾 | None |
-| 存在 batch_id | 先核对 rollout_id；一致时通知 controller 完成该批次 | 成功时 None；轮次不符时抛错 |
-
-当前为何没有 batch_id：默认 object-store 正常生成不设置持久化 raw_ref；[BatchBuilder.begin:48–53](/home/hongshi/projects/slime/slime/data/batch_builder.py:48) 在 raw_ref=None 时将 batch_id 清为 None。这里回查其结论，不展开持久化批次实现。
-
-存在批次时，finish_batch 用于运行时完成登记和相关队列容量释放；train.py:69–70 的注释明确区分它与模型/优化器及数据进度的联合持久化 checkpoint。保存 checkpoint 位于后面的独立分支；生成侧权重更新则在 89 行。
+| `rollout_id` | 已经训练完成的本轮编号 |
+| `BatchBuilder.rollout_id` | 管理侧保存的轮次，用于有批次时核对 |
+| `BatchBuilder.batch_id` | 本轮需要收尾的批次编号；也可能为 None |
+| Controller 的训练消费状态 | 有批次时，记录消费进度与仍待完成登记的批次引用 |
 
 <a id="implemented-but-not-triggered"></a>
 
-**已实现与当前未触发要分开。** 为核对是否只是占位，本轮只查看了 [RolloutQueueController.finish_batch:814–827](/home/hongshi/projects/slime/slime/data/queue_data_source.py:814) 的短入口：它检查批次已就绪，推进消费记录，从 state["batches"] 移除该批次并保存状态。实现存在于队列数据路径；当前默认路径的 batch_id=None，因此不会调用它。
+### 3.2 输出：返回 None，按入口状态决定是否更新登记
 
-**“从未完成批次列表移除并保存”的直接依据是 824–825 行：**
+| 调用前的情况 | 本次结果 |
+| --- | --- |
+| **原有主例：batch_id=None** | 正常返回 None，不调用 Controller，也不更新批次登记 |
+| 有 batch_id，轮次一致，批次存在且 ready | 完成该批消费登记，正常返回 None |
+| 有 batch_id，但轮次不符 | 抛出 ValueError，不执行该批完成登记 |
+| Controller 找不到批次或批次尚未 ready | 抛出 ValueError，不走正常完成返回 |
 
-```python
-state["batches"] = [ref for ref in state["batches"] if asdict(ref.manifest) != batch["ready_ref"]]
-self._save_training_state(state)
-```
+<a id="finished-batch-versus-pending-rollout"></a>
 
-第一行仅保留 manifest 不等于当前 batch ready_ref 的项，因此当前批次从这份训练管理列表中移除；第二行保存修改后的训练状态。815 行的 docstring 也说明只保留未完成批次。这里描述的是管理记录，不据此推断样本文件被立即删除。
+**一组具体变化（教学构造，未运行）**：第 7 轮训练完成，通知编号与管理侧保存编号均为 7；batch_id 指向已就绪的 A，原来待完成登记为 `[ref_A, ref_B]`。完成登记后变为 `[ref_B]`，并保存消费进度。其他仍在生成的任务不因这一调用被取消。
 
-按当前“简单建立心智模型”的目标，知道上述入口职责即可。_advance、状态持久化与存储回收等辅助机制没有继续精读，也没有为其开启新步骤；需要研究队列消费进度或恢复时再进入。
+<a id="queue-completed-versus-trained"></a>
 
-### 读完返回哪里
+这里的 ready 指批次准备/转换结果已经就绪；训练完成由调用前的等待保证。消费游标能否连续前移取决于已处理位置，不把它简化为每次加一。
 
-回到 train.py:71，等待通知成功返回后继续后续编排。下一处阅读是 88–93 行的暂停接纳、更新权重与按条件恢复；资源卸载、checkpoint 和传输内部继续按本步边界折叠。
+### 3.3 等待与逐层返回
 
-## 我的直接表述（原话）
+有登记批次时，返回链为 **Controller → BatchBuilder → RolloutManager → train.py:71 的 ray.get**。只有这些调用正常结束后，主循环才执行下一行。无登记批次时从 BatchBuilder 直接返回，不进入 Controller。
+
+## 4. 我的直接表述（原话）
+
+<a id="current-understanding"></a>
+
+### 4.1 本轮直接表述（2026-10-31）
+
+> 好的 我带盖的理解是
+> rollout manager这里只是负责发信息
+> 这里的具体的内容会有batch builder来实现
+> 同时这里的batch builder部分又会向下传导到这里的rolloutqueuecontroller
+>
+> 但是至于这一步整体到底做了什么
+> 这里更多的像是在执行更新一下当前的进度
+> 告诉一下底层这里的一系列内容
+> 这里的数据侧这些数据用过了
+> 登记过的就标记为消费然后回收了
+
+用户已接上分层转交与消费登记的主线。助手补充：Manager 的“发信息”在本场景是调用并转交，具体状态更新主要由 Controller 完成；外层 ray.get 等整个处理结束。“回收”先指未完成登记被移除，物理文件回收另有条件。这项细化不改写上面的原话。
+
+形成过程见[本轮采用记录](../../../../../../step-017-generation-training-loop/04-flow.md#training-completed-v2-adopted-20261031)。
+
+### 4.2 之前的原话与认识过程
+
+以下完整保留合并前函数卡的个人表述与当时的助手校准。折叠只调整展示，不改变引文、认识时间或其证据状态。
+
+<details>
+<summary>展开全部既有原话与反馈</summary>
 
 用户承接上一函数并要求继续：
 
@@ -166,15 +223,84 @@ self._save_training_state(state)
 
 助手补出 824–825 行的直接依据，并推荐下一处权重交接。用户表达的是暂按职责继续，不是完整掌握 controller 内部。
 
-## 尚不清楚
+2026-10-30 用户回顾（节选）：
 
-- 当前“训练完成”与“完成通知”的职责区分，尚待用户反馈。
+> 之后这里的rollout manager training completed remote的部分获得的内容是这里的rollout id
+> 应该标志的内容是释放这里的目前还在跑的queue
+> 是我的理解
+
+传入轮次编号的方向已被用户识别；“释放目前还在跑的 queue”仍需按上面的批次容量与运行任务区别校准，不记为已理解。见[本轮完整回顾](../../../../../04-flow.md#training-review-and-resume-20261030)。
+
+2026-10-30 用户复述与边界疑问（完整原文）：
+
+> 这里看到写的是batch builder 的 training completed
+> 然后这里又回调到batchbuilder的ray get controller finish batch?
+> 如果有这个batch 并且这个rollout id是这个rollout id的话
+> 那么这里就让controller 停掉这里的batch是我对于这里的理解
+>
+> 但为什么这俩的我在点击rolloutmanager 的training completion
+> 我不升入看这内容
+> 但是我大概理解是
+> 如果完成了训练
+> 那么目前登记的训练内容就应该释放了对吗?
+> 也就是不应该再考虑继续还没有完成的rollout侧的任务?
+> 是我的理解
+
+用户已观察到两层转交与条件检查；已训练批次需要收尾的方向正确。停止正在运行的 batch、停止考虑其他未完成 rollout 并非此方法的职责。本轮仅补明这项边界，具体控制器实现继续留白；解释效果待反馈。见[本轮记录](../../../../../04-flow.md#finished-batch-versus-pending-rollout-20261030)。
+
+2026-10-30 用户对消费登记与返回链的复述：
+
+> 好的 我大概理解了 也就是这里的的batch 是在通过一个queue task status的部分来确定
+> 这里的task 已经完成了
+> 确认数据已经被消费了
+> 所以就可以吧使用的数据做一个标记 确定一下这一部分的内容已经被消费了
+> 我可以这么理解吗?
+> 这里并没涉及别的内容
+> 那么返还到上面一层 training completed 也是为了 让这里登记一下这一部分数据使用过了
+> 以及回到最上方
+> 这里告诉这里的batch builder 这里的训练内容训练结束了
+> 那么也就是train的71步这里结束了对吗?
+
+用户已接上本批消费登记和正常逐层返回到 train.py:71 的方向。queue task completed 表示批次准备/转换完成，不等同于训练结束或已做消费登记；这项校准尚待反馈。见[本轮记录](../../../../../04-flow.md#batch-ready-training-finished-consumed-20261030)。
+
+2026-10-31 用户对通知结束后的动作继续追问（节选）：
+
+> 我是否可以理解为这里只是负责同志
+> 但是batch builder这里controller在做什么我不清楚
+> 但是这里的同志结束了之后
+> controller部分会决定停止rollout什么的对吗?
+> 当前的心智模型是不是没有说清楚
+> 请具体看一下?
+
+本轮区分当前 Manager 方法的转交职责和整个调用链的效果：下游 controller 在这次通知调用内部完成消费登记，外层 ray.get 会等它结束；停止新任务接纳由主循环随后另一条 pause 调用安排，不是 controller 的后续决策。完整原话及两份材料的 3.2 区分见[本轮记录](../../../../../04-flow.md#completion-versus-pause-20261031)。解释尚待反馈。
+
+</details>
+
+## 5. 尚不清楚
+
+本轮已形成总体职责的表述；以下细节未知继续保留，不因采用新版格式自动成为已理解。
+
+- 移除未完成登记与实际物理文件回收的区别已补充，仍待用户对该细化反馈。
+
+- 用户已复述消费登记和正常返回链；批次控制任务 completed、模型训练完成与消费登记三个时点的精确区分尚待反馈。
+- 完成登记的调用链与暂停新任务的调用链仍需区分；当前已补充明确的 71 行/88 行对照，尚待反馈。
+- 本轮已解释释放已训练批次的容量与停止在途生成任务的区别，尚待用户反馈。
+- 用户复述的当前批次收尾与其他未完成 rollout 的关系，本轮以 A/B 场景区分，尚待反馈；不要求继续精读 controller。
 - 参数 rollout_id、BatchBuilder.self.rollout_id 与 batch_id 的区别已说明，用户的精确理解待反馈。
 - 用户明确停止精读 finish_batch 的 lock、receipt 和 state；这些辅助机制保留未知，不影响当前职责层模型。
 - 没有运行真实 Ray 通知或训练；当前默认分支的效果来自固定源码判断。
 
+<a id="sources"></a>
+
+## 6. 来源、验证与完整例子
+
 <details>
-<summary>来源、验证与完整例子</summary>
+<summary>展开源码、裁剪边界与历史来源</summary>
+
+- 本卡采用第二版的三个模型层次、同行注释及每段后的整体逻辑说明；没有再次嵌入第一版的大图或重复整套实现讲解。
+- 第二层把无 batch_id 的隐式正常结束写成显式早返回。第三层的回执读取、过滤表达式用自然语言概括；`return None` 表示原方法的正常隐式返回。关键源码名称保持不变。
+- 锁、完整回执读取、具体消费游标算法及可选 GC 未展开；状态变化来自固定源码推导，没有执行真实队列、Ray 或训练。
+- [第一版图示与完整源码下潜](../../../../../references/training-completed-card-proposal.md) · [第二版原型](../../../../../references/training-completed-mental-model-v2.md) · [合并前函数卡快照](../../../../../references/history/RolloutManager.training_completed-before-v2-2026-10-31.md)。
 
 - [本轮完成通知带读](../../../../../04-flow.md#training-completed-reading)。
 - [轮次编号的来源与比较](../../../../../04-flow.md#completion-id-matching)：第 7 轮例子是固定源码的静态推导，没有新增运行。

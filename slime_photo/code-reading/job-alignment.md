@@ -8,6 +8,52 @@
 
 Python 原生异步与并发的专项学习范围统一维护在 [学习规划](../../python-async-reference/learning-plan.md) 第 4.3–4.5 节：只展开原生机制，不承担完整岗位或通用工程化课程。三库 API 频次用于选例与检查遗漏；阶段性调用覆盖比例不作为岗位能力验收。既有源码阅读顺序仍以本目录的唯一路线为准。
 
+<a id="agent-lightning-k8s-20261103"></a>
+
+## 2026-11-03：用 Agent Lightning 承接 Slime 的 Kubernetes 学习
+
+用户明确选择本地 Agent Lightning，目的是与已读 Slime 结合，重点理解 Kubernetes 部分。沿用上方同一份腾讯混元 JD，其中要求 3 明确提出 Kubernetes、容器化与集群开发、部署、排障或性能优化经验；职责 2、4 则关联任务执行、资源和运行状态的一致性。
+
+两仓库按问题接续：Slime 的既有材料用于回顾 Agent、环境接口、模型请求、结果和训练交接；Agent Lightning 重点看 Kubernetes Controller 怎样将 rollout 变成 Job、关联运行状态，以及任务网络、资源、失败与清理。源码入口与候选保存在 [Agent Lightning 阅读入口](../../00-repo-reading/repositories/agent-lightning/README.md)，具体接续以该入口为准，不默认重新通读其训练器。
+
+同日用户进一步确认按八类职责建立 Kubernetes 知识目录，并强调满足本岗位。该部分的深度、既有基础复用与实践证据要求统一见 [Kubernetes 岗位对应范围](../../00-repo-reading/repositories/agent-lightning/references/tencent-k8s-scope.md)；目录分类不把所有方向自动升级为当前必读，也不表示已有集群运行证据。
+
+这里建立学习分工，尚未实施两框架的代码集成。Kubernetes 实际部署与排障仍需运行证据，不能由 Controller 源码阅读代替；已有 kubectl / 简单部署基础继续保留，具体实践环境与任务尚未选择。Slime 的状态以[唯一路线](repo-reading-route.md#当前接续)为准，新项目状态只在其入口维护。
+
+<a id="slime-reading-stop-20261101"></a>
+
+## 2026-11-01：Slime 通读可以停止，新增阅读由具体问题触发
+
+在核实 Step 015 已读及 Step 017 整轮复述后，没有必要再为岗位固定增加一个 Slime 源码专题。保留“运行中的结果/资源一致性”和“一次评估的配置与复现交接”两类按需方向，分别对应职责 4 与职责 1/3；已有正常路径、计数和评分理解继续计入，不重开基础。具体进入条件与停止点见[第 10 节](../../00-repo-reading/repositories/slime/slime后续阅读顺序/2026-10-29-existing-foundation-and-remaining-scope.md#slime-optional-directions-20261101)。
+
+这不是将可选方向列成必须读完的新目录，也不把测试未运行当作需要重读的证据。Trace 暂缓保持；Kubernetes 经验继续通过实际案例核实，不以 Slime 内部通读替代。当前阅读位置仍由唯一路线维护。
+
+<a id="jd-next-priority-20261101"></a>
+
+## 2026-11-01：整轮主线已复述，下一优先项具体化为接入与验证
+
+> 同日后续修正：用户指出 Step 015 已处理生成接口及契约检查。回查确认其后已有理解反馈并转入 Step 016、017；撤回默认返回同一契约测试的具体推荐。下面保存稍早的实践取舍，最新历史判断见[生成接口已读的证据](../../00-repo-reading/repositories/slime/slime后续阅读顺序/2026-10-29-existing-foundation-and-remaining-scope.md#contract-history-correction-20261101)。未运行测试不能作为回退学习的充分理由。
+
+再次依据用户确认的 JD，沿用 10 月 31 日的取舍：优先形成一份可说明、可复跑的生成或评分接入案例，并在其中观察一种相关失败行为；再核实已有 Kubernetes 集群案例。职责 2、3、4 和要求 1、3、5、6 支持这一顺序；要求 4 的至少一类训练/自动评估基础不推出通读全部后端的要求。
+
+已有基础、证据缺口和 Step 015 单测试候选见[具体对照](../../00-repo-reading/repositories/slime/slime后续阅读顺序/2026-10-29-existing-foundation-and-remaining-scope.md#next-priority-20261101)。现有测试仅是方便的起步检查，不能替代独立接入或真实运行经验；同等既有项目优先复用。Trace 暂缓和此前取消的 await 演示均保持。此处保存取舍依据，当前进度仍以唯一路线为准。
+
+<a id="jd-recheck-20261031"></a>
+
+## 2026-10-31：停止新增必读源码章节，优先验证已有接口
+
+用户在正常训练主线收束后再次核对岗位必要性。本轮建议进一步区分能力与学习载体：策略/评估接入、验证和处理实际并发问题直接对应原文；独立精读 Slime 的中断/队列实现只是可选学习案例，不是岗位明示要求。
+
+因此当前训练主线阅读可以停。后续优先复用已读接口做或整理一个小接入实例，将正常与异常行为一起验证；遇到具体卡点再查最小的中断或回队实现。已有同等项目经验可以复用，不要求重复指定仓库的练习。详细依据见[最新范围复核](../../00-repo-reading/repositories/slime/slime后续阅读顺序/2026-10-29-existing-foundation-and-remaining-scope.md#jd-recheck-20261031)。这是复核建议，未自动启动后续任务；Kubernetes 与 Trace 的原有实践边界保持。
+
+<a id="backend-depth-review-20261030"></a>
+
+## 2026-10-30：backend 的阅读深度与 Slime 停止位置
+
+用户反馈直接打开 Megatron backend 内容过多，并要求再次按腾讯 JD 核查必要性。依据仍是已确认的岗位正文，职责 2–5 与要求 1/2/4/5 支持读清组件接口、训练闭环和运行边界；正文没有要求通读 Megatron 或某一套权重通信实现。
+
+worker 的“取得生成引擎、按需连接、委派同步”三处仅作为按需证据，不单列为岗位必读。用户再次质疑必要性后，当前优先回 train.py 的暂停、同步、恢复接纳与评估位置，完成正常闭环。本轮 Slime 继续以 A 正常闭环、B 一个中断场景、C 一次小接入验证为收尾标准。详见[本次范围复核](../../00-repo-reading/repositories/slime/slime后续阅读顺序/2026-10-29-existing-foundation-and-remaining-scope.md#backend-depth-review-20261030)。部署排障和 Trace 的既有边界不变，不用继续深读 backend 代替实践，也不在此处登记源码学习进度。
+
 <a id="combined-foundation-audit-20261029"></a>
 
 ## 2026-10-29：结合现有 Agent、异步、RL 与 Slime 记录后的判断

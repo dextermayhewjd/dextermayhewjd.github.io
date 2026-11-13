@@ -4,9 +4,11 @@
 
 阅读目标是对齐用户提供的腾讯混元 Agent 强化学习框架工程师岗位，以理解框架和实际交接为主。岗位要求与投入安排见[岗位对照](../../../slime_photo/code-reading/job-alignment.md)。
 
+2026-11-03，用户确认以 [Agent Lightning](../agent-lightning/README.md) 承接本项目，重点理解 Kubernetes 中的 Agent 任务执行与管理。Slime 的既有记录用于恢复背景；两个项目各自维护源码证据和阅读进度。
+
 ## 源码与记录入口
 
-- 源码仓库：`/home/hongshi/projects/slime`；历史记录保留当时路径，现有校准材料使用 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`，旧材料保留各自版本。
+- 源码仓库：2026-11-03 核对本机为 `/home/fredkeira/projects/slime`，HEAD 为 `540ea919e45b8b929198abce008a103be9cfc779`；旧机器路径 `/home/hongshi/projects/slime` 当前不可用。现有校准材料仍使用 `18868a79b0b083a093798a94ed0f8cb4f71b9c14`，历史路径与源码版本不批量改写。
 - 学习状态只维护在[唯一路线的当前接续](../../../slime_photo/code-reading/repo-reading-route.md#当前接续)，主题与步骤索引不另存一套进度。
 - 后续方向统一按 [2026-10-28 阅读计划与约定](slime后续阅读顺序/current-goal-slime-reading-order.md#reading-agreement-20261028)接续；方案与选题依据见[后续阅读目录](slime后续阅读顺序/README.md)，实际进度只看唯一路线。
 

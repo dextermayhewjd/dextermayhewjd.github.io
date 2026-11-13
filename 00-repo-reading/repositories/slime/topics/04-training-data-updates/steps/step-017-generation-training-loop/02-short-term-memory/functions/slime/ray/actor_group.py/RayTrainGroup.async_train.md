@@ -2,20 +2,24 @@
 
 - 源码定位：[slime/ray/actor_group.py:148](/home/hongshi/projects/slime/slime/ray/actor_group.py:148)，固定版本 `18868a79`；调用方为 [train.py:67](/home/hongshi/projects/slime/train.py:67)。
 - 首次接触：Step 017，2026-10-29；此前作为 train 卡的内部段落阅读，本轮独立成卡。
-- 最近认识更新：2026-10-29，用户在区分结果引用与实际结果后明确表示“大概理解这里的async train了”，并要求继续。本函数记录为已有总体理解反馈；后端计算与未展开的失败细节不随之标记掌握。
-- 导航：[scope 3.2 的①](../../../../../01-scope.md#core-skeleton) → **[当前问题：external_data 配对与返回列表](#external-data-pairing)** → [返回 train 的等待位置](../../../train.py/train.md#async-train-submission)。
+- 最近认识更新：2026-10-30，整合数据提交、Ray 结果引用列表与调用方等待的模型后，用户明确表示“我差不多理解了”并要求继续。记录为本轮总体理解反馈；未逐项检验的细节、后端计算与其他未知保留。
+- 导航：[scope 3.2 的①](../../../../../01-scope.md#core-skeleton) → **[当前回顾：提交与结果引用](#remote-return-versus-train-return)** → [返回 train 的等待位置](../../../train.py/train.md#async-train-submission)。
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
 1. **使用场合**：driver 的 train 已取得本轮训练数据引用，通过本地 `actor_model`（一个 RayTrainGroup 对象）把本轮工作交给训练 worker。主线为 use_critic=False、external_data=None；本轮按用户问题对照 external_data 为列表的分支。
 
-2. **具体内容**：遍历 `self._actor_handlers`，为每个 worker 提交一次 `actor.train.remote(...)`。external_data 为列表时，先核对与 worker 数量相等，再按位置将每项 ed 交给对应 worker；否则给所有 worker 传入同一个 external_data。两条分支都返回每次提交得到的任务结果引用列表，等待由调用方负责。
+2. **具体内容**：遍历 `self._actor_handlers`，为每个 worker 提交一次 `actor.train.remote(...)`。external_data 为列表时，先核对与 worker 数量相等，再按位置将每项 ed 交给对应 worker；否则给所有 worker 传入同一个 external_data。两条分支都把每次提交返回的 Ray `ObjectRef` 收集成一个 Python 列表，等待由调用方负责。
 
 3. **建议构建的心智模型**：
 
-   > 输入：本轮要训练的数据引用。动作：给训练组中的各 worker 提交工作。输出：这些工作的结果引用，交给上层等待。
+   > `async_train` 把本轮的 `rollout_id` 和 `rollout_data_ref`，通过 `_actor_handlers` 中的句柄交给各训练 worker，调用它们的 `train.remote(...)` 提交训练。
    >
-   > 数据引用告诉 worker 去哪里取训练材料；本函数产生的任务引用让调用方取得执行结果。
+   > 每次提交返回一个 Ray `ObjectRef`，代表该次远程调用的结果。本函数把这些引用收集成 Python 列表返回；拿到列表时，训练可能还没有结束。
+   >
+   > 调用方再用 `ray.get(...)` 等待这些训练调用完成，并取得实际返回值。传入的数据引用用于取训练材料，返回的结果引用用于等待和取结果。
+
+   **语法与库的区别**：列表、变量和列表推导式是 Python 语法；`ObjectRef`、`.remote()` 和 `ray.get()` 来自 Ray。这里的“结果引用”指 Ray 对象，不是一种新的 Python 语法。
 
 4. **调用代码**（train.py:67，真实调用）：
 
@@ -34,7 +38,7 @@
 | external_data | 主线为 None；对照分支是按 worker 顺序排列的额外输入列表 |
 | self._actor_handlers | 本地持有的远程 worker 句柄列表；当前默认实现为 MegatronTrainRayActor。句柄让本地能够向相应 worker 提交调用 |
 
-**输出**：一个任务结果引用列表，每个训练 worker 对应一项。当前 actor 训练路径中，各任务正常完成后的结果为 None；本函数本身返回这些引用，不等待训练全部结束。DP 数据分片数与 worker 数量不要求相等。
+**输出**：一个 Python 列表，元素为 Ray `ObjectRef`，每个训练 worker 的一次调用对应一项。当前 actor 训练路径中，各任务正常完成后的实际结果为 None；本函数本身返回这些引用，不等待训练全部结束。DP 数据分片数与 worker 数量不要求相等。
 
 ### 当前精读的核心骨架（163–166）
 
@@ -68,6 +72,10 @@ if isinstance(external_data, list):
 ```
 
 **先看数量检查。** if 判断是否为 list；assert 检查额外输入项数是否与 worker 数量一致。这里要求“每个 worker 一项额外输入”，不是要求样本数或 DP 分片数等于 worker 数。assert 只核对数量，输入顺序是否与 worker 对应仍由调用方保证。
+
+<a id="handler-count-versus-boxes"></a>
+
+**2026-10-30 回顾：这里有两份不同的列表。** `external_data` 为列表时，每个训练 worker 需要一项额外输入，所以检查它与 `_actor_handlers` 等长，再用 zip 配对。此前的 `rollout_data_ref` 则是按 DP rank 组织的 Box 列表；每个 worker 都收到整个引用列表，怎样取得所属数据由下层负责。这个 assert 没有读取 `rollout_data_ref`，因此不能解释成“Box 数必须等于 handler 数”。本步无 critic 的主线传入 external_data=None，不进入这项数量检查；有 critic 时可在 train.py:61–63 看到 value_refs 作为额外输入传入。
 
 **再看 zip 与解包。** 用两组位置符号说明，下面的 worker0 / worker1 代表句柄，extra0 / extra1 代表额外输入；不是实际运行的数据。
 
@@ -128,6 +136,19 @@ return refs
 <a id="task-result-reference"></a>
 
 ### 引用列表怎样被使用，读完返回哪里
+
+<a id="remote-return-versus-train-return"></a>
+
+**2026-10-30 回顾：“调用返回的结果放入 list”中的调用，是 train.remote。** `.remote()` 提交远端 train 执行，并返回代表这次调用结果的 ObjectRef。列表推导式直接保存这个返回对象；取得引用不需要等远端 train 完成，引用对应的值可能尚未就绪。
+
+下面将一次真实接口调用写开作教学说明；ref、value 是解释用局部变量，没有执行 Ray：
+
+```python
+ref = actor.train.remote(rollout_id, rollout_data_ref)
+value = ray.get(ref)
+```
+
+第一行取得 ObjectRef；第二行等待并读取远端 train 的实际返回值。当前策略模型的正常路径调用 train_actor 后将 result 设为 None，再 return result，因此 value 为 None。训练的主要效果保存在模型参数中，不通过这里返回模型。async_train 收集多个 ref，外层 ray.get 一起等这些调用完成。
 
 这里的 actor 变量保存的是**本地持有的远程 worker 句柄**。调用 `actor.train.remote(...)` 向对应 worker 提交一次 train 调用；训练在 worker 进程执行，本地得到一个 ObjectRef，用来等待或取得这次调用的结果。已有 worker 句柄的创建与保存见 [actor_group.py:118–134](/home/hongshi/projects/slime/slime/ray/actor_group.py:118)，本轮只核对这一关系，不展开资源创建。
 
@@ -246,11 +267,63 @@ ray.get(train_refs)
 
 本轮据此回到 train.py 的下一项完成通知。没有新增针对后端实现或异常分支的掌握表述。
 
+2026-10-30 用户回顾（本条消息中关于 async_train 的完整段落）：
+
+> 首先这里时会检查这里的actor handler和外部的数据 数量是否对应 因为我们也看过这里的内容 我说的是这里的handler部分
+> 因为需要分成多分box 给ray
+> 所以对不上就不行
+> 后面这里我的理解
+> ray的部分就给了对应的数据
+> 所以在这里就能够直接调用train的部分
+> 我没有继续往下看
+> 但是这里应该就是async train的部分
+
+用户已联系到句柄、输入和远程训练调用；关于等长要求的理由仍把额外输入和 DP 数据分片混在一起。上面的两列表说明属于助手校准，尚待反馈；用户明确未继续向下阅读，不能据此扩展后端已读范围。见[本轮完整回顾](../../../../../04-flow.md#training-review-and-resume-20261030)。
+
+2026-10-30 从本步起点再次回顾（完整原文）：
+
+> 我的简单回顾一下吧
+> 之前说的是async train的部分
+> 也就这里的rollout data ref
+> 然后通过这里的actor handlers的句柄
+> 把这些内容传出去 是我的理解
+>
+> 然后这里的返回的一个是list of ray ref?
+> 我简单理解玩就是这里拿到了每一个actor都返回的的结果的引用?
+> 好的
+>
+> 我比较想要知道的是acotr.train.remote到底是返回的是什么?
+> 这里是直接按照这个函数调用返回的结果存在这个list里面对吧
+
+用户已明确提出数据经句柄提交、返回每次调用的结果引用列表。助手确认列表保存的是 train.remote 的返回对象，再区分它与远端 train 结束后的返回值。这个精确区分仍等待反馈；没有据此推进后续完成通知或权重更新。见[本轮回顾](../../../../../../step-017-generation-training-loop/04-flow.md#remote-return-review-20261030)。
+
+2026-10-30 用户先要求区分语法与库，再要求整合现有模型：
+
+> 这个部分倾泻在这个函数的心智模型里面吧?
+> 或者在写之前 请你告诉我
+> 这里的引用到底是python的语法还是其他的内容呢?
+
+助手先解释 ObjectRef 是 Ray 提供的对象类型，Python 负责变量、列表和方法调用的语法，当轮未写入卡片。用户随后明确要求：
+
+> 和当前的心智模型结合起来吧
+> 看一下到底应该用哪个吧
+
+本轮采用原模型的“数据交给 worker → 返回引用 → 调用方等待”作为主干，补入每项是 Ray ObjectRef、外层容器是 Python 列表，以及拿到引用不代表训练已结束。None 的实际返回值与详细分支留在场景说明中，不用纯 Ray 类型定义替代函数模型。此处是按用户要求整合 LLM 说明，不新增个人已掌握结论。见[整合记录](../../../../../../step-017-generation-training-loop/04-flow.md#async-train-mental-model-integration-20261030)。
+
+2026-10-30 在整合模型后，用户反馈：
+
+> 好的那么继续吧
+> 让我来看一下下一个部分吧
+> 我差不多理解了
+
+这次反馈针对前面整合后的 async_train 模型，记录为总体理解；没有据此认定训练后端、其他分支或精确 API 用法均已掌握。接续返回 train.py:67 的外层等待，再回顾 71 行完成通知，见[本轮接续](../../../../../../step-017-generation-training-loop/04-flow.md#async-train-review-to-completion-20261030)。
+
 ## 尚不清楚
 
-- 数据引用列表与本函数返回的任务结果引用列表，用户的精确理解待反馈。
+- 提交、结果引用列表和调用方等待的整合模型已有总体理解反馈；ObjectRef 与实际返回值的精确用法尚未单独检验。
+- external_data 与 worker 的一一配对、rollout_data_ref 与 DP 分片的对应是两项独立关系；本轮已澄清，尚待用户反馈。
 - worker 从输入中选择所属 DP 数据的方法，以及实际训练计算，当前未展开。
-- 用户已明确表示拆包与列表推导式已理解；异步结果对象、结果值与远程句柄的关系仍需补清。critic 的计算、异常与取消不展开。
+- 用户已明确表示拆包与列表推导式已理解，本轮也给出整合模型的总体反馈；远程句柄细节、critic 的计算、异常与取消未逐项展开。
 - 用户已提出 zip 为配对拆包、remote 之后保存 ref 的理解；第三项 ed 的差异、远程句柄及结果引用怎样供 ray.get 使用仍待反馈。
 - 尚无真实 Ray、模型或训练运行；不以卡片建立推断运行结果。
 
