@@ -1,0 +1,1 @@
+Cached font shared: True, font: FontStyle(font_family='Helvetica', size=12)

@@ -1,0 +1,2 @@
+Proxy initialized without loading heavy resource.
+Heavy payload data loaded

@@ -1,0 +1,2 @@
+Level 2: GameState(level=2, score=250, health=50)
+Rolled back to: GameState(level=1, score=100, health=100)

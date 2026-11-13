@@ -1,0 +1,2 @@
+Pipelined items: [1, 2, 3, 4, 5]
+Batches: [['a', 'b'], ['c', 'd']]

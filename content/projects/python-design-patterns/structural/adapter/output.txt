@@ -1,0 +1,1 @@
+Adapted output: {'parsed': '[record][id]101[/id][name]Alice[/name][/record]'}

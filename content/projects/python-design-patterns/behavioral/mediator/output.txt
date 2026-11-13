@@ -1,0 +1,2 @@
+Handler 1 received action from btn_submit: Click event triggered
+Handler 2 logging Click event triggered

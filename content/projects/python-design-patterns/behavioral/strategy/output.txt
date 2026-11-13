@@ -1,0 +1,1 @@
+Reversed sort: ['cherry', 'banana', 'apple']

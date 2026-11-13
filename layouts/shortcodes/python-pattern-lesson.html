@@ -1,0 +1,12 @@
+{{- $folder := printf "content/projects/python-design-patterns/%s" (.Get "path") -}}
+{{- $path := printf "%s/lesson.md" $folder -}}
+{{- if not (fileExists $path) -}}
+  {{- errorf "Python pattern lesson missing: %s" $path -}}
+{{- else -}}
+  {{- $body := readFile $path -}}
+  {{- $code := readFile (printf "%s/example.py" $folder) | strings.TrimSpace -}}
+  {{- $output := readFile (printf "%s/output.txt" $folder) | strings.TrimSpace -}}
+  {{- $body = replace $body "<!-- PRIMARY_EXAMPLE -->" (printf "```python\n%s\n```" $code) -}}
+  {{- $body = replace $body "<!-- PRIMARY_OUTPUT -->" (printf "```text\n%s\n```" $output) -}}
+  {{- .Page.RenderString (dict "display" "block") $body -}}
+{{- end -}}
