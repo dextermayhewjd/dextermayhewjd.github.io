@@ -2,6 +2,7 @@
 
 - 源码：[src/harbor/trial/trial.py:469–524](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L469)，Harbor v0.25.0 发布提交 fdba28fc411e47e8765420a1a063b4918fce3def。
 - 首次单独展开：Step 012，2026-11-12。
+- 最近认识更新：2026-11-13，用户从队列执行回到本函数，复述 skills、题目取得、单步/多步选择和可选模拟用户的主干；题目加载及 Agent/Environment 初始化内部仍未展开。
 - 本轮范围：沿 hello-world 普通任务，source_trial=None、user_agent=None；先看题目取得、具体类型选择与返回，不展开下载器。
 
 [队列创建 Trial 的位置](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/queue.py#L201) → **Trial.create** → [题目加载](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L532) / [SingleStepTrial.__init__](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/single_step.py#L20) · [scope](../../../../../01-scope.md#current-reading)
@@ -102,11 +103,27 @@ Bridge 的职责是连接模拟用户 Agent 与目标 Agent；当前普通任务
 
 | 当前读到哪里 | 下一层入口 | 返回后继续哪里 |
 | --- | --- | --- |
-| task, task_download_result = await cls._load_task(config) | [_load_task:532](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L532) → [Task.__init__:51](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/models/task/task.py#L51) | 回到当前函数，才能根据 task.has_steps 选择实现 |
-| trial = SingleStepTrial(...) | [SingleStepTrial.__init__:20](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/single_step.py#L20) → [Trial.__init__:164](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L164) | 初始化完成后回到当前赋值处，再经过 _create_bridge 和 return trial |
+| task, task_download_result = await cls._load_task(config) | [进入 Trial._load_task 函数卡](Trial._load_task.md#load-task-mainline) | 接住 Task 与材料记录，再根据 task.has_steps 选择实现 |
+| trial = SingleStepTrial(...) | [SingleStepTrial.__init__ 卡片](../single_step.py/SingleStepTrial.__init__.md) → [Trial.__init__ 卡片](Trial.__init__.md) | 初始化完成后回到当前赋值处，再经过 _create_bridge 和 return trial |
 | return trial | [队列:201–203](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/queue.py#L201) | 接住对象、挂回调，再调用已有的 Trial.run |
 
 本轮先接清这条创建路径。需要知道题目文件怎样变成 Task 时，下一处看 _load_task；不在本卡提前展开 Agent 初始化或环境启动。
+
+<a id="load-task-handoff"></a>
+
+**当前从本函数这行进入 [Trial._load_task 函数卡](Trial._load_task.md#load-task-mainline)：**
+
+```python
+task, task_download_result = await cls._load_task(config)
+```
+
+来路是 Job.run → _run_trials_with_queue → 队列协程 → Trial.create。用户已确认建立 _load_task 卡；这里带着 config.task 所描述的题目来源进入，取得 Task 对象与 TaskDownloadResult 两项，返回后才读 task.has_steps 并把材料交给具体 Trial 构造器。它服务于本步“题目来源怎样变成执行对象”的目标；读清这一交接后，再从 SingleStepTrial(...) 继续构造器与 Agent 对象创建。
+
+### 从题目加载返回：现在创建这次尝试
+
+_load_task 已把 Task 与 TaskDownloadResult 交回本函数。沿 hello-world 的 task.has_steps=False 分支，下一处是上方的 SingleStepTrial(config, _task=task, _task_download_result=task_download_result)。它将原来的运行安排、读好的题目与材料记录一起交给构造器，形成这次尝试的对象。对象创建完成后，才返回队列挂 hooks 并调用 trial.run。
+
+当前阅读先接清这个构造交接。下一处候选是 SingleStepTrial.__init__ → Trial.__init__，看题目和运行配置怎样保存、怎样进入 Agent 对象创建；本轮随后已按用户要求进入这两个初始化方法，详见[单步初始化卡](../single_step.py/SingleStepTrial.__init__.md)与[基类初始化卡](Trial.__init__.md)；_init_agent 内部仍未展开。
 
 ## 我的直接表述（原话）
 
@@ -141,10 +158,30 @@ Bridge 的职责是连接模拟用户 Agent 与目标 Agent；当前普通任务
 
 助手补齐创建返回调用方、随后 await job.run、队列 Task 内部创建 Trial 的时机；保留已读事实，不把来路不清楚解释为需要重读全部函数。
 
+2026-11-13，重新定位后对本函数的复述（节选）：
+
+> 那么继续看一下吧
+> 这里其实就是非常简单
+> 一个trial 包含了agent的skills有那些
+> config里面获取题目什么呢
+> 然后还有这里到底是单个步骤还是多个步骤
+> 以及是否需要使用llm作为用户回答
+> 我记得是这些
+
+本轮复述已覆盖本函数主干。源码上此处先解析 skills 来源、按配置加载题目，再选择 Trial 类型；最后处理可选 user_agent 的 bridge，本例未配置模拟用户。推荐 _load_task 是为接清题目来源到 Task 对象的交接，不把用户的调用定位疑问记成异步基础缺失或已经理解加载器内部。[本轮形成过程](../../../../../04-flow.md#trial-create-recap-and-load-entry-20261113)。
+
+2026-11-13，用户从题目加载接回父函数：
+
+> 好的那么看一下
+> 下雨ibu就是这个trial了对吗？
+> 也就是拿到了题目应该做下一步了
+
+助手接回 SingleStepTrial 构造调用，区分取得题目、创建一次尝试对象，以及后面的 trial.run；尚未据此填写用户对构造器内部的理解。
+
 ## 尚不清楚
 
-- _load_task 怎样根据来源取得目录并读入 instruction/task.toml，后续再进入。
-- SingleStepTrial 与基类初始化怎样创建 Agent/Environment 对象，沿 scope 后续位置继续。
+- _load_task 已在本步单独讨论来源配置、材料目录、题目对象与 verifier 检查开关；下载后端和读取细节保留在对应卡片的未知中。
+- SingleStepTrial 与基类初始化主干已接上；Agent/Environment 的具体创建机制仍沿对应调用按需进入。
 - 多步、重评和 user-agent bridge 的实现，本轮不展开。
 
 <details>

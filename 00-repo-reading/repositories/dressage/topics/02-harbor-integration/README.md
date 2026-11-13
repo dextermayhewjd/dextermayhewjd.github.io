@@ -35,8 +35,8 @@ Harbor 自身已有 GKE、ACK、OpenShift 等 K8s 相关后端；Step 013 先判
 | --- | --- | --- | --- |
 | Step 010 | Slime 怎样交给 Dressage 的 Harbor 入口？ | [scope](steps/step-010-harbor-rollout-entry/01-scope.md) | 主线已收束，未通读全部内部实现 |
 | Step 011 | 一次 Harbor Trial 怎样完成准备、执行与结束？ | [scope](steps/step-011-harbor-trial-lifecycle/01-scope.md) | 首轮生命周期与正常结果返回已收束；保留内部未知 |
-| Step 012 | 运行配置怎样得到 Task 与 Agent 对象？ | [scope](steps/step-012-task-agent-verifier/01-scope.md) | 已校准 v0.25.0，从配置组装接续一个任务例子 |
-| Step 013 | Environment 怎样创建、启动并接到 Agent Sandbox？ | [scope](steps/step-013-harbor-kubernetes-environment/01-scope.md) | 仅 scope，未展开 |
+| Step 012 | 运行配置怎样得到 Task 与 Agent 对象？ | [scope](steps/step-012-task-agent-verifier/01-scope.md) | [首轮创建主线已收束](steps/step-012-task-agent-verifier/05-task-flow.md)，停在环境入口；保留具体工厂等未知 |
+| Step 013 | Environment 怎样创建、启动并接到 Agent Sandbox？ | [scope](steps/step-013-harbor-kubernetes-environment/01-scope.md) | 已确认开始，当前阅读 start 接口调用与超时包装；具体后端、适配与验证未展开 |
 | Step 014 | Agent 怎样准备、执行，并在运行中请求模型？ | [scope](steps/step-014-model-routing-and-api-contract/01-scope.md) | 仅 scope，未展开 |
 | Step 015 | 产物怎样评测，再与轨迹一起形成最终结果？ | [scope](steps/step-015-harbor-results-and-samples/01-scope.md) | 仅 scope，未展开 |
 | Step 016 | 回看一种取消/失败，资源与结果怎样收尾？ | [scope](steps/step-016-cancellation-and-retries/01-scope.md) | 仅 scope，未展开 |
@@ -57,4 +57,4 @@ Harbor 自身已有 GKE、ACK、OpenShift 等 K8s 相关后端；Step 013 先判
 2. Step 013 在 Environment 边界引用 Agent Sandbox 的独立 K8s 主题；资源控制器、WarmPool、Claim 不在这里重复建立另一套步骤。
 3. 冷创建合同清楚后即可开展局部验证；Step 017 负责串联和补齐证据，不意味着此前只能阅读不能验证。
 4. Step 编号沿 Dressage 连续使用 010–017。scope 准备完成不表示开始阅读或完成实践；实际进度只在项目 README 维护。
-5. Harbor 阅读以 v0.25.0 发布提交为准；Dressage 仍固定原依赖，运行兼容性需独立验证。Step 013–017 的 scope 校准不表示已经开始阅读或完成实现。
+5. Harbor 阅读以 v0.25.0 发布提交为准；Dressage 仍固定原依赖，运行兼容性需独立验证。Step 013 已按用户确认进入创建入口；Step 014–017 的 scope 准备不表示已读或完成实现。

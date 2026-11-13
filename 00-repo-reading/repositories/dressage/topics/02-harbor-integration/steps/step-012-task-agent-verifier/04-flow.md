@@ -193,3 +193,161 @@
 ## 2026-11-12：撤回刚才的 Job.run 简写
 
 用户表示“算了还是回复吧”，按当前语境恢复刚才简写前的 Job.run 卡片；从完整快照恢复并重算相对链接，scope 的对应跳转文字一并还原。其他函数卡、阅读顺序和前序快照未改动；保留本次调整与撤回经过。
+
+<a id="job-run-results-and-list-plus-20261113"></a>
+
+## 2026-11-13：复述 Job.run，区分结果列表拼接与字段回填
+
+用户再次复述建立 JobResult、通过 _run_trials_with_queue 取得结果、将已有结果与本次结果合并、计算指标并返回 JobResult 的主线，并追问：
+
+> 这里的trial results 是被怒视有很多 所以可以直接用+的方式？
+
+完整原话保存到本步 [Job.run 卡片](02-short-term-memory/functions/harbor/job.py/Job.run.md#result-list-concatenation)，保留此前 Step 011 原话。本轮只校准当前函数的三个边界：JobResult 在 Job.run 内、提交尝试之前创建；下游提交待运行的 TrialConfig，返回 list[TrialResult]；最终填入 self._job_result 的 stats、trial_results 和结束时间。+ 连接已有与本次两个结果列表，得到新列表，零个或一个元素也适用，不对奖励求和或逐字段合并结果对象。
+
+当前环境没有记录中的本地 Harbor checkout，本轮查阅官方仓库 fdba28fc 固定提交的 job.py，核对列表声明、队列返回、结果拼接及赋值；没有换用 main 或运行任务。Python 列表拼接另查本地《Fluent Python》第二版中英同锚点，行号与逐字引文放回函数卡的折叠来源。没有实际 Harbor、模型或集群执行。
+
+本次用户已表达主线理解；创建时机、回填对象与列表 + 的精确解释由助手补充，尚待用户反馈。当前仍在 Job.run 回看，未自动进入 _load_task、新建函数卡或收束 Step 012。
+
+<a id="queue-coroutine-task-handoff-20261113"></a>
+
+## 2026-11-13：回看队列函数，接清协程到 Task 的运行关系
+
+用户进入 _run_trials_with_queue 第 [2] 段，已描述提交配置、semaphore 限流、Trial 创建、挂 hooks、执行和提取结果的主线；卡点是 create_task 为什么会执行 _run_trial，并表述“这个task是要都执行了完成了才会放到 task里面”。完整原话保存在本步调取的 [队列函数卡](02-short-term-memory/functions/harbor/job.py/Job._run_trials_with_queue.md#coroutine-to-task)。
+
+本轮从 03 完整调取已有记录到 02，保留 Step 011 的原话、锚点、历史来源与失败边界；只补当前实际追问。_run_trial、submit 和 hooks 继续作为父卡中的必要局部材料，没有为未展开的 helper 单独建卡，也未修改 03。
+
+助手重点区分：submit 调用 async 方法 _run_trial 得到协程对象，create_task 接收的就是它，安排事件循环驱动该方法体；Task 当场返回并被收进 tasks，而不是工作完成后才放入列表。TaskGroup 正常退出时统一等完，随后 t.result() 才取各自 TrialResult，交回 Job.run 汇总为 JobResult。_validate_agent_concurrency 是配置检查/按需准备 Agent 池信号量；Trial 执行时的总并发额度由 _run_trial 内的 semaphore 控制，TaskGroup 不负责限制并发数量。_setup_hooks 将回调登记给 Trial，不在挂接时执行任务。
+
+源码依据为 Harbor fdba28fc 固定版本 job.py/trial/queue.py，运行机制另核对 Python 3.12 官方文档与本地《Fluent Python》19 章中英引用；书籍不含 TaskGroup，相关行为未以书籍作证。没有运行 Harbor、模型或集群。上述时机校准尚待用户反馈；下一处建议是回到已读 Trial.create，再按题目来源问题考虑 _load_task，未自动展开新函数或收束 Step 012。
+
+<a id="queue-recall-and-task-loading-next-20261113"></a>
+
+## 2026-11-13：已有异步基础只作提醒，下一处回到题目加载
+
+用户说明这部分已有理解、只是遗忘，不再复述，要求继续并询问下一处。完整原话保存到本步队列卡；尊重其学习节奏，不将复述或重讲 asyncio 当作继续阅读的前提，亦不因口语表达把协程函数与协程对象写成同一种对象。
+
+按当前 Step 012 目标，推荐回到已有 Trial.create 的 task, task_download_result = await cls._load_task(config)。下一轮围绕 config.task 的来源怎样取得目录、构造 Harbor Task，并把 Task 和 TaskDownloadResult 两项返回父函数；读完回到 task.has_steps 的类型选择。沿用 hello-world 例子，下载器的全部后端先按接口看待。该入口与返回项已用 Harbor fdba28fc 固定提交核对；本轮只记录接续建议，未创建未读函数卡或开启下一 step，也没有运行任务。
+
+<a id="trial-create-recap-and-load-entry-20261113"></a>
+
+## 2026-11-13：回到 Trial.create，按实际调用说明下一处阅读理由
+
+用户先询问当前入口是否在 _run_trials_with_queue，随后在 scope 找到位置，复述 skills、配置取得题目、单步/多步选择及可选模拟用户，并问“看完这个函数我们需要看什么呢？”。技术复述原话保存在 Trial.create 卡，不将这段回顾登记为已经读过 _load_task。
+
+本轮接清来路：Job.run → _run_trials_with_queue → 队列协程 → Trial.create。当前是 scope 第 10 项，已从调度返回对象创建；下一处推荐从该函数内部的 _load_task 调用进入，解决 config.task 来源怎样变成题目对象以及为何返回两项。返回点是父函数 task.has_steps 与具体 Trial 构造；后续再沿 SingleStepTrial(...) 进入初始化和 Agent 对象创建。保持 Step 012 的目标与停止边界，不新增步骤，不要求精读每个 helper。
+
+scope 的当前标记移到第 10 项，并直接链接父卡中的调用行；没有提前创建未读加载器卡，也没有运行任务。模拟用户/bridge 的实现继续留白，本例 user_agent=None。
+
+<a id="load-task-card-created-20261113"></a>
+
+## 2026-11-13：确认建立 Trial._load_task 函数卡
+
+用户在上一轮明确的 _load_task 入口与输入输出目标后要求“好的 那么就来建立一下这个task卡吧”。按连续上下文建立的是 Trial._load_task 函数卡，而非提前展开完整 Task 类；沿用 Step 012 与 hello-world 场景。
+
+卡片从 Trial.create 的调用现场进入，保留静态方法签名、来源标识、客户端批量返回的 results[0]、Task 构造时的三个相关配置实参，以及 Task/TaskDownloadResult 两项返回。具体输出用官方 hello-world 题目字段说明；材料路径只按客户端返回的目录表示，不虚构下载或缓存日志。返回位置直接接父函数 task.has_steps 和 SingleStepTrial 构造。
+
+本轮查阅 Harbor fdba28fc 固定版本的当前函数、来源配置模型、Task 构造器与 hello-world 文件。TaskClient 内部只保留接口，来源适配和缓存策略没有展开。没有下载题目、实例化真实 Task 或运行模型；用户尚未独立复述本函数，不记为已掌握。父卡、scope 和索引已接上新卡，后续未读依赖未建卡，03 快照保持。
+
+
+## 2026-11-13：收拢 scope 3.2 的卡片入口
+
+用户指出 3.2 格式有问题，要求链接只集中在一处，且打开文档最上方。此前助手在阅读内容、下钻和返回说明中重复添加卡片链接，并跳到卡片内部锚点，导致导航分散。
+
+本轮保留完整骨架、连续编号和当前第 11 项，只在阅读表第一列提供卡片链接，移除链接目标的段落锚点；其他列及表外提示保留文字说明。未读函数仍不建卡。此为导航格式修正，不改变阅读范围、函数认识或进度。
+
+
+## 2026-11-13：按 Step 010、011 恢复第二列入口格式
+
+用户进一步明确：沿用 Step 010、011 的“阅读顺序与入口 / 从哪里进入 / 读到哪里停、返回哪里”三列，超链接放在第二列。此前助手将“集中一处”误解为放在第一列。现已按指定表头与职责修正：第一列保留编号和名称，第二列集中卡片入口，第三列合并阅读重点与返回说明；卡片链接仍打开文档顶部。阅读范围与当前位置不变。
+
+
+## 2026-11-13：题目加载为何接收 verifier 开关
+
+用户将 path、url、download_dir 和 instruction 归为题目相关内容，追问“但是为什么还有一个verifier？”以及是否还需关注其他内容。完整原话已保存到 Trial._load_task 卡。
+
+按官方 Harbor fdba28fc 固定版本核对 Task.__init__ 与 _validate_tests：_load_task 传入的是 config.verifier.disable 布尔开关；构造器在未禁用时检查后续评测需要的题目材料，普通单步且未内置测试时检查对应操作系统的测试脚本，缺少时提前报错。此处没有执行评分；禁用该项检查也不会跳过所有配置和路径检查。助手另提醒本函数返回 Task 与 TaskDownloadResult 两项，仍回到 Trial.create 使用。
+
+用户的配置归类与助手的用途解释分开记录；当前仍停在第 11 项，未新建辅助函数卡或推进步骤，没有运行题目、环境或模型。
+
+
+## 2026-11-13：从加载题目返回 Trial.create 的构造调用
+
+用户确认题目取得后询问下一步是否是 Trial，原话保存在 Trial.create 卡。助手接回父函数：_load_task 返回 Task 和 TaskDownloadResult；hello-world 沿 task.has_steps=False 进入 SingleStepTrial 构造，将原 config 与两项结果交给构造器。构造返回后才回到队列挂 hooks、调用 trial.run。
+
+scope 的当前标记回到第 10 项，保留第二列入口与完整阅读路径。下一处候选是 SingleStepTrial.__init__ → Trial.__init__ 的对象初始化交接，本轮未展开其内部、未新建函数卡或下一 step；不把用户同意继续记为已经掌握构造过程。
+
+
+<a id="single-step-init-entry-20261113"></a>
+
+## 2026-11-13：从单步子类接入基类初始化
+
+用户要求“好的 那么看一下这个trial在做什么吧 / 也就是这里的这个single step trial吧”，沿上一轮明确的对象创建位置展开 SingleStepTrial.__init__，不切换到完整运行生命周期。原话保存在单步初始化卡。
+
+官方 fdba28fc 固定源码显示：子类先拒绝非空 steps 的题目，再将配置、Task 和材料记录原样交给 super().__init__，基类正常返回后设置 _are_artifacts_collected=False。直接下游 Trial.__init__ 保存三项材料、分配尝试身份、准备本地目录与 lock 记录、状态和组件；初始化是在同一 SingleStepTrial 实例上进行。当前先提供共用准备骨架，_init_agent 内部未展开，环境初始化入口交给 Step 013。
+
+为两个实际接触的初始化方法建立本步函数卡，父卡补对应入口；scope 保留原三列格式、链接集中第二列并打开卡片顶部，当前定位第 12 项。没有为未读 helper 预建卡。源码为静态核对，没有执行构造器、启动环境或模型；暂无用户对内部流程的独立复述。
+
+
+## 2026-11-13：在初始化现场补回 config 与 task 的内容
+
+用户已概括保存 config/task、记录位置、result 与组件初始化，但明确表示快忘记 config/task 里面是什么。原话完整保存到 Trial.__init__ 卡。此处的复述对应基类初始化主干；不要求回到配置创建链重读。
+
+助手复用同一个 hello-world 静态场景：TrialConfig 是题目来源、Agent/模型、运行环境、评测开关和记录位置等本次运行安排；Task 是 _load_task 已读出的题目指令、task.toml 定义和材料路径。另区分 task.paths 的题目材料位置与 Trial.paths 的本次记录位置，校准 _result 此时为 None，Trial.run 后续才初始化结果对象。解释放在当前基类卡的核心代码之前，避免再次跨卡拼接；没有创建额外数据类卡或推进下一函数。
+
+此次只使用前序已核对的固定版本源码及 hello-world 静态例子，没有运行 Harbor、模型或环境；字段示意不代表运行输出。
+
+
+## 2026-11-13：确认 config/task 分工，推荐 Agent 创建入口
+
+用户重新表述 config 是题目来源与模型/Agent、环境、评测等运行安排，task 是问题具体内容，并明确表示想起、理解，询问下一函数。完整原话保存在 Trial.__init__ 卡。
+
+下一处推荐同一构造器的 Trial._init_agent：先接清 self.config.agent 如何进入 AgentFactory.create_agent_from_config，得到 self.agent，再设置本次 session/context 身份。已静态核对官方 fdba28fc 固定实现；参数组合、工厂与具体 Agent 实现尚未带读。建议记录输入配置、对象赋值与返回父函数的位置；不继续展开各 Agent 安装和模型调用。
+
+本轮只保存推荐和明确理解，不自动开启下一 step、移动当前阅读标记或预建 _init_agent 卡；无实际 Agent/模型/环境运行。
+
+
+<a id="init-agent-entry-20261113"></a>
+
+## 2026-11-13：确认进入 Trial._init_agent 的创建接缝
+
+用户在上一轮推荐后明确要求“好的 那么 我们来看一下这里的这个init agent 具体是什么样子的吧”。本轮实际展开该函数并建立本步函数卡，沿 Trial.__init__ 的 self._init_agent() 进入，返回后继续 _init_user_agent 与环境入口。
+
+固定版本显示三项主干：按 Oracle/MCP/skills/已有轨迹准备附加参数；将 config.agent、日志位置、logger 和附加参数交给 AgentFactory，返回对象保存在 self.agent；设置 session_id 与 context_id，最后检查轨迹加载支持。函数返回 None，关键结果是当前 Trial 上新增 Agent 对象及身份。核心教学代码折叠可选参数分支，完整原方法留在来源区；当前 claude-code 静态例子另注明无附加能力的假定条件。
+
+具体工厂和各 helper 只按接口定位，没有预建卡或展开完整安装、执行、模型调用。scope 在第 12 项下加 12.1，当前标记指向新卡，链接集中第二列且打开卡片顶部；原编号和环境第 13 项保留。暂无用户独立复述，不登记为已掌握；没有真实 Agent、模型或环境执行。
+
+
+## 2026-11-13：确认工厂按配置创建 Agent 的主线
+
+用户复述 AgentFactory 根据 config 生成所需 Agent，并称为 factorymode，询问还需理解什么。完整原话已补入 Trial._init_agent 卡。助手确认这条交接，称其为工厂模式（factory pattern）的创建方式，精确输入为 self.config.agent；本函数还将工厂返回对象保存到 self.agent、设置 session_id/context_id，本方法正常返回 None。
+
+当前主线已表达清楚；参数分支、身份用途与具体工厂选择内部不据此记成已掌握。其余可选接入逻辑继续按原边界留白，后续可返回父构造器接环境入口。本轮没有新增 helper 卡、开启下一 step、移动当前标记或运行 Agent。
+
+
+## 2026-11-13：明确 Agent 对象创建不等于容器内安装完成
+
+用户主动指出当前只是初始化需要的 Agent 对象，并询问是否尚未在容器里安装。完整原话已保存到 Trial._init_agent 卡。助手确认这个边界，核对官方固定提交的 Trial._prepare → _setup_agent → agent.setup，结合 Step 011 已有 setup/CLI 安装证据，补入对象初始化、环境准备与环境内 Agent setup 的时序。
+
+当前 _init_agent 创建 Python 侧对象；安装或复用 CLI 的逻辑在后续具体 setup 路径。环境镜像可能预装 CLI，不能用当前对象创建推断容器里一定已有或没有安装。此处只接回已读生命周期，没有展开安装细节、创建新卡、推进步骤或实际运行环境。
+
+
+## 2026-11-13：下一处推荐环境对象创建入口
+
+用户确认对象初始化与容器安装的区别后询问下一处。按 Step 012 已确认的停止点与 Step 013 已准备的 scope，推荐返回 Trial.__init__，经过本例 user_agent=None 的可选初始化，再从 Trial._init_agent_environment 接入 Step 013 第一项。
+
+下一轮问题限定为：运行后端配置与题目的环境要求怎样组成 self.agent_environment。先看 Environment 对象创建，再沿已读运行路径找到 _prepare 中的实际 start，继续保持对象创建与启动的区别；Agent.setup 随后消费就绪环境。当前不因推荐就新建环境函数卡、开启 Step 013 的记忆目录或标为已读，也不将工厂内部和全部 K8s 后端改为前置必读。
+
+
+<a id="step012-first-pass-closure"></a>
+
+## 2026-11-13：按用户要求收束 Step 012 的创建主线
+
+用户要求：
+
+> 好的 那么目前把这里的这个step 收尾一下吧
+
+本轮按已读范围创建 05-task-flow.md：按实际先后区分 Job 创建时组成 TrialConfig，与 Job 运行时由队列创建 Trial；再接题目来源 → Task/材料记录 → 单步与基类初始化 → 主 Agent 对象创建。总结明确本步在 _init_agent_environment 入口停止，不把基类和 Trial.create 的完整返回提前画成已经执行完环境创建。
+
+用户已明确的 config/task 分工、工厂按配置创建对象、对象初始化与容器内安装的区别继续保存在各卡原话中；下载器、工厂内部、MCP/skills/轨迹恢复等未知保留。收尾不等于已掌握全部源码或完成运行验证。
+
+本步 README、scope、索引、项目唯一接续与主题目录状态已对齐首轮收束；scope 保留完整骨架和第二列卡片入口，当前标记停在第 13 项环境入口。Step 013 仍仅保留已准备 scope，没有开始阅读、建卡或生成记忆继承目录；03 前序快照与历史步骤不改。本轮未运行 Harbor、模型、CLI 安装、集群或训练，也未提交或发布仓库。

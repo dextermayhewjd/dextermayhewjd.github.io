@@ -6,7 +6,7 @@
 
 - 源码：[src/harbor/job.py:1082–1227](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/job.py#L1082)，Harbor v0.25.0 发布版。
 - 首次单独建卡：Step 011，2026-11-11；此前已定位上层交接。
-- 最近认识更新：2026-11-11，用户复述初始化、队列执行、结果合并与指标汇总的主线；队列接收对象与合并对象由助手补充校准。
+- 最近认识更新：2026-11-13，用户再次复述结果初始化、队列取回结果、已有与本次结果合并、计算指标并返回的主线，追问列表为何能用 +；创建时机、回填对象与列表拼接由助手补充校准，尚待本轮反馈。前序认识与原话继续保留。
 
 [调用方 _run_partition](../../../../../step-010-harbor-rollout-entry/02-short-term-memory/functions/dressage/integrations/harbor/rollout.py/_run_partition.md#partition-mainline) → **Job.run** → [_run_trials_with_queue 源码](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/job.py#L1229) · [本步导航](../../../../01-scope.md#current-reading)
 
@@ -69,7 +69,7 @@ self._job_result = JobResult(
 self._write_job_result(exclude_trial_results=True)
 ```
 
-此时建立的是结果记录，还没有通过本函数下面的队列调用执行剩余 Trial。已有结果会参与初始统计；本轮不展开恢复运行。
+此时已经进入 Job.run，建立的是结果记录，还没有通过本函数下面的队列调用执行剩余 Trial。因此“运行前创建 JobResult”在这里应理解为“在 Job.run 内部、执行剩余尝试之前创建”。已有结果会参与初始统计；本轮不展开恢复运行。
 
 <a id="queue-handoff"></a>
 
@@ -84,9 +84,9 @@ trial_results = await self._run_trials_with_queue(...)
 
 | 按需查看真实子函数 | 具体看什么 | 返回本函数的位置 |
 | --- | --- | --- |
-| [_run_trials_with_queue 函数卡](../../../../../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/job.py/Job._run_trials_with_queue.md#queue-mainline) | 找到 submit_batch、等待任务和结果列表；事件 UI 暂不展开 | `trial_results` 接住列表，继续 1165 行合并结果 |
+| [_run_trials_with_queue 函数卡](Job._run_trials_with_queue.md#queue-mainline) | 找到 submit_batch、等待任务和结果列表；第 [2] 段补清协程到 Task 的交接 | `trial_results` 接住列表，继续 1165 行合并结果 |
 
-本次已展开 [_run_trials_with_queue](../../../../../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/job.py/Job._run_trials_with_queue.md#queue-mainline)，更深的队列包装仍只定位。读清队列交接后，再沿 [scope](../../../../../step-011-harbor-trial-lifecycle/01-scope.md#reading-sequence) 进入 Trial.run，不能把它画成 Job.run 的直接调用。
+本次回看 [_run_trials_with_queue 第 [2] 段](Job._run_trials_with_queue.md#coroutine-to-task)，核对 Task 怎样驱动队列协程；读清后返回本函数的结果合并。随后沿[本步 scope](../../../../01-scope.md#reading-sequence)接回 Trial.create 的创建路径，已有 Trial.run 生命周期只作背景，不重读全部实现。
 
 ### 3. 汇总结果，返回调用方（1165–1216 行）
 
@@ -112,6 +112,22 @@ return self._job_result
 
 `exclude_trial_results=True` 作用于这里写出的结果文件，不表示返回对象没有明细：上面已经把 `combined_trial_results` 赋给返回对象的 `trial_results`。
 
+<a id="result-list-concatenation"></a>
+
+**为什么这里可以用 +？** 两边都是 list[TrialResult]：self._existing_trial_results 是此前已有的结果列表，trial_results 是本次队列执行返回的结果列表。它们可以包含零个、一个或多个结果；能使用 + 的依据是两边都是列表，而不是结果必须很多。
+
+```python
+# 结构示意：a、b、c 各代表一个 TrialResult，不是真实任务运行产物。
+self._existing_trial_results = [a]
+trial_results = [b, c]
+combined_trial_results = self._existing_trial_results + trial_results
+# 得到新列表 [a, b, c]；两边原列表不变。
+```
+
+这里把结果记录首尾拼接，不对奖励求和，也不合并单个 TrialResult 的字段。首次运行时，已有列表通常为 []，所以 [] + trial_results 仍得到包含本次各项结果的新列表。
+
+随后统计与指标写入 self._job_result.stats，合并后的明细写入 self._job_result.trial_results，再补结束时间并返回 self._job_result。Job 持有这份结果对象；本轮所说的“填写回 Job”具体对应上述结果字段。
+
 读到这里返回 [_run_partition](../../../../../step-010-harbor-rollout-entry/02-short-term-memory/functions/dressage/integrations/harbor/rollout.py/_run_partition.md#collect-outcomes)：先完成 `plugin.on_job_end(result)`，再进入已有的结果整理。**Job.run 本身不负责把结果变成 Slime Sample。**
 
 ## 我的直接表述（原话）
@@ -127,6 +143,24 @@ return self._job_result
 
 助手校准：队列接收的是 Job 中待运行的 TrialConfig，不是整个 Job；合并的是已有 TrialResult 列表与本次取得的 TrialResult 列表，不是将初始化的 JobResult 与单条 Trial 合并。统计写入 JobResult.stats，结果明细写入 JobResult.trial_results，最终返回整个 JobResult。上述校准尚待用户反馈。
 
+2026-11-13，Step 012 回看时的完整复述与追问：
+
+> 好的 我简单理解是
+> 这里在run之前先创建这里的这个jobresult
+> 然后再考虑一下这里的这个job
+> 提交了之后
+>
+> 然后通过这个run trial with queue来得到具体的结果？
+> 最后通过trial result 和这里的这个existing trial result结合起来？
+> 目前已经有的合并一下
+> 最后通过function来给出这里最后的metrics
+> 然后把各种数据填写会job里面
+> 最后返回这里的job result
+> 是我的理解
+> 这里的trial results 是被怒视有很多 所以可以直接用+的方式？
+
+本轮已表达已有结果与本次结果合并、计算指标并返回 JobResult 的主线。助手补充区分：JobResult 在 Job.run 内、提交尝试之前创建；队列提交待运行的 TrialConfig；回填 self._job_result 的字段；+ 拼接两个列表，与元素数量无关。本轮补充尚待用户反馈，不据此标记列表机制或整个 Step 012 已掌握。[本次形成过程](../../../../04-flow.md#job-run-results-and-list-plus-20261113)。
+
 ## 尚不清楚
 
 - 队列怎样根据 TrialConfig 创建并执行具体 Trial，尚未逐段阅读。
@@ -141,5 +175,14 @@ return self._job_result
 - Dressage 固定提交 3e3142fe8ea07e4504c3b20a936a4c201a3de44c，rollout.py:760–762 为插件与 Job 的调用位置。
 - 仅静态源码核对，没有执行 Job、模型、Kubernetes 或训练实验。
 - [本步形成过程](../../../../../step-011-harbor-trial-lifecycle/04-flow.md#job-run-card-025)。
+- 2026-11-13：当前环境未找到记录中的本地 Harbor checkout，本轮通过官方仓库固定提交的 [job.py](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/job.py) 核对：已有结果声明为 list[TrialResult]，_run_trials_with_queue 返回 list[TrialResult]；其列表推导返回、+ 表达式、指标计算及结果赋值均与本卡主线相符。没有运行 Harbor。
+
+列表机制的本地书面依据（与 Harbor 业务源码分开）：
+
+- **书上怎么说**：《Fluent Python》第 2 章 Using + and * with Sequences，锚点 using-and-with-sequences；英文 corpus/en/ch02.md:1103–1122，中文 corpus/zh/ch02.md:1106–1125。镜像根目录 /home/hongshi/.codex/plugins/cache/fluent-python-kb/fluent-python-kb/local；本书基于 Python 3.10，本机 Python 3.12.3。
+  - 原文：Both `+` and `*` always create a new object, and never change their operands.
+  - 官方中译：`+` 和 `*` 始终创建一个新对象，绝不更改操作数。
+  - 两侧章节映射、行号与引文已逐字核对。本轮只使用其中关于列表 + 的结论。
+- **我的判断（本书未覆盖）**：本例两个操作数具体都是 TrialResult 列表，以及结果装回 JobResult 的用途，依据 Harbor 固定版本源码；书籍不作为 Harbor 接口的证据。示例中的 a/b/c 只是结构占位，没有执行真实 Trial。
 
 </details>
