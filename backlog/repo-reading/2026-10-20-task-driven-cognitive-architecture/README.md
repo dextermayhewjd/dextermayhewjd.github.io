@@ -1,5 +1,7 @@
 # 任务驱动的认知架构：步骤、模块与记忆分工
 
+最新参考落实：[长函数调用树、阶段问题与两层代码](discussion.md#long-function-progressive-disclosure-reference)。用户确认将 generate_preemptible 卡片作为短期记忆 skill 的参考，原卡与完整快照同时保留。
+
 最新样例落实：[_run_round 调用上下文样例已纳入短期记忆 skill](discussion.md#run-round-caller-context-reference-applied)。保存完整 reference，正文补适用条件和交接检查，不固定表格或段数。
 
 最新共享资料落实：[Kubernetes 基础已提取为跨仓库专题](discussion.md#shared-kubernetes-topic-applied)。保留八类目录与 20 份原资料，补已遇到的基础；Agent Sandbox 的下一步仅建立 Pod 创建 scope，函数卡与个人进度仍归各项目。

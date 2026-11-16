@@ -4239,3 +4239,12 @@ Agent Sandbox Step 000 按已确认骨架深度收束；[Step 001](../../../00-r
 - 保留统一栏目、其他样例及全部已有规则。不强制四行表格、三个阶段或并发讲解；未修改项目函数卡、历史快照和学习进度。
 
 依据是本轮真实使用反馈：原卡直接进入分区/额度，缺少清晰调用现场；补充父函数上下文与返回位置后用户明确认可格式。此次检查以格式、链接、源码/原话快照完整性为范围，没有新增独立模型行为实验，也不将一次认可描述成跨场景效果已验证。
+
+
+<a id="long-function-progressive-disclosure-reference"></a>
+
+## 2026-11-15 · 长函数分层展示纳入短期记忆参考
+
+用户在阅读 Dressage generate_preemptible 时，先要求开头调用树，再要求编号阶段折叠、每段先给阅读问题和执行骨架、具体代码进一步按需展开。用户随后表示大概理解四段，明确要求“把这个作为short term function的skill参考的reference”。
+
+已保存[完整参考快照](../../../.agents/skills/repo-reading-short-term-memory/references/long-function-progressive-disclosure.md)，并在 skill 的使用位置与样例索引接入。保留原卡与认识状态，说明适用长函数、不固定四段、不把材料完成当作理解完成。此为已确认的展示参考，不改写其他项目现有卡片。

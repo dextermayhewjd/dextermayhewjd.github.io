@@ -85,6 +85,8 @@ description: Use when creating or revising a learner's function-level short-term
 
 scope 负责阅读目标、骨架和函数入口；函数卡片建立完整的单函数模型，并在实际调用处提供局部跳转；[task flow](../repo-reading-task-flow/SKILL.md) 在本步阅读后总结该 scope 内的整体配合，以 Step 003 为主要 reference。不要因 scope 或 task flow 中已有流程，就删去锚点函数自身的编排。问答与修正经过仍保存在 `04-flow.md` 或对应讨论中。
 
+长函数需要先建立全程、再逐段核对细节时，参考[调用树与两层代码样例](references/long-function-progressive-disclosure.md)：开头定位调用链和返回点，每段先给阅读问题与精简执行骨架，具体参数代码按需折叠。标题覆盖整段职责，省略须明确标注；是否折叠及阶段数按用户需求决定，不强制用于短函数。
+
 ## 共用模型与引用入口
 
 **共同记录已经完整覆盖某个具体实现的本轮场景时，具体实现直接引用共同记录，不另写重复的场景、输入输出和心智模型。**
@@ -107,6 +109,8 @@ scope 负责阅读目标、骨架和函数入口；函数卡片建立完整的�
 本 skill 写入本步 `02`，不改写此前累计的 `03`，不重写旧步骤快照，也不因记忆已保存就推进学习进度。Step 0 的 `03` 初始为空；进入下一步时的 `03 + 02` 继承由[记忆总入口](../repo-reading-memory/SKILL.md#6-怎样更新和继承)处理。
 
 ## 模板与样例
+
+- [已认可的长函数样例：generate_preemptible](references/long-function-progressive-disclosure.md)：调用树 → 阶段问题 → 简化骨架 → 折叠具体代码；适用于长函数主线容易被字段细节遮住时。
 
 - [已认可的 BaseAdapter._translate 样例](../repo-reading-memory/references/base-adapter-translate.md)：先读，确定当前成稿的结构、场景、输入输出和引用方式；保留样例原文。
 - [已认可的锚点函数 BaseAdapter._run_turn 样例](references/base-adapter-run-turn.md)：本步以一个组织多个子函数的函数为入口时阅读，参考完整输入输出、分阶段代码、分条说明和局部跳转的结合方式；2026-10-21 经用户确认后独立保存。
