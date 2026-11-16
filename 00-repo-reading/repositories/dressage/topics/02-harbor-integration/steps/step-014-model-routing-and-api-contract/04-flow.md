@@ -334,3 +334,22 @@ scope 3.2 补入问题来路，runtime.call 卡开头回链该位置；只记录
 ## 2026-11-14：确认从 CLI 启动处原位接入公共 Proxy 补读
 
 用户最终确认公共 Proxy 补读直接进入 Topic 01 的既有 Step 006，而非新增 Step 018：从 send_message 的 Task 调用链接到 _run_claude_turn，在 CLI 启动后的原位跨 HTTP 接 Proxy。已同步本步 3.3 的跳转；公共处理函数仍待实际展开，本步原有接入边界及验证未知保留。
+
+
+## 2026-11-16：按 Harbor 理解目标收束公共 Proxy 补读
+
+用户原话：
+
+> 这里如何记录的也不用看了吧
+> 之前是在看到topics2的harbor的时候 当时对于gateway和proxy这里到底是在做什么不是特别清楚
+> 我们当前这里已经把proxy的部分结束了对吗？
+> 其实就是把发送的信息经过一个同一个的proxy层
+> 通过采样获得到所需要的一系列的信息？
+> 其余的都是格式方面的一系列转换？
+
+助手校准：本轮目的已可收束，记录内部留为黑箱。Gateway 按请求身份找到对应路由/Proxy；Proxy 适配协议、组织模型请求并采集有会话归属的生成资料；真正推理采样在 SGLang Engine，Proxy 传递采样参数并取得文本、token、概率等。记录与归属、执行协调也属于其职责，不能全部概括成格式转换。回到 Step 014 已有执行结束交接，不新增内部必读函数，也不把未读机制或运行验证标为完成。
+
+
+## 2026-11-16：回顾原卡点与剩余任务
+
+用户询问 ClaudeCode.run 是否已结束、当时卡点解决了什么、Agent 缺失部分和 Dressage 采集是否已补齐。核对既有 ClaudeCode.run、_run_agent_phase 及 Step 015 scope：当时缺口是 CLI 模型请求如何经 Gateway 和 Proxy 到推理服务并带回生成资料，正常主干已补读。源码阅读可以回到整个 Agent.run 返回后的收尾；不能据此声称真实任务已运行完成，也不将记录内部、最终 bundle 与评测判定视为已展开。Step 014 的 AGENT_END 与 _sync_agent_output 交接已有卡片，只需提醒不必重新深读。下一候选为 Step 015：SingleStepTrial._run 接回产物与 _run_verifier，重点看 Verifier.verify 怎样取得评分；本轮仅推荐，不创建新步骤记录或函数卡。

@@ -162,7 +162,7 @@ _generate_with_optional_request_id
     ← SGLangResponse
 ```
 
-辅助方法只按客户端签名传递支持的参数。实际发送在 SGLangRouterClient.generate:209 附近：
+辅助方法的参数兼容与返回交接见[单独函数卡](GenerationController._generate_with_optional_request_id.md)；完整实现及兼容条件已由本地同版本源码核对。辅助方法只按客户端签名传递支持的参数。实际发送在 SGLangRouterClient.generate:209 附近：
 
 ```python
 # 以下属于 sglang_client.py，不是本函数直接执行的语句。

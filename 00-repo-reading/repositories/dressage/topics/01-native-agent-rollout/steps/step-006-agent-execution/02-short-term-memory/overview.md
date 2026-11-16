@@ -25,3 +25,7 @@
 [scope](../01-scope.md#reading-navigation) · [前序累计](../03-long-term-memory/overview.md) · [Step 006 过程记录](../04-flow.md)
 
 - [GenerationController.generate_preemptible](functions/dressage/proxy/generation_controller.py/GenerationController.generate_preemptible.md)：正常生成的登记、后端调用、收集和返回；已展开材料，待个人反馈。
+
+- [GenerationController._generate_with_optional_request_id](functions/dressage/proxy/generation_controller.py/GenerationController._generate_with_optional_request_id.md)：已确认单独阅读；保留调用现场、输入与返回，完整函数体及参数兼容分支已补齐，待阅读反馈。
+
+- [SGLangRouterClient.generate](functions/dressage/proxy/sglang_client.py/SGLangRouterClient.generate.md)：组装请求、选择目标、发送与返回；用户已概括发送职责并要求返回主线；响应解析内部未展开。

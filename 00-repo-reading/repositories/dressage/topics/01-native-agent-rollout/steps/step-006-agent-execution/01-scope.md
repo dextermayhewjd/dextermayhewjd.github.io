@@ -173,10 +173,12 @@ BlackboxServer._run_turn
 | 9.1. 跨 HTTP：Proxy 接收入口 · 补读定位 | 从 [_run_claude_turn 的 CLI 运行位置](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter._run_claude_turn.md#model-request-during-cli) 切到 [_build_app 内的 _proxy](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._build_app._proxy.md#proxy-http-entry)；当前已建卡 | 看接收函数如何委派 _handle_proxy；这是外部 CLI 发出的请求，不是 Python 直接子调用 |
 | 9.2. RolloutLLMProxy._handle_proxy · 已讨论主干 | [_handle_proxy 函数卡](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._handle_proxy.md#handle-proxy-map)，由上一行 HTTP 入口委派 | 先确认 Anthropic → OpenAI 请求转换与直接上游；在第 3 段进入下面的发送路径，不能直接跳过上游生成回到 9.3 |
 | 9.2a. 转发出口 · 只认发送职责 | 从 [_handle_proxy 第 3 段](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._handle_proxy.md#handle-proxy-forward) 进入 [_stream_anthropic_messages_proxy 发送段](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._stream_anthropic_messages_proxy.md#send-upstream)；其下一层 _send_stream_request:1445 尚未建卡 | 按用户最新深度要求，只认这层发出已整理的 HTTP 请求，不再单独深入 _send_stream_request；接到 9.2b 的外部 Proxy 处理主线 |
-| 9.2b. 上游接收与处理主线 · 当前 | [chat_completions 接收入口](02-short-term-memory/functions/dressage/proxy/server.py/create_app.chat_completions.md#chat-completions-entry)（[响应模式对照](02-short-term-memory/functions/dressage/proxy/server.py/create_app.chat_completions.md#response-modes)）→ [_chat_completions_pipeline 完整主线](02-short-term-memory/functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md#pipeline-overview) | 接同一份 OpenAI 请求，定位 session/turn、messages 到 input_ids 的准备与生成委派；完整卡已按选定正常路径补齐六段；先理解全程，再按需深入辅助函数 |
-| 9.2c. 模型后端调用 · 当前 | [GenerationController.generate_preemptible：正常生成](02-short-term-memory/functions/dressage/proxy/generation_controller.py/GenerationController.generate_preemptible.md#generation-mainline) → _generate_with_optional_request_id:675 → SGLangRouterClient.generate:176；后两者在主卡中定位，不另建卡 | 保留真实委派，先只看一次正常生成，确认 input_ids/sampling_params、/generate 与返回对象；抢占恢复、兼容参数枚举暂缓 |
-| 9.2d. 回流水线：记录这一次交互 · 待读 | 回 _chat_completions_pipeline:2198 接生成结果，再到 :2479 的 _record_step_atomically（定义 :1137）；待建卡 | 看生成结果怎样进入本次 StepRecord，以及如何组织 OpenAI 响应；单步记录写入按必要深度回查，不进入会话 finalize 或 Sample 转换 |
-| 9.2e. 回本地 Proxy：响应交回 CLI · 待读 | 回 [_stream_anthropic_messages_proxy 的响应段](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._stream_anthropic_messages_proxy.md#response-return)，再回 _handle_proxy / _proxy | 接上游响应流，读选定 Anthropic 响应转换与返回；流式 Response 的数据由生成器后续发送，不把返回响应对象当成流已读完。响应回 CLI 后再进入 9.3 |
+| 9.2b. 上游接收与处理主线 · 已讨论主干 | [chat_completions 接收入口](02-short-term-memory/functions/dressage/proxy/server.py/create_app.chat_completions.md#chat-completions-entry)（[响应模式对照](02-short-term-memory/functions/dressage/proxy/server.py/create_app.chat_completions.md#response-modes)）→ [_chat_completions_pipeline 完整主线](02-short-term-memory/functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md#pipeline-overview) | 接同一份 OpenAI 请求，定位 session/turn、messages 到 input_ids 的准备与生成委派；完整卡已按选定正常路径补齐六段；先理解全程，再按需深入辅助函数 |
+| 9.2c. GenerationController.generate_preemptible · 正常主干已讨论 | [本步父函数卡](02-short-term-memory/functions/dressage/proxy/generation_controller.py/GenerationController.generate_preemptible.md) | 已讨论登记、后端调用、累计和返回；现在从第 2 段进入下面两层委派，暂停与抢占恢复暂缓 |
+| 9.2c.1. _generate_with_optional_request_id · 已讨论实参，兼容细节按需回查 | generate_preemptible 第 2 段调用处；[本步函数卡](02-short-term-memory/functions/dressage/proxy/generation_controller.py/GenerationController._generate_with_optional_request_id.md) | 看输入参数怎样交给客户端、request_id 等参数怎样兼容；完整源码已核对并补入卡片，理解反馈待继续；不把建卡当作掌握 |
+| 9.2c.2. SGLangRouterClient.generate · 本层阅读收束 | _generate_with_optional_request_id 委派；[本步函数卡](02-short-term-memory/functions/dressage/proxy/sglang_client.py/SGLangRouterClient.generate.md) | 从请求组装读到 HTTP 发送与结果返回；_coerce_response 先只认转换职责。读完经辅助方法返回控制器的 response，再接回 9.2d |
+| 9.2d. 回流水线：记录这一次交互 · 内部暂不展开 | 回到 [pipeline 本步函数卡](02-short-term-memory/functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md) 第 5 段；调用位置 :2479，_record_step_atomically 定义 :1137 | 看生成结果怎样进入本次 StepRecord，以及如何组织 OpenAI 响应；单步记录写入按必要深度回查，不进入会话 finalize 或 Sample 转换 |
+| 9.2e. 回本地 Proxy：响应交回 CLI · 先保留交接 | 回 [_stream_anthropic_messages_proxy 的响应段](02-short-term-memory/functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._stream_anthropic_messages_proxy.md#response-return)，再回 _handle_proxy / _proxy | 接上游响应流，读选定 Anthropic 响应转换与返回；流式 Response 的数据由生成器后续发送，不把返回响应对象当成流已读完。响应回 CLI 后再进入 9.3 |
 | 9.3. 返回 _run_claude_turn：输出与结果 | 接回 [第 3 段](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter._run_claude_turn.md#read-stdout)与[第 4 段](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter._run_claude_turn.md#return-result) | 继续理解读取 stdout、等待退出和整理三项结果，再回第 10 项 send_message。实际读取与 CLI 请求可交错，本行表示阅读返回 |
 | 10. 返回 send_message：适配器收尾 | 从 CLI 返回 [ClaudeCodeAdapter.send_message 第 3 段下半部分](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter.send_message.md#receive-cli-result) | await 接住三项结果 → 第 4 段代理收尾、组织 AdapterResponse → finally 完成后返回下一行的 _run_turn 第 2 段末尾 |
 | 11. 返回 _run_turn：接住结果 | 从 send_message 回到 [BlackboxServer._run_turn 的 await 赋值处](02-short-term-memory/functions/blackbox_server/core/server.py/BlackboxServer._run_turn.md#receive-adapter-result) | adapter_response 接住返回对象，outcome 暂存成功结果；沿正常路径继续同一函数的第 3 段，即下一行 |
@@ -187,9 +189,13 @@ BlackboxServer._run_turn
 | 16. 返回 _poll_turn：读取状态 | 从 GET 方法返回 [_poll_turn 的 response.json()](02-short-term-memory/functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._poll_turn.md#parse-query-response) | 读取 status；未完成继续查询，失败报错。当前沿 committed 成功分支进入下一行 |
 | 17. BlackboxServerClient._committed_call_payload | 直接调用：_poll_turn 成功分支进入[本函数卡](02-short-term-memory/functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._committed_call_payload.md) | 从查询回复中选取标识、输出、后端和用量字段，加上重复提交标记；返回结果字典 |
 | 18. 返回 _poll_turn 与 call_agent | 回到 [_poll_turn 成功分支的 return](02-short-term-memory/functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._poll_turn.md#return-call-payload) | 轮询结束，结果经客户端 call_agent、Paddock.call_agent 返回；generate 的 call_payload 接住字典 |
-| <a id="current-reading"></a>**19. 回到 generate：本步停止位置** | 返回 [generate 本步卡的调用结果段](02-short-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md#return-agent-result)，对应源码 283–291 行 | call_payload 已接住结果；看 agent_response_text 的实际取值及结构化失败检查。当前返回结构会转成整个字典的字符串；读到 after_agent 之前停 |
+| **19. 回到 generate：本步停止位置** | 返回 [generate 本步卡的调用结果段](02-short-term-memory/functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md#return-agent-result)，对应源码 283–291 行 | call_payload 已接住结果；看 agent_response_text 的实际取值及结构化失败检查。当前返回结构会转成整个字典的字符串；读到 after_agent 之前停 |
 
 <a id="model-request-route"></a>
+
+<a id="current-reading"></a>
+
+2026-11-16：用户确认本轮为澄清 Harbor 的 Gateway/Proxy 关系而补读，请求记录内部不再展开。当前补读按此目标收束，返回 Topic 02 的 Step 014；响应转换、记录与抢占内部保留按需回查，不登记为全部读完。
 
 **第 9 项内部的补读主线**（阅读次序，不是每一行都直接调用下一行）：
 
@@ -197,8 +203,13 @@ BlackboxServer._run_turn
 _handle_proxy：转换请求
   → 9.2a 本地 Proxy 的 HTTP 发送点
   == HTTP ==> 9.2b Dressage Proxy 接收、准备本次生成
-                → 9.2c 生成控制器 → SGLang 客户端 → 模型后端
-                ← 9.2d 接生成结果，记录一步交互并组织响应
+                → 9.2c generate_preemptible：正常主干已讨论
+                    → 9.2c.1 _generate_with_optional_request_id：实参与交接已讨论
+                        → 9.2c.2 SGLangRouterClient.generate：本层阅读收束
+                            == HTTP POST /generate ==> 模型后端
+                        ← 客户端整理的生成结果
+                    ← 回控制器累计并整理结果
+                ← 9.2d 接生成结果，记录一步交互并组织响应（本轮只认职责）
   <== 响应 == 9.2e 本地 Proxy 转成 Anthropic 响应，交回 CLI
   → 9.3 阅读回到 _run_claude_turn 的输出收集与退出
 ```
