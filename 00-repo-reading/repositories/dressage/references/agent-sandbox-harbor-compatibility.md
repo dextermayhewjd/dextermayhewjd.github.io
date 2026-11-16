@@ -281,3 +281,18 @@ JobPlugin 在该发布版为 runtime_checkable Protocol，要求两个异步方�
 验证建议仍是：兼容层的真实配置/计划测试 → 插件事件和结果测试 → 目标环境的文件/执行/清理测试 → 单任务经 Proxy 输出可用 Sample。当前仅静态对照，没有运行兼容性验证或实施升级。
 
 来源：v0.25.0 的 src/harbor/models/job/plugin.py、src/harbor/cli/job_plugins.py、src/harbor/environments/base.py；Dressage 的 compat.py、plugin.py、environment.py，以及上节列出的固定源码。
+
+
+<a id="environment-entry-local-recheck-20261113"></a>
+
+## 2026-11-13：Step 013 环境接入点与本地实现复核
+
+用户明确目标是 kubernetes-sigs/agent-sandbox，询问是否应在 BaseEnvironment/start 这里接入、Harbor 是否已有代码。本轮全部为本地读取，未联网。
+
+- Harbor v0.25.0 发布提交 fdba28fc411e47e8765420a1a063b4918fce3def 的内置环境注册表与 src/harbor/examples 配置中，未找到 k8s_agent_sandbox_harbor 或 AgentSandboxEnvironment。内置 GKE、ACK、OpenShift 等后端不等同于此目标；ACK 的 Claim 为 OpenKruise agents.kruise.io。
+- 接入机制确实存在：EnvironmentFactory.create_environment_from_config 在 config.import_path 非空时，调用 create_environment_from_import_path，导入模块中的类并实例化（factory.py:327–359、407–422）。该对象保存到 Trial.agent_environment；后续 start/exec/文件/stop 由此具体实现提供。应实现或复用 BaseEnvironment 对应的具体后端，不把 Agent Sandbox 专属操作写进抽象 start。
+- Agent Sandbox 当前本地提交仍为 37ced32b5d500f1c4baf4eaa38d5cfaedd2998e1。examples/harbor-terminal-bench/configs/sample.yaml:12 指向 k8s_agent_sandbox_harbor:AgentSandboxEnvironment，README 要求安装 clients/integrations/harbor；本地该目录不存在。此结论限定当前 checkout，不代表已查询上游最新发布或外部包。
+- 已有 slime_api_data_collecting 的 UpstreamK8sSandbox 可作底层能力复用候选，但它当前面向 Slime 风格接口，不是已验证的 Harbor BaseEnvironment 实现。需要核对 __aenter__/__aexit__、exec、文件接口与 Harbor start/stop/upload/download 的映射及缺口。
+- Dressage 的 Harbor 集成采用自定义 Harbor 环境时应沿 native 路径保留 Job 环境配置；bwrap 模式会覆盖环境 import_path。Harbor 0.25 与 Dressage 原版本门禁的兼容性仍是独立实施检查，接口位置明确不等于已经可运行。
+
+当前只定位接缝与缺口，没有实现适配类、安装包、启动沙箱或进行集群验证。具体后端启动逻辑应在已找到或准备实现的适配类中阅读，不能把示例里引用的类当成已存在源码。

@@ -372,3 +372,240 @@ scope 当前标记移到第 19 项，停止位置仍为 after_agent 之前。只
 用户继续指出 Dressage topics 目录只看见原生主题和 Harbor integration，不知道 Agent Sandbox 在哪里以及看完步骤后做什么。此前正文放在另一项目虽有链接，但第三个主题在目录层不够可见。本轮增加仅导航的 topics/03-agent-sandbox/README.md，链接既有 K8s 步骤，不复制其 scope 或记忆；在 Harbor topic 表格和 Step 013 中标清转出、带回的能力以及返回同一步的位置。Step 017 明确接到现有项目的整合与验收，不自动增加理论阅读。实际带读和实现均未在本次开始。
 
 用户确认“好的 把这个结论放在当前的dressage里面吧”。本轮将五段接续顺序集中写入项目 README 的 confirmed-reading-and-implementation-route：原生收尾 → Harbor 主线 → Step 013 转入 Agent Sandbox 后返回 → 模型与结果/失败 → 现有项目整合验收。同步从接入规划链接此处；只保存已确认结论，不改变当前 Step 007 尚未展开的状态。
+## 2026-11-14 补读入口：在原等待现场跟踪模型请求
+
+用户明确希望在现有原生步骤中继续，随后指向 send_message 第 3 段的 _await_backend_task_or_proxy_max_steps，要求在原位置接读而不是追加文末分支。本轮核对固定源码：等待器定义在 adapters/base.py:221，负责 CLI Task 与 Proxy 步数限制通知的等待；模型 HTTP 由运行中的 CLI 发出，经 RolloutLLMProxy._build_app 内的 _proxy:407 委派到 _handle_proxy:421。
+
+本轮只在原第 3 段 await 附近和 scope 第 9 项之后加入就地补读导航；没有把 HTTP 处理写成等待器内部调用，没有新建 Step 018，也没有提前创建 Proxy 函数卡。后续补读按 2026-11-14 记录追加，原首轮状态与历史内容保留。响应回到 CLI 后，待整次 CLI Task 完成，原 await 才交出三项结果，继续 send_message 第 4 段。
+
+
+## 2026-11-14：区分 Task 调度、进程启动和模型 HTTP 发送
+
+用户问是否是 asyncio.create_task 最终把请求发给 Proxy，想知道实际发送函数。核对原生路径：send_message 创建 _run_claude_turn 的 Task；该协程用 build_env 设置 ANTHROPIC_BASE_URL，再在 556 行 create_subprocess_exec 启动外部 Claude CLI。真正的模型 HTTP 发送在 CLI 内部，当前 Python 适配器源码不包含那条客户端发送函数。
+
+本轮把三个边界补在原等待现场和 CLI 进程启动段，接收侧仍定位到 _build_app 内的 _proxy → _handle_proxy。未转去展开 asyncio，也未创建新的发送函数卡。
+
+
+## 2026-11-14：确认从 CLI 启动处原位接入公共 Proxy 补读
+
+用户认可将入口放在 _run_claude_turn 启动进程之后，要求从 send_message 的真实调用处用超链接进入，再在子卡中接公共 RolloutLLMProxy 请求链。本轮将此前放在等待器下的图和导航移动到 _run_claude_turn 第 2 段后、第 3 段前；等待器处保留旧锚点和简短跳转。scope 第 9 项拆出 9.1 HTTP 接收、9.2 请求处理定位、9.3 回到输出收集，原第 10 项及之后编号不变。
+
+这是阅读上的跨 HTTP 切换，实际请求由外部 CLI 发出，stdout 读取可同时进行。Step 014 的公共补读指向该原生位置，两条路线复用同一份后续记录；不新增 Step 018，不改变旧 03 快照或首轮完成历史，也不提前生成 Proxy 卡。
+
+
+<a id="native-proxy-http-entry"></a>
+
+## 2026-11-14：从 CLI 进程进入本地 Proxy 接收函数
+
+用户确认是否是 create_subprocess_exec 返回的 process，以及原生路线是否直接进入 RolloutLLMProxy、没有 Harbor Gateway。本轮校准：该调用已启动外部 Claude CLI，process 是 Python 的进程管理对象；当前原生路线使用先前初始化的本地 Proxy，没有插入 Harbor 的 Gateway。
+
+本轮从 _run_claude_turn 第 2 段后的补读入口建立 _build_app 内 _proxy 的短卡，只看 FastAPI HTTP 接收与委派 _handle_proxy。保持跨进程/HTTP 边界，不把 asyncio Task 当作 HTTP 发送者。_handle_proxy 尚未展开或建卡，原首轮历史及 03 快照保留。
+
+
+<a id="handle-proxy-card-entry"></a>
+
+## 2026-11-14：建立 _handle_proxy 的公共处理主干卡
+
+用户确认 Proxy 服务器接收请求后委派 _handle_proxy，并要求建立函数卡。本轮沿有效的 Claude Anthropic Messages 请求，把长函数按协议识别/转换、turn 与转发材料、流式/普通响应选择三段组织；解释紧随真实代码，完整其他协议、日志、策略与失败路径折叠保留。
+
+两种 stream 分支由请求正文决定，不把 CLI 的 stdout stream-json 标志等同于模型 HTTP 一定流式。当前只建立这张实际进入的主卡，子函数与上游生成/StepRecord 不提前建卡。原位链接从 _run_claude_turn → HTTP _proxy → 当前卡接通，首轮旧记录与快照保留，无真实请求或模型运行。
+
+
+## 2026-11-14：区分直接上游与 SGLang 后端
+
+用户将 _handle_proxy 理解为对 messages 格式做转换和中转，追问是否转成 SGLang 可接收的形式，以及最终是否恢复 Anthropic 格式。本轮明确两段接口：RolloutLLMProxy 将 Anthropic Messages 转成 OpenAI Chat Completions，目标地址由 upstream_origin/router_api_path 配置；在本次 Dressage 架构路径中先进入 Dressage Proxy，再由它准备 token 请求送到 SGLang /generate。响应沿相反方向转换回 CLI 接受的 Anthropic 格式。
+
+只澄清当前函数的协议边界和直接上游，不把格式转换描述成模型理解上下文，也不在此展开下游分词、生成、日志或完整上下文管理。未运行请求或选定真实 URL，问题与原话保存在当前函数卡。
+
+
+## 2026-11-14：把服务与协议方向放在代码之前
+
+用户认可 Claude CLI → RolloutLLMProxy → Dressage Proxy → SGLang 的请求图，要求纳入函数卡，并询问先前误解的原因。本轮从记录本身查到三处呈现问题：开头用“上游”泛称而没有先点出直接接收服务；请求图此前放在第一段代码之后，读者先遇到 messages/协议标志等细节；OpenAI 格式与最终 SGLang token 接口没有在阅读入口同时区分。两个 Proxy 名称相近，加上缺少当前层标记，容易把本地代理到模型后端之间的中间层省略。这是对材料设计的解释，不是对用户认知能力的诊断。
+
+本次仅调整当前卡的呈现：在 LLM 心智模型中前置垂直图，标记当前函数、直接上游和模型后端，明确请求与响应协议方向。第一段代码旁注明地址目标和转换边界，删除后方重复图；scope 与两张调用方卡的入口链接同步落在新图，防止跳转直接越过上下文。原话、未知与完整源码保留，未推进到新函数。
+
+
+## 2026-11-14：确认请求转换与直接上游
+
+用户明确概括：把 Anthropic 的 JSON 字段转换成 OpenAI 格式，同时整理 header，再转发给 Dressage Proxy。助手确认这条主干，保留具体字段映射、响应转换和下游生成的未读边界；原话保存至 _handle_proxy 卡。没有因此推进新函数或标记完整管线已掌握。
+
+
+## 2026-11-14：按确认范围展开第 9 项的去程、记录与回程
+
+用户确认请求转换/转发、上游生成/单步记录和后端合同都可作为 Step 006 执行期间的补读，并要求继续展开 steps。本轮将 scope 原第 9 项细化为 9.2a 发送、9.2b 上游接收/流水线输入、9.2c 正常模型调用、9.2d 生成结果与单步记录、9.2e 响应回程，之后回原 9.3 和第 10 项。局部定位保持在 _run_claude_turn 启动 CLI 后的原位入口。
+
+核对真实生成链包含 GenerationController.generate_preemptible → _generate_with_optional_request_id → SGLangRouterClient.generate，避免把 server 流水线直接画成客户端调用。当前只安排正常一次生成，不因列出函数而通读所有抢占恢复分支。流式响应首部/心跳可能早于生成结果，路线图只表达阅读的去程与回程。此轮未建立后续函数卡或执行请求。
+
+
+<a id="stream-proxy-send-entry"></a>
+
+## 2026-11-15：进入 9.2a 的流式请求发送段
+
+用户要求接续下一个函数，本轮按已确认的 stream=True 阅读分支进入 _stream_anthropic_messages_proxy。新卡保留完整职责与返回类型，当前只展开接收上一层 url/body/headers/snapshot 并委派 _send_stream_request 的发送段；响应检查与事件流转换明确留在 9.2e 回程继续。
+
+上游 HTTP 响应对象返回不意味着整个模型响应体已生成或读取完。未创建下一层或服务端函数卡，未实际发送请求。
+
+
+## 2026-11-15：按职责继续上游处理，不细拆 HTTP 发送
+
+用户明确“不需要这么细致”，希望关注 Proxy 拿到这些数据之后做什么。本轮将 _send_stream_request 保留为已知 HTTP 发送动作，不再推荐独立下钻；下一处为外部 Dressage Proxy 的 chat_completions 接收及 _chat_completions_pipeline 主线，先回答生成、记录和返回三个职责。未新建辅助函数卡或展开全部服务端内部。
+
+
+## 2026-11-15：在原卡中标出真正的 HTTP 发送语句
+
+用户追问既然正在读 _handle_proxy，转换完成后究竟哪一步发请求。本轮把三处真实调用对齐：_handle_proxy:605 的 return await → _stream_anthropic_messages_proxy:1176 → _send_stream_request:1455 构造 POST、1456 client.send。发送两句直接补到已有流式转发卡，父卡就地链接；不为辅助函数再开长卡。
+
+明确 await 的时机：下游在 _handle_proxy 尚未返回时发出请求，目标是已准备的上游 URL。之后跨 HTTP 进入外部 Dressage Proxy 的 chat_completions，响应转换留待回程。
+
+
+<a id="external-proxy-chat-entry"></a>
+
+## 2026-11-15：从 HTTP 发送位置接到外部 Proxy 接收入口
+
+用户确认已知实际发送位置，询问是否应看请求发到哪里。本轮进入外部 Dressage Proxy 的 create_app.chat_completions，明确对应 POST /v1/chat/completions，接住已转换的 JSON 正文和请求头，再委派 _chat_completions_pipeline。
+
+卡片保留接收、委派主干和完整函数；当前不拆心跳调度，下一层流水线尚未建卡。补明流式心跳不等于模型 token 流，未执行实际 HTTP 或模型请求。
+
+
+## 2026-11-15：区分 pipeline 函数与 stream 响应模式
+
+用户记得两种方式，询问是否存在不走流水线而走 stream 的路径。本轮指出两种是流式与非流式响应，正常请求均调用 _chat_completions_pipeline。chat_completions 的直接 await 条件是 not stream 或心跳间隔不大于零；因此直接等待也可对应流式响应。只有 stream=True 且启用心跳时，外层才以 Task 加心跳包装等待同一处理流程。
+
+当前卡片在分支代码旁补清区别，未展开新的函数或心跳调度机制。
+
+
+## 2026-11-15：比较两种响应方式的正常处理路径
+
+用户继续问不同形式怎样处理。本轮按上文 stream=True/False 对比，区分协议格式与响应模式：当前入口均接 OpenAI Chat Completions 正文，生成/记录共用 pipeline；最终 False 返回 JSON，True 返回 SSE。True 且启用心跳时，外层在生成等待期间按需发送心跳，否则直接等 pipeline。
+
+核对 pipeline:2557–2586 与 chat_completions:2605–2676：当前默认后端路径先取得生成结果再组织 pseudo-stream，心跳不等于模型 token。比较只覆盖两种正常响应的组织方式，后续逐段仍沿已选 stream=True，不展开所有异常/取消分支。
+
+
+## 2026-11-15：确定响应模式说明的唯一主位置
+
+用户询问几种形式应在哪里写清楚。本轮把两种响应模式与三种等待组合的主表放在 chat_completions 卡片第 2 段、分支代码之前，并增加 response-modes 锚点供 scope 导航。明确最终 JSON/SSE 内容由下游 pipeline 组织，而当前入口负责等待/心跳包装。
+
+后续建立 pipeline 卡时，只展开它自己的返回分支并回链主表，不复制多份模式说明；当前未预建未读流水线卡。scope 只增加链接，保持阅读目录职责。
+
+
+## 2026-11-15：对照已读 Slime Coding Agent 的两端响应
+
+用户记得 Slime 似乎使用完整 JSON，要求回查 Coding Agent 的详细记录及实际代理目标。本轮读取 Slime 既有路线与卡片，按原笔记的 18868a79 固定版本核对；实际 checkout 为 /home/fredkeira/projects/slime、HEAD 540ea919，相关适配器/生成/Harness 文件与该固定版本无差异，未修改源码或切换 Slime 学习进度。
+
+核对结果分两段：Adapter → SGLang Router /generate 的 call_sglang_generate 使用 JSON 请求并 await r.json 取得完整结果；Adapter → Claude CLI 的 AnthropicAdapter._respond 仍支持普通 JSON 与 SSE，两者均在完整 Reply 构成后响应。流式由 _render_stream 将已生成内容写成 Anthropic SSE 事件；未见当前这条 Slime 路径在等待生成时提供 Dressage chat_completions 式的心跳包装。
+
+CLI 的 ANTHROPIC_BASE_URL 为 ctx.adapter_url，对应 Slime 的 AnthropicAdapter aiohttp 服务，不经过 Dressage Gateway/RolloutLLMProxy。原 Step 001 的 BaseAdapter._respond 卡以 stream=False 为主例，随后已有流式对照和 _render_stream 独立卡，这可解释用户对完整 JSON 的印象。本轮仅比较已有源码与记录，没有运行模型或建立新 Slime 步骤。
+
+
+## 2026-11-15：Slime 的 session 归属与 Sandbox 响应通道
+
+用户追问 AnthropicAdapter 是否记住 Sandbox，以免不知道响应应返回哪里。按 Slime 18868a79 核对：Harness 把 ctx.session_id 放入 ANTHROPIC_AUTH_TOKEN；AnthropicAdapter 优先从 Authorization Bearer、其次 X-Api-Key 提取 sid，BaseAdapter._run_turn 用 sid 查询/建立 self.store 中的 Session，并按 sid 维护在途请求和轨迹。
+
+这项映射用于会话配置、轨迹和任务归属，不是 Sandbox 回传地址表。普通响应返回当前 HTTP handler，流式 _render_stream 调用 out.prepare(request) 绑定本次请求，再写事件；HTTP 服务持有原请求的响应通道。与 Dressage 的 token→binding/Proxy 相比，两者都需归属信息，但响应回到发起方都依赖原请求通道。没有更改 Slime 进度或执行模型。
+
+
+## 2026-11-15：暂停跨框架比较，恢复服务端请求主线
+
+用户表示仍不理解 Slime/Dressage 的区别，询问是否应先不深究、原先从哪里开始以及该返回哪一处。本轮建议暂缓比较，不要求先通读完整 Dressage；先走完正在跟踪的一次请求再对照。原位置为 Step 006 的 _run_claude_turn → 本地 RolloutLLMProxy 转换/发送 → 外部 Dressage Proxy.chat_completions，Slime 比较由流式/非流式问题引出。
+
+下一处恢复为 _chat_completions_pipeline 的服务端处理，保持 stream=True；本地 _stream_anthropic_messages_proxy 的响应转换属于之后的回程。没有创建新 Slime 步骤或预建流水线卡，也不把比较中的疑问标为已解决。
+
+
+<a id="chat-pipeline-input-entry"></a>
+
+## 2026-11-15：进入外部 Proxy 流水线的输入段
+
+用户确认从 RolloutLLMProxy 转换/发送后，进入外部 Dressage 的处理。本轮建立 create_app._chat_completions_pipeline 卡，先保留整函数四个阶段，再只展开消息字段、请求身份、session 与 effective_turn_id。明确 chat_completions 是接收/等待包装，当前函数负责生成与记录主线；实际后续处理尚未展开。
+
+继续 stream=True 的正常路径，不重读心跳调度或 Slime 对照；没有提前创建输入处理、生成控制器或记录函数卡，也未执行网络或模型。
+
+
+## 2026-11-15：锁与轮次的校准，补齐流水线后续阶段位置
+
+用户询问为何只看到第一段，将 session 锁理解为避免重复，并问 effective_turn_id 的含义。助手核对 SessionManager：请求锁串行化同会话处理，不提供内容去重；当前显式 turn_id 由会话规则校验并采用，同一 turn 可以容纳多个模型请求。
+
+原卡此前只展开输入段并用表列后续，容易显得函数没有后半段。本轮保留四阶段框架，补第 2 段的 messages 规范化、历史 route 选择与 input_ids 构建主干，第 3/4 段显式标为待展开。特别标注此处 route 是上下文历史路径，不是刚读过的 Gateway 网络分派。没有新建 helper 卡或展开所有分支。
+
+
+<a id="pipeline-complete-card"></a>
+
+## 2026-11-15：一次补齐流水线完整正常路径
+
+用户要求先一次性生成完整卡片，再理解函数到底做什么。本轮按已选 stream=True，并显式固定 TITO、首条有效请求、无溢出/版本冲突/抢占的成功场景，重整为六段：会话与轮次、输入 token/参数、生成、结果解析、TITO 与单步记录、SSE 返回。保留模型结果的对外内容和原始 token 记录两个去向，并说明第 2–5 段仍在请求锁内，第 6 段离开锁后返回。
+
+每段提供真实代码摘录和关键实参，不再只留下“待展开”占位；记录完整实参和版本/边界辅助内容折叠，其他模式明确留边界。旧卡归档、原话与未解问题保留，入口链接先到总览。没有预建所有 helper 卡，也不把材料补齐当作用户掌握或运行验证完成。
+
+
+<a id="pipeline-card-compaction"></a>
+
+## 2026-11-15 · 完整 pipeline 卡片的小幅精简
+
+用户要求完整生成后再“稍微简化一点点”，询问从认知与工程阅读角度如何调整。
+
+保留六段完整正常路径、关键代码与段间数据交接；删除与导航表重复的流程图，将第 5 段快照赋值、MoE 和完整记录参数改为按需回查。原话、未知、源码版本与阅读场景保留，没有推进学习状态。调整前全文及有效链接保存在 [完整稿快照](references/history/2026-11-15-pipeline-complete-before-compaction.md)。本次是降低重复和字段密度，效果仍待用户反馈。
+
+
+<a id="pipeline-visible-compaction"></a>
+
+## 2026-11-15 · 实际压缩默认展开正文
+
+用户质疑前次修改后仍然过长。核对发现全文从 534 行降至 419 行，但排除折叠块的正文仅从 374 行降至 337 行，删减主要发生在原本折叠的区域。用户随后确认修改。
+
+此次保留六段执行顺序和各段关键代码，将辅助参数、预算计算、版本整理等改为调用旁的省略注释；每段突出输入到输出的交接，其他分支集中折叠。所有省略均为教学裁剪，完整稿继续可回查；原话和未知保留，不改变理解状态。前一稿保存在 [修改前快照](references/history/2026-11-15-pipeline-before-visible-compaction.md)。
+
+
+## 2026-11-15 · 在 pipeline 每段代码前补充阅读问题
+
+用户希望知道为什么需要每一步，明确要求说明放在段标题之后、代码之前。六段各补一句“本段要解决的问题”，交代本段动机及要追踪的交接；其余代码和结构保留。这是阅读引导调整，不表示用户已掌握内部实现。
+
+
+## 2026-11-15 · messages、历史 route 与推理 lease 的区别
+
+用户已串起归属、输入准备、生成、解析、保存和返回，但明确追问：
+
+> 但是一开始不是还是有messages吗?
+> 把这里的历史message变成了route给select route我没有理解为啥通过这个就获得了上下文的历史路径
+> 还是说不用sglang来重复生成
+> 能够复用?
+> 这里也是lease第三段落其实有点看不太懂了
+
+静态核对固定提交 server.py 的 _select_route:1000、_build_prompt_tokens:1665 和生成调用:2182：messages 是本次请求提供的消息历史；Session 保存服务端此前的记录、token 和历史分支。_select_route 将两者比较，返回 lineage_id/type/base_step_id，供本地历史续接与 prompt 构建使用，不将 route 交给 SGLang。TITO 在满足条件时利用已有 token 前缀构建新输入；首请求没有 base_step，完整分词。它不代表跳过本次生成，也不证明后端 KV cache 命中。推理 routing_lease 是另一种对象，其 worker_url 交给生成控制器，完成后结算。
+
+本轮建议先理解第 3 段 acquire → generate_preemptible → complete 的交接，再按问题决定是否深入控制器；尚未新建任何子函数卡，也未将用户问题标为掌握。用户将其类比 Slime run turn，本轮不据此展开新的跨仓库实现比较。
+
+
+## 2026-11-15 · pipeline 主线复述与下一处候选
+
+用户表述解析正文和工具调用、保存交互、离开锁并返回响应，并询问下一步。助手补充这里完成的是一次模型请求，不必然是完整 turn。按 scope 9.2c 推荐从第 3 段的 GenerationController.generate_preemptible 追一次正常生成到 SGLang，再回 router_response；抢占恢复及历史算法暂缓。此为候选说明，尚未展开或新建函数卡。
+
+
+<a id="generation-normal-path"></a>
+
+## 2026-11-15 · 开始生成控制器正常路径
+
+用户确认继续阅读。已核对固定源码并生成 generate_preemptible 函数卡，按登记请求、调用后端、收集并退出、返回结果四段展开，每段代码前写明问题；展示到 SGLang 客户端实际 POST 的交接，不另建辅助函数卡。正常循环一次，GenerationChunk 不等于 SSE 事件；暂停续接只定边界，不记录为已掌握。
+
+
+## 2026-11-15 · 生成控制器卡片开头增加调用树
+
+用户确认在开头加入调用树，便于阅读长函数前定位。已在 generate_preemptible 的“本场景的输入与输出”开头标明调用方、当前函数、两层下游和 HTTP 边界，并补充结果返回 pipeline 的关系。原四段展开保留，不新增函数卡或改变学习状态。
+
+
+## 2026-11-15 · 生成控制器四段独立折叠
+
+用户要求方便浏览 1–4 的结构。已将 generate_preemptible 卡片四个阶段改为默认收起的独立 details：summary 保留完整编号标题，阶段问题、代码和说明放入折叠正文。开头调用树与输入输出保持可见；内容未删除，不改变学习状态。
+
+
+## 2026-11-15 · 第 1 段先看执行骨架，再展开具体代码
+
+用户指出“准备容器”不能概括判断、等待与请求登记，并确认更名为“等待允许生成，准备并登记本次后端请求”。本次同步修改阅读问题，阶段内部先展示按执行顺序的教学骨架，原具体代码保留在内层折叠。阶段本身继续可折叠，其他三段不变。骨架标明省略，区分控制器暂停与网络断开；保存既有代码，不将版式调整记为掌握。
+
+
+## 2026-11-15 · 第 2–4 段统一为骨架与具体代码两层
+
+用户确认按第 1 段形式处理当前函数剩余部分。第 2–4 段现均保留阶段折叠，内部依次为阅读问题、教学骨架和可再次展开的具体代码；原有代码片段逐块保留。客户端发送边界、chunk 与 SSE 区别、返回 pipeline 的位置仍可在骨架层看到。未扩展阅读范围或改变理解状态。
+
+
+## 2026-11-15 · 用户复述生成控制器四段主线
+
+用户表示大概理解，并将四段概括为判断生成状态、发出请求、统计生成内容、整理片段元数据。原话保存到函数卡。助手校准：入口是额度与允许执行检查，收集阶段累计真实输出并结束活跃登记，最后返回包含文本/token/概率/版本等的完整结果，不仅是元数据。暂停与续接内部仍未深入；未自动启动下一函数。

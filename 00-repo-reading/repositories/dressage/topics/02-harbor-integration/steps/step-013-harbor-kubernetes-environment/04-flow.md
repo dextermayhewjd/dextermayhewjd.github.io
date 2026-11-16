@@ -129,3 +129,149 @@ scope 已明确 Docker 只作为前面三类参数的示例，K8s 路线无需�
 用户要求回看 scope，询问是否还有需要单独看的内容。核对后，通用创建与启动包装已经讨论，BaseEnvironment.start 接口已认清；本步仍缺第 3 项的实际 K8s 适配对照及第 4 项运行验证。
 
 下一处优先定位配置实际选择的 K8s 适配类，再按启动/等待、命令执行、文件传输、停止释放四类职责检查实际实现；对应的 BaseEnvironment 抽象声明作为合同对照，不继续逐个建立空接口卡。第 4 项是代码接清之后的运行证据，不当成另一组现在必须阅读的函数。scope 保留三列格式、已有骨架和编号，只更新当前定位说明及第 3 项重点；未提前建卡或宣称后端已接入。
+
+
+## 2026-11-13：确认 Agent Sandbox 应接在 Environment 扩展层
+
+用户明确当前目标并询问接入位置及 Harbor 是否已有实现。本轮本地核对 Harbor v0.25.0 注册表/源码与 Agent Sandbox checkout：扩展入口是 environment.import_path 经工厂加载具体 Environment 类，BaseEnvironment.start 只定义合同；示例引用 k8s_agent_sandbox_harbor:AgentSandboxEnvironment，但 clients/integrations/harbor 目录仍不存在。Harbor 的其他 K8s 后端不自动等价于指定 Agent Sandbox。现有项目 UpstreamK8sSandbox 是底层能力复用候选，尚未实现/验证 Harbor 合同。
+
+证据和适配边界补入[既有兼容性记录](../../../../references/agent-sandbox-harbor-compatibility.md#environment-entry-local-recheck-20261113)，基类卡保留本地实现缺口。未联网、安装、修改源码或操作集群，也不因定位到工厂入口就自动建立新函数卡。
+
+
+## 2026-11-13：下一处从已有沙箱接缝开始，不继续泛读 Harbor
+
+用户比较三种方向：直接做 Harbor rollout 接入、先读完 Harbor 其他部分、或开始 Agent Sandbox。按已读 Job/Trial 生命周期与 BaseEnvironment.start 边界，建议留在 Step 013：从已有 slime_api_data_collecting 的 UpstreamK8sSandbox.__aenter__（adapter.py:100）看一次创建/领取，再按同一分支看 exec、文件和退出，必要时下钻对应 direct/SDK 实现。先形成 Harbor start/exec/upload/download/stop 到已有能力的映射，选择一条冷创建正常路径做最小验证；WarmPool/Claim 后续按预热目标补。
+
+不需要先通读 Harbor 其余模块或 Agent Sandbox 全部控制器。现有适配器只是复用候选，字段/超时/目录传输/清理语义仍需核对；当前本地缺少例子引用的 Harbor Environment 实现。等环境与一题评分闭环可运行后，再接回 Dressage 的模型路由、轨迹与 Slime 交付，避免同时修改多个接口。首个推荐函数是 UpstreamK8sSandbox.__aenter__，但本轮只给出方向，不自动建卡或标记已读/已运行。
+
+
+## 2026-11-13：从 Harbor 现成后端理解可复用设计与加速位置
+
+用户转而提出先看 Harbor 的几种实现及示例，理解 Job.run 哪些位置可以加速。本轮按本地 v0.25.0 核对 DockerEnvironment.start:1014、GKEEnvironment.start:739、ACKEnvironment.start:1355 的镜像复用与 SandboxClaim 分支，以及 TrialQueue 的 n_concurrent/Semaphore。建议先读一个与目标接近的 ACK start：普通模式准备镜像/创建 Pod，Claim 模式准备或复用镜像、调用 _start_with_sandboxclaim 领取预热环境；只看生命周期接缝，不通读全部后端。该 Claim 属于 OpenKruise，与目标 kubernetes-sigs/agent-sandbox 不同，作为设计参考而非现成替代。
+
+加速点按阶段区分：队列并发提高批次吞吐；镜像构建/拉取复用减少环境准备开销；预热池减少领取到可用的等待；Agent CLI 准备与模型执行还有独立耗时。Job.run 是编排入口，不能把优化等同于改该函数或调大并发。应先观察环境准备、Agent setup/execution、Verifier 等实际耗时，再选对应实现；当前仅源码/文档分析，没有测出本项目实际瓶颈或速度提升。
+
+Agent Sandbox Harbor 示例中的 WarmPool/Claim、GKE 镜像流式拉取仅作为已有文档证据，不把其记录当成本轮实测。当前调整的是下一处建议，尚未为 ACK start 建卡或开始性能改动。
+
+
+## 2026-11-13：将首轮阅读与后端实现/性能验证分开（规划建议）
+
+用户指出继续比较各环境实现会让 Step 013 膨胀，询问是否可先假设沙箱已好继续后续，并要求按腾讯岗位目标规划。助手修正此前将 ACK 启动与性能比较作为下一默认入口的建议：它们可以是之后的实现参考，不应成为走通 Agent/模型/结果主线的额外必修。
+
+建议 Step 013 首轮只收拢 Environment 的创建/启动位置与 exec、文件、stop 的最小合同，记录目标 Agent Sandbox 实现尚缺，区分阅读停止与实施完成。接 Step 014 时显式假设这些接口已经可用，沿一个 Agent 的 setup/run 与一次模型请求；Step 015 沿同一次尝试的评分、轨迹和结果交接，复用已读转换；Step 016 先跟一条取消或失败的责任边界，不枚举所有恢复分支。
+
+实践逐项验收：环境接口小验证可独立进行；在正常端到端关系明确后，回访 Step 013 补真实 Agent Sandbox 适配，并以既有后端的一题为对照，接入模型和结果，再运行 Step 016 的一个故障案例。Step 017 负责汇总可复跑配置、日志、结果和资源释放证据，不要求等到此步才第一次运行，也不默认加入预热/性能优化。只有基线显示环境就绪是瓶颈，才继续池化、镜像缓存或 ACK/GKE 后端内部。
+
+该安排是本轮明确建议，尚未据此标记 Step 013 完成、创建 Step 014 函数卡或批量改写后续 scope。已有实现缺口与版本兼容问题仍保留为待验证事项，没有实际环境/模型/集群运行。
+
+
+## 2026-11-13：核实 Step 013 尚未完成的范围
+
+用户追问除 prepare 中 Environment.start 外，Step 013 是否已全部结束。逐项对照当前 scope 和 02：环境对象创建、启动事件/计时包装、wait_for 与 start 抽象声明已有阅读；exec、文件传输、stop 虽在其他主线中提及，但未按本步目标系统对齐其合同；目标 Agent Sandbox 适配实现仍缺/待落实，冷创建与回收验证也未执行。
+
+助手纠正上一轮将“可暂停下潜继续主线”表述得近似“Step 013 已读完”的问题。按当前原 scope 不能标为完成；若采用两阶段安排，先补一份最小接口合同清单即可暂停首轮阅读，再以明确的未验证环境假设进入后续，具体实现与运行验收保留实施待办。当前未重写 scope、未创建新卡或标记完成。
+
+
+## 2026-11-13：BaseEnvironment 除 start 之外的接口范围
+
+用户指出目前只看过 start，询问 Harbor 是否定义其他接口。本轮通过本地 git show v0.25.0 和 AST 检查 BaseEnvironment 的 abstractmethod：共 9 个，包含 type、_validate_definition，以及 start、stop、upload_file、upload_dir、download_file、download_dir、exec 七个运行操作。exec 接收 command/cwd/env/timeout_sec/user，返回带 return_code/stdout/stderr 的 ExecResult；文件接口明确本地与环境间的方向。
+
+只建立接口地图，不深入每个实现，也不预建九张函数卡。基类还提供健康检查、路径检查和部分传输辅助实现；高级能力依场景声明和覆盖，不能把所有 BaseEnvironment 方法都当作需要从零实现的抽象方法。当前对具体 Agent Sandbox 适配与运行的缺口仍保留。
+
+
+## 2026-11-13：按用户明确范围改为接口优先阅读
+
+用户明确暂不看具体后端，但要理解当前 step 的接口，并询问 _prepare 的其他部分是否也要读。按本地 v0.25.0 _prepare 与 BaseEnvironment 核对，收窄首轮为 start（已读）、exec、四个文件传输方法及 stop；run_healthcheck/skills 上传/default user 只认其对环境能力的使用，_setup_agent 交 Step 014，user_agent/bridge None 分支暂略。
+
+scope 3.2 对应 3A exec、3B 文件方向、3C stop，未进入的不建卡且不直接跳网络源码；4 项实施验证保留待办。root/本步入口同步，当前首轮仍未结束，不把跳过后端实现解释为整步完成。旧 scope 保留在 references/history/2026-11-13-before-interface-first-reading.md，没有实际安装、启动或执行。
+
+<a id="environment-interface-cards-20261113"></a>
+
+## 2026-11-13：确认建立剩余环境接口卡
+
+用户在上一轮接口范围确认后要求：
+
+> 好的
+> 那么这里按照这些开一下函数卡片吧?
+
+本轮据此建立 BaseEnvironment.exec、upload_file、upload_dir、download_file、download_dir、stop 六张方法卡；ExecResult 作为 exec 的返回结构放在同一卡中。沿用已读 start 卡，不为健康检查、skills、默认用户或具体后端另外建卡。
+
+每卡保留固定 v0.25.0 接口、真实调用片段、输入路径/参数、输出或副作用及返回位置。exec 借 _prepare 的健康检查调用接清 ExecResult；四个文件方法按方向分组，其中 download_file 借基类真实辅助调用示例，不伪装成 _prepare 中的直接调用；stop 回到已读 Trial 收尾。接口声明未标返回类型的文件方法与 stop 如实保留，不添加源码没有的结果对象。
+
+scope 3A–3C、本步索引和入口同步链接本地卡，保留“已建卡、待逐项讨论”的状态。用户尚未针对六个接口作个人技术复述，未据建卡标记掌握或收尾 Step 013；03 的 86 份前序快照不变。此次只静态核对本地发布源码，没有运行环境、传输文件或操作集群。
+
+## 2026-11-13：建卡后仍按真实调用逐段带读
+
+用户纠正：
+
+> 我需要的是你一点点带着我读
+> 例如这里的这个应该是先看这里的这个run healthcheck对吧
+
+据此把当前入口接回 _prepare → run_healthcheck → exec。六张卡只是已准备的接口材料，不代替逐段讲解，也不表示应该跳过调用方直接读完整接口清单。本次只展示 run_healthcheck:1576–1580：优先使用传入的 healthcheck，否则取 self.task_env_config.healthcheck；没有配置就返回。_prepare 没传显式参数，因此本场景使用环境配置。循环、重试和 exec 的解释留待后续逐段进入；不据本次定位认定用户已理解。
+
+## 2026-11-13：scope 明示当前函数与动态阅读位置
+
+用户要求：
+
+> 那么是否应该同时考虑一下在这里的scope的部分写清楚呢?
+> 主要是这里的阅读顺序
+> 应该是动态变化的
+> 以及当前的需要看的这个function是哪一个呢?
+
+本次将 scope 3.2 的 current-reading 锚点从已读 start 所在的泛称行移到明确的当前位置说明：当前函数是 BaseEnvironment.run_healthcheck，从 _prepare 的启动后调用进入，上次展示到 1576–1580 行。下一段仍在同一函数；读到 1592 行的 self.exec 时才进入接口卡，随后回到 1594 行的退出码判断。
+
+局部图补上 run_healthcheck → exec 的真实调用边，并以 3A.0 对齐导航表；start 标为已讨论。阅读导航根据实际问题调整回查与深度，当前位置随带读更新，调用关系继续以源码为准。此轮只修正导航，没有继续讲解检查循环、创建新函数卡或标记掌握。
+
+<a id="healthcheck-card-linked-from-trial-20261113"></a>
+
+## 2026-11-13：从 Trial 卡直接进入健康检查卡
+
+用户要求：
+
+> 那么应该在这个trial这里这里列出一下这个agent environment run haelthcheck这个函数的short term memory对吧
+
+本次在 Trial._prepare 的真实调用注释和子函数表中补入口，创建 BaseEnvironment.run_healthcheck 卡并双向链接。记录按方法定义放在 environments/base.py 下，Trial 卡保留谁调用、从哪里进入和返回后继续什么；scope、索引及 exec 的调用方链接同步。
+
+子卡保存此前已展示的配置选择代码，后半段只标明检查执行、结果判断与重试的续读位置，不把建卡当成已经读完。当前仍停留在 run_healthcheck 的配置选择之后，没有进入具体后端或执行健康检查。
+
+
+## 2026-11-13：函数卡补齐 while True 主体
+
+用户指出 run_healthcheck 函数卡与函数主体没有对应，当前应继续看 while True。此前为了逐段带读，仅列出循环的续读行号，造成卡片只剩配置选择；本轮补齐 1584–1612 的连续主干代码，省略日志但保留计时、exec、成功返回、宽限期等待、失败计数及抛错。
+
+解释围绕一次循环的执行与退出：每轮执行检查命令，通过即返回；宽限期内失败不计数，宽限期外失败计数达到阈值则抛错，否则等待下一轮。期间可按需进入 exec 卡，随后返回结果判断。scope、Trial._prepare 与索引同步到当前循环位置；没有将材料补齐记为个人掌握，也未运行环境。
+
+
+## 2026-11-13：用真实检查命令突出函数主干
+
+用户要求说明 exec(hc.command) 到底执行什么，其他不重要细节可淡化。助手核对 v0.25.0 的 HealthcheckConfig.command 与 examples/tasks/hello-healthcheck：配置为 curl -sf http://localhost:8080/，单次超时 5 秒；示例启动脚本等待 3 秒后启动 HTTP 服务。此处仅作为命令含义的静态示例，不是当前真实运行任务或后端选择。
+
+函数卡保留既有栏目，以“命令来源 → 环境内执行 → 退出码判定 → 交回 Trial”作为默认可见主干，完整循环和原有异常边界说明折叠保留。明确 localhost 属于执行命令的环境，本函数查看退出码而不是 stdout 文本；其他任务可定义不同命令。scope 与当前接续同步重点，未展开具体后端或执行服务。
+
+
+## 2026-11-13：凝练为连续主干与就地注释
+
+用户反馈仍不够凝练，希望能放在代码注释里的解释不再逐项展开。函数卡沿用既有栏目，合并重复的输入表、配置说明、独立命令示例与循环片段，默认展示一段从函数签名到返回/失败边界的教学裁剪。真实 curl 示例、执行环境和退出码含义直接放到 exec 与判断旁。完整循环、原话和详细来源折叠保留，精简前全文归档。
+
+本次仅调整记录呈现，既有锚点继续有效；当前阅读位置和个人理解状态未推进。
+
+
+<a id="injected-skills-entry-20261113"></a>
+
+## 2026-11-13：从健康检查返回，进入技能上传
+
+用户将本例理解为检查网址是否可达以验证 sandbox 是否准备好，随后确认继续 _upload_injected_skills。助手限定这属于 hello-healthcheck 的 HTTP 示例，其他任务可定义不同检查命令；未据此认定掌握全部重试机制。
+
+当前回到 _prepare:648。为实际开始阅读的 Trial._upload_injected_skills 建立简短函数卡，保留完整函数和阶段注释，先接清已有技能的 name/source 与目标目录的对应；不展开解析器、具体传输后端或 Agent 使用技能的机制。函数卡与父卡、scope 及唯一进度同步；正常返回位置为默认用户上下文与 Agent 准备。
+
+
+## 2026-11-13：技能上传返回后的下一入口建议
+
+用户将 _upload_injected_skills 概括为把 skills 安装到对应文件夹，并询问下一处是 setup_agent 还是 _prepare 外部。助手澄清本处是复制目录与权限准备，尚非执行技能。按 v0.25.0 的真实顺序，返回 _prepare 后经过 with_default_user，再进入 _setup_agent（当前 user_agent=None），之后才是 stream 资料与 Agent 信息记录。
+
+下一处推荐 Trial._setup_agent:1880，按既有分工属于 Step 014；本轮只给出入口建议，未开始新步骤或建卡。Step 013 的剩余接口与验证继续保留，不能把用途理解或推荐接续当作全部完成；可在后续真实消费位置回查剩余接口属于安排建议，未据此删除原范围。
+
+
+## 2026-11-13：确认接入 Step 014
+
+用户确认“好的 那么看一下这里的这个step014吧”。后续当前进度在项目入口维护；本步待回查项保留，记录以 03 + 02 合并进入 Step 014，未将本步登记为全部完成。

@@ -4,7 +4,7 @@
 - 首次单独展开：Step 013，2026-11-13。
 - 最近认识更新：2026-11-13，用户已判断这里仅为接口、没有其他实现，询问是否还需单独阅读；具体 K8s 实现仍待定位。
 
-[上层调用 Trial._start_agent_environment](../../trial/trial.py/Trial._start_agent_environment.md) → **当前核对 start 的接口约定** → 目标 K8s 后端的具体实现（待定位） · [scope](../../../../../01-scope.md)
+[上层调用 Trial._start_agent_environment](../../trial/trial.py/Trial._start_agent_environment.md) → **当前核对 start 的接口约定** · [其余接口从 exec 继续](BaseEnvironment.exec.md) · [scope](../../../../../01-scope.md)
 
 ## LLM 整理：使用场合、具体内容与心智模型
 
@@ -68,12 +68,12 @@ async def start(self, force_build: bool) -> None:
 > 没有别的内容
 > 还有什么需要我单独看的吗？
 
-这与当前源码一致：此处只声明接口，不包含具体启动行为。基类方法到此可结束首轮阅读；实现代码应在目标后端子类中核对，不继续追读 BaseEnvironment 全部工具方法。下一处仍先确认实际 K8s 适配类与其 start 的位置。
+这与当前源码一致：此处只声明接口，不包含具体启动行为。基类方法到此可结束首轮阅读；实现代码应在目标后端子类中核对，不继续追读 BaseEnvironment 全部工具方法。当时建议下一处定位实际 K8s 适配类；2026-11-13 用户随后明确暂缓具体后端，当前先从 [exec 与 ExecResult](BaseEnvironment.exec.md) 补齐运行接口。
 
 
 ## 尚不清楚
 
-- 目标 K8s/Agent Sandbox 适配具体是哪一个类、是否已存在可直接接入 Harbor 的实现。
+- 2026-11-13 本地复核：Harbor 0.25 未找到该目标的内置实现；Agent Sandbox 示例引用 AgentSandboxEnvironment，但安装目录在当前 checkout 缺失。具体适配仍待复用或补齐，不能按示例名直接开始读不存在的实现。
 - 该实现怎样准备镜像、创建或取得沙箱，怎样决定 start 可以返回。
 - force_build 在目标后端怎样支持或明确拒绝，以及失败后的资源清理。
 

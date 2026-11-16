@@ -30,3 +30,7 @@
 选择 Claude Code、客户端默认 async 提交并等待结果的正常路径。本步停止在 generate 取得 call_payload、形成 agent_response 这一段；after_agent、轨迹导出和最终回收仍留在整体图中，后续接续。
 
 本步已经开始不等于已经理解内部机制。当前仅静态核对，没有发送任务、启动 CLI 或执行模型调用。
+
+2026-11-14 补读接续：从 [send_message 的 Task 调用](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter.send_message.md#launch-cli-task) 进入 [_run_claude_turn 的进程启动与模型请求段](02-short-term-memory/functions/blackbox_server/adapters/claude_code.py/ClaudeCodeAdapter._run_claude_turn.md#model-request-during-cli)，承接 Step 014 留出的公共 Proxy 请求链。此为原位置的新增补读，原首轮状态与快照保留，未读处理函数尚未建卡。
+
+2026-11-14 补读范围已展开到 [9.2a–9.2e 的去程与回程](01-scope.md#model-request-route)：本地 Proxy 发送 → 外部 Dressage Proxy 生成 → SGLang 调用 → 记录一步交互 → Anthropic 响应回 CLI。下一处仍只读发送入口，未预建其余函数卡；旧首轮状态与后续 Step 007/008 分工保留。

@@ -1,6 +1,6 @@
 # Trial._prepare（Harbor）
 
-- 本步调取：2026-11-13，从 [Step 013 前序快照](../../../../../03-long-term-memory/functions/harbor/trial/trial.py/Trial._prepare.md) 完整调入；保留 Step 011 的原话、认识时间与未知。本次只接环境启动的调用位置。
+- 本步调取：2026-11-13，从 [Step 013 前序快照](../../../../../03-long-term-memory/functions/harbor/trial/trial.py/Trial._prepare.md) 完整调入；保留 Step 011 的原话、认识时间与未知。本步先接环境启动，现继续健康检查的调用位置。
 
 - 本步继承：2026-11-13，由 [Step 012 来源卡片](../../../../../../step-012-task-agent-verifier/03-long-term-memory/functions/harbor/trial/trial.py/Trial._prepare.md) 完整继承；复制不改变原认识时间或已掌握状态。
 
@@ -52,8 +52,8 @@ self._validate_agent_capabilities()
 # 实际启动运行环境，不只是检查配置。
 await self._setup_agent_environment()
 try:
-    await self.agent_environment.run_healthcheck()  # 检查环境状态。
-    await self._upload_injected_skills()           # 配置了注入 skills 才上传文件。
+    await self.agent_environment.run_healthcheck()  # 健康检查正常返回。
+    await self._upload_injected_skills()           # 已讨论：上传配置的技能目录。
 
     # Agent 已选定；按配置的用户调用它的 setup。
     # Claude/Codex 会检查已有 CLI，不满足版本要求时在环境中安装。
@@ -67,16 +67,22 @@ self.result.agent_info = self.agent.to_agent_info()  # 记录准备后的 Agent 
 # 正常返回 None；回到 Trial.run 后才进入任务执行。
 ```
 
+<a id="prepare-healthcheck-call"></a>
+<a id="prepare-skills-call"></a>
+<a id="prepare-agent-call"></a>
+
 | 按需查看真实子函数 | 本轮先知道什么、返回哪里 |
 | --- | --- |
 | [本步 _setup_agent_environment 卡片](Trial._setup_agent_environment.md) | 进入环境启动流程；返回 _prepare:647，继续健康检查与 skills 上传 |
+| [BaseEnvironment.run_healthcheck](../../environments/base.py/BaseEnvironment.run_healthcheck.md#healthcheck-loop) | self.agent_environment 已启动；当前沿 while True 看检查执行、结果与退出。正常返回 _prepare:648，继续 _upload_injected_skills |
+| [Trial._upload_injected_skills](Trial._upload_injected_skills.md#upload-skills-mainline) | 健康检查已正常返回；把本地技能目录放入环境，返回后进入默认用户上下文与 _setup_agent |
 | [_setup_agent:1880](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L1880) | 委派选定 Agent 的 setup；返回 _prepare 的用户上下文，接着执行 finally 和信息记录 |
 
-准备内部暂缓下钻。返回父函数后，执行细分见 [SingleStepTrial._run](../../../../../../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/trial/single_step.py/SingleStepTrial._run.md#single-step-run-mainline)；该阶段已读主干，下一处候选是 [Trial._finalize:660](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L660)。这些执行与收尾操作不属于 _prepare 函数体。
+技能上传的用途已讨论，当前回到默认用户上下文；下一处建议进入 _setup_agent，按既有分工属于 Step 014。准备阶段整体返回后，执行细分仍可回查 [SingleStepTrial._run](../../../../../../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/trial/single_step.py/SingleStepTrial._run.md#single-step-run-mainline)；该阶段已读主干，收尾见 [Trial._finalize](../../../../../../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/trial/trial.py/Trial._finalize.md)。这些执行与收尾操作不属于 _prepare 函数体，也不是当前要跳转的入口。
 
 ### Step 013 的当前交接
 
-当前从上方 await self._setup_agent_environment() 进入[环境启动包装](Trial._setup_agent_environment.md)。环境对象已在构造时创建，self.result 已由 Trial.run 初始化；子函数正常返回后回到下一行 run_healthcheck，再继续 skills 和 Agent 准备。后续部分仍按既有范围阅读，本次只展开启动包装。
+技能上传用途已讨论，当前回到 `_prepare:649` 的 `with_default_user(...)`：临时设置环境操作的默认用户，退出后恢复。本例 user_agent=None，随后执行 `_setup_agent()`；这是 Step 014 的建议入口，尚未开始该步。_prepare 最后还会记录 stream 访问资料与 Agent 信息，当前只认用途。
 
 ## 我的直接表述（原话）
 
@@ -104,7 +110,7 @@ self.result.agent_info = self.agent.to_agent_info()  # 记录准备后的 Agent 
 
 - 环境对象如何选定具体后端，以及 start 怎样真正启动沙箱，后续按需下钻。
 - 已定点核对 ClaudeCode/Codex 的 setup → install 与按需安装关系；具体安装脚本、依赖及运行配置尚未系统阅读。
-- user_agent/bridge、skills 上传、健康检查和 stream 资料的内部机制，本轮只认职责。
+- 健康检查当前进入循环主体，执行与重试关系仍待用户反馈；user_agent/bridge、skills 上传和 stream 资料的内部机制，本轮只认职责。
 
 <details>
 <summary>完整函数、来源与验证</summary>

@@ -18,7 +18,7 @@
 | Step 003 | 未命中后怎样更新身份并取得 Paddock？ | [scope](steps/step-003-paddock-selection/01-scope.md) | 保留既有记录 |
 | Step 004 | 环境需求怎样成为可用的 state？ | [scope](steps/step-004-paddock-environment-preparation/01-scope.md) | 保留既有记录 |
 | Step 005 | 已有环境怎样完成 Agent 注册准备？ | [scope](steps/step-005-agent-registration/01-scope.md) | 保留既有记录 |
-| Step 006 | 题目怎样交给 Agent，执行结果怎样返回？ | [scope](steps/step-006-agent-execution/01-scope.md) | 保留既有记录 |
+| Step 006 | 题目怎样交给 Agent，执行结果怎样返回？ | [scope](steps/step-006-agent-execution/01-scope.md) · [运行期间的模型请求补读](steps/step-006-agent-execution/01-scope.md#model-request-reading) | 原首轮记录保留；2026-11-14 接入公共 Proxy 补读，处理函数尚待展开 |
 | Step 007 | Agent 结束后怎样收尾并取得 Proxy 轨迹？ | [scope](steps/step-007-proxy-finalization-and-trajectory/01-scope.md) · [本步记录](steps/step-007-proxy-finalization-and-trajectory/README.md) | 已首轮收束；有任务链路总结 |
 | Step 008 | 轨迹段怎样成为 Sample 并保留任务归属？ | [scope](steps/step-008-segments-to-samples/01-scope.md) | 已首轮收束；有任务链路总结 |
 | Step 009 | 正常、失败和取消时谁回收资源？ | [scope](steps/step-009-rollout-cleanup/01-scope.md) | 正常回收主线首轮收束；其他路径保留回查 |

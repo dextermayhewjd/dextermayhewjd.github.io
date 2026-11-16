@@ -77,16 +77,20 @@ if self._proxy is not None:
 
 <a id="receive-cli-result"></a>
 
-### 3. 启动并等待本次 CLI 运行——当前回看结果接收处
+### 3. 启动并等待本次 CLI 运行
 
-这里的阅读分界在第 3 段内部，按我们实际走过的路径理解：
+首轮已经走过的阅读路径保留如下；本次从同一个调用处进入子卡补读模型请求：
 
 1. 此前先整体说明 send_message 的各段职责；第 1、2 段负责取题目和准备会话，并不表示其中每个辅助函数都已深入阅读。
 2. 随后从第 3 段上半部分的 self._run_claude_turn 调用进入子函数，展开了 CLI 启动、stdout 收集和结果返回。
-3. 现在回到第 3 段下半部分：正常路径中，等待器将 Task 的结果交给 outputs、trace_events、usage，再继续第 4 段。
+3. 首轮随后回到第 3 段下半部分：正常路径中，等待器将 Task 的结果交给 outputs、trace_events、usage，再继续第 4 段。
+
+<a id="launch-cli-task"></a>
+
+**从这里进入 [_run_claude_turn 第 1–2 段](ClaudeCodeAdapter._run_claude_turn.md#prepare-process)**：先接启动参数与进程，再沿该卡的[模型请求补读入口](ClaudeCodeAdapter._run_claude_turn.md#model-request-during-cli)跨 HTTP 进入 Proxy。读完仍沿原返回路径回来。
 
 ```python
-# 此前的下钻位置：进入 _run_claude_turn，阅读 CLI 怎样运行。
+# 下钻位置对应上方链接；create_task 安排这个协程执行。
 task = asyncio.create_task(
     self._run_claude_turn(
         user_text=message.content,
@@ -95,8 +99,9 @@ task = asyncio.create_task(
     )
 )
 
-# 当前回到这一行：等待 Task，并在正常路径中接住三项结果。
+# 整次 CLI 运行完成后，在这一行接住 Task 的三项结果。
 # 等待器还处理代理报告的步数限制；本轮先不进入其内部。
+# 运行期间的模型请求，在 _run_claude_turn 的进程启动段接读。
 outputs, trace_events, usage = await self._await_backend_task_or_proxy_max_steps(
     task,
     session_context=session_context,
@@ -104,7 +109,11 @@ outputs, trace_events, usage = await self._await_backend_task_or_proxy_max_steps
 )
 ```
 
-当前只需对上“下层返回三项结果 → 这一行接住 → 第 4 段使用”。无需为了读这一行重新展开等待器的内部实现。上面的先后是阅读顺序；实际运行时，Task 的执行与这里的等待是配合进行的。
+首轮在这里对上“下层返回三项结果 → 这一行接住 → 第 4 段使用”。上面的先后是阅读顺序；实际运行时，Task 的执行与这里的等待是配合进行的。
+
+<a id="model-request-during-wait"></a>
+
+模型请求发生在 CLI 运行期间。就地进入 [_run_claude_turn 的进程启动与模型请求补读](ClaudeCodeAdapter._run_claude_turn.md#model-request-during-cli)；本等待器只负责 CLI Task 的结果或步数限制通知，具体 HTTP 路径在子卡接读。整次 CLI 运行结束后，回到这里接住三项结果，再继续第 4 段。
 
 <a id="finish-and-return"></a>
 

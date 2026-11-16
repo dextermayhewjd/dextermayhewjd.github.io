@@ -93,9 +93,35 @@ self._process_group_id = process.pid
 )
 ```
 
-**这个 await 返回进程对象，不表示 Claude 已经做完题目。** 进程可以继续运行，下面的代码继续读取它的输出。
+**这个 await 已启动 Claude CLI 子进程，并返回 Python 的进程管理对象 process，不表示 Claude 已经做完题目。** 后面用 process.stdout 读输出、用 process.wait() 等待这个子进程退出，不是又创建了第二个 CLI 进程。
 
 self._process 和 PID 用于后续管理进程；limit 是读取流的缓冲限制，不能理解为整次输出最多只能有这么多内容。
+
+<a id="model-request-during-cli"></a>
+
+#### 运行期间的模型请求 · 2026-11-14 补读入口
+
+从 [send_message 第 3 段的调用处](ClaudeCodeAdapter.send_message.md#launch-cli-task) 来到这里：上面第 1 段已给出 ANTHROPIC_BASE_URL，第 2 段已启动 Claude CLI。现在沿这个进程的模型 HTTP 请求，切换到 Proxy 接收端。
+
+```text
+send_message: create_task(_run_claude_turn(...))  # 安排 Python 协程，不发送模型 HTTP。
+  ├─ send_message：_await_backend_task_or_proxy_max_steps 等待执行结果或步数限制
+  └─ _run_claude_turn: create_subprocess_exec(...)  # 启动外部 Claude CLI 进程。
+       └─ Claude CLI 内部的网络客户端发出模型 HTTP 请求
+            → [9.1] RolloutLLMProxy._build_app 内的 _proxy
+            → [9.2] RolloutLLMProxy._handle_proxy
+            ← 模型响应返回 CLI，CLI 可以继续工作
+```
+
+这里是**跨 HTTP 的阅读切换**，不是本函数直接调用 Proxy，也不是等待器里藏着发送代码。CLI 请求与本函数读取 stdout 可以交错进行；本段放在第 2、3 段之间表达阅读次序，不增加实际程序的先后依赖。
+
+| 对应 scope 3.2 的入口 | 从哪里进入、读完回哪里 |
+| --- | --- |
+| [9.1 HTTP 接收：_build_app 内的 _proxy](../../proxy/rollout_llm_proxy.py/RolloutLLMProxy._build_app._proxy.md#proxy-http-entry) | 当前补读入口：CLI 直接请求已有本地代理，接收函数委派到 _handle_proxy；本轮不经过 Harbor Gateway |
+| [9.2 请求处理：RolloutLLMProxy._handle_proxy](../../proxy/rollout_llm_proxy.py/RolloutLLMProxy._handle_proxy.md#handle-proxy-map) | 已讨论请求转换与归属主干；接着按 [scope 的 9.2a–9.2e](../../../../../01-scope.md#model-request-route) 追发送、上游生成、单步记录和响应回程，再回本卡 |
+| 9.3 返回当前卡：[第 3 段读取输出](#read-stdout) → [第 4 段整理结果](#return-result) | 模型响应先回 CLI；继续读本协程怎样收集输出、等进程退出，再把三项结果交回 [send_message](ClaudeCodeAdapter.send_message.md#receive-cli-result) |
+
+本补读也承接 Step 014 留出的公共 Proxy 内容。Topic 01 原生路线与 Harbor 路线复用同一套代理实现；这里只保留一份后续解释，不新增 Step 018，也不改写旧首轮完成记录。
 
 管道原理和可运行小例子见[Python 怎样读取 CLI 的标准输出](../../../../../references/python-stdout-pipe.md)；读完回到下面第 3 段。
 

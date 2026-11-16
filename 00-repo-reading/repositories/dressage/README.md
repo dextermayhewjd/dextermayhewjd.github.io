@@ -19,7 +19,7 @@
 - 当前本机源码仓库：`/home/fredkeira/projects/Dressage`（2026-11-05 再次核对，工作区干净）。历史路径为 `/Users/dextermayhew/projects/Dressage`，旧步骤引用保留其来源。
 - 本轮核对提交：`3e3142fe8ea07e4504c3b20a936a4c201a3de44c`。
 - Harbor 版本对照（2026-11-11）：本机已有 `/home/fredkeira/projects/harbor`，HEAD `500af91374dcc43b59fac54cf90295646617b14d`；pyproject 标为 0.25.0，但比发布标签多 123 个提交。Dressage 已读调用方仍依据其锁定的 0.18.0；用户现已确认 Step 011 起直接读 Harbor v0.25.0 发布标签（fdba28fc），跨版本运行待验证；[来源与升级核对](references/agent-sandbox-harbor-compatibility.md#harbor-version-upgrade-20261111)另存，旧阅读记录保留版本归属。
-- 当前接续：2026-11-13，Step 012 已收尾；[Step 013](topics/02-harbor-integration/steps/step-013-harbor-kubernetes-environment/README.md) 当前进入第 3 项 [BaseEnvironment.start](topics/02-harbor-integration/steps/step-013-harbor-kubernetes-environment/02-short-term-memory/functions/harbor/environments/base.py/BaseEnvironment.start.md)，接口声明已认清，下一处先定位实际 K8s 适配类，再看其启动、命令、文件与释放实现。环境创建与通用启动包装已讨论，后续按 K8s/Agent Sandbox 目标定位实际适配，Docker 不列为必读。用户已判断基类方法仅为接口；下一处先定位具体 K8s 适配的 start，实现与运行验证尚未展开；沿用官方 Harbor v0.25.0 固定源码，前序 86 份记录保持。
+- 当前接续：2026-11-15，公共 Proxy 补读进入 [Step 006 的 9.2c](topics/01-native-agent-rollout/steps/step-006-agent-execution/01-scope.md#model-request-route)。用户已表述 pipeline 的解析、保存和返回主线，现确认阅读 GenerationController.generate_preemptible；已准备正常生成四段卡片，追到 SGLang 客户端的 HTTP 交接。暂停、抢占与续接暂不深入；材料不代表掌握，未执行真实模型验证。
 - 阅读深度反馈（2026-11-09）：用户表示逐函数下潜负担过重，同时希望保留 Step 010–017 来理解 Harbor 接入与评测框架整体。继续沿既有路线走通模块主线，按接口、资源和数据正确性决定下钻深度，不自动把每个 helper 变成必读卡；在生命周期和环境接口清楚后穿插最小实践，不等最后才验证。已读记录与编号保留，未实施边界见 [Step 010 形成过程](topics/02-harbor-integration/steps/step-010-harbor-rollout-entry/04-flow.md)。
 - 阅读方式：先收尾原生 generate 的轨迹、样本和清理，再沿 Harbor 接入主题推进。深度依据[学习指南 4.3](references/design-on-slime.md#six-stage-reading-order)，不把每个辅助函数扩成独立专题。
 - 当前学习内容在 Markdown 中预览；博客呈现另按用户明确要求处理。
@@ -29,10 +29,10 @@
 | 主题 | 解决什么问题 | 步骤范围 |
 | --- | --- | --- |
 | [原生 Dressage 单任务闭环](topics/01-native-agent-rollout/README.md) | 任务、环境、Agent 执行、轨迹、Sample 与回收 | 原 Step 000–006 已整体归入；Step 007–009 已按各自确认范围首轮收束 |
-| [Dressage × Harbor 接入与验证](topics/02-harbor-integration/README.md) | 任务与 Agent 适配、K8s 接缝、模型和结果采集、失败与验证 | Step 010–012 首轮收束；Step 013 已开始；Step 014–017 仅 scope |
+| [Dressage × Harbor 接入与验证](topics/02-harbor-integration/README.md) | 任务与 Agent 适配、K8s 接缝、模型和结果采集、失败与验证 | Step 010–012 首轮收束；Step 013 保留待回查项；Step 014 已开始；Step 015–017 仅 scope |
 | [Agent Sandbox：Kubernetes 环境分支](topics/03-agent-sandbox/README.md) | Sandbox、Pod、状态、WarmPool、Claim 与访问隔离 | 本目录提供第三个导航入口，正文复用 Agent Sandbox 独立主题及其编号 |
 
-3.1 保留本步在主题主线的位置；3.2 的图只表达执行关系，下方连续编号表表达阅读顺序。Step 014–017 目前只有 scope，不提前生成 02、03、04 或 05。目录迁移不改变原有认识和来源。
+3.1 保留本步在主题主线的位置；3.2 的图只表达执行关系，下方连续编号表表达阅读顺序。Step 015–017 目前只有 scope，不提前生成 02、03、04 或 05。目录迁移不改变原有认识和来源。
 
 <a id="confirmed-reading-and-implementation-route"></a>
 

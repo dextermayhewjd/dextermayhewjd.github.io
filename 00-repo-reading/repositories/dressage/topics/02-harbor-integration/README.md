@@ -8,6 +8,27 @@
 
 Harbor Job/Trial 是这条路线的任务编排者；原生 Paddock/BlackboxServer 的知识用于对照，不把它们强行串入同一次 Trial。模型请求发生在 Agent 运行期间，插件通过生命周期事件处理路由与结果。
 
+<a id="agent-execution-ownership"></a>
+
+## 当前这条路径中的 Agent 属于谁
+
+两个框架各有 Agent 接入实现；在当前 Harbor 集成路线中，`self.agent` 是 Harbor 创建的 Agent 实例。以 Claude Code 为例，两条路线分别是：
+
+```text
+Topic 01 原生路线：Dressage → Paddock / BlackboxServer → ClaudeCodeAdapter → Claude CLI
+Topic 02 集成路线：Dressage → Harbor Job / Trial      → Harbor ClaudeCode → Claude CLI
+```
+
+`ClaudeCodeAdapter` 与 Harbor 的 `ClaudeCode` 是不同的 Python 适配类，但都可以驱动 Claude CLI。当前路线选择 Harbor 的执行管理，并不在 Harbor Agent 外面再嵌套运行一次原生 ClaudeCodeAdapter。
+
+| 当前组件 | 分工 |
+| --- | --- |
+| Harbor Job / Trial / ClaudeCode | 安排尝试、准备环境与 Agent、启动 CLI，并组织评测 |
+| Claude CLI | 真正执行题目，调用模型与工具 |
+| Dressage 的集成层、插件和代理 | 对接 rollout 输入输出、注入模型路由、关联并采集轨迹、整理训练数据 |
+
+Gateway 复用 RolloutLLMProxy 是复用模型请求代理组件，不表示同时启动原生 BlackboxServer 和另一套 Agent。源码入口可回看 [_run_partition 的 Job 调用](steps/step-010-harbor-rollout-entry/02-short-term-memory/functions/dressage/integrations/harbor/rollout.py/_run_partition.md#run-job)与 [当前 Harbor ClaudeCode.run](steps/step-014-model-routing-and-api-contract/02-short-term-memory/functions/harbor/agents/installed/claude_code.py/ClaudeCode.run.md)。
+
 ## 先从 Dressage 自己的集成代码进入
 
 本主题从 Dressage 的 dressage/integrations/harbor 开始，再沿实际调用进入 Harbor 源码。以下模块已为规划做过源码定位，不表示已经与用户逐函数读完。
@@ -36,8 +57,8 @@ Harbor 自身已有 GKE、ACK、OpenShift 等 K8s 相关后端；Step 013 先判
 | Step 010 | Slime 怎样交给 Dressage 的 Harbor 入口？ | [scope](steps/step-010-harbor-rollout-entry/01-scope.md) | 主线已收束，未通读全部内部实现 |
 | Step 011 | 一次 Harbor Trial 怎样完成准备、执行与结束？ | [scope](steps/step-011-harbor-trial-lifecycle/01-scope.md) | 首轮生命周期与正常结果返回已收束；保留内部未知 |
 | Step 012 | 运行配置怎样得到 Task 与 Agent 对象？ | [scope](steps/step-012-task-agent-verifier/01-scope.md) | [首轮创建主线已收束](steps/step-012-task-agent-verifier/05-task-flow.md)，停在环境入口；保留具体工厂等未知 |
-| Step 013 | Environment 怎样创建、启动并接到 Agent Sandbox？ | [scope](steps/step-013-harbor-kubernetes-environment/01-scope.md) | 已确认开始，当前阅读 start 接口调用与超时包装；具体后端、适配与验证未展开 |
-| Step 014 | Agent 怎样准备、执行，并在运行中请求模型？ | [scope](steps/step-014-model-routing-and-api-contract/01-scope.md) | 仅 scope，未展开 |
+| Step 013 | Environment 怎样创建、启动并接到 Agent Sandbox？ | [scope](steps/step-013-harbor-kubernetes-environment/01-scope.md) | 已讨论环境启动、健康检查与技能上传用途；其余接口、具体适配及验证仍待回查 |
+| Step 014 | Agent 怎样准备、执行，并在运行中请求模型？ | [scope](steps/step-014-model-routing-and-api-contract/01-scope.md) | 已开始，已收窄接入范围；剩余路由激活与 HTTP 分派，公共 Proxy 内部另列补读 |
 | Step 015 | 产物怎样评测，再与轨迹一起形成最终结果？ | [scope](steps/step-015-harbor-results-and-samples/01-scope.md) | 仅 scope，未展开 |
 | Step 016 | 回看一种取消/失败，资源与结果怎样收尾？ | [scope](steps/step-016-cancellation-and-retries/01-scope.md) | 仅 scope，未展开 |
 | Step 017 | 怎样整合局部验证并复跑接入链？ | [scope](steps/step-017-integration-validation/01-scope.md) | 仅 scope，未展开 |
@@ -57,4 +78,4 @@ Harbor 自身已有 GKE、ACK、OpenShift 等 K8s 相关后端；Step 013 先判
 2. Step 013 在 Environment 边界引用 Agent Sandbox 的独立 K8s 主题；资源控制器、WarmPool、Claim 不在这里重复建立另一套步骤。
 3. 冷创建合同清楚后即可开展局部验证；Step 017 负责串联和补齐证据，不意味着此前只能阅读不能验证。
 4. Step 编号沿 Dressage 连续使用 010–017。scope 准备完成不表示开始阅读或完成实践；实际进度只在项目 README 维护。
-5. Harbor 阅读以 v0.25.0 发布提交为准；Dressage 仍固定原依赖，运行兼容性需独立验证。Step 013 已按用户确认进入创建入口；Step 014–017 的 scope 准备不表示已读或完成实现。
+5. Harbor 阅读以 v0.25.0 发布提交为准；Dressage 仍固定原依赖，运行兼容性需独立验证。Step 013 已按用户确认进入创建入口；Step 014 已开始首个函数；Step 015–017 的 scope 准备不表示已读或完成实现。

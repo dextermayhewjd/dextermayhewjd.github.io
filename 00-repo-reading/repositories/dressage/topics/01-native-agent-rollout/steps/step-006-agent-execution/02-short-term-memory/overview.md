@@ -16,5 +16,12 @@
 | [BlackboxServerClient._get_turn_with_retry](functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._get_turn_with_retry.md) | 本轮按用户指定展开：补重试设置、委派 GET、返回 HTTP 响应；区分请求重试与状态轮询 |
 | [BlackboxServerClient._committed_call_payload](functions/dressage/paddock/blackbox/client.py/BlackboxServerClient._committed_call_payload.md) | 已按用户请求建卡：选取查询回复字段，整理为上层调用结果字典；尚待理解反馈 |
 | [blackbox_dispatch.generate](functions/dressage/rollout/generate/blackbox_dispatch.py/generate.md) | 从 03 调入完整前序记录；当前只看调用返回、结果字符串整理与结构化失败检查 |
+| [RolloutLLMProxy._build_app 内的 _proxy](functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._build_app._proxy.md) | 2026-11-14 补读：CLI 的 HTTP 接收入口，委派 _handle_proxy；未展开转换内部 |
+| [RolloutLLMProxy._handle_proxy](functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._handle_proxy.md) | 2026-11-14 当前补读：沿 Claude 分支建立识别、转换、归属与转发主干 |
+| [RolloutLLMProxy._stream_anthropic_messages_proxy](functions/blackbox_server/proxy/rollout_llm_proxy.py/RolloutLLMProxy._stream_anthropic_messages_proxy.md) | 2026-11-15 当前：只进入发送段；响应处理保留回程继续 |
+| [create_app.chat_completions](functions/dressage/proxy/server.py/create_app.chat_completions.md) | 2026-11-15 当前：外部 Proxy 接收 JSON，并委派生成流水线 |
+| [create_app._chat_completions_pipeline](functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md) | 2026-11-15 已按要求补齐选定正常路径六段；个人理解与辅助实现仍待后续核对 |
 
 [scope](../01-scope.md#reading-navigation) · [前序累计](../03-long-term-memory/overview.md) · [Step 006 过程记录](../04-flow.md)
+
+- [GenerationController.generate_preemptible](functions/dressage/proxy/generation_controller.py/GenerationController.generate_preemptible.md)：正常生成的登记、后端调用、收集和返回；已展开材料，待个人反馈。
