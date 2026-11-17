@@ -83,7 +83,7 @@ route = _select_route(
     # 省略 tools 及其 hash 实参。
 )  # 选择上下文历史路径；首请求创建新路径，不是选择网络地址。
 
-prompt_payload = _build_prompt_tokens(
+prompt_payload = _build_prompt_tokens(  # 独立函数卡：create_app._build_prompt_tokens.md（scope 9.2b.1）；消息 → token
     session=session,
     route=route,
     normalized_request_messages=normalized_request_messages,
@@ -96,6 +96,8 @@ sampling_params = _build_sampling_params(body, max_output_tokens, rollout_temper
 ```
 
 交给下一段的是 **input_ids + sampling_params**；prompt_payload 还保留上下文增量，供第 5 段记录。
+
+**当前回查**：[进入 _build_prompt_tokens 函数卡](create_app._build_prompt_tokens.md)，沿首请求分支定位文字转 token 的实际调用。读完返回本段，带着 `input_ids` 继续第 3 段。
 
 <a id="pipeline-generate"></a>
 
@@ -134,26 +136,27 @@ router_response 带回文本、token、logprob 等。[进入 generate_preemptibl
 **本段要解决的问题**：模型返回的是原始生成结果，客户端需要的是正文、推理内容和工具调用：怎样整理回复，同时保留记录所需的原始 token 和概率？
 
 ```python
-raw_text = router_response.text
-response_token_ids = router_response.output_ids
-response_logprobs = router_response.output_token_logprobs
+raw_text = router_response.text  # 第 3 段已拿到结果；这里取出生成文本，不再请求生成
+response_token_ids = router_response.output_ids  # 生成内容的 token IDs，不是 request/session ID
+response_logprobs = router_response.output_token_logprobs  # 生成 token 的对数概率，供后续记录
 # 同处整理版本、token 用量与结束原因，原始 token/logprob 留给记录。
 
 reasoning_result = await proxy_reasoning_parser.parse(raw_text, routing_key=session_id)
-reasoning_content = reasoning_result.reasoning_content
+# 从生成文本中分离推理内容；这里解析的是文本，不是 token IDs 或 logprob。
+reasoning_content = reasoning_result.reasoning_content  # 单独保留推理内容
 content, tool_calls = await proxy_tool_call_parser.parse(
-    reasoning_result.text, tools, routing_key=session_id
+    reasoning_result.text, tools, routing_key=session_id  # 从剩余文本解析正文与工具调用描述
 )
-content = _strip_public_stop_markers(content)
+content = _strip_public_stop_markers(content)  # 清理对外正文中的停止标记
 if tool_calls:
     finish_reason = "tool_calls"  # 这里只整理调用描述，工具由 Agent 执行。
 
-full_messages = messages + [
+full_messages = messages + [  # 原对话追加这次 assistant 回复，得到更新后的消息列表
     _assistant_message(content, tool_calls, reasoning_content=reasoning_content)
 ]
 ```
 
-现在得到两份材料：**解析后的内容用于回复客户端，原始 token 和概率用于记录**。
+现在得到两份材料：**解析后的内容用于回复客户端，原始 token 和概率用于记录**。第 4 段只做整理；第 5 段保存记录，第 6 段才组织并返回响应。切换为厂商 API 时，需要核对其是否已提供结构化正文和工具调用，不能默认继续照搬原始文本解析路径。
 
 <a id="pipeline-record"></a>
 
@@ -220,6 +223,20 @@ return StreamingResponse(
 </details>
 
 ## 我的直接表述（原话）
+
+2026-11-17 第 4 段追问：
+
+> 简单来说是在这里拿到对应的response的对吗？
+> 是我的理解
+> 还有对应的id和log probs？
+> 最后在parser回去？
+
+助手校准：response 在第 3 段已返回；第 4 段提取文本、生成 token IDs 和 logprob，parser 处理文本并提取正文/推理/工具调用，实际响应在第 6 段返回。
+
+2026-11-17 当前问题（不表示已掌握转换实现）：
+
+> 主要是哪里从文字被tokenizer 变成token的是需要了解的对吗？
+
 
 最新表述：
 

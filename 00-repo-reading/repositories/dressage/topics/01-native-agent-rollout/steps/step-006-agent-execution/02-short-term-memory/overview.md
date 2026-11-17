@@ -22,6 +22,8 @@
 | [create_app.chat_completions](functions/dressage/proxy/server.py/create_app.chat_completions.md) | 2026-11-15 当前：外部 Proxy 接收 JSON，并委派生成流水线 |
 | [create_app._chat_completions_pipeline](functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md) | 2026-11-15 已按要求补齐选定正常路径六段；个人理解与辅助实现仍待后续核对 |
 
+| [create_app._build_prompt_tokens](functions/dressage/proxy/server.py/create_app._build_prompt_tokens.md) | 2026-11-17 独立回查：首请求的文字转 token 分支及返回交接；尚待理解反馈 |
+
 [scope](../01-scope.md#reading-navigation) · [前序累计](../03-long-term-memory/overview.md) · [Step 006 过程记录](../04-flow.md)
 
 - [GenerationController.generate_preemptible](functions/dressage/proxy/generation_controller.py/GenerationController.generate_preemptible.md)：正常生成的登记、后端调用、收集和返回；已展开材料，待个人反馈。

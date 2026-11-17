@@ -4,6 +4,8 @@
 
 > 2026-11-14：按用户确认收窄深入范围。已讨论 Harbor Agent 执行与 Dressage 配置/路由登记；剩余主读为路由激活、Gateway 请求分派与响应出口。公共 Proxy 内部另列补读，不改旧步骤编号或完成状态。当前已进入第三部分的 HTTP 主卡，先看 token 查表；没有真实请求/模型/集群验证。
 
+> **2026-11-17 回访入口：为厂商 API 接入恢复调用位置。** 下文“当前接续/当前收束”保留原阅读时点。此次先看 3.1 的 `Agent == HTTP ==> Gateway`，再看 3.2 第三部分的第 4 项 `_GatewayASGI._handle_http`，只恢复“请求从哪里来、交给谁”。具体模型请求的公共实现已记录在 Step 006，不重建一套函数卡：沿 3.3 转到 [Step 006 第 9.2b 项](../../../01-native-agent-rollout/steps/step-006-agent-execution/01-scope.md#model-request-reading)及其中的 [pipeline 函数卡](../../../01-native-agent-rollout/steps/step-006-agent-execution/02-short-term-memory/functions/dressage/proxy/server.py/create_app._chat_completions_pipeline.md)。本轮先定位消息输入、模型调用与结果消费，判断最小修改边界；不重读原生 dispatch，也未开始代码改造。实现约束见[API 评测方案](../../../../references/slime-api-evaluation-integration.md)。
+
 ## 1. 阅读目标
 
 **看清 Harbor 管理的 Agent 怎样接入 Dressage 的模型请求通道：配置地址与身份、登记并激活路由、把请求交给对应 Proxy，再沿本次请求返回响应。**

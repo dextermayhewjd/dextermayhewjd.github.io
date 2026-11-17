@@ -353,3 +353,8 @@ scope 3.2 补入问题来路，runtime.call 卡开头回链该位置；只记录
 ## 2026-11-16：回顾原卡点与剩余任务
 
 用户询问 ClaudeCode.run 是否已结束、当时卡点解决了什么、Agent 缺失部分和 Dressage 采集是否已补齐。核对既有 ClaudeCode.run、_run_agent_phase 及 Step 015 scope：当时缺口是 CLI 模型请求如何经 Gateway 和 Proxy 到推理服务并带回生成资料，正常主干已补读。源码阅读可以回到整个 Agent.run 返回后的收尾；不能据此声称真实任务已运行完成，也不将记录内部、最终 bundle 与评测判定视为已展开。Step 014 的 AGENT_END 与 _sync_agent_output 交接已有卡片，只需提醒不必重新深读。下一候选为 Step 015：SingleStepTrial._run 接回产物与 _run_verifier，重点看 Verifier.verify 怎样取得评分；本轮仅推荐，不创建新步骤记录或函数卡。
+
+
+## 2026-11-17：恢复 API 改造所需的调用位置
+
+用户表示忘记该部分代码涉及哪里，要求查看当前 scope 并带着定位。核对发现 Step 014 主要负责 Harbor Agent 到 Gateway/Proxy 的接入，公共 pipeline 和 SGLang 的已有卡片位于 Step 006 的 9.2b–9.2d。助手更正此前只说看 Step 014 的不完整指引，在 scope 增加回访入口，保留历史阅读状态。先沿 3.1/3.2 第 4 项恢复位置，再去 Step 006 的公共 pipeline 卡；不把回查公共实现视为切回原生调度路线。未新增函数卡或修改运行代码。

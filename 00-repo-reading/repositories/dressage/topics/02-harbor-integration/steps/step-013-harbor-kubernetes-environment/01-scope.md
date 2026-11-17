@@ -4,6 +4,12 @@
 
 > 状态：2026-11-13，按用户明确的范围先读环境接口，不进入具体后端。对象创建、启动包装与 BaseEnvironment.start 已讨论；exec、文件传输、stop 的六张方法卡已按用户要求建立，尚待逐项讨论。Agent Sandbox 实现与运行验证保留为待办，本步尚未完成。
 
+> **2026-11-17 回访**：Step 016 的清理主线之后，用户要求先核对环境接口及现成接入例子。见[沙箱接口对照与阅读入口](../../../../references/harbor-sandbox-interface-map.md)。下方旧导航保留当时阅读位置；本轮不将旧卡片状态升级为已掌握，也未开始接入实验。
+
+> **同日补充目标**：用户进一步要求理解 DSec 所代表的系统问题，以及题目环境怎样经预热池、Claim 和 Kubernetes 交给 `Environment.start()`。本轮系统图见[沙箱供给与预热](../../../../references/sandbox-supply-prewarm-and-kubernetes.md)；先建立这一交接模型，具体函数入口为后续建议。
+
+> **2026-11-17 运行前提与组合判断**：用户要求从 Slime 出发，在无本地 GPU 的条件下调用国内厂商 LLM API，先完成任务执行与评测。独立记录见[Slime 起点的 API 评测方案](../../../../references/slime-api-evaluation-integration.md)。下方历史骨架保留原调用语境；新的无 GPU 入口与 API 适配尚待核对，不能将原训练路径视为已支持该方案。
+
 ## 1. 阅读目标
 
 **先看清 Harbor 如何取得和启动环境对象，再认清执行命令、文件传输与停止的接口要求；用这些合同继续理解 Agent 执行主线。**

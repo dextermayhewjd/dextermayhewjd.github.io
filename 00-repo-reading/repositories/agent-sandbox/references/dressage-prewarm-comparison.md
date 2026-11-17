@@ -112,3 +112,20 @@ future sample + its environment arguments
 要区分两个目标：把 Dressage 程序部署到一个 Pod 中，可以额外编写部署清单；让 Dressage 每次为任务创建、等待和回收一个 Pod，则需要底层 provider 或外部平台支持。当前仓库没有现成配置把这两件事自动接起来。
 
 核对方式：搜索自有代码中的 Kubernetes/k8s/kubectl/Pod API 等关键字，盘点 git 跟踪的 YAML 和 Dockerfile，并核对 provider 工厂与生命周期入口。Git 子模块 slime 当前未初始化（git submodule status 的前缀为 -），不把本次结论扩展到未展开的上游子模块或外部 E2B/Harbor 服务。未安装、部署或启动任何运行环境。
+
+
+<a id="revisit-for-harbor-integration-20261117"></a>
+
+## 2026-11-17：复用原生预热认识，收敛 Harbor/K8s 接入路径
+
+用户的问题分为四项：记忆核实（blackbox dispatch 是否已有预热）；机制核实（它怎样准备与交接）；方案判断（当前是否应考虑复用）；目标约束（K8s 主要服务接入与岗位实践，不无限扩大阅读）。
+
+本机 `/home/hongshi/projects/Dressage` HEAD 仍为 `3e3142fe8ea07e4504c3b20a936a4c201a3de44c`，工作区干净。重新读取 scheduler.py、store.py、config.py、blackbox_dispatch.py 和 fully_async_rollout.py，并查阅 Dressage 原生 Step 002 的 start/claim 卡。原生预热已实际讨论过，不能当作完全没读过的新模块。
+
+真实交接仍是 do_prefetch 取后续组 → 按 sample 创建固定 session 的初始化 Task → store 保存 → dispatch 按 session claim → await 同一 Task → 使用返回 state。没有预热记录或初始化失败则按新 session 内联初始化。claim 命中也可能等待，组选择仍是 FIFO。store 保存的是初始化记录/任务，不是 Kubernetes WarmPool 资源。
+
+限制同样仍在：prewarm_enabled 仅对 provider=e2b 开启；provider 工厂公开 e2b/local_bwrap。对当前 harbor integration 源码搜索未见 PrewarmScheduler、start_prewarm 或 claim_prewarm 调用，所以不能说 Harbor Environment.start 已复用这套预热。任务特定的提前初始化与集群侧按模板维持库存可以组合，但需要显式设计环境身份、所有权与清理，不能直接叠加后假定可用。
+
+针对用户当前目标的建议：先用已有 start/claim 卡短回顾，保留“已知下一题就提前初始化、以后领回同一份环境”的模式；继续沿 Harbor Environment 接入 Agent Sandbox，不另外启动将原生 PrewarmStore 移植到 Harbor 的工程。先完成一份环境的真实命令/文件/释放，再加入一个小预热池，验证两份 Trial 独立领取与回收，最后记录一次失败定位及冷/热时间。只有实测表明需要按未来题目精确前瞻时，再将原生预热策略作为改进候选。
+
+此为阅读和实践建议，不代表新步骤已获确认、代码已移植或集群验证已完成。此次未运行测试或云服务。

@@ -275,3 +275,74 @@ scope 3A–3C、本步索引和入口同步链接本地卡，保留“已建卡�
 ## 2026-11-13：确认接入 Step 014
 
 用户确认“好的 那么看一下这里的这个step014吧”。后续当前进度在项目入口维护；本步待回查项保留，记录以 03 + 02 合并进入 Step 014，未将本步登记为全部完成。
+
+
+## 2026-11-17：回访沙箱需要提供哪些接口
+
+用户追问 BaseEnvironment 需要哪些接口、实际调用了多少沙箱相关能力，以及是否有现成 Agent Sandbox 接入例子。助手静态核对七个运行操作、九个抽象方法、官方自定义模板和 E2B/GKE 实现，区分接口种类与运行次数；在线示例文档存在，但引用的适配包尚未核实可用。完整对照见[接口 reference](../../../../references/harbor-sandbox-interface-map.md)。本轮未启动新步骤、未创建未读函数卡、未运行容器或集群。下一精读入口建议为官方子类模板，用户尚未反馈理解。
+
+
+## 2026-11-17：从单沙箱接口转向预热与集群供给
+
+用户明确希望参考 DSec，理解 Kubernetes 的对接位置、Agent Sandbox 的预热，以及 start 如何取得题目预先准备的环境，同时学习 K8s。助手核对原论文、官方 Agent Sandbox README、Harbor 示例和在线 Claim/WarmPool 控制器，区分镜像构建、运行中预热和本次初始化；区分 DSec 自有架构与 K8s 实现路径。说明和来源保存到[供给链 reference](../../../../references/sandbox-supply-prewarm-and-kubernetes.md)。推荐以 Claim 领取问题进入，按需回查 WarmPool；尚未开启新的函数精读，也未改变 Agent Sandbox Step 003 的理解状态。
+
+
+## 2026-11-17：预热池不等于控制面无限扩展
+
+用户追问高并发是否打满 API server。助手检索官方 performance-tuning、configuration、apf-insulation 和 main 控制器源码，区分突发热领取与持续补池，补充候选缓存、事件过滤、expectations、限速和 APF 的作用及默认未启用的边界。特别指出持续流量下延迟补池可能耗空池。细节与来源在[API 压力记录](../../../../references/sandbox-supply-prewarm-and-kubernetes.md#api-server-pressure)。只有静态和文档证据，没有本机吞吐结论；没有新增步骤或部署动作。
+
+
+## 2026-11-17：Step 013 与 Agent Sandbox 主题怎样分工（建议）
+
+用户在明确岗位范围后，询问是否新建 Agent Sandbox topic，或在 Step 013 中理解用法，并强调预热池接入的重要性。核对发现已有 Dressage topics/03-agent-sandbox 导航及独立 Agent Sandbox Kubernetes 主题，因此建议复用它们，不重复建主题。
+
+建议 Step 013 继续承载使用与适配主线：题目映射到环境规格；运行前怎样准备匹配的池；start 怎样申请 Claim、等待并保存访问身份；后续操作和 stop 怎样使用/释放同一份环境。七个操作是共同接口，不足以单独说明预热供给；提前准备池属于批次/作业准备或独立部署阶段，不要求新增第八个 BaseEnvironment 方法，也不假定当前 Job 已实现该准备动作。
+
+Agent Sandbox 主题负责按需解释资源创建、Ready、补池、领取归属与回收的实现。推荐本轮先在 Step 013 用一份题目、一种模板、一个池、一份 Claim 建立使用关系，遇到实际机制问题再链接已有主题；不将所有控制器和性能调优都列为使用前置。尚未确认新的具体精读函数，未改写旧步骤状态或创建新卡片。
+
+
+## 2026-11-17：镜像构建、节点缓存与运行中预热的区别
+
+用户追问重型镜像是否提前下载及工业界选择。助手核对 Kubernetes 镜像文档、Agent Sandbox 示例、GKE Image streaming、Dragonfly 和 DSec 原论文，区分预先构建、节点缓存和已启动备用环境，说明领取后仍可能存在动态依赖与懒加载 I/O；记录在[镜像与预热](../../../../references/sandbox-supply-prewarm-and-kubernetes.md#image-preparation-and-warm-pools)。未新增必读模块，未运行性能实验。
+
+
+## 2026-11-17：回查 Dressage 已有预热而不是重新扩展学习
+
+用户要求先拆解问题，再核对黑盒 dispatch 预热、实现及最优接入/岗位路径。重新读取本机原生预热源码和 Step 002 已读函数卡，核实按 session 保存/领取初始化 Task，说明 provider=e2b 限制与 Harbor 路径没有自动复用。建议先回顾旧认识，继续当前 Harbor 接入路线，以小规模运行、预热、独立领取及一次排障为边界；不自动移植两套预热。核对与方案见[原有对比记录](../../../../../agent-sandbox/references/dressage-prewarm-comparison.md#revisit-for-harbor-integration-20261117)。
+
+
+## 2026-11-17：从框架阅读转向可交付集成的讨论
+
+用户进一步询问 Dressage 原生路线与镜像、Harbor 接入的关系，并希望选定框架组合，安排后续阅读与代码构建，为岗位形成能力。
+
+静态核对：E2B provider 的 _template_for_spec 从 sandbox_image/default_template 选预先构建模板，原生路线无需 Harbor 也有环境镜像/模板。Dressage docs/harbor.md 明确提供 Harbor rollout 与同步训练路径；训练脚本使用 dressage.integrations.harbor.rollout.generate_rollout_harbor_sync 并调用 Slime train.py。此前“原生预热没有被 Harbor 复用”不能推成“Dressage 没有 Harbor 集成”。
+
+讨论中的建议（尚未确认实施设计）：整体沿 Dressage 已有 Harbor 集成线，Harbor 负责任务生命周期，Agent Sandbox 提供 K8s 环境，Dressage 负责模型请求/轨迹与训练交接，Slime 负责参数更新。自有代码聚焦环境适配、任务/Agent/评测扩展、配置与边界验证，避免同时运行两套 Trial 调度与清理。先验证一个任务/一个 Agent/一个环境闭环，再增加预热与训练。当前已有明确版本接缝：Dressage 锁 0.18.0，所读 Harbor 是 0.25.0，尚未完成迁移验证。是否首版必须真实更新模型参数会影响实现范围，需要用户进一步确定。未新增设计文档、代码或未读函数卡。
+
+
+<a id="slime-api-evaluation-20261117"></a>
+
+## 2026-11-17：保存组合判断，并修订为 Slime 起点的 API 评测
+
+用户要求把上一轮框架组合判断单独记录，并补充：“我只会需要一开始从slime这个框架出发”“但是我没有实际的gpu”“发往具体的llm api的国内的厂商”，希望由此理解模型的具体表现。
+
+已将判断保存为[独立参考文档](../../../../references/slime-api-evaluation-integration.md)，从当前 scope 与项目入口链接。上一轮先以 Harbor 跑通、随后接回 Slime 的建议由本轮前提修订：首版从 Slime 发起，通过远端 API 运行任务与评测，不更新模型权重。
+
+助手区分：评测观察的是模型在给定 Agent、工具、环境和题目条件下的表现；API/沙箱故障需要与模型答错分开。静态核对 Slime train.py，eval-only 判断前已有训练模型初始化与权重同步；Dressage SGLangRouterClient.generate 使用 /generate 和 input_ids 等专用协议。由此仅确定需要核对无 GPU 启动路径及模型接口接缝，不承诺替换 URL 即可运行，也不把缺少真实 token/logprob 的评测记录当成训练轨迹。
+
+本轮只保存目标、来源与候选推进顺序；未新开 step、创建未读函数卡、修改框架源码、调用厂商 API 或执行集群实验。
+
+
+### 同日补充：以 Dressage 的局部修改实现 API 后端
+
+用户澄清希望沿 Harbor 路线跑通，在 Dressage 内做小幅度代码修改，以便对比原实现。助手据此修订独立参考文档：复用 Job/Trial 与评测生命周期，候选改动集中在模型请求、结果整理和无 GPU 启动接缝；保留原 SGLang 路径，按独立改动组织对照。静态核对 GenerationController 结果含 token/logprob/版本，尚不能断言只改客户端或少量几行即可完成。模型后端与 K8s 环境适配分别评估；本轮只修改阅读记录，未实施框架改造。
+
+
+### 同日确认顺序：先模型 API，后 Agent Sandbox
+
+用户强调已走过 Dressage 的 Harbor 路线，当前只希望对该路径上需要模型 API 的部分作最小修改，成功后再换 Agent Sandbox。已将该顺序记入独立方案第 6 节：先在可用环境后端完成无本地 GPU 的模型 API 任务闭环，再单独替换环境并验证。助手澄清 API 范围为模型请求及必要数据依赖；共同出口应集中适配，不将所有接口或调用点逐一替换。环境后端尚待确定，未实施或运行验证。
+
+
+### 同日预热核对：更正“Harbor 没有任何预热”
+
+用户询问下一步并要求核对无预热的原因。已核对 Trial 委派 Environment.start、E2B 模板与实例创建，以及 ACK 的 SandboxClaim 预热领取分支。结论：原生 Dressage 预取链未接入 Harbor，但 Harbor 后端能够自行封装热领取；ACK 属 OpenKruise，不能冒充目标 Agent Sandbox 接入已完成。架构职责解释与作者动机分开，细节记录在独立方案第 7 节。建议 API 阶段先定位消息到模型后端及结果消费的修改边界，预热实现仍在第二阶段；未新开 step 或运行实验。

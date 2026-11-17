@@ -14,16 +14,24 @@
 
 **后续阅读顺序**以各步最新 scope 为准（2026-11-12 按调用交接调整，登记在[阅读规划](references/integration-reading-plan.md#call-order-scopes-applied-20261112)）；原整体顺序见[接入阅读规划](references/integration-reading-plan.md)：旧 blackbox generate 主线收尾 → Dressage 的 Harbor 批量入口 → Harbor Trial → Environment 与 K8s 适配 → 模型与结果采集。规划负责顺序，研究报告负责技术依据；按本次要求已准备后续各步 scope，尚未生成未读函数卡。
 
+2026-11-17 运行前提补充：**从 Slime 发起、无本地 GPU、调用国内厂商 LLM API，先观察 Agent 任务表现与评测结果，不做权重更新。** 框架组合判断、适配边界和候选推进顺序单独保存在[Slime 起点的 API 评测方案](implementation/minimax-harbor/README.md)。现已按用户要求建立独立实施单元；未启动新的阅读 step 或完成接入验证。
+
 ## 源码与当前接续
+
+- 2026-11-17 改造基线确认：用户指定当前本地 Dressage，提交 `3e3142fe8ea07e4504c3b20a936a4c201a3de44c`，`main` 工作区干净；重新检查发现 origin 已变为 `git@github.com:dextermayhewjd/Dressage.git`。后续 API 适配以此为基线，详见[基线记录](implementation/minimax-harbor/README.md#baseline)。下方此前 remote 核对记录保留历史归属。
 
 - 当前本机源码仓库：`/home/hongshi/projects/Dressage`（2026-11-16 核对，工作区干净，origin 为 `https://github.com/Accio-Lab/Dressage.git`）。历史路径 `/home/fredkeira/projects/Dressage` 与 `/Users/dextermayhew/projects/Dressage` 保留在旧记录中。
 - 本轮核对提交：`3e3142fe8ea07e4504c3b20a936a4c201a3de44c`。
 - Harbor 版本对照（2026-11-11）：本机已有 `/home/fredkeira/projects/harbor`，HEAD `500af91374dcc43b59fac54cf90295646617b14d`；pyproject 标为 0.25.0，但比发布标签多 123 个提交。Dressage 已读调用方仍依据其锁定的 0.18.0；用户现已确认 Step 011 起直接读 Harbor v0.25.0 发布标签（fdba28fc），跨版本运行待验证；[来源与升级核对](references/agent-sandbox-harbor-compatibility.md#harbor-version-upgrade-20261111)另存，旧阅读记录保留版本归属。
 - Harbor 当前本地源码（2026-11-16）：`/home/hongshi/projects/harbor`，HEAD 与 `v0.25.0` 标签均为 `fdba28fc411e47e8765420a1a063b4918fce3def`，工作区干净，origin 为 `https://github.com/harbor-framework/harbor.git`。后续沿用此路径；上条保留旧环境的版本对照历史。
-- 当前接续：2026-11-16，用户确认快速进入 [Step 016](topics/02-harbor-integration/steps/step-016-cancellation-and-retries/01-scope.md)，只追一次外部取消：Trial.run → CANCEL 标记 → finally/END 清理 → 继续传播取消。Step 015 正常结果主线已讨论，_commit_attempt_once 仅读结果构造、未完整展开；不把保留内部细节当作进入实践的前置。Step 016 尚无运行验证或用户复述。
+- 当前接续：2026-11-17，[Step 016](topics/02-harbor-integration/steps/step-016-cancellation-and-retries/01-scope.md) 的单次外部取消、清理正常完成路径已完成本轮源码阅读：取消记录/CANCEL → 输出恢复 → finally/END → 脱敏/日志关闭 → 继续传播取消。用户已讨论并复述相关职责，不等于全部分支掌握；未验证真实资源释放。当前按用户要求回访 Step 013，先核对 BaseEnvironment 的沙箱接口及现成例子，见[接口对照](references/harbor-sandbox-interface-map.md)。Step 017 接入验证尚未开启；普通失败重试和复杂清理不新增为必读前置。
 - 阅读深度反馈（2026-11-09）：用户表示逐函数下潜负担过重，同时希望保留 Step 010–017 来理解 Harbor 接入与评测框架整体。继续沿既有路线走通模块主线，按接口、资源和数据正确性决定下钻深度，不自动把每个 helper 变成必读卡；在生命周期和环境接口清楚后穿插最小实践，不等最后才验证。已读记录与编号保留，未实施边界见 [Step 010 形成过程](topics/02-harbor-integration/steps/step-010-harbor-rollout-entry/04-flow.md)。
 - 阅读方式：先收尾原生 generate 的轨迹、样本和清理，再沿 Harbor 接入主题推进。深度依据[学习指南 4.3](references/design-on-slime.md#six-stage-reading-order)，不把每个辅助函数扩成独立专题。
 - 当前学习内容在 Markdown 中预览；博客呈现另按用户明确要求处理。
+
+## 实施任务入口
+
+[MiniMax × Harbor 改造实践](implementation/minimax-harbor/README.md)：从已确认的 Dressage fork 版本出发，先完成 Slime 发起的无 GPU API 评测，再接 Agent Sandbox。实施进度只在该单元 README 维护；下方 topics 保留源码阅读历史与函数卡。
 
 ## 主题入口
 
@@ -37,7 +45,9 @@
 
 <a id="confirmed-reading-and-implementation-route"></a>
 
-## 已确认的阅读与实施顺序
+## 已确认的阅读与实施顺序（历史安排）
+
+> 以下保留此前以 AgentLab 项目与 Step 017 为落点的安排。2026-11-17 用户已确认本轮改为在 Dressage fork 上实施，现行计划见 [implementation/minimax-harbor](implementation/minimax-harbor/README.md)；不将旧安排自动列为本次前置。
 
 以腾讯混元 Agent 强化学习框架岗位为主目标，使用现有 slime_api_data_collecting 项目承接实践。三个 topic 是同一条学习与实施路线的组成部分，按下面的交接继续：
 
@@ -72,3 +82,7 @@
 早期整理时，原 steps 目录曾已不存在。此前项目入口对 Step 1 的描述保存在[历史快照](topics/01-native-agent-rollout/steps/step-000-slime-bridge-and-interfaces/references/project-entry-before-step0.md)，不据此重建旧函数卡片或推断用户掌握状态。本次 topic 整理完整保留后来实际建立的 Step 000–006 记录；当前接续只在本页维护。
 
 [认知阅读指南](cognitive-reading-guide.md)与岗位对照保留作既有参考；其中旧步骤安排不覆盖本轮确认的 scope。源码解释、个人理解和真实运行证据分别记录。
+
+## 沙箱基础设施与岗位参考
+
+- [沙箱基础设施、岗位职责与本地实践：原始讨论](implementation/references/sandbox-infra-discussion-original.md)：实施公共参考材料，不限定于 MiniMax 接入；保留用户提供的正文，尚未逐项核验。

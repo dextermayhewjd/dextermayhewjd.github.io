@@ -695,3 +695,21 @@ CLI 的 ANTHROPIC_BASE_URL 为 ctx.adapter_url，对应 Slime 的 AnthropicAdapt
 > 其余的都是格式方面的一系列转换？
 
 助手校准：本轮目的已可收束，记录内部留为黑箱。Gateway 按请求身份找到对应路由/Proxy；Proxy 适配协议、组织模型请求并采集有会话归属的生成资料；真正推理采样在 SGLang Engine，Proxy 传递采样参数并取得文本、token、概率等。记录与归属、执行协调也属于其职责，不能全部概括成格式转换。回到 Step 014 已有执行结束交接，不新增内部必读函数，也不把未读机制或运行验证标为完成。
+
+
+## 2026-11-17：为 Harbor API 适配回查生成控制器
+
+用户要求定位 generate_preemptible 的输入、调用和结果依赖。已静态核对 server.py:1939/2087/2198、generation_controller.py:159/244/293/675 及 sglang_client.py:176/208；控制器收到 token 输入，返回消费包含 token/logprob/版本，不能把它当成通用 messages 客户端。适配候选应回看 pipeline 的对话消息边界，准确设计尚未确定。定位保存到项目 references/slime-api-evaluation-integration.md；本轮没有修改源码或宣称运行通过。
+
+
+## 2026-11-17：回查消息到 token 的边界
+
+用户已描述 Gateway → RolloutLLMProxy → SGLang 客户端的主干，但追问“主要是哪里从文字被tokenizer 变成token的是需要了解的对吗？”，并要求补在原函数卡与 scope 3.2。此次不把已有主干记录当成内部机制已掌握。
+
+按固定提交 3e3142fe 静态核对，首请求从 pipeline 的 _build_prompt_tokens 经 _full_prompt_token_ids 委派到 mask_builder.tokenize_messages，最终以 tokenize=True 调用 tokenizer.apply_chat_template。已在 pipeline 卡第 2 段补充委派链、输入输出与候选 API 边界，scope 3.2 沿用 9.2b 入口。未创建新函数卡、未修改源码、未实际运行 tokenizer；用户是否已理解具体转换仍待后续反馈。
+
+用户随后明确要求将该分支独立成函数卡，并在 scope 3.2 单列入口。已将说明拆为 `_build_prompt_tokens` 卡，新增 9.2b.1；父卡改为短交接链接。先前“未创建新函数卡”描述保留为上一轮状态，本轮按新要求更新。
+
+### 2026-11-17：第 4 段的结果提取与解析
+
+用户询问此处是否取得 response、ID 和 logprob 并经 parser 返回，要求代码旁补注释。已在原 pipeline 卡第 4 段注明：第 3 段取得结果，第 4 段提取与解析；output_ids 是生成 token IDs，parser 的输入是文本；第 5 段记录、第 6 段返回。保留用户原话，未将此追问记为全部掌握。
