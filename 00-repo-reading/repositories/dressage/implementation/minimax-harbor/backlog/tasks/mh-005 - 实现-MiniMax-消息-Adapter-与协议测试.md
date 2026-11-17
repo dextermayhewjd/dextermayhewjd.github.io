@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-11-17 10:22'
-updated_date: '2026-11-17 11:03'
+updated_date: '2026-11-17 11:44'
 labels: []
 dependencies: []
 documentation:
@@ -49,10 +49,12 @@ ordinal: 5000
 用户确认参照 Slime 收窄校验职责，详见 doc-004 8.2：去掉历史语义/嵌套 schema/usage 计数和重复序列化检查；工具参数作为原始模型输出保留，工具层负责解析执行。必要协议结构、网络与资源管理不变。先复现 10 项新预期失败，实现后完整测试 55 项通过；adapter 258→201 行。文档同步，无真实 API 或 bridge 验证，未提交推送。
 
 2026-11-17 用户确认 bridge 的可读性整理后，要求 MiniMax adapter 沿用：generate 保留请求组装→发送→结果转换主线，参数/协议检查及错误处理独立成块；实际映射可直接阅读。既有 76 项测试通过，说明见 doc-004 §8.5。
+
+2026-11-17 任务审计：当前实现已提交至 agent-api-integration 53423621e2bb146638e9a187c52d67803def071d。重新运行 .venv/bin/python -m pytest -q：109 passed in 0.68s（整个项目，非独立 adapter 测试数量）。沿用此前已确认的沙箱外测试方式，供应商 HTTP 为模拟，未读取或提交凭据。三项验收保持通过。早期笔记中的未提交、无 bridge、MH-003 待验证为当时历史状态；当前 bridge 与真实 API 的后续证据见 MH-006，MH-003 已完成。
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-独立 MiniMax adapter 已实现并按用户确认的简洁风格收窄职责，完整测试 55 项通过。保留原始模型输出及必要协议错误，工具执行校验交给消费方。未接入 Dressage pipeline，未调用真实模型，未提交推送；MH-003 仍待验证。
+独立 MiniMax 消息 adapter、完整 assistant/工具消息保留、错误及资源管理已完成。当前 stop=None/[] 与 tool_choice=auto 受支持，非空停止约束及未经验证的工具选择明确拒绝。源码已包含于 5342362；本轮全项目 109 项离线测试通过。后续 bridge 和有限真实 API 验证见 MH-006；真实 Agent/Verifier/Harbor Trial、Slime 和 K8s 不在本任务完成范围。
 <!-- SECTION:FINAL_SUMMARY:END -->

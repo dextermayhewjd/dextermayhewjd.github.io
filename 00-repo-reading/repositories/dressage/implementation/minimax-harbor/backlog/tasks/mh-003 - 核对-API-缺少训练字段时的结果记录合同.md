@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-11-17 06:51'
-updated_date: '2026-11-17 10:57'
+updated_date: '2026-11-17 11:44'
 labels:
   - phase-1
   - migrated
@@ -88,10 +88,12 @@ ordinal: 3000
 - 独立复核发现未映射生成控制参数静默丢失、hooks 审计丢失；新增 6 个失败测试后修复，完整套件通过。另修复 X-Dressage-Expected-Version 检查并测试。
 - 决定：沿用明确空数组的现有评测校验语义，不伪造 IDs/logprobs/versions；保留 training guard，因此仍不能从 Slime 训练入口直接使用非训练 bundle。若误把本验证等同端到端训练，会跳过必要前置，文档已明确区分。
 - 独立 fork 补丁提交 3820149ebfc0536b213ec120b43ec090f09b3fcd（feat/message-api-backend），上游基线 3e3142fe8ea07e4504c3b20a936a4c201a3de44c。本轮不推送远端；适配仓库代码仍为本地改动。
+
+2026-11-17 任务审计：在实施仓库 5342362 / Dressage 3820149 重新运行 .venv/bin/python -m pytest -q，109 passed；结果合同与真实 finalize/read/HarborArtifactStore 测试包含在其中。供应商 HTTP 为模拟，TrialResult 的 reward 是测试输入，没有运行真实 Verifier。三项验收仍有证据支撑，保持 Done；真实 Trial 由 MH-007 承接。
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-明确缺字段与显式无 token 的差别。现有校验允许合法空数组的评测记录；真实 finalize/read/commit 已验证。训练模式继续拒绝，没有伪造训练数据。
+已核对缺失训练字段的消费者约束，并验证缺字段拒绝、显式空数组评测记录接受、训练模式拒绝。真实 Proxy finalize/read 与 HarborArtifactStore 提交在模拟供应商 HTTP、测试 TrialResult 下通过，未验证真实 Verifier。2026-11-17 当前 5342362 / Dressage 3820149 全套 109 项测试通过；真实 Harbor Trial 另由 MH-007 验收。
 <!-- SECTION:FINAL_SUMMARY:END -->

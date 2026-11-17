@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-11-17 10:53'
-updated_date: '2026-11-17 11:34'
+updated_date: '2026-11-17 11:44'
 labels: []
 dependencies:
   - MH-005
@@ -60,10 +60,12 @@ Spec: doc-004。1. tests/test_dressage_result_contract.py 验证真实 validate_
 证据分层：MiniMax Anthropic 兼容文档列出 auto 支持、stop_sequences 忽略；不能直接视为 OpenAI 接口同样支持。另向实际 api.minimax.cn/v1/chat/completions、MiniMax-M3 发三次探测：auto→200/READY；stop=[CUT_HERE]→200但返回 READY CUT_HERE AFTER.，证明该次并未执行停止约束；指定工具→length/无工具，输出预算512，该结果不充分，不能宣称支持或普遍不支持强制调用。
 
 先加回归出现21项预期失败，再实施修订，完整109项通过。包含真实转换器 OpenAI/Anthropic × JSON/SSE、含auto的两轮工具消息交接、空stop、错误类型、约束失败以及不泄露参数值。修改后再发一次真实请求：合成Anthropic请求含空stop_sequences与auto→原转换器→中央Proxy→新Adapter→MiniMax，HTTP200/OK/end_turn，1.15s，finalize1step/read1record。内部HTTP为ASGI；未运行Harbor Trial、真实Agent CLI/Verifier/沙箱。USAGE与测试说明同步；未commit/push。
+
+2026-11-17 任务审计：当前实现已提交至 agent-api-integration 53423621e2bb146638e9a187c52d67803def071d，固定 Dressage fork 3820149ebfc0536b213ec120b43ec090f09b3fcd，两个工作区干净。重新运行 .venv/bin/python -m pytest -q：109 passed in 0.68s；PYTHONPATH=src:third_party/dressage .venv/bin/python -m pytest -q -c pyproject.toml third_party/dressage/tests/test_proxy_client.py third_party/dressage/tests/test_session_manager_cleanup.py：10 passed in 0.14s。四项验收保持通过。此前真实 MiniMax 文本与 RolloutLLMProxy 转换的证据保留于历史笔记，本轮未重跑真实 API。尚未运行实际 Harbor Trial、Gateway 外部网络、Agent CLI、Verifier 或沙箱；MH-007 承接。
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-消息结果合同、Proxy 接入及评测记录提交已完成本地自动验证。76 + 10 项通过，启动 smoke 通过；完整上游训练测试受 PyTorch 缺失限制，真实 API/Harbor/Slime 运行未执行。
+消息后端已接入同一 Dressage Proxy，复用会话、hooks、JSON/SSE 与评测结果提交；训练模式拒绝无 token 记录。实现位于 5342362，Dressage 补丁为 3820149。本轮全项目 109 项离线测试及两组上游回归 10 项通过；原 token 路径仅有最小合成回归，不代表全套训练测试。历史记录另有真实 MiniMax 文本及协议转换验证，本轮未复跑。实际 Gateway 网络、Agent/Verifier/Harbor Trial、Slime 和 K8s 尚未验证；单题验收由 MH-007 承接。
 <!-- SECTION:FINAL_SUMMARY:END -->
