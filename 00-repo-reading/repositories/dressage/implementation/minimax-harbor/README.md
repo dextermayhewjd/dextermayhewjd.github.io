@@ -37,13 +37,13 @@
 | 固定提交 | `3e3142fe8ea07e4504c3b20a936a4c201a3de44c` |
 | 最近检查 | 2026-11-17：`main`，工作区干净 |
 | 本地 origin 配置 | `git@github.com:dextermayhewjd/Dressage.git`；未联网验证远端状态 |
-| Slime 运行基线待统一 | Dressage 固定子模块 `aaf5c209`（本地未初始化）；此前独立 checkout 为 `18868a79`，不得混用版本证据 |
+| Slime 源码核对基线 | Dressage 固定子模块 `aaf5c209`；已从本地 Git 对象导出核对，嵌套工作区仍未初始化。此前独立 checkout 为 `18868a79`，不得混用版本证据；启动边界见 MH-004 |
 | Harbor 依赖 | Dressage 声明 `harbor==0.18.0`；已读的 v0.25.0 不能视为已验证替代版本 |
-| 模型后端 | MiniMax；具体模型名、账户 Base URL 尚待确定 |
+| 模型后端 | MiniMax；实际模型、端点与运行证据见 MH-006 / MH-007；凭据只放本地环境 |
 
 ## 当前入口与记录分工
 
-2026-11-17：Q01–Q04 已迁入 Backlog。当前只完成记录迁移，未执行这些核对任务；状态、验收、依赖和实施结果以任务卡为准，不在本页另建完成列表。
+Q01–Q04 已迁入 Backlog。以下保留迁移映射；当前状态、验收、依赖和实施结果以任务卡为准，不在本页另建完成列表。
 
 | 原问题 | 当前任务 |
 | --- | --- |
@@ -52,7 +52,7 @@
 | Q02 | [MH-003：缺少训练字段时的结果合同](backlog/tasks/mh-003%20-%20核对-API-缺少训练字段时的结果记录合同.md) |
 | Q03 | [MH-004：Slime 无 GPU 发起路径](backlog/tasks/mh-004%20-%20核对-Slime-无-GPU-发起路径与实际版本.md) |
 
-当前先沿 MH-002 从已有阅读步骤确认消息接入边界；需要运行验证时再处理 MH-001 的环境兼容性，并结合 MH-004 核对 Slime 启动。四项均为调查任务，未设置强制依赖；实际实现或联合验证需要前置结果时，再按真实关系添加依赖。MiniMax 模型名、账户 Base URL 和首轮可用环境仍需确定。
+运行接续查看 [MH-007：单题 Harbor Trial 验收](backlog/tasks/mh-007%20-%20通过现有-Dressage-插件完成-MiniMax-单题-Harbor-Trial-验收.md)，以卡内验收证据为准。[MH-004](backlog/tasks/mh-004%20-%20核对-Slime-无-GPU-发起路径与实际版本.md) 记录 Slime 源码调查与最小适配边界：调查完成不代表 Slime 已能发起纯 API 评测。完整目标仍包含 Slime 发起的实现验证及 Agent Sandbox 后端接入，不能因独立 Harbor 成功而省略。具体依赖以 Backlog 为准，旧调查顺序不再作为当前进度。
 
 | 需要查看什么 | 唯一维护位置 |
 | --- | --- |
@@ -94,6 +94,8 @@ minimax-harbor/
 原 issues、decisions、plans 三个外部目录已移除，内容去向见上表。函数卡、源码阅读步骤和外层 discussion 参考资料不在本次迁移范围内。
 
 ## 补充参考
+
+- [奖励处理扩展点与面试笔记](../references/reward-hooks-and-interview-notes.md)：Slime 已读机制、Dressage 自定义规则与 load_function 的合同边界。
 
 - [原始 discussion 的完整提取](../references/sandbox-infra-discussion-extraction.md)
 - [discussion 事实核对](../references/sandbox-infra-discussion-fact-check.md)
