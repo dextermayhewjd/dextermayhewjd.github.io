@@ -257,3 +257,25 @@ Step 014 与 Step 006 补读已说明 Agent 的模型请求如何经过 Gateway/
 ### 补齐最终登记函数卡与接入边界
 
 用户指出已确认的函数却没有卡片，并表示连续阅读 Slime、Dressage、Harbor 已疲惫，询问何时能接入 Kubernetes Agent Sandbox。本轮补齐 write_job_manifest 卡并直接链接 scope 6.1。助手建议本步正常链路收尾后即可切环境接缝，不把所有取消、恢复、控制器内部机制列为接入前置；真正实现时需重新核对适配代码、版本兼容和可用集群，既有历史记录不代表当前已跑通。
+
+
+## 2026-11-16 · 从组检查理解 ArtifactStore 的职责
+
+用户要求接清 Step 015 的整体作用，以及 _run_partition 中 selected_keys、manifest_state、write_job_manifest 与返回 outcomes 的关系。核对本环境可用的 /home/fredkeira/projects/Dressage 固定提交 3e3142fe，rollout.py:827–878 和 artifacts.py:537–684；项目入口所记 /home/hongshi 路径在本环境不存在，未据此改写旧环境历史。
+
+解释以“先保存各次尝试，再检查整组，最后登记采用”为主线：Store 管理 bundle 与身份索引，write_job_manifest 接收调用方的选择，更新 superseded/未选用时 trainable=False，并在磁盘模式写最终清单；它不重新判题或转换 Sample。manifest_state 是这次组结果处理的完成状态，不是 reward 高低；返回值仍是所有组按原位置排列的 outcomes，失败留给上层处理。已采用不等于强制 trainable=True。当前仍是源码讲解，未执行产物写入。
+
+
+## 2026-11-16 · 在 manifest 卡片补清调用前的数据
+
+用户明确要求先给方案、不直接修改 _run_partition，随后确认重写 write_job_manifest 卡片。此次只在当前卡片补充 bundle 的内容与身份分别进入 outcome、组检查后汇总 selected_keys 的关系；A/B 两组静态例子折叠呈现，接真实调用的参数改名关系。内部三段沿用同一例子并添加阅读问题；原话与未知保留。未修改 _run_partition 或推进进度，未执行文件写入实验。
+
+
+## 2026-11-16 · manifest 卡片改为先看调用前后
+
+用户反馈数据链仍不易理解，确认采用具体 A/B 问题、调用前状态、调用与调用后变化的顺序。此次把这条对照作为卡片默认正文，名单来源移入按需回查，内部状态更新、形成清单和写入完成三段折叠；原话、未知、模式边界保留。仅重排当前函数卡，未修改 _run_partition，也未把教学示例记为真实运行。
+
+
+## 2026-11-16 · manifest 卡片恢复连续代码的数据流
+
+用户反馈前后状态故事与表格仍不够紧凑，更认可原有连续代码，只需就地补清数据流及修改边界。按确认方案，当前卡默认展示调用方的组结果、selected_keys、manifest_state、await 与返回；标明组检查修改 outcome、名单计算尚不修改 Store、await 才进入当前函数。内部三段保留到一个按需折叠入口中，不再默认铺开 A/B 故事与多张表。_run_partition 原卡未修改；源码与教学省略明确区分。

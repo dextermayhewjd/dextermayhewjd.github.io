@@ -2,7 +2,7 @@
 
 [主题入口](../../README.md) · [项目进度](../../../../README.md) · [前一范围](../step-015-harbor-results-and-samples/01-scope.md) · [下一范围](../step-017-integration-validation/01-scope.md)
 
-> 状态：2026-11-12 按真实调用交接调整。本页是已确认的后续 scope；本轮只更新范围与导航，尚未开始本步阅读或创建函数卡。 Harbor 入口统一依据 v0.25.0 发布版；没有运行任务、安装、模型或集群验证。
+> 状态：2026-11-16 用户确认开始快速阅读。当前只沿 Trial.run 的单次外部取消路径，接 CANCEL 标记、finally/END 清理和不提交训练 bundle 的边界；普通失败重试按需，尚无运行验证。
 
 ## 1. 阅读目标
 
@@ -60,43 +60,54 @@ Agent == HTTP ==> Gateway -> Dressage Proxy -> 模型服务
 
 ### 3.2 本步骨架与阅读顺序
 
-下面是普通单步任务的教学裁剪。按编号进入当前局部，弄清交接后回到真实调用方；前置回查、能力对照和验证不会冒写成一条连续执行栈。
+**当前：[3] 关闭桥接、恢复输出。** 从 Trial.run 的取消分支进入；本轮只看一次取消且清理正常完成的路径，不重读准备阶段或 asyncio 内部。下方与本步函数卡使用同一套 [1]–[6] 编号。
 
 ```python
-# 本步是回看另一种情景，不是正常结果之后才执行的新阶段。
-[1] Job / Trial 正在执行时，调用方发出取消
-  -> Trial.run 的 except CancelledError
-       -> 记录异常
-       == CANCEL ==> plugin._on_cancel   # 标记本次尝试，必要时停止路由接纳。
-       -> 关闭 bridge、恢复可取输出
-       -> raise                           # 继续传播取消。
-  -> finally: Trial._finalize
-       -> 环境停止与 END
-       == END ==> plugin._on_end -> _finalize_attempt
-            -> 取消分支不生成训练 bundle
-            -> finally: _close_attempt
-  -> 上层收到取消，走各自 finally / 中止处理
-
-# [2] 按需另选普通失败场景；不要与上面的取消画成同一条路径。
-TrialQueue._execute_trial_with_retries
-  -> result = await trial.run()
-  -> 检查 result.exception_info 和重试策略
-       -> 允许时重新 Trial.create(...)，形成新的物理尝试
-# [3] 对照实际资源、日志与最终选用状态，验证清理和结果归属。
+# 已完成结果初始化和 START 通知；本轮省略普通 Exception 分支与日志。
+try:
+    await self._prepare()
+    if not self.config.install_only:
+        await self._run()               # 假设在这里收到一次取消。
+except asyncio.CancelledError as exc:
+    self._record_exception(exc)         # [1] 记录取消原因。
+    await self._emit(TrialEvent.CANCEL)  # [2] 通知取消回调。
+    await self._close_bridge()          # [3] 关闭桥接、恢复已有输出。
+    await self._recover_outputs()       # 单步实现还会收集产物并停止环境。
+    raise                              # [4] 继续传播，但先经过 finally。
+finally:
+    try:
+        await self._finalize()          # [5] 主要收尾与 END 通知。
+    finally:
+        try:
+            self._scrub_jobs_dir()      # [6] 尝试脱敏，随后关闭日志。
+        finally:
+            self._close_logger_handler()
+# 原函数末尾还有 return self.result；取消路径不走这个正常返回。
 ```
 
 <a id="reading-sequence"></a>
 
-| 阅读顺序与入口 | 从哪里进入 | 读到哪里停、返回哪里 |
+| 阅读顺序与入口 | 函数卡定位 | 本轮看清什么、返回哪里 |
 | --- | --- | --- |
-| 1. 一条取消路径 | [Trial.run:610–631](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/trial.py#L610) · [已读收尾卡](../step-011-harbor-trial-lifecycle/02-short-term-memory/functions/harbor/trial/trial.py/Trial._finalize.md#finalize-mainline) | 标清 CancelledError 的记录、CANCEL、raise 和 finally；用实际调用位置验证取消传播。 |
-| 1a. 只追相关插件收尾 | [_on_cancel:731](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/integrations/harbor/plugin.py#L731) → [_finalize_attempt:751](https://github.com/Accio-Lab/Dressage/blob/3e3142fe8ea07e4504c3b20a936a4c201a3de44c/dressage/integrations/harbor/plugin.py#L751) | 区分 CANCEL 标记与 END 最终清理；只看取消分支和 _close_attempt，不重新遍历正常提交。 |
-| 2. 普通失败重试 · 按需 | [_execute_trial_with_retries:194](https://github.com/harbor-framework/harbor/blob/fdba28fc411e47e8765420a1a063b4918fce3def/src/harbor/trial/queue.py#L194) | 仅在选择重试案例时，看返回异常结果后的条件、次数与新 trial_id；不把取消当作自动重试。 |
-| 3. 验证资源与结果 | [环境合同](../step-013-harbor-kubernetes-environment/01-scope.md) · [结果合同](../step-015-harbor-results-and-samples/01-scope.md) | 观察环境资源、路由、日志与最终产物；检查错误分类、重复提交和旧尝试是否误选，记录真实证据或明确未验证。 |
+| **[1] 记录取消原因 · 已讨论** | [Trial._record_exception 函数卡](02-short-term-memory/functions/harbor/trial/trial.py/Trial._record_exception.md) | 看 exc 怎样变成 exception_info，并写入 traceback 文件；已有记录则保留。读完返回 Trial.run 的 [2]，不继续下钻格式化。 |
+| **[2] 通知取消回调 · 已讨论** | [DressageHarborPlugin._on_cancel 函数卡](02-short-term-memory/functions/dressage/integrations/harbor/plugin.py/DressageHarborPlugin._on_cancel.md) | 只追 _on_cancel 的取消标记及必要 quiesce，返回 [3]；不扩展通用分发机制。 |
+| <a id="current-reading"></a>**[3] 关闭桥接、恢复输出 · 当前** | [Trial.run：[3] 两个清理调用](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-recover) | 无 bridge 时关闭调用直接返回；单步恢复包括输出同步、产物收集和停止环境。正常完成后接 [4]，不下钻传输实现。 |
+| **[4] 继续传播取消** | [Trial.run：[4] raise](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-reraise) | 重抛前进入 finally 的 [5]，不走正常返回。 |
+| **[5] 主要收尾与 END** | [Trial.run：[5] _finalize](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-finalize) | 接清停止环境、END 与插件取消分支；跳过训练 bundle 提交，仍尝试关闭，然后接 [6]。 |
+| **[6] 脱敏与日志关闭** | [Trial.run：[6] 嵌套 finally](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-final-cleanup) | 前项清理失败仍尝试后项；都正常完成时，取消继续向上传播。 |
 
-**本步局部验证**：只选择一个可复现故障，一次正常结果作对照。若只发出了取消而未观察资源消失，不能写“已证明不泄漏”；若无运行条件，就保留待验条件，不继续枚举源码分支代替验证。
+编号是同一条取消路径的观察点；[2]、[5] 内部经已登记回调连接 Dressage 插件。骨架表示教学裁剪，不保证所有清理调用都成功；清理异常可能改变最终传播的异常。
 
-**读后接续**：把正常与故障的小验证带到 [Step 017](../step-017-integration-validation/01-scope.md)复跑；不再新增一套通读队列或控制器的前置课程。
+**停止位置**：能说明“取消被接住后仍会向上传播、最终清理由谁承担、取消尝试为何不进入正常训练 bundle 提交”。到这里即可转向实践；不要求读完所有关闭函数。再次取消或清理异常可能改变结果，源码存在 finally 不等于已证明远端资源释放成功。
+
+<details>
+<summary>后续按需：普通失败重试与实际取消验证</summary>
+
+- **普通失败重试是另一种情景**：`TrialQueue._execute_trial_with_retries`（Harbor `queue.py:194`）检查返回结果的 exception_info 与策略，必要时创建新尝试；本轮外部取消不自动进入这条重试路径。
+- **实际验证留到接入时**：参考 [环境合同](../step-013-harbor-kubernetes-environment/01-scope.md)、[结果合同](../step-015-harbor-results-and-samples/01-scope.md)，运行一条正常任务作对照，再取消一次，观察进程/环境、路由和最终结果。没有运行条件时明确留作待验，不以更多源码分支代替验证。
+- **接续 [Step 017](../step-017-integration-validation/01-scope.md)**：在可运行的接入中检验上述清理责任与结果边界；遇到实际失败，再回到对应实现。
+
+</details>
 
 <details>
 <summary>源码版本、历史与验证边界</summary>

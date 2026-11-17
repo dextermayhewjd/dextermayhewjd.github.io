@@ -20,7 +20,7 @@
 - 本轮核对提交：`3e3142fe8ea07e4504c3b20a936a4c201a3de44c`。
 - Harbor 版本对照（2026-11-11）：本机已有 `/home/fredkeira/projects/harbor`，HEAD `500af91374dcc43b59fac54cf90295646617b14d`；pyproject 标为 0.25.0，但比发布标签多 123 个提交。Dressage 已读调用方仍依据其锁定的 0.18.0；用户现已确认 Step 011 起直接读 Harbor v0.25.0 发布标签（fdba28fc），跨版本运行待验证；[来源与升级核对](references/agent-sandbox-harbor-compatibility.md#harbor-version-upgrade-20261111)另存，旧阅读记录保留版本归属。
 - Harbor 当前本地源码（2026-11-16）：`/home/hongshi/projects/harbor`，HEAD 与 `v0.25.0` 标签均为 `fdba28fc411e47e8765420a1a063b4918fce3def`，工作区干净，origin 为 `https://github.com/harbor-framework/harbor.git`。后续沿用此路径；上条保留旧环境的版本对照历史。
-- 当前接续：2026-11-16，Step 015 回到 [_run_partition](topics/02-harbor-integration/steps/step-015-harbor-results-and-samples/02-short-term-memory/functions/dressage/integrations/harbor/rollout.py/_run_partition.md) 的转换后主线。用户将 _bundle_samples 理解为 adapter 并确认继续；已讨论 Sample 归组、轨迹数量和版本检查；用户确认将 write_job_manifest 纳入 scope 6.1，当前重点为“已保存不等于最终采用”，先核对选用状态和最终清单，再返回各组结果。卡片调取不表示全部掌握，未执行实验。
+- 当前接续：2026-11-16，用户确认快速进入 [Step 016](topics/02-harbor-integration/steps/step-016-cancellation-and-retries/01-scope.md)，只追一次外部取消：Trial.run → CANCEL 标记 → finally/END 清理 → 继续传播取消。Step 015 正常结果主线已讨论，_commit_attempt_once 仅读结果构造、未完整展开；不把保留内部细节当作进入实践的前置。Step 016 尚无运行验证或用户复述。
 - 阅读深度反馈（2026-11-09）：用户表示逐函数下潜负担过重，同时希望保留 Step 010–017 来理解 Harbor 接入与评测框架整体。继续沿既有路线走通模块主线，按接口、资源和数据正确性决定下钻深度，不自动把每个 helper 变成必读卡；在生命周期和环境接口清楚后穿插最小实践，不等最后才验证。已读记录与编号保留，未实施边界见 [Step 010 形成过程](topics/02-harbor-integration/steps/step-010-harbor-rollout-entry/04-flow.md)。
 - 阅读方式：先收尾原生 generate 的轨迹、样本和清理，再沿 Harbor 接入主题推进。深度依据[学习指南 4.3](references/design-on-slime.md#six-stage-reading-order)，不把每个辅助函数扩成独立专题。
 - 当前学习内容在 Markdown 中预览；博客呈现另按用户明确要求处理。
