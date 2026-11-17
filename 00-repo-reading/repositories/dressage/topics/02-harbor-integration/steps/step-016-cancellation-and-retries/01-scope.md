@@ -2,7 +2,7 @@
 
 [主题入口](../../README.md) · [项目进度](../../../../README.md) · [前一范围](../step-015-harbor-results-and-samples/01-scope.md) · [下一范围](../step-017-integration-validation/01-scope.md)
 
-> 状态：2026-11-16 用户确认开始快速阅读。当前只沿 Trial.run 的单次外部取消路径，接 CANCEL 标记、finally/END 清理和不提交训练 bundle 的边界；普通失败重试按需，尚无运行验证。
+> 状态：2026-11-17，本轮单次取消且清理正常完成的源码阅读已收束；未运行验证。普通失败重试、再次取消与清理异常仍按需回查，不新增必读辅助函数。
 
 ## 1. 阅读目标
 
@@ -60,7 +60,8 @@ Agent == HTTP ==> Gateway -> Dressage Proxy -> 模型服务
 
 ### 3.2 本步骨架与阅读顺序
 
-**当前：[3] 关闭桥接、恢复输出。** 从 Trial.run 的取消分支进入；本轮只看一次取消且清理正常完成的路径，不重读准备阶段或 asyncio 内部。下方与本步函数卡使用同一套 [1]–[6] 编号。
+<a id="current-reading"></a>
+**本轮阅读已收束。** 已从取消记录与 CANCEL 通知，接到输出恢复、finally/END、脱敏和日志关闭；清理正常完成后取消继续传播。运行验证尚未进行，下一步候选为 Step 017，不自动开启。
 
 ```python
 # 已完成结果初始化和 START 通知；本轮省略普通 Exception 分支与日志。
@@ -79,9 +80,9 @@ finally:
         await self._finalize()          # [5] 主要收尾与 END 通知。
     finally:
         try:
-            self._scrub_jobs_dir()      # [6] 尝试脱敏，随后关闭日志。
+            self._scrub_jobs_dir()      # [6a] 尝试对已保存文件脱敏。
         finally:
-            self._close_logger_handler()
+            self._close_logger_handler()  # [6b] 关闭本次日志 handler。
 # 原函数末尾还有 return self.result；取消路径不走这个正常返回。
 ```
 
@@ -91,10 +92,11 @@ finally:
 | --- | --- | --- |
 | **[1] 记录取消原因 · 已讨论** | [Trial._record_exception 函数卡](02-short-term-memory/functions/harbor/trial/trial.py/Trial._record_exception.md) | 看 exc 怎样变成 exception_info，并写入 traceback 文件；已有记录则保留。读完返回 Trial.run 的 [2]，不继续下钻格式化。 |
 | **[2] 通知取消回调 · 已讨论** | [DressageHarborPlugin._on_cancel 函数卡](02-short-term-memory/functions/dressage/integrations/harbor/plugin.py/DressageHarborPlugin._on_cancel.md) | 只追 _on_cancel 的取消标记及必要 quiesce，返回 [3]；不扩展通用分发机制。 |
-| <a id="current-reading"></a>**[3] 关闭桥接、恢复输出 · 当前** | [Trial.run：[3] 两个清理调用](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-recover) | 无 bridge 时关闭调用直接返回；单步恢复包括输出同步、产物收集和停止环境。正常完成后接 [4]，不下钻传输实现。 |
-| **[4] 继续传播取消** | [Trial.run：[4] raise](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-reraise) | 重抛前进入 finally 的 [5]，不走正常返回。 |
-| **[5] 主要收尾与 END** | [Trial.run：[5] _finalize](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-finalize) | 接清停止环境、END 与插件取消分支；跳过训练 bundle 提交，仍尝试关闭，然后接 [6]。 |
-| **[6] 脱敏与日志关闭** | [Trial.run：[6] 嵌套 finally](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-final-cleanup) | 前项清理失败仍尝试后项；都正常完成时，取消继续向上传播。 |
+| **[3] 关闭桥接、恢复输出 · 已讨论主干** | [Trial.run：[3] 两个清理调用](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-recover) | 无 bridge 时关闭调用直接返回；单步恢复包括输出同步、产物收集和停止环境。正常完成后接 [4]，不下钻传输实现。 |
+| **[4] 继续传播取消 · 已讨论** | [Trial.run：[4] raise](02-short-term-memory/functions/harbor/trial/trial.py/Trial.run.md#cancel-reraise) | 重抛前进入 finally 的 [5]，不走正常返回。 |
+| **[5] 主要收尾与 END · 已讨论主干** | [Trial._finalize 本步函数卡](02-short-term-memory/functions/harbor/trial/trial.py/Trial._finalize.md) | 接清停止环境、END 与插件取消分支；跳过训练 bundle 提交，仍尝试关闭，然后接 [6]。 |
+| **[6a] 脱敏结果文件 · 已讨论** | [Trial._scrub_jobs_dir 函数卡](02-short-term-memory/functions/harbor/trial/trial.py/Trial._scrub_jobs_dir.md) | 看清已知敏感值从配置收集、当前 Trial 文本文件如何被替换；文件保留。返回 Trial.run 的内层 finally，接 6b。 |
+| **[6b] 关闭本次日志 handler · 已讨论** | [Trial._close_logger_handler 函数卡](02-short-term-memory/functions/harbor/trial/trial.py/Trial._close_logger_handler.md) | 看 removeHandler → close → 清空引用；返回 Trial.run，清理正常完成后取消继续传播。 |
 
 编号是同一条取消路径的观察点；[2]、[5] 内部经已登记回调连接 Dressage 插件。骨架表示教学裁剪，不保证所有清理调用都成功；清理异常可能改变最终传播的异常。
 

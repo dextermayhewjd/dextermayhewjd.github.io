@@ -88,32 +88,84 @@ finally:
 **[2] 通知取消回调 · 已讨论**：进入 [DressageHarborPlugin._on_cancel](../../../dressage/integrations/harbor/plugin.py/DressageHarborPlugin._on_cancel.md)。`_emit(CANCEL)` 依次等待已登记回调。Dressage 的 `_on_cancel` 标记取消并按需 quiesce，不在这里完成最终提交和关闭；回调结束后回到 [3]。不展开通用事件分发或网关内部。
 
 <a id="cancel-recover"></a>
-**[3] 关闭桥接、恢复输出 · 当前**：先回到 Harbor 的这两句；当前选择普通 SingleStepTrial、无 user-agent bridge 的场景。
+**[3] 关闭桥接、恢复输出 · 已讨论主干**：执行已被取消，接下来尽量保留已经产生的输出，再收尾环境；不是重新运行 Agent 或恢复解题。
 
 ```python
-await self._close_bridge()     # 本场景没有 bridge，直接返回。
-await self._recover_outputs() # 实际调用 SingleStepTrial 的实现。
+await self._close_bridge()
+await self._recover_outputs()
 ```
 
-**为什么取消后还要恢复？** 尽量保留取消前的日志和任务产物，并停止环境；不会重新执行 Agent 解题。
+**先处理可选的 bridge。** Harbor 的 BaseBridge 用协议连接 user agent 与目标 agent，不是这里的 Dressage Gateway/Proxy。启用且已开始 setup 时，关闭流程会在 bridge ready 的条件下尝试导出交互轨迹，再执行 teardown。当前选择没有 user-agent bridge 的普通 SingleStepTrial，所以 `_close_bridge` 直接返回，不下钻其清理 Task。
+
+**再进入 SingleStepTrial._recover_outputs。** 三句源码顺序不变（single_step.py:57–60）：
 
 ```python
-# SingleStepTrial._recover_outputs，v0.25.0 single_step.py:57–60。
-await self._sync_agent_output(self.result)  # 同步已有 Agent 输出。
-await self._collect_artifacts(stop_main_before_sidecars=False)
-await self._stop_agent_environment()       # 此处已经调用停止环境。
+await self._sync_agent_output(self.result)  # 取回日志，并补本次 Agent 结果信息。
+await self._collect_artifacts(stop_main_before_sidecars=False)  # 收集已产出的任务文件。
+await self._stop_agent_environment()       # 委托后端停止环境，按配置决定删除。
 ```
 
-正常完成后回到 [4] 的 raise，再进入 [5] 的 finally。_finalize 还会调用停止方法；该方法先检查停止标记，已标记则直接返回。这里不能概括为“必须等到 _finalize 才开始停止环境”，也不能仅凭标记证明远端已成功释放；实际停止与删除行为仍需验证。
+| 动作 | 具体保留或改变什么 |
+| --- | --- |
+| `_sync_agent_output(self.result)` | 调用日志下载；需要时由 Agent 补充结果上下文，model_usage 缺失时尝试从 trajectory.json 加载。配置 user agent/bridge 时还有对应补充。不是重新请求模型，也不是这里读取 Proxy 的训练 segments。 |
+| `_collect_artifacts(...)` | 收集约定目录及配置指定的任务文件，例如代码修改、报告等。只收集存在且符合配置的产物，不保证所有工作区修改都自动带回；已经收集则跳过。 |
+| `_stop_agent_environment()` | 将执行环境的停止/删除工作交给实际 Environment 后端。日志与产物的恢复安排在它之前，以免先关闭环境而无法取回。 |
+
+**两层分工：Trial 决定何时收尾，Environment 后端负责具体怎样停止。**
+
+```text
+Trial._stop_agent_environment()
+    → 检查停止标记、组织 shield 等待和异常处理
+    → self.agent_environment.stop(delete=...)
+         → 实际后端执行停止/删除请求
+```
+
+以后接 Agent Sandbox，需要在 Environment 的 `stop()` 实现中映射具体沙箱资源清理；不是另写一个后端 `_stop_agent_environment()`。
+
+停止环境的核心委派（trial.py:2039 起，省略状态判断和异常处理）：
+
+```python
+await asyncio.shield(
+    self.agent_environment.stop(delete=self.config.environment.delete)
+)
+```
+
+`delete` 是停止时是否删除环境的请求；具体支持与效果由后端决定，不能把这句直接等同于“已经删除 Kubernetes Pod”。`shield` 用于避免等待者的取消直接连带取消这次 stop 操作。停止方法还记录 `_is_agent_environment_stopped`，后续 `_finalize` 再调用时可跳过重复操作；但取消或异常分支也会设置标记，因此标记不能证明远端资源释放成功。
+
+**一句话串起来：有桥接先收尾桥接 → 尽量取回日志/结果信息和文件产物 → 停止执行环境。** 三步正常完成后，回到 [4] 的 raise，再进入 [5] 的 finally；这些恢复语句顺序执行，不保证某一步出错后其余恢复步骤仍全部执行，外层 finally 仍负责后续收尾。
+
+来源：BaseBridge（bridges/base.py:11）；Trial._create_bridge:526、_sync_agent_output:1167、_cleanup_bridge:1950、_close_bridge:2007、_stop_agent_environment:2039。均为 Harbor v0.25.0 静态核对，未运行取消或资源回收实验。
 
 <a id="cancel-reraise"></a>
 **[4] 继续传播取消**：裸 `raise` 重新抛出当前异常，但离开函数前先执行 [5]、[6]；不会直接跳过清理。
 
 <a id="cancel-finalize"></a>
+
+本步独立入口：[Trial._finalize 函数卡](Trial._finalize.md)，读完返回这里继续外层清理。
+
 **[5] 主要收尾与 END**：`_finalize` 正常收尾时停止环境、保存结果并发出 END；插件的 `_finalize_attempt` 在取消分支跳过训练 bundle 提交，但仍进入其 finally 关闭尝试。随后接 [6]。
 
 <a id="cancel-final-cleanup"></a>
-**[6] 脱敏与日志关闭**：即使 [5] 抛异常，仍尝试 `_scrub_jobs_dir`；即使脱敏失败，仍尝试 `_close_logger_handler`。保证尝试后续清理不等于每项成功；清理异常可能改变最终传播的异常，远端资源是否释放仍待实测。
+**[6] 最后处理两件事：文件脱敏、关闭本次日志输出**
+
+```python
+try:
+    await self._finalize()
+finally:
+    try:
+        self._scrub_jobs_dir()         # 处理已保存文件中的已知敏感值
+    finally:
+        self._close_logger_handler()  # 移除并关闭本 Trial 的文件日志 handler
+```
+
+具体方法现在分别记录在独立卡中，按调用顺序阅读：
+
+| 当前调用 | 函数卡 | 返回位置 |
+| --- | --- | --- |
+| 6a. 脱敏本地结果文件 | [Trial._scrub_jobs_dir](Trial._scrub_jobs_dir.md) | 回到内层 finally，继续 6b |
+| 6b. 关闭本次日志 handler | [Trial._close_logger_handler](Trial._close_logger_handler.md) | 回到 Trial.run；清理正常完成后继续传播取消 |
+
+两者都正常完成时，本次取消继续向上传播，不走末尾 return self.result。清理异常可能改变最终传播的异常；未进行实际运行验证。
 
 <details>
 <summary>此前正常路径对照（历史编号与说明）</summary>
@@ -173,6 +225,28 @@ return self.result                 # [5] 交回这一次尝试的 TrialResult。
 </details>
 
 ## 我的直接表述（原话）
+
+Step 016，2026-11-17 的当前疑问（节选）：
+
+> 这里的close bridge更多的是
+> 关掉对应的和别的agent桥接的部分对吧
+> 同步已经有的agent 输出
+> 手机这里的这个artifacts？
+> 还有这里的这个stop agent environment是在做什么呢？
+
+助手核对：关闭桥接的方向正确，具体是 Harbor user agent 与目标 agent 的协议桥接；日志/结果恢复、文件产物收集和环境停止是三个不同动作。尚不将讲解补充记为用户已掌握。
+
+用户随后反馈：
+
+> 好的 我差不多了解了
+> 简单写一下这个吧
+> 我觉得这个还是挺重要的？
+> 不过这里的内容我觉得差不多了
+> 还有什么是我需要理解的吗
+
+本轮据此保留停止职责的两层分工，第[3]段先收束；具体后端实现与远端回收效果未展开或验证。
+
+此前原话保留如下：
 
 > 那么现在step011就是在讲述
 > 这里的这个run round里面的部分内容对吧
