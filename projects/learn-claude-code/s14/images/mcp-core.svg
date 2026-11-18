@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 610" role="img" aria-labelledby="s14-core-title s14-core-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s14-core-title">图 3 · 动态工具池与统一调用</title>
+<desc id="s14-core-desc">发现改变注册状态；组装改变下轮可见工具，业务错误仍走原结果循环。</desc>
+<defs><marker id="s14-core-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">图 3 · 动态工具池与统一调用</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">发现改变注册状态；组装改变下轮可见工具，业务错误仍走原结果循环。</text>
+<path data-route="core-connected" data-from="connect" data-to="registry" data-kind="flow" data-label="连接工厂创建 Client 并缓存发现结果" d="M244 180H268" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-register-pool" data-from="registry" data-to="pool" data-kind="flow" data-label="已连接定义参与本轮组装" d="M488 180H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-visible" data-from="pool" data-to="model" data-kind="flow" data-label="tools schema 与 SYSTEM 发给模型，handlers 留在本地" d="M732 180H756" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-request-call" data-from="model" data-to="permission" data-kind="flow" data-label="模型选择工具与参数，先检查宿主策略" d="M866 260V316H134V360" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-permitted" data-from="permission" data-to="call" data-kind="flow" data-label="允许后经 handler 找到 Client 和原名" d="M244 440H268" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-output" data-from="call" data-to="result" data-kind="flow" data-label="业务输出或 MCP error 都形成 tool_result" d="M488 440H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-denied" data-from="permission" data-to="result" data-kind="flow" data-label="拒绝不执行业务，也回传配对结果" d="M244 470H254V544H602V520" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-next" data-from="result" data-to="pool" data-kind="flow" data-label="追加结果，再进入下一轮重新组装" d="M622 520V570H500V294H622V260" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-pool-error" data-from="pool" data-to="error" data-kind="flow" data-label="名称冲突等组装异常，结束本轮" d="M732 235H744V334H844V360" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<path data-route="core-api-error" data-from="model" data-to="error" data-kind="flow" data-label="模型 API 请求异常，结束本轮" d="M886 260V360" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s14-core-arrow)"/>
+<rect data-stage="connect" data-change="added" x="24" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="134.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">连接并发现</text>
+<text x="134.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">本例：进程内 mock 工厂</text>
+<a class="diagram-function-link" data-function="connect_mcp" data-function-card="connect" href="#mcp-connect" aria-label="查看 connect_mcp 的实现"><text x="134.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="connect_mcp">connect_mcp()</text></a>
+<a class="diagram-function-link" data-function="_mock_server_docs" data-function-card="connect" href="#mcp-mock-docs" aria-label="查看 _mock_server_docs 的实现"><text x="134.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="_mock_server_docs">_mock_server_docs()</text></a>
+<rect data-stage="registry" data-change="added" x="268" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="378.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">登记 Client 状态</text>
+<text x="378.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">tools 与原始 handlers</text>
+<a class="diagram-function-link" data-function="__init__" data-function-card="client" href="#mcp-client" aria-label="查看 MCPClient.__init__ 的实现"><text x="378.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="__init__">MCPClient.__init__()</text></a>
+<a class="diagram-function-link" data-function="register" data-function-card="client" href="#mcp-client" aria-label="查看 MCPClient.register 的实现"><text x="378.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="register">MCPClient.register()</text></a>
+<rect data-stage="pool" data-change="added" x="512" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="622.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">每轮适配工具池</text>
+<text x="622.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">模型定义 + 本地映射</text>
+<a class="diagram-function-link" data-function="assemble_tool_pool" data-function-card="pool" href="#mcp-assemble" aria-label="查看 assemble_tool_pool 的实现"><text x="622.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="assemble_tool_pool">assemble_tool_pool()</text></a>
+<a class="diagram-function-link" data-function="normalize_mcp_name" data-function-card="pool" href="#mcp-names" aria-label="查看 normalize_mcp_name 的实现"><text x="622.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="normalize_mcp_name">normalize_mcp_name()</text></a>
+<rect data-stage="model" data-change="base" x="756" y="100" width="220" height="160" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="866.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型并选择调用</text>
+<text x="866.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">本轮快照；新工具下轮可见</text>
+<a class="diagram-function-link" data-function="agent_loop" data-function-card="call" href="#mcp-loop" aria-label="查看 agent_loop 的实现"><text x="866.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="agent_loop">agent_loop()</text></a>
+<a class="diagram-function-link" data-function="assemble_system_prompt" data-function-card="pool" href="#mcp-system" aria-label="查看 assemble_system_prompt 的实现"><text x="866.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="assemble_system_prompt">assemble_system_prompt()</text></a>
+<rect data-stage="permission" data-change="modified" x="24" y="360" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="134.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">宿主权限检查</text>
+<text x="134.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">allow / 其余需确认</text>
+<a class="diagram-function-link" data-function="permission_hook" data-function-card="permission" href="#mcp-permission" aria-label="查看 permission_hook 的实现"><text x="134.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="permission_hook">permission_hook()</text></a>
+<a class="diagram-function-link" data-function="trigger_hooks" data-function-card="permission" href="#mcp-call" aria-label="查看 trigger_hooks 的实现"><text x="134.0" y="465" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="trigger_hooks">trigger_hooks()</text></a>
+<rect data-stage="call" data-change="added" x="268" y="360" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="378.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">按原始名字调用</text>
+<text x="378.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">Client → mock 业务函数</text>
+<a class="diagram-function-link" data-function="execute_tool" data-function-card="call" href="#mcp-call" aria-label="查看 execute_tool 的实现"><text x="378.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="execute_tool">execute_tool()</text></a>
+<a class="diagram-function-link" data-function="call_tool" data-function-card="call" href="#mcp-call" aria-label="查看 MCPClient.call_tool 的实现"><text x="378.0" y="465" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="call_tool">MCPClient.call_tool()</text></a>
+<rect data-stage="result" data-change="base" x="512" y="360" width="220" height="160" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="622.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">配对结果，进入下轮</text>
+<text x="622.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">正常 / 参数错误 / 拒绝</text>
+<a class="diagram-function-link" data-function="agent_loop" data-function-card="call" href="#mcp-loop" aria-label="查看 agent_loop 的实现"><text x="622.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="agent_loop">agent_loop()</text></a>
+<rect data-stage="error" data-change="modified" x="756" y="360" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="866.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">组装／API 异常退出</text>
+<text x="866.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">原错误路径，新增组装异常</text>
+<a class="diagram-function-link" data-function="agent_loop" data-function-card="call" href="#mcp-errors" aria-label="查看 agent_loop 的实现"><text x="866.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="agent_loop">agent_loop()</text></a>
+<text x="310" y="307" font-size="11" fill="var(--diagram-muted, #58677b)">模型产生 tool_use → 宿主执行</text>
+<text x="645" y="326" font-size="11" fill="var(--diagram-muted, #58677b)">组装失败</text>
+<text x="890" y="311" font-size="11" fill="var(--diagram-muted, #58677b)">API 失败</text>
+<text x="273" y="540" font-size="11" fill="var(--diagram-muted, #58677b)">拒绝也返回结果</text>
+<text x="652" y="563" font-size="11" fill="var(--diagram-muted, #58677b)">追加结果 → 下一轮重新组装</text>
+</svg>

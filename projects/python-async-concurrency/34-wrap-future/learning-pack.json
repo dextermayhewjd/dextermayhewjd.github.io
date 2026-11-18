@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 301,
+      "endLine": 303,
+      "symbol": "_GenerationActor.next",
+      "text": "    async def next(self):\n        future = asyncio.run_coroutine_threadsafe(self._next(), get_async_loop().loop)\n        return await asyncio.wrap_future(future)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    }
+  }
+}

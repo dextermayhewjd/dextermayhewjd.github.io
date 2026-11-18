@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 585" role="img" aria-labelledby="s12-core-title s12-core-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s12-core-title">图 3 · 从定时规则到 prompt 交付</title>
+  <desc id="s12-core-desc">规则创建后持续轮询，匹配则持久保存待交付状态并入队。空闲时交给模型，首次响应后确认；失败恢复队列。下面的循环是后续触发或重试，并不代表执行工作已完成。</desc>
+  <defs>
+    <marker id="s12-core-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)" />
+    </marker>
+  </defs>
+  <text x="24" y="30" font-size="20" fill="var(--diagram-text, #24334b)" font-weight="650">图 3 · 从定时规则到 prompt 交付</text>
+  <text x="24" y="55" font-size="12" fill="var(--diagram-muted, #58677b)">到期与执行分开；成功接收才确认，工作产物仍由原工具循环完成。</text>
+  <path data-route="s12-core-rule" data-from="schedule" data-to="poll" data-kind="flow" data-label="登记后进入时间检查" d="M192 180H220" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-match" data-from="poll" data-to="queued" data-kind="flow" data-label="当前本地时间匹配" d="M388 180H416" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-queue" data-from="queued" data-to="gate" data-kind="flow" data-label="待交付项放入 cron_queue" d="M584 180H612" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-turn" data-from="gate" data-to="deliver" data-kind="flow" data-label="取得 agent_lock 才启动新回合" d="M780 180H808" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-disk" data-from="schedule" data-to="storage" data-kind="flow" data-label="durable 规则写入文件" d="M108 260V318H180V350" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-load" data-from="storage" data-to="schedule" data-kind="flow" data-label="启动时加载规则及 pending 状态" d="M244 350V286H130V260" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-success" data-from="deliver" data-to="ack" data-kind="flow" data-label="首次模型响应成功，确认接收" d="M892 260V300H780V350" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-fail" data-from="deliver" data-to="retry" data-kind="flow" data-label="首次请求失败，恢复待交付" d="M808 225H792V328H486V350" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-again" data-from="ack" data-to="poll" data-kind="flow" data-label="周期清 pending，一次性删除" d="M780 480V530H380V290H304V260" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <path data-route="s12-core-retry" data-from="retry" data-to="queued" data-kind="flow" data-label="恢复任务而不复制会话消息" d="M396 400H364V278H500V260" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s12-core-arrow)" />
+  <rect data-stage="schedule" data-change="added" x="24" y="100" width="168" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="108.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">创建调度规则</text>
+  <text x="108.0" y="146" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">校验 cron / prompt</text>
+  <a class="diagram-function-link" data-function="schedule_job" data-function-card="schedule" href="#cron-schedule" aria-label="查看 schedule_job 的实现">
+    <text x="108" y="181" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="schedule_job" font-family="monospace">schedule_job()</text>
+  </a>
+  <a class="diagram-function-link" data-function="validate_cron" data-function-card="match" href="#cron-match" aria-label="查看 validate_cron 的实现">
+    <text x="108" y="207" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="validate_cron" font-family="monospace">validate_cron()</text>
+  </a>
+  <rect data-stage="poll" data-change="added" x="220" y="100" width="168" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="304.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">按时间匹配</text>
+  <text x="304.0" y="146" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">每秒检查一次</text>
+  <a class="diagram-function-link" data-function="cron_scheduler_loop" data-function-card="poll" href="#cron-poll" aria-label="查看 cron_scheduler_loop 的实现">
+    <text x="304" y="178" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="cron_scheduler_loop" font-family="monospace">cron_scheduler_loop()</text>
+  </a>
+  <a class="diagram-function-link" data-function="poll_due_jobs" data-function-card="poll" href="#cron-poll" aria-label="查看 poll_due_jobs 的实现">
+    <text x="304" y="204" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="poll_due_jobs" font-family="monospace">poll_due_jobs()</text>
+  </a>
+  <a class="diagram-function-link" data-function="cron_matches" data-function-card="match" href="#cron-match" aria-label="查看 cron_matches 的实现">
+    <text x="304" y="230" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="cron_matches" font-family="monospace">cron_matches()</text>
+  </a>
+  <rect data-stage="queued" data-change="added" x="416" y="100" width="168" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="500.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">持久标记并入队</text>
+  <text x="500.0" y="146" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">pending / last_fired</text>
+  <a class="diagram-function-link" data-function="_enqueue_due_job" data-function-card="poll" href="#cron-poll" aria-label="查看 _enqueue_due_job 的实现">
+    <text x="500" y="181" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="_enqueue_due_job" font-family="monospace">_enqueue_due_job()</text>
+  </a>
+  <a class="diagram-function-link" data-function="save_durable_jobs" data-function-card="durable" href="#cron-durable" aria-label="查看 save_durable_jobs 的实现">
+    <text x="500" y="207" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="save_durable_jobs" font-family="monospace">save_durable_jobs()</text>
+  </a>
+  <rect data-stage="gate" data-change="added" x="612" y="100" width="168" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="696.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">等 Agent 空闲</text>
+  <text x="696.0" y="146" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">非阻塞取得会话锁</text>
+  <a class="diagram-function-link" data-function="queue_processor_loop" data-function-card="dispatch" href="#cron-dispatch" aria-label="查看 queue_processor_loop 的实现">
+    <text x="696" y="181" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="queue_processor_loop" font-family="monospace">queue_processor_loop()</text>
+  </a>
+  <rect data-stage="deliver" data-change="added" x="808" y="100" width="168" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="892.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">交付 prompt</text>
+  <text x="892.0" y="146" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">[Scheduled] user</text>
+  <a class="diagram-function-link" data-function="agent_loop" data-function-card="dispatch" href="#cron-dispatch" aria-label="查看 agent_loop 的实现">
+    <text x="892" y="181" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="agent_loop" font-family="monospace">agent_loop()</text>
+  </a>
+  <a class="diagram-function-link" data-function="consume_cron_queue" data-function-card="dispatch" href="#cron-dispatch" aria-label="查看 consume_cron_queue 的实现">
+    <text x="892" y="207" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="consume_cron_queue" font-family="monospace">consume_cron_queue()</text>
+  </a>
+  <rect data-stage="storage" data-change="added" x="24" y="350" width="330" height="150" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5" />
+  <text x="189.0" y="375" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">持久化文件</text>
+  <text x="189.0" y="396" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">.scheduled_tasks.json</text>
+  <a class="diagram-function-link" data-function="save_durable_jobs" data-function-card="durable" href="#cron-durable" aria-label="查看 save_durable_jobs 的实现">
+    <text x="189" y="431" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="save_durable_jobs" font-family="monospace">save_durable_jobs()</text>
+  </a>
+  <a class="diagram-function-link" data-function="load_durable_jobs" data-function-card="durable" href="#cron-durable" aria-label="查看 load_durable_jobs 的实现">
+    <text x="189" y="457" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="load_durable_jobs" font-family="monospace">load_durable_jobs()</text>
+  </a>
+  <rect data-stage="retry" data-change="added" x="396" y="350" width="180" height="130" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="486.0" y="375" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">请求失败恢复</text>
+  <text x="486.0" y="396" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">移除本次附加消息</text>
+  <a class="diagram-function-link" data-function="restore_cron_jobs" data-function-card="ack" href="#cron-ack" aria-label="查看 restore_cron_jobs 的实现">
+    <text x="486" y="432" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="restore_cron_jobs" font-family="monospace">restore_cron_jobs()</text>
+  </a>
+  <rect data-stage="ack" data-change="added" x="600" y="350" width="376" height="130" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="788.0" y="375" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">成功响应后 ACK</text>
+  <text x="788.0" y="396" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">不是工作完成确认</text>
+  <a class="diagram-function-link" data-function="acknowledge_cron_jobs" data-function-card="ack" href="#cron-ack" aria-label="查看 acknowledge_cron_jobs 的实现">
+    <text x="788" y="432" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="acknowledge_cron_jobs" font-family="monospace">acknowledge_cron_jobs()</text>
+  </a>
+  <text x="396" y="520" font-size="11" fill="var(--diagram-muted, #58677b)">成功接收后继续等待后续时间匹配</text>
+  <text x="24" y="563" font-size="11" fill="var(--diagram-muted, #58677b)">durable 保留规则和 pending 状态；停机时不触发，也不补跑错过的时间。</text>
+</svg>

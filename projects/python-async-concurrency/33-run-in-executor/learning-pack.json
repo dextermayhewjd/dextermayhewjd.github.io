@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 1113,
+      "endLine": 1115,
+      "symbol": "QueueReader.get_samples_async",
+      "text": "    async def get_samples_async(self, num_samples):\n        \"\"\"Run blocking queue/file reads on the reader thread, keeping asyncio responsive.\"\"\"\n        return await asyncio.get_running_loop().run_in_executor(self._reader, self.get_samples, num_samples)",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    }
+  }
+}

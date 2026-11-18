@@ -1,0 +1,1 @@
+Listener received: {'temperature': 24, 'humidity': 60}

@@ -1,0 +1,374 @@
+[
+  {
+    "key": "select",
+    "label": "后台条件",
+    "focus": "start",
+    "trigger": "execute_tool 的权限检查放行后。",
+    "input": "工具名与 run_in_background 参数。",
+    "output": "只有 Bash 且参数严格为 True 才走后台。",
+    "flow": "不按 build/install/test 关键词猜测。",
+    "sourceLink": "#background-select",
+    "codeSections": [
+      "background-select"
+    ],
+    "codeFunctions": [
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "start",
+      "agent_loop",
+      "collect_background_results",
+      "collect",
+      "inject_background_results",
+      "_run",
+      "_run_bash_process",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  },
+  {
+    "key": "start",
+    "label": "登记并启动",
+    "focus": "start",
+    "trigger": "显式后台分支被选中后。",
+    "input": "原 tool_use block，含 command 和调用 ID。",
+    "output": "后台编号 bg_0001 等，原调用先得到启动说明。",
+    "flow": "登记在锁内；线程启动失败回滚登记，不等执行完成。",
+    "sourceLink": "#background-start",
+    "codeSections": [
+      "background-start"
+    ],
+    "codeFunctions": [
+      "start",
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "agent_loop",
+      "collect_background_results",
+      "collect",
+      "inject_background_results",
+      "_run",
+      "_run_bash_process",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  },
+  {
+    "key": "worker",
+    "label": "后台执行",
+    "focus": "worker",
+    "trigger": "BackgroundManager.start 启动 daemon 线程。",
+    "input": "后台 ID 和 Bash command。",
+    "output": "completed 或 failed，结果进入内存完成队列。",
+    "flow": "命令执行在锁外，发布状态与结果在锁内。",
+    "sourceLink": "#background-worker",
+    "codeSections": [
+      "background-worker"
+    ],
+    "codeFunctions": [
+      "_run",
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "start",
+      "agent_loop",
+      "collect_background_results",
+      "collect",
+      "inject_background_results",
+      "_run_bash_process",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  },
+  {
+    "key": "collect",
+    "label": "完成队列",
+    "focus": "collect",
+    "trigger": "请求前调用 collect 时。",
+    "input": "已经结束的 ready ID、任务记录与结果。",
+    "output": "每项通知一次，取走后从 tasks/results/_ready 删除。",
+    "flow": "队列为空不等线程完成；通知 summary 只取 500 字符。",
+    "sourceLink": "#background-collect",
+    "codeSections": [
+      "background-collect"
+    ],
+    "codeFunctions": [
+      "collect",
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "start",
+      "agent_loop",
+      "collect_background_results",
+      "inject_background_results",
+      "_run",
+      "_run_bash_process",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  },
+  {
+    "key": "inject",
+    "label": "请求前注入",
+    "focus": "inject",
+    "trigger": "每次 while 开头、模型请求之前。",
+    "input": "当前 messages 与完成通知文本。",
+    "output": "合并到最后 user 消息或追加 user，返回通知数。",
+    "flow": "不是新的 tool_result，不复用原 tool_use_id；本轮返回后不会主动唤醒。",
+    "sourceLink": "#background-inject",
+    "codeSections": [
+      "background-inject"
+    ],
+    "codeFunctions": [
+      "inject_background_results",
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "start",
+      "agent_loop",
+      "collect_background_results",
+      "collect",
+      "_run",
+      "_run_bash_process",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  },
+  {
+    "key": "cleanup",
+    "label": "超时与进程清理",
+    "focus": "worker",
+    "trigger": "命令执行结束、超时或进程退出路径。",
+    "input": "Shell 进程及所在工作区。",
+    "output": "限时执行、截断输出和清理；失败进入 failed。",
+    "flow": "POSIX 进程组清理，Windows 使用 terminate/kill；不是目录隔离。",
+    "sourceLink": "#background-process",
+    "codeSections": [
+      "background-process"
+    ],
+    "codeFunctions": [
+      "_run_bash_process",
+      "should_run_background",
+      "execute_tool",
+      "start_background_task",
+      "start",
+      "agent_loop",
+      "collect_background_results",
+      "collect",
+      "inject_background_results",
+      "_run",
+      "_format_bash_result",
+      "__init__",
+      "call_tool",
+      "_stop_process_group"
+    ],
+    "stageFunctions": {
+      "select": [
+        "should_run_background",
+        "execute_tool"
+      ],
+      "launch": [
+        "start_background_task",
+        "start"
+      ],
+      "continue": [
+        "agent_loop"
+      ],
+      "collect": [
+        "collect_background_results",
+        "collect"
+      ],
+      "inject": [
+        "inject_background_results",
+        "agent_loop"
+      ],
+      "worker": [
+        "_run",
+        "_run_bash_process",
+        "_format_bash_result"
+      ],
+      "queue": [
+        "__init__"
+      ],
+      "end": [
+        "agent_loop"
+      ]
+    },
+    "figure": "s11-background-core"
+  }
+]

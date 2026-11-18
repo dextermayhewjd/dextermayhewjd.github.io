@@ -1,0 +1,296 @@
+[
+  {
+    "key": "starting-loop",
+    "label": "上一讲的完整样本复用循环",
+    "target": "#starting-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta(\\tau),\\quad\\text{保存旧动作概率}\\\\\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})\\\\\n&3.\\ \\text{拟合：}\\quad\\min_\\phi\\frac1N\\sum_{i,t}\\left(\\hat V_\\phi(s_t^{(i)})-y_t^{(i)}\\right)^2\\\\\n&4.\\ \\text{优势：}\\quad\\delta_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})-\\hat V_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^{H-1}(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\\n&5.\\ \\text{初始化：}\\quad\\theta'\\leftarrow\\theta\\\\\n&6.\\ \\text{目标：}\\quad\\frac1N\\sum_{i,t}\\gamma^t\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}\\\\\n&7.\\ \\text{更新：}\\quad\\theta'\\leftarrow\\theta'+\\alpha\\nabla_{\\theta'}\\left[\\frac1N\\sum_{i,t}\\gamma^t\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}\\right]\\quad(6\\text{–}7\\text{ 重复 }K\\text{ 次})\\\\\n&8.\\ \\text{刷新：}\\quad\\theta\\leftarrow\\theta'\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "整组先看：1–4 准备数据，6–7 更新 K 次。Lecture 10 要解释第 6 步的两个替代。"
+  },
+  {
+    "key": "shortcuts",
+    "label": "定位旧状态与旧优势",
+    "target": "#formula-1",
+    "mapFormula": "$$p_{\\theta'}(s_t)\\ \\longrightarrow\\ p_\\theta(s_t),\\qquad A^{\\pi_{\\theta'}}(s_t,a_t)\\ \\longrightarrow\\ A^{\\pi_\\theta}(s_t,a_t)$$",
+    "formulaQualifier": "接下来研究回报改变量，不能直接宣称两种优势相等。"
+  },
+  {
+    "key": "telescoping",
+    "label": "先把旧价值望远镜消掉",
+    "target": "#formula-3",
+    "mapFormula": "$$\\sum_{t=0}^{H-1}\\gamma^t\\big(\\gamma V^{\\pi_\\theta}(s_{t+1})-V^{\\pi_\\theta}(s_t)\\big)=-V^{\\pi_\\theta}(s_0)$$",
+    "formulaQualifier": "终端价值为零；无折扣取 γ = 1。"
+  },
+  {
+    "key": "old-value",
+    "label": "旧回报是初始价值平均",
+    "target": "#formula-3",
+    "mapFormula": "$$J(\\theta)=\\mathbb E_{s_0\\sim p(s_0)}[V^{\\pi_\\theta}(s_0)]$$",
+    "formulaQualifier": "只用初始状态的量，可放入新轨迹期望。"
+  },
+  {
+    "key": "conditional-advantage",
+    "label": "对下一状态平均，认出优势",
+    "target": "#formula-3",
+    "mapFormula": "$$A^{\\pi_\\theta}(s_t,a_t)=r(s_t,a_t)+\\gamma\\mathbb E_{s_{t+1}\\mid s_t,a_t}[V^{\\pi_\\theta}(s_{t+1})]-V^{\\pi_\\theta}(s_t)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "identity",
+    "label": "得到精确性能差异恒等式",
+    "target": "#formula-3",
+    "mapFormula": "$$J(\\theta')-J(\\theta)=\\mathbb E_{\\tau\\sim p_{\\theta'}}\\left[\\sum_{t=0}^{H-1}\\gamma^t A^{\\pi_\\theta}(s_t,a_t)\\right]$$",
+    "formulaQualifier": "旧优势由回报差恒等式引入，不是用来假装等于新优势。"
+  },
+  {
+    "key": "nested",
+    "label": "逐时刻，再分状态和动作",
+    "target": "#formula-4",
+    "mapFormula": "$$J(\\theta')-J(\\theta)=\\sum_t\\gamma^t\\mathbb E_{s_t\\sim p_{\\theta'}}\\left[\\mathbb E_{a_t\\sim\\pi_{\\theta'}}[A^{\\pi_\\theta}(s_t,a_t)]\\right]$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "action-integral",
+    "label": "内层动作期望展开成积分",
+    "target": "#formula-4",
+    "mapFormula": "$$\\mathbb E_{a_t\\sim\\pi_{\\theta'}}[A^{\\pi_\\theta}(s_t,a_t)]=\\int\\pi_{\\theta'}(a_t\\mid s_t)A^{\\pi_\\theta}(s_t,a_t)\\,da_t$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "insert-action-ratio",
+    "label": "插入旧动作密度与比值",
+    "target": "#formula-4",
+    "mapFormula": "$$\\int\\pi_{\\theta'}A^{\\pi_\\theta}\\,da_t=\\int\\pi_\\theta(a_t\\mid s_t)\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}A^{\\pi_\\theta}(s_t,a_t)\\,da_t$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "match-action-expectation",
+    "label": "认出旧分布期望的结构",
+    "target": "#formula-4",
+    "mapFormula": "$$\\int\\underbrace{\\pi_\\theta(a_t\\mid s_t)}_{\\text{旧动作密度}}\\underbrace{\\left[\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}A^{\\pi_\\theta}(s_t,a_t)\\right]}_{\\text{被平均的量}}\\,da_t$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "old-action-expectation",
+    "label": "写回期望，状态仍然是新的",
+    "target": "#formula-4",
+    "mapFormula": "$$J(\\theta')-J(\\theta)=\\sum_t\\gamma^t\\mathbb E_{s_t\\sim p_{\\theta'}}\\left[\\mathbb E_{a_t\\sim\\pi_\\theta}\\left[\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}A^{\\pi_\\theta}(s_t,a_t)\\right]\\right]$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "surrogate",
+    "label": "进入近似：换成旧状态",
+    "target": "#formula-5",
+    "mapFormula": "$$\\bar A(\\theta')=\\sum_t\\gamma^t\\mathbb E_{s_t\\sim p_\\theta,a_t\\sim\\pi_\\theta}\\left[\\frac{\\pi_{\\theta'}(a_t\\mid s_t)}{\\pi_\\theta(a_t\\mid s_t)}A^{\\pi_\\theta}(s_t,a_t)\\right]\\approx J(\\theta')-J(\\theta)$$",
+    "formulaQualifier": "现在需要定量控制新旧状态分布的差。"
+  },
+  {
+    "key": "tv",
+    "label": "先定义动作分布距离",
+    "target": "#formula-7",
+    "mapFormula": "$$D_{\\mathrm{TV}}(\\pi_\\theta,\\pi_{\\theta'})=\\frac12\\sum_a|\\pi_\\theta(a\\mid s)-\\pi_{\\theta'}(a\\mid s)|\\le\\epsilon\\quad\\forall s$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "coupling",
+    "label": "概率表差转成分歧概率",
+    "target": "#formula-7",
+    "mapFormula": "$$\\Pr(a_t\\ne a_t'\\mid s_t=s_t')=D_{\\mathrm{TV}}(\\pi_\\theta,\\pi_{\\theta'})\\le\\epsilon$$",
+    "formulaQualifier": "存在一种联合抽法；不是独立采样的一致率。"
+  },
+  {
+    "key": "coupling-overlap",
+    "label": "公共质量给出最佳一致率",
+    "target": "#coupling-detail",
+    "mapFormula": "$$1-D_{\\mathrm{TV}}(p,q)=\\sum_x\\min\\{p(x),q(x)\\}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "no-divergence",
+    "label": "一次未分歧 ／ 至少一次",
+    "target": "#formula-6",
+    "mapFormula": "$$\\Pr(\\text{此前一次未分歧})\\ge(1-\\epsilon)^t,\\qquad\\Pr(\\text{此前至少一次分歧})\\le1-(1-\\epsilon)^t\\le t\\epsilon$$",
+    "formulaQualifier": "依赖状态的单步上界通常不能写成固定系数混合等式。"
+  },
+  {
+    "key": "state-distance",
+    "label": "再比较状态边缘分布",
+    "target": "#formula-7",
+    "mapFormula": "$$D_{\\mathrm{TV}}(p_{\\theta'}(s_t),p_\\theta(s_t))\\le\\Pr(s_t'\\ne s_t)\\le\\Pr(\\text{此前至少一次分歧})\\le t\\epsilon$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "bounded-expectation",
+    "label": "分布差如何影响期望",
+    "target": "#formula-8",
+    "mapFormula": "$$\\left|\\mathbb E_{p_{\\theta'}}[f]-\\mathbb E_{p_\\theta}[f]\\right|\\le\\sum_s|p_{\\theta'}-p_\\theta|\\,|f|\\le2D_{\\mathrm{TV}}(p_{\\theta'},p_\\theta)\\max_s|f(s)|$$",
+    "formulaQualifier": "优势可以为负，因此必须用 max |f|。"
+  },
+  {
+    "key": "return-bound",
+    "label": "乘折扣、按时间累计",
+    "target": "#formula-8",
+    "mapFormula": "$$J(\\theta')-J(\\theta)\\ge\\bar A(\\theta')-2C\\epsilon\\sum_{t=0}^{H-1}t\\gamma^t,\\qquad C=\\max_{s,a}|A^{\\pi_\\theta}(s,a)|$$",
+    "formulaQualifier": "下界是代理量减误差项；裸代理量不是通用下界。"
+  },
+  {
+    "key": "tv-constraint",
+    "label": "把接近写成优化约束",
+    "target": "#formula-9",
+    "mapFormula": "$$\\max_{\\theta'}\\bar A(\\theta')\\quad\\text{s.t.}\\quad D_{\\mathrm{TV}}(\\pi_\\theta(\\cdot\\mid s),\\pi_{\\theta'}(\\cdot\\mid s))\\le\\epsilon\\quad\\forall s$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "pinsker",
+    "label": "Pinsker：用 KL 控制 TV",
+    "target": "#formula-10",
+    "mapFormula": "$$D_{\\mathrm{TV}}(p,q)\\le\\sqrt{\\frac12D_{\\mathrm{KL}}(p\\Vert q)}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "pinsker-proof",
+    "label": "证明要先归约到两点",
+    "target": "#pinsker-detail",
+    "mapFormula": "$$D_{\\mathrm{KL}}(P\\Vert Q)\\ge d(a\\Vert b)\\ge2(a-b)^2=2D_{\\mathrm{TV}}(P,Q)^2$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "uniform-kl",
+    "label": "先明确逐状态 KL 预算",
+    "target": "#formula-10",
+    "mapFormula": "$$D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})\\le\\epsilon\\ \\forall s\\quad\\Longrightarrow\\quad D_{\\mathrm{TV}}(p_{\\theta'}(s_t),p_\\theta(s_t))\\le t\\sqrt{\\epsilon/2}$$",
+    "formulaQualifier": "从这里起 ε 表示 KL 预算；此前 TV 半径与它有平方关系。"
+  },
+  {
+    "key": "average-kl",
+    "label": "实现改用旧状态平均",
+    "target": "#average-kl",
+    "mapFormula": "$$\\max_{\\theta'}\\bar A(\\theta')\\quad\\text{s.t.}\\quad\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta(\\cdot\\mid s)\\Vert\\pi_{\\theta'}(\\cdot\\mid s))]\\le\\epsilon$$",
+    "formulaQualifier": "平均控制不等于所有状态的上限；理论保证与实践实现在此分开。"
+  },
+  {
+    "key": "lagrangian",
+    "label": "路线 A：KL 变成非负罚项",
+    "target": "#formula-12",
+    "mapFormula": "$$\\mathcal L(\\theta',\\beta)=\\bar A(\\theta')-\\beta\\big(\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]-\\epsilon\\big),\\qquad\\beta\\ge0$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "kl-likelihood",
+    "label": "罚项可写成旧样本似然",
+    "target": "#formula-11",
+    "mapFormula": "$$D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})=\\mathbb E_{a\\sim\\pi_\\theta}[\\log\\pi_\\theta(a\\mid s)-\\log\\pi_{\\theta'}(a\\mid s)]$$",
+    "formulaQualifier": "对新参数优化可去掉旧项；距离检查与乘子更新仍需 KL。"
+  },
+  {
+    "key": "penalty-sample",
+    "label": "两块组成可训练的目标",
+    "target": "#formula-14",
+    "mapFormula": "$$\\mathcal L_{\\mathrm{KL}}(\\theta',\\beta)=\\frac1N\\sum_{i,t}\\gamma^t\\frac{\\pi_{\\theta'}(a_t^{(i)}\\mid s_t^{(i)})}{\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})}\\hat A_t^{(i)}-\\beta\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "ppo-kl-loop",
+    "label": "完整 PPO-KL 循环",
+    "target": "#formula-14",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta,\\quad\\text{保存旧动作概率}\\\\\n&2.\\ \\text{目标：}\\quad y_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})\\\\\n&3.\\ \\text{拟合：}\\quad\\min_\\phi\\frac1N\\sum_{i,t}(\\hat V_\\phi(s_t^{(i)})-y_t^{(i)})^2\\\\\n&4.\\ \\text{优势：}\\quad\\delta_t^{(i)}=r(s_t^{(i)},a_t^{(i)})+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})-\\hat V_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^{H-1}(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\\n&5.\\ \\text{初始化：}\\quad\\theta'\\leftarrow\\theta,\\quad\\beta\\ge0\\\\\n&6.\\ \\text{策略更新：}\\quad\\theta'\\leftarrow\\theta'+\\alpha\\nabla_{\\theta'}\\mathcal L_{\\mathrm{KL}}(\\theta',\\beta)\\quad(\\text{同批更新 }K\\text{ 次})\\\\\n&7.\\ \\text{乘子更新：}\\quad\\beta\\leftarrow\\max\\{0,\\beta+\\alpha(\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]-\\epsilon)\\}\\\\\n&8.\\ \\text{刷新：}\\quad\\theta\\leftarrow\\theta'\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "第 6 步 K 次 actor 更新；第 7 步超标加重惩罚，并投影保持 β 非负。"
+  },
+  {
+    "key": "linearize",
+    "label": "路线 B：目标一阶线性化",
+    "target": "#formula-15",
+    "mapFormula": "$$\\bar A(\\theta')\\approx\\bar A(\\theta)+\\left(\\left.\\nabla_{\\theta'}\\bar A(\\theta')\\right|_{\\theta'=\\theta}\\right)^\\top(\\theta'-\\theta)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "gradient-match",
+    "label": "旧点系数就是策略梯度",
+    "target": "#formula-16",
+    "mapFormula": "$$\\left.\\nabla_{\\theta'}\\bar A(\\theta')\\right|_{\\theta'=\\theta}=\\sum_t\\gamma^t\\mathbb E_{p_\\theta,\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a_t\\mid s_t)A^{\\pi_\\theta}(s_t,a_t)]=\\nabla_\\theta J(\\theta)$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "euclidean",
+    "label": "普通方向对应欧氏球",
+    "target": "#formula-17",
+    "mapFormula": "$$\\max_\\Delta\\nabla_\\theta J(\\theta)^\\top\\Delta\\quad\\text{s.t.}\\quad\\|\\Delta\\|^2\\le\\epsilon$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "gaussian",
+    "label": "相同位移可有不同 KL",
+    "target": "#formula-17",
+    "mapFormula": "$$D_{\\mathrm{KL}}(\\mathcal N(\\mu,\\sigma^2)\\Vert\\mathcal N(\\mu+0.1,\\sigma^2))=\\frac{0.1^2}{2\\sigma^2}$$",
+    "formulaQualifier": "σ = 1 时 0.005；σ = 0.01 时 50。"
+  },
+  {
+    "key": "kl-zero",
+    "label": "KL 的零阶与一阶都为零",
+    "target": "#formula-18",
+    "mapFormula": "$$D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_\\theta)=0,\\qquad\\left.\\nabla_{\\theta'}\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]\\right|_{\\theta'=\\theta}=0$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "fisher",
+    "label": "二阶矩阵就是 Fisher",
+    "target": "#formula-18",
+    "mapFormula": "$$\\mathbf F=\\mathbb E_{s\\sim p_\\theta,a\\sim\\pi_\\theta}[\\nabla_\\theta\\log\\pi_\\theta(a\\mid s)\\nabla_\\theta\\log\\pi_\\theta(a\\mid s)^\\top]$$",
+    "formulaQualifier": "对称半正定；逆存在还需要条件。"
+  },
+  {
+    "key": "fisher-hessian",
+    "label": "两次归一化求导得到恒等式",
+    "target": "#fisher-detail",
+    "mapFormula": "$$\\mathbf F=-\\mathbb E_{s\\sim p_\\theta,a\\sim\\pi_\\theta}[\\nabla_\\theta^2\\log\\pi_\\theta(a\\mid s)]$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "quadratic",
+    "label": "现在问题是线性 ＋ 二次",
+    "target": "#formula-19",
+    "mapFormula": "$$\\max_\\Delta\\nabla_\\theta J(\\theta)^\\top\\Delta\\quad\\text{s.t.}\\quad\\frac12\\Delta^\\top\\mathbf F\\Delta\\le\\epsilon$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "natural-direction",
+    "label": "解驻点，得到自然方向",
+    "target": "#natural-detail",
+    "mapFormula": "$$\\nabla_\\theta J(\\theta)-\\beta\\mathbf F\\Delta=0\\quad\\Longrightarrow\\quad\\Delta=\\frac1\\beta\\mathbf F^{-1}\\nabla_\\theta J(\\theta)$$",
+    "formulaQualifier": "这里 β 是本地二次问题乘子；先假设 Fisher 正定。"
+  },
+  {
+    "key": "natural-step",
+    "label": "再代回预算，确定步长",
+    "target": "#formula-19",
+    "mapFormula": "$$\\theta'=\\theta+\\alpha\\mathbf F^{-1}\\nabla_\\theta J(\\theta),\\qquad\\alpha=\\sqrt{\\frac{2\\epsilon}{\\nabla_\\theta J(\\theta)^\\top\\mathbf F^{-1}\\nabla_\\theta J(\\theta)}}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "cg",
+    "label": "只解方向，不构造逆矩阵",
+    "target": "#formula-20",
+    "mapFormula": "$$\\mathbf Fx=\\nabla_\\theta J(\\theta)\\quad\\Longleftrightarrow\\quad x=\\mathbf F^{-1}\\nabla_\\theta J(\\theta)$$",
+    "formulaQualifier": "数值实现通常加正的对角阻尼。"
+  },
+  {
+    "key": "hvp",
+    "label": "CG 只需矩阵—向量乘积",
+    "target": "#trpo-detail",
+    "mapFormula": "$$\\mathbf Fv=\\left.\\nabla_{\\theta'}\\left[\\left(\\nabla_{\\theta'}\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]\\right)^\\top v\\right]\\right|_{\\theta'=\\theta}$$",
+    "formulaQualifier": ""
+  },
+  {
+    "key": "line-search",
+    "label": "用原经验 KL 与目标验收",
+    "target": "#formula-20",
+    "mapFormula": "$$\\theta'=\\theta+0.5^j\\alpha x,\\qquad\\mathbb E_{s\\sim p_\\theta}[D_{\\mathrm{KL}}(\\pi_\\theta\\Vert\\pi_{\\theta'})]\\le\\epsilon,\\qquad\\bar A_{\\mathrm{empirical}}(\\theta')\\gt\\bar A_{\\mathrm{empirical}}(\\theta)$$",
+    "formulaQualifier": "未通过则缩步；都失败就保留旧参数。"
+  },
+  {
+    "key": "trpo-loop",
+    "label": "完整 TRPO 循环",
+    "target": "#implementation-loop",
+    "mapFormula": "$$\\begin{aligned}\n&1.\\ \\text{采样：}\\quad\\tau^{(i)}\\sim p_\\theta,\\quad\\text{保存旧动作概率}\\\\\n&2.\\ \\text{估优势：}\\quad\\delta_t^{(i)}=r_t^{(i)}+\\gamma\\hat V_\\phi(s_{t+1}^{(i)})-\\hat V_\\phi(s_t^{(i)}),\\quad\\hat A_t^{(i)}=\\sum_{t'=t}^{H-1}(\\gamma\\lambda)^{t'-t}\\delta_{t'}^{(i)}\\\\\n&3.\\ \\text{估梯度：}\\quad\\nabla_\\theta J(\\theta)\\approx\\frac1N\\sum_{i,t}\\gamma^t\\nabla_\\theta\\log\\pi_\\theta(a_t^{(i)}\\mid s_t^{(i)})\\hat A_t^{(i)}\\\\\n&4.\\ \\text{解方向：}\\quad\\mathbf Fx=\\nabla_\\theta J(\\theta)\\quad(\\mathrm{CG},\\ \\text{实际通常加正的对角阻尼})\\\\\n&5.\\ \\text{步长：}\\quad\\alpha=\\sqrt{2\\epsilon/(x^\\top\\mathbf Fx)}\\\\\n&6.\\ \\text{线搜索：}\\quad\\theta'=\\theta+0.5^j\\alpha x,\\quad j=0,1,\\ldots,\\quad\\text{检查平均 KL 与经验代理改进}\\\\\n&7.\\ \\text{刷新：}\\quad\\theta\\leftarrow\\theta'_{\\mathrm{accepted}}\\quad\\Longrightarrow\\quad\\text{回到 1}\n\\end{aligned}$$",
+    "formulaQualifier": "每批计算方向、验收候选、接受一次策略更新，再重新采样。"
+  }
+]

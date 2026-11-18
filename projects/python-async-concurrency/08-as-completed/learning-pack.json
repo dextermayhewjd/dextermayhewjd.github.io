@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 725,
+      "endLine": 739,
+      "symbol": "eval_rollout_single_dataset",
+      "text": "    for coro in asyncio.as_completed(tasks):\n        sample = await coro\n        if do_print:\n            logged_sample = sample[0] if isinstance(sample, list) else sample\n            logger.info(\n                \"eval_rollout_single_dataset example data: \"\n                f\"{[str(logged_sample.prompt) + logged_sample.response]} \"\n                f\"reward={logged_sample.reward}\"\n            )\n            do_print = False\n        if isinstance(sample, list):\n            data.extend(sample)\n        else:\n            data.append(sample)\n        pbar.update(1)",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    }
+  }
+}

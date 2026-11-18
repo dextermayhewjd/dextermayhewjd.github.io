@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/async_utils.py",
+      "line": 56,
+      "endLine": 58,
+      "symbol": "AsyncLoopThread.run",
+      "text": "    def run(self, coro):\n        # Schedule a coroutine onto the loop and block until it's done\n        return asyncio.run_coroutine_threadsafe(coro, self.loop).result()",
+      "blobSha256": "09a9e7c89b78f66758a9dc23a9ce9523f06a73b1956ab6341522cafe1725f159"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/agent/aiohttp_threaded.py",
+      "line": 33,
+      "endLine": 43,
+      "symbol": "AppHandle.stop",
+      "text": "    def stop(self) -> None:\n        async def _shutdown() -> None:\n            await self.runner.cleanup()\n\n        try:\n            fut = asyncio.run_coroutine_threadsafe(_shutdown(), self.loop)\n            fut.result(timeout=10)\n        except Exception:\n            pass\n        self.loop.call_soon_threadsafe(self.loop.stop)\n        self.thread.join(timeout=5)",
+      "blobSha256": "651e5aedbf9529d5f2e458bc6fbbd9a1931ec31bc00c9b8c911b6762d1209268"
+    }
+  }
+}

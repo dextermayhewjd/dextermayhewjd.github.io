@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" role="img" aria-labelledby="s10-core-title s10-core-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s10-core-title">图 3 · 任务步骤与具体函数</title>
+  <desc id="s10-core-desc">只显示任务内部逻辑和共享存储方法。点击函数名就近查看实现；无脚本时跳到正文。框间是典型操作顺序，拒绝分支不修改状态。</desc>
+  <defs>
+    <marker id="s10-core-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)" />
+    </marker>
+  </defs>
+  <text x="24" y="30" font-size="20" fill="var(--diagram-text, #24334b)" font-weight="650">图 3 · 任务步骤与具体函数</text>
+  <text x="24" y="55" font-size="12" fill="var(--diagram-muted, #58677b)">只看内部任务逻辑；点击函数名查看实现，辅助方法可展开图下索引。</text>
+  <path data-route="s10-core-0" data-from="create" data-to="dependencies" data-kind="flow" data-label="一种典型工具使用顺序" d="M168 155H184" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-1" data-from="dependencies" data-to="inspect" data-kind="flow" data-label="一种典型工具使用顺序" d="M328 155H344" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-2" data-from="inspect" data-to="claim" data-kind="flow" data-label="一种典型工具使用顺序" d="M488 155H504" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-3" data-from="claim" data-to="work" data-kind="flow" data-label="一种典型工具使用顺序" d="M648 155H664" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-4" data-from="work" data-to="complete" data-kind="flow" data-label="一种典型工具使用顺序" d="M808 155H824" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-write" data-from="create" data-to="store" data-kind="flow" data-label="创建直接写入任务 JSON" d="M96 210V248H88V290" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-read" data-from="store" data-to="inspect" data-kind="flow" data-label="查看时读取任务记录" d="M328 360H336V236H416V210" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-blocked" data-from="claim" data-to="blocked" data-kind="flow" data-label="状态或依赖不满足，拒绝认领" d="M576 210V290" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-owner" data-from="complete" data-to="owner" data-kind="flow" data-label="状态或 owner 不满足，拒绝完成" d="M912 210V260H896V290" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <path data-route="s10-core-save" data-from="complete" data-to="store" data-kind="flow" data-label="通过完成检查后保存，再报告新解锁" d="M824 170H816V494H128V442" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s10-core-arrow)" />
+  <rect data-stage="create" data-change="added" x="24" y="100" width="144" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="96.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">创建节点</text>
+  <text x="96.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">pending · 取得 ID</text>
+  <text x="96.0" y="166" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部任务逻辑</text>
+  <a class="diagram-function-link" data-function="create_task" data-function-card="tasks" href="#task-create-helper" aria-label="查看 create_task() 的内部实现">
+    <text x="96.0" y="186" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="create_task" font-family="monospace">create_task()</text>
+  </a>
+  <rect data-stage="dependencies" data-change="added" x="184" y="100" width="144" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="256.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">添加依赖</text>
+  <text x="256.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">真实 ID → blockedBy</text>
+  <text x="256.0" y="166" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部任务逻辑</text>
+  <a class="diagram-function-link" data-function="update_task" data-function-card="dependencies" href="#task-dependencies" aria-label="查看 update_task() 的内部实现">
+    <text x="256.0" y="186" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="update_task" font-family="monospace">update_task()</text>
+  </a>
+  <rect data-stage="inspect" data-change="added" x="344" y="100" width="144" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="416.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">查看任务</text>
+  <text x="416.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">读取列表 / 详情</text>
+  <text x="416.0" y="166" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部查询</text>
+  <a class="diagram-function-link" data-function="list_tasks" data-function-card="tasks" href="#task-list-wrapper" aria-label="查看 list_tasks() 的内部实现">
+    <text x="416.0" y="186" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="list_tasks" font-family="monospace">list_tasks()</text>
+  </a>
+  <a class="diagram-function-link" data-function="get_task" data-function-card="tasks" href="#task-inspect" aria-label="查看 get_task() 的内部实现">
+    <text x="416.0" y="202" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="get_task" font-family="monospace">get_task()</text>
+  </a>
+  <rect data-stage="claim" data-change="added" x="504" y="100" width="144" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="576.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">检查并认领</text>
+  <text x="576.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">→ in_progress</text>
+  <text x="576.0" y="166" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部任务逻辑</text>
+  <a class="diagram-function-link" data-function="claim_task" data-function-card="claim" href="#task-claim" aria-label="查看 claim_task() 的内部实现">
+    <text x="576.0" y="186" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="claim_task" font-family="monospace">claim_task()</text>
+  </a>
+  <rect data-stage="work" data-change="base" x="664" y="100" width="144" height="110" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5" />
+  <text x="736.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">实际执行</text>
+  <text x="736.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">文件工具 / Bash</text>
+  <text x="736.0" y="186" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">工作实现 → S02 / S04</text>
+  <rect data-stage="complete" data-change="added" x="824" y="100" width="144" height="110" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="896.0" y="125" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">检查并完成</text>
+  <text x="896.0" y="145" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">→ completed</text>
+  <text x="896.0" y="166" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部任务逻辑</text>
+  <a class="diagram-function-link" data-function="complete_task" data-function-card="complete" href="#task-complete" aria-label="查看 complete_task() 的内部实现">
+    <text x="896.0" y="186" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="complete_task" font-family="monospace">complete_task()</text>
+  </a>
+  <rect data-stage="store" data-change="added" x="24" y="290" width="304" height="152" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5" />
+  <text x="176.0" y="315" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">任务文件 / TaskStore</text>
+  <text x="176.0" y="336" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">共享的内部存储方法</text>
+  <a class="diagram-function-link" data-function="load" data-function-card="store" href="#task-store-load" aria-label="查看 TaskStore.load() 的内部实现">
+    <text x="176.0" y="358" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="load" font-family="monospace">TaskStore.load()</text>
+  </a>
+  <a class="diagram-function-link" data-function="save" data-function-card="store" href="#task-store-save" aria-label="查看 TaskStore.save() 的内部实现">
+    <text x="176.0" y="380" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="save" font-family="monospace">TaskStore.save()</text>
+  </a>
+  <a class="diagram-function-link" data-function="list" data-function-card="store" href="#task-store-list" aria-label="查看 TaskStore.list() 的内部实现">
+    <text x="176.0" y="402" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="list" font-family="monospace">TaskStore.list()</text>
+  </a>
+  <text x="176.0" y="426" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">.tasks/{id}.json · 跨会话保留</text>
+  <rect data-stage="blocked" data-change="added" x="456" y="290" width="240" height="132" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="576.0" y="315" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">拒绝认领</text>
+  <text x="576.0" y="336" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部状态与依赖检查</text>
+  <a class="diagram-function-link" data-function="claim_task" data-function-card="claim" href="#task-claim" aria-label="查看 claim_task() 的内部实现">
+    <text x="576.0" y="358" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="claim_task" font-family="monospace">claim_task()</text>
+  </a>
+  <a class="diagram-function-link" data-function="incomplete_dependencies" data-function-card="claim" href="#task-inspect" aria-label="查看 incomplete_dependencies() 的内部实现">
+    <text x="576.0" y="380" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="incomplete_dependencies" font-family="monospace">incomplete_dependencies()</text>
+  </a>
+  <text x="576.0" y="404" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">失败只返回说明，原记录不变</text>
+  <rect data-stage="owner" data-change="added" x="824" y="290" width="144" height="132" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5" />
+  <text x="896.0" y="315" font-size="14" fill="var(--diagram-text, #24334b)" text-anchor="middle" font-weight="650">拒绝完成</text>
+  <text x="896.0" y="336" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">内部状态与 owner 检查</text>
+  <a class="diagram-function-link" data-function="complete_task" data-function-card="complete" href="#task-complete" aria-label="查看 complete_task() 的内部实现">
+    <text x="896.0" y="358" font-size="11" fill="var(--diagram-text, #24334b)" text-anchor="middle" data-function="complete_task" font-family="monospace">complete_task()</text>
+  </a>
+  <text x="896.0" y="404" font-size="10" fill="var(--diagram-muted, #58677b)" text-anchor="middle">失败不写 completed</text>
+  <text x="360" y="485" font-size="11" fill="var(--diagram-muted, #58677b)">写入完成状态；只报告本次新解锁</text>
+  <text x="24" y="529" font-size="11" fill="var(--diagram-muted, #58677b)">创建直接写文件；其他更新经 save。存储框是共有能力，不是额外工具调用。</text>
+  <text x="24" y="548" font-size="11" fill="var(--diagram-muted, #58677b)">此图聚焦任务逻辑与存储方法；点击函数名查看实现。</text>
+</svg>

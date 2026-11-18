@@ -1,0 +1,8 @@
+flowchart LR
+    findings["findings：检查结果"] -->|取出一条| finding["finding：候选问题"]
+    finding --> prompt["复核 prompt"]
+    changes["原始代码 changes"] --> prompt
+    instructions["复核要求"] --> prompt
+    prompt --> agent["ctx.agent(...)"]
+    schema["VERDICT_SCHEMA"] -->|约定输出结构| agent
+    agent -->|校验通过| verdict["verdict：复核结论"]

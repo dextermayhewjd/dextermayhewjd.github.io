@@ -1,0 +1,33 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 1034,
+      "endLine": 1045,
+      "symbol": "QueueReader.__init__",
+      "text": "        self._lock = threading.RLock()\n        self._reader = ThreadPoolExecutor(max_workers=1, thread_name_prefix=\"queue-input\")\n        self._stop = threading.Event()\n        self._heartbeat_error = None\n        filter_path = getattr(args, \"buffer_filter_path\", None)\n        if filter_path is not None:\n            raise ValueError(\n                \"--buffer-filter-path is not supported by straw; the queue prioritizes ready groups, partials, \"\n                \"then fresh prompts, using older weight versions first within each stage\"\n            )\n        self._heartbeats = threading.Thread(target=self._heartbeat_loop, name=\"queue-leases\", daemon=True)\n        self._heartbeats.start()",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 1113,
+      "endLine": 1115,
+      "symbol": "QueueReader.get_samples_async",
+      "text": "    async def get_samples_async(self, num_samples):\n        \"\"\"Run blocking queue/file reads on the reader thread, keeping asyncio responsive.\"\"\"\n        return await asyncio.get_running_loop().run_in_executor(self._reader, self.get_samples, num_samples)",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/data/transport.py",
+      "line": 370,
+      "endLine": 389,
+      "symbol": "run_rollout_io",
+      "text": "async def run_rollout_io(args, function, *values, **kwargs):\n    \"\"\"Bound the executor backlog before submitting encoding/sync work.\"\"\"\n    loop = asyncio.get_running_loop()\n    key = (os.getpid(), loop)\n    if key not in _async_limits:\n        _async_limits[key] = asyncio.Semaphore(getattr(args, \"rollout_io_concurrency\", 4))\n    async with _async_limits[key]:\n        pending = asyncio.create_task(asyncio.to_thread(function, *values, **kwargs))\n        try:\n            return await asyncio.shield(pending)\n        except asyncio.CancelledError:\n            # Repeated cancellation still cannot stop a filesystem commit.\n            # Keep capacity and input ownership until the accepted write finishes.\n            while not pending.done():\n                try:\n                    await asyncio.shield(pending)\n                except asyncio.CancelledError:\n                    pass\n            pending.result()\n            raise",
+      "blobSha256": "9315c9bd0b66c7a7e4c237cd24a58b4b195c0ebcb48aeb7afe8e96e7cdbaad36"
+    }
+  }
+}

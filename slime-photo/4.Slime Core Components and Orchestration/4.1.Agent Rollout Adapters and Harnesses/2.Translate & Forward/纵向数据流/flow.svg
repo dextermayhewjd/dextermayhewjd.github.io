@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1710" viewBox="0 0 1200 1710" role="img" aria-labelledby="title desc">
+  <title id="title">动作 2：同一个 Anthropic 请求的纵向数据流</title>
+  <desc id="desc">输入是已读取和预处理后的 body 字典。AnthropicAdapter 的 _translate 先把 system 和 messages 转为五条 translated 消息，再把 tools 转为一个 tools_schema 工具定义。flatten_content 只处理 system 与 tool_result 的 content；tool_call_dict 只处理历史工具调用的名称和参数。两份 Python 列表通过返回值交给继承自 BaseAdapter 的 _run_turn，没有独立 Core HTTP 请求。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+    <style>
+      text {font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", sans-serif; fill: #172334; font-size: 22px;}
+      .title {font-size: 32px; font-weight: 700;}
+      .head {font-size: 25px; font-weight: 700;}
+      .small {font-size: 20px;}
+      .muted {fill: #526173;}
+      .mono {font-family: "DejaVu Sans Mono", monospace; font-size: 20px;}
+      .box {stroke: #91a3b8; stroke-width: 2; rx: 14;}
+      .link {fill: none; stroke: #475569; stroke-width: 3; marker-end: url(#arrow);}
+      .divider {stroke: #c9d6e6; stroke-width: 2;}
+    </style>
+  </defs>
+  <rect width="1200" height="1710" fill="#fff"/>
+  <text x="50" y="52" class="title">动作 2：Translate &amp; Forward</text>
+  <text x="50" y="88" class="muted">HTTP Adapters → Slime Core · 沿一个请求向下看</text>
+
+  <rect x="50" y="115" width="1100" height="160" class="box" fill="#f1f5f9"/>
+  <text x="75" y="152" class="head">输入 body · 已读取 JSON、完成预处理的 dict</text>
+  <text x="75" y="191">system：你是代码助手。　messages：3 条历史（含 tool_use / tool_result）</text>
+  <text x="75" y="227">tools：read_file 的定义　　max_tokens：128（留在 body，供后续采样）</text>
+  <text x="75" y="258" class="small muted">本例预处理无变化；read_file 的执行结果已由客户端带回</text>
+  <path class="link" d="M600 275 V324"/>
+
+  <rect x="30" y="325" width="1140" height="1085" class="box" fill="#f8fafc"/>
+  <text x="55" y="369" class="head">AnthropicAdapter._translate(body)</text>
+  <text x="55" y="404" class="small muted">两路处理不同字段；真实执行先消息路，再工具路，最后一起返回</text>
+
+  <rect x="55" y="430" width="700" height="920" class="box" fill="#eff6ff"/>
+  <text x="80" y="469" class="head">① 消息路：_translate_messages()</text>
+  <text x="80" y="503" class="mono">body.system + body.messages</text>
+
+  <rect x="80" y="530" width="650" height="110" class="box" fill="#fff"/>
+  <text x="100" y="564" class="head">system 的文本块 → flatten_content()</text>
+  <text x="100" y="600">输出：&quot;你是代码助手。&quot;</text>
+  <text x="100" y="629" class="small muted">追加 role: system；helper 只收到 system 子数据</text>
+  <path class="link" d="M405 640 V675"/>
+
+  <rect x="80" y="677" width="650" height="172" class="box" fill="#fff"/>
+  <text x="100" y="712" class="head">按消息顺序：user → assistant 历史</text>
+  <text x="100" y="746" class="small">user 文本直接取出：读取 README.md 并概括内容。</text>
+  <text x="100" y="779" class="small">tool_call_dict(&quot;read_file&quot;, {&quot;path&quot;: &quot;README.md&quot;})</text>
+  <text x="100" y="812" class="small">输出 function 调用对象，装入 assistant.tool_calls</text>
+  <text x="100" y="839" class="small muted">toolu_demo 被丢弃；arguments 保持 dict</text>
+  <path class="link" d="M405 849 V884"/>
+
+  <rect x="80" y="886" width="650" height="126" class="box" fill="#fff"/>
+  <text x="100" y="922" class="head">tool_result.content → flatten_content()</text>
+  <text x="100" y="955" class="small">输出：&quot;# Demo\n这是一个学习项目。&quot;</text>
+  <text x="100" y="987" class="small muted">先追加 role: tool，再追加 user 文本：请用一句话概括。</text>
+  <path class="link" d="M405 1012 V1047"/>
+
+  <rect x="80" y="1049" width="650" height="278" class="box" fill="#dbeafe"/>
+  <text x="100" y="1086" class="head">返回 translated · 5 条消息的列表</text>
+  <text x="100" y="1124" class="small">1　system　你是代码助手。</text>
+  <text x="100" y="1160" class="small">2　user　读取 README.md 并概括内容。</text>
+  <text x="100" y="1196" class="small">3　assistant　我先读取文件。</text>
+  <text x="145" y="1227" class="small">tool_calls：read_file，arguments：{&quot;path&quot;: &quot;README.md&quot;}</text>
+  <text x="100" y="1263" class="small">4　tool　# Demo\n这是一个学习项目。</text>
+  <text x="100" y="1299" class="small">5　user　请用一句话概括。</text>
+
+  <rect x="795" y="430" width="350" height="920" class="box" fill="#f0fdf4"/>
+  <text x="817" y="469" class="head">② 工具路</text>
+  <text x="817" y="503" class="mono">body.tools</text>
+  <rect x="817" y="530" width="306" height="235" class="box" fill="#fff"/>
+  <text x="835" y="566" class="head">输入工具定义</text>
+  <text x="835" y="605" class="small">name: read_file</text>
+  <text x="835" y="640" class="small">description: 读取文件</text>
+  <text x="835" y="675" class="small">input_schema:</text>
+  <text x="850" y="707" class="small">object；path 为 string</text>
+  <text x="850" y="739" class="small">required: [&quot;path&quot;]</text>
+  <path class="link" d="M970 765 V810"/>
+  <rect x="817" y="812" width="306" height="165" class="box" fill="#fff"/>
+  <text x="835" y="849" class="mono">_tools_to_chat_tools()</text>
+  <text x="835" y="887" class="small">增加 function 包装</text>
+  <text x="835" y="923" class="small">input_schema</text>
+  <text x="835" y="955" class="small">→ parameters</text>
+  <path class="link" d="M970 977 V1047"/>
+  <rect x="817" y="1049" width="306" height="278" class="box" fill="#dcfce7"/>
+  <text x="835" y="1086" class="head">返回 tools_schema</text>
+  <text x="835" y="1124" class="small">1 个工具定义的列表</text>
+  <text x="835" y="1160" class="small">type: function</text>
+  <text x="835" y="1196" class="small">function.name: read_file</text>
+  <text x="835" y="1232" class="small">description: 读取文件</text>
+  <text x="835" y="1268" class="small">parameters: object</text>
+  <text x="835" y="1304" class="small">path 为 string，且必填</text>
+
+  <path class="link" d="M405 1350 V1380 H600 V1445"/>
+  <path d="M970 1350 V1380 H600" fill="none" stroke="#475569" stroke-width="3"/>
+  <rect x="180" y="1448" width="840" height="194" class="box" fill="#fff7ed"/>
+  <text x="205" y="1489" class="head">③ Core 接收：BaseAdapter._run_turn()</text>
+  <text x="205" y="1527">接收 translated 与 tools_schema 两份数据</text>
+  <text x="205" y="1564">动作 2 终点：两份 Python 列表，通过返回值交接</text>
+  <text x="205" y="1602" class="small muted">没有独立 Core HTTP；尚未编码 token，也没有模型响应</text>
+  <text x="50" y="1685" class="small muted">下一步定位：_render_token_ids() 使用这两份数据与当前模型聊天模板</text>
+</svg>

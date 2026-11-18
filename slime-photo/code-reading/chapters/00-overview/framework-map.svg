@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="590" viewBox="0 0 1100 590" role="img" aria-labelledby="title desc">
+  <title id="title">从 Slime 基本工作流逐步展开启动与调度</title>
+  <desc id="desc">上层是任务数据、生成与评分、样本批次、训练和权重同步。下层按主入口的执行顺序展开 main、创建或接续服务、train 和 RolloutManager.generate。整体模型不依赖此前读过哪个函数。阅读层次不表示项目历史。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#47627a"/></marker>
+  </defs>
+  <rect width="1100" height="590" rx="14" fill="#ffffff"/>
+  <g font-family="system-ui, sans-serif" fill="#203449">
+    <text x="30" y="35" font-size="23" font-weight="700">从基本工作流开始，每一步展开一个关系</text>
+    <text x="30" y="60" font-size="14" fill="#52677a">先定位数据和控制的交接，再按当前问题展开真实代码。</text>
+    <g stroke="#47627a" stroke-width="2" fill="none" marker-end="url(#arrow)">
+      <path d="M175 147 H220"/><path d="M485 147 H530"/><path d="M710 147 H755"/>
+      <path d="M905 108 V87 H352 V108"/>
+    </g>
+    <text x="615" y="81" text-anchor="middle" font-size="13" fill="#47627a">训练后：把新权重同步到生成侧的推理服务</text>
+    <rect x="30" y="108" width="145" height="78" rx="9" fill="#edf5ff" stroke="#7298c7"/>
+    <rect x="220" y="108" width="265" height="78" rx="9" fill="#edf5ff" stroke="#7298c7"/>
+    <rect x="530" y="108" width="180" height="78" rx="9" fill="#edf5ff" stroke="#7298c7"/>
+    <rect x="755" y="108" width="300" height="78" rx="9" fill="#f2f4f6" stroke="#97a3af"/>
+    <g text-anchor="middle">
+      <text x="102" y="139" font-size="18" font-weight="650">任务数据</text>
+      <text x="102" y="164" font-size="13">题目与环境信息</text>
+      <text x="352" y="139" font-size="18" font-weight="650">生成与评分</text>
+      <text x="352" y="164" font-size="13">包含模型或 Agent 的执行</text>
+      <text x="620" y="139" font-size="18" font-weight="650">样本与批次</text>
+      <text x="620" y="164" font-size="13">数据或可读取的引用</text>
+      <text x="905" y="139" font-size="18" font-weight="650">训练与参数更新</text>
+      <text x="905" y="164" font-size="13">先理解输入输出，内部实现按需展开</text>
+    </g>
+    <text x="30" y="222" font-size="14" fill="#52677a">一份任务可多次请求模型，也可导出多份 Sample；这些粒度不按一对一对应。</text>
+    <path d="M352 186 V258" stroke="#8b6aad" stroke-width="2" stroke-dasharray="6 5"/>
+    <rect x="30" y="258" width="1025" height="248" rx="12" fill="#faf7fe" stroke="#8b6aad" stroke-width="1.5"/>
+    <text x="52" y="291" font-size="20" font-weight="700" fill="#63438a">第一个展开问题：谁启动工作，并进入生成与训练循环？</text>
+    <text x="52" y="315" font-size="13" fill="#63438a">下列箭头按主入口的执行推进；组件调用完会返回主入口或训练循环。</text>
+    <g fill="#f0e8fa" stroke="#9c7eb9">
+      <rect x="52" y="335" width="164" height="67" rx="8"/>
+      <rect x="252" y="335" width="252" height="67" rx="8"/>
+      <rect x="540" y="335" width="212" height="67" rx="8"/>
+      <rect x="788" y="335" width="245" height="67" rx="8"/>
+    </g>
+    <g text-anchor="middle" font-size="15">
+      <text x="134" y="363" font-weight="650">train.py::main</text><text x="134" y="385" font-size="13">框架启动入口</text>
+      <text x="378" y="362" font-weight="650">准备或接续服务与资源</text><text x="378" y="385" font-size="12">create_rollout_manager</text>
+      <text x="646" y="362" font-weight="650">train()</text><text x="646" y="385" font-size="13">主入口进入训练循环</text>
+      <text x="910" y="362" font-weight="650">RolloutManager.generate</text><text x="910" y="385" font-size="13">组织本轮生成数据</text>
+    </g>
+    <g fill="none" stroke="#47627a" stroke-width="1.8" marker-end="url(#arrow)">
+      <path d="M216 369 H252"/><path d="M504 369 H540"/><path d="M752 369 H788"/>
+      <path d="M910 402 V435"/>
+    </g>
+    <rect x="52" y="439" width="981" height="44" rx="8" fill="#edf5ff" stroke="#7298c7"/>
+    <text x="542" y="466" text-anchor="middle" font-size="14">默认 rollout → 自定义 generate → 样本返回 → 批次整理 → 回到训练循环</text>
+    <text x="30" y="541" font-size="14" fill="#52677a">蓝色：保持可定位的主线　紫色：本轮展开的上游关系　灰色：先保留接口的训练细节</text>
+    <text x="30" y="568" font-size="13" fill="#52677a">这是固定源码的阅读层次，不表示 Slime 的历史演进，也不表示已经运行过训练。</text>
+  </g>
+</svg>

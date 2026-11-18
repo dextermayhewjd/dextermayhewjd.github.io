@@ -1,0 +1,103 @@
+{
+  "revision": "8c17b676cb57af1d17ee4402e91e9209af84b60b",
+  "verification": "Execute source-extracted Harness methods with a recording sandbox. exec_and_wait is replaced by a recorder returning a simulated (0, empty string). No CLI, sandbox, HTTP, or model execution.",
+  "inputs": {
+    "workdir": "/workspace/demo",
+    "session_id": "cagent-demo-0-0",
+    "adapter_url": "http://192.0.2.10:18001",
+    "time_budget_sec": 1800,
+    "prompt": "Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit."
+  },
+  "branches": {
+    "claude_code": {
+      "sandbox_calls": [
+        {
+          "method": "exec",
+          "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+          "user": "root",
+          "check": true,
+          "timeout": 60
+        },
+        {
+          "method": "exec",
+          "cmd": "mkdir -p /home/agent/.claude && echo '{\"hasCompletedOnboarding\": true, \"bypassPermissionsModeAccepted\": true}' | tee /home/agent/.claude.json /home/agent/.claude/settings.json > /dev/null && chown -R agent:agent /home/agent/.claude /home/agent/.claude.json",
+          "user": "root",
+          "check": true,
+          "timeout": 60
+        },
+        {
+          "method": "exec",
+          "cmd": "mkdir -p /workspace/demo/.harness && chown agent:agent /workspace/demo/.harness",
+          "user": "root",
+          "check": true,
+          "timeout": 30
+        }
+      ],
+      "exec_and_wait_input": {
+        "cmd": "/usr/local/bin/claude -p 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.' --permission-mode bypassPermissions --output-format stream-json --include-partial-messages --include-hook-events --verbose",
+        "user": "agent",
+        "env": {
+          "ANTHROPIC_BASE_URL": "http://192.0.2.10:18001",
+          "ANTHROPIC_AUTH_TOKEN": "cagent-demo-0-0",
+          "ANTHROPIC_MODEL": "slime-actor",
+          "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+          "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+          "CLAUDE_CODE_ATTRIBUTION_HEADER": "0"
+        },
+        "workdir": "/workspace/demo",
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "time_budget_sec": 1800,
+        "tag": "run",
+        "want_output": false
+      },
+      "simulated_exit_code": 0,
+      "illustrative_request_headers": {
+        "Authorization": "Bearer cagent-demo-0-0"
+      },
+      "resolved_session_id": "cagent-demo-0-0"
+    },
+    "codex": {
+      "sandbox_calls": [
+        {
+          "method": "exec",
+          "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+          "user": "root",
+          "check": true,
+          "timeout": 60
+        },
+        {
+          "method": "exec",
+          "cmd": "mkdir -p /home/agent/.codex && echo bW9kZWwgPSAic2xpbWUtYWN0b3IiCm1vZGVsX3Byb3ZpZGVyID0gInNsaW1lIgoKW21vZGVsX3Byb3ZpZGVycy5zbGltZV0KbmFtZSA9ICJzbGltZSIKYmFzZV91cmwgPSAiaHR0cDovLzE5Mi4wLjIuMTA6MTgwMDEvdjEiCmVudl9rZXkgPSAiT1BFTkFJX0FQSV9LRVkiCndpcmVfYXBpID0gImNoYXQiCg== | base64 -d > /home/agent/.codex/config.toml && chown -R agent:agent /home/agent/.codex",
+          "user": "root",
+          "check": true,
+          "timeout": 60
+        },
+        {
+          "method": "exec",
+          "cmd": "mkdir -p /workspace/demo/.harness && chown agent:agent /workspace/demo/.harness",
+          "user": "root",
+          "check": true,
+          "timeout": 30
+        }
+      ],
+      "exec_and_wait_input": {
+        "cmd": "codex exec --skip-git-repo-check 'Read PROBLEM_STATEMENT.md in the current directory and resolve the issue. Edit source files only (do NOT touch tests). After editing, run the relevant tests to verify your fix passes. Do NOT modify PROBLEM_STATEMENT.md and do NOT commit. When finished, print a one-line summary and exit.'",
+        "user": "agent",
+        "env": {
+          "OPENAI_API_KEY": "cagent-demo-0-0",
+          "OPENAI_BASE_URL": "http://192.0.2.10:18001/v1"
+        },
+        "workdir": "/workspace/demo",
+        "out_file": "/workspace/demo/.harness/trajectory.jsonl",
+        "time_budget_sec": 1800,
+        "tag": "run",
+        "want_output": false
+      },
+      "simulated_exit_code": 0,
+      "illustrative_request_headers": {
+        "Authorization": "Bearer cagent-demo-0-0"
+      },
+      "resolved_session_id": "cagent-demo-0-0"
+    }
+  }
+}

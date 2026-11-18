@@ -1,0 +1,75 @@
+{
+  "status": "passed",
+  "checked_at_utc": "2026-10-13T09:52:54.526183+00:00",
+  "route": "http://localhost:1313/projects/python-async-concurrency/",
+  "coverage_route": "http://localhost:1313/projects/python-async-concurrency/coverage/",
+  "source_revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "hugo": "0.166.0 extended",
+  "lesson_count": 21,
+  "primary_examples": 20,
+  "additional_examples": 6,
+  "executed_examples": 26,
+  "verified_source_excerpts": 91,
+  "coverage": {
+    "tracked_python_files": 381,
+    "source_positions": 2288,
+    "direct_api_names": 83,
+    "direct_api_positions": 518,
+    "syntax_positions": 747,
+    "import_positions": 147,
+    "documentation_snippets": 29,
+    "explained": 1412,
+    "candidate": 670,
+    "inferred": 206
+  },
+  "regression_tests": {
+    "command": "HUGO_BINARY=<hugo-0.166.0> python3 -m unittest discover -s tests -p 'test_python_async*.py' -v",
+    "tests": 13,
+    "failures": 0,
+    "skips": 0
+  },
+  "repository_tests": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "tests": 123,
+    "elapsed_seconds": 182.559,
+    "failures": 0,
+    "skips": 13,
+    "skipped_checks": [
+      "test_core_functions_match_local_source (test_s10_explorer.TaskExcerpts.test_core_functions_match_local_source) ... skipped 'Local teaching source is required for excerpt comparison'",
+      "test_functions_match_source (test_s11_explorer.BackgroundSource.test_functions_match_source) ... skipped 'Local teaching source required'",
+      "test_functions_match_source (test_s12_explorer.SchedulerSource.test_functions_match_source) ... skipped 'Local teaching source required'",
+      "test_functions_match_source (test_s13_explorer.TeamsSource.test_functions_match_source) ... skipped 'Local teaching source required'",
+      "setUpClass (test_s14_explorer.MCPRuntime) ... skipped 'Local teaching source required'",
+      "test_functions_match_source (test_s14_explorer.MCPSource.test_functions_match_source) ... skipped 'Local teaching source required'",
+      "setUpClass (test_s15_explorer.HarnessRuntime) ... skipped 'Local source required'",
+      "test_excerpts_and_tool_count_match_local_source (test_s15_explorer.HarnessSource.test_excerpts_and_tool_count_match_local_source) ... skipped 'Local source required'",
+      "test_final_result_and_resume_cache_use_one_run_boundary (test_s16_explorer.WorkflowRuntime.test_final_result_and_resume_cache_use_one_run_boundary) ... skipped 'Local source required'",
+      "test_resume_rejects_changed_args_before_artifact_overwrite (test_s16_explorer.WorkflowRuntime.test_resume_rejects_changed_args_before_artifact_overwrite) ... skipped 'Local source required'",
+      "test_excerpts_match_local_code_and_original_diagram (test_s16_explorer.WorkflowSource.test_excerpts_match_local_code_and_original_diagram) ... skipped 'Local source required'",
+      "test_source_excerpts_and_original_figure (test_s17_explorer.GoalSource.test_source_excerpts_and_original_figure) ... skipped 'Local teaching source required'",
+      "test_action_context_symbols_match_the_bound_source_snapshot (test_slime_chapters.SlimeChapters.test_action_context_symbols_match_the_bound_source_snapshot) ... skipped 'Bound local Slime repository is unavailable'"
+    ]
+  },
+  "site_navigation": "bash tests/test-project-navigation.sh passed",
+  "production_build": "hugo --gc --minify passed",
+  "browser": {
+    "desktop": [
+      "home",
+      "15-async-notification/",
+      "18-process-lifecycle/",
+      "20-async-streams/",
+      "21-async-inspection/",
+      "coverage/"
+    ],
+    "mobile": [
+      "home",
+      "15-async-notification/",
+      "21-async-inspection/",
+      "coverage/"
+    ],
+    "keyboard": true,
+    "sourceRows": 36,
+    "downloads": true
+  },
+  "scope": "Fixed-source static coverage, independently runnable standard-library examples, source excerpts and local website. Inferred receivers and unresolved candidates remain explicitly distinguished. No Slime training or model services executed."
+}

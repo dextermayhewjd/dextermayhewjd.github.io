@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "tests/test_rollout_sample_hooks.py",
+      "line": 61,
+      "endLine": 70,
+      "symbol": "generate / exercise",
+      "text": "    async def generate(rollout_id):\n        with rollout_context(rollout_id):\n            await asyncio.sleep(0)\n            sample = await apply_rollout_sample_hooks(args, Sample(index=rollout_id))\n            return sample.metadata[\"sync_hook\"]\n\n    async def exercise():\n        assert await asyncio.gather(generate(10), generate(11)) == [(\"seen\", 10), (\"seen\", 11)]\n\n    asyncio.run(exercise())",
+      "blobSha256": "339bd5d25fb3b12a4f9b88a9ed73d14bcf7b12e02110cba8b4e5114434b724af"
+    }
+  }
+}

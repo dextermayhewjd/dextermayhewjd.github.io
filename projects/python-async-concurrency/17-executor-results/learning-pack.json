@@ -1,0 +1,87 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/backends/megatron_utils/update_weight/update_weight_from_disk_delta.py",
+      "line": 273,
+      "endLine": 293,
+      "symbol": "UpdateWeightFromDiskDelta._encode_delta",
+      "text": "        pool = ThreadPoolExecutor(max_workers=NUM_WORKERS)\n        inflight: deque = deque()\n        try:\n            for name, tensor in self._iter_hf_tensors():\n                flat = tensor.detach().contiguous().view(torch.uint8).reshape(-1)\n                nbytes = int(flat.numel())\n                if use_pinned and nbytes <= max_bytes:\n                    buf = free_q.get()  # blocks when all buffers are in flight -> backpressures the gather\n                    buf[:nbytes].copy_(flat, non_blocking=True)\n                    accelerator.current_stream().synchronize()\n                    payload, pinned = buf, True\n                else:\n                    payload, pinned = flat.cpu().numpy(), False\n                self.total_bytes += nbytes\n                inflight.append(pool.submit(diff_and_compress, name, payload, nbytes, pinned))\n                if len(inflight) >= 2 * NUM_WORKERS:\n                    collect(inflight.popleft())\n            while inflight:\n                collect(inflight.popleft())\n        finally:\n            pool.shutdown()",
+      "blobSha256": "ac78a67f02d146331f377c9246b60109d039101b99b5d4058ad6932981411293"
+    },
+    "source-2": {
+      "available": true,
+      "path": "tests/pipeline_rl_test_helpers.py",
+      "line": 159,
+      "endLine": 169,
+      "symbol": "before_train_step",
+      "text": "        with ThreadPoolExecutor(max_workers=len(_probes)) as pool:\n            _records[\"continuous\"] = list(pool.map(lambda probe: probe.verify(), _probes))\n        start_probes([probe.url for probe in _probes])\n    elif rollout_id == 2 and step_id == 0:\n        assert _probes\n        with ThreadPoolExecutor(max_workers=len(_probes)) as pool:\n            _records[\"next_update\"] = list(\n                pool.map(\n                    lambda probe: probe.verify_flush() if args.flush_cache_interval == 2 else probe.verify(), _probes\n                )\n            )",
+      "blobSha256": "67fd7b7a7180d0712e4522a894f95b514356b61ef2bdc0f39b81fb0548db9593"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/utils/routed_experts.py",
+      "line": 229,
+      "endLine": 248,
+      "symbol": "RoutedExpertsMicrobatch.prefetch / _get_cpu_tensor",
+      "text": "    def prefetch(self) -> None:\n        with self._lock:\n            if self._cpu_tensor is not None or self._future is not None:\n                return\n            executor = self.prefetcher.executor if self.prefetcher is not None else None\n            if executor is not None:\n                self._future = executor.submit(self._load_and_prepare)\n\n    def _get_cpu_tensor(self) -> torch.Tensor:\n        with self._lock:\n            tensor = self._cpu_tensor\n            future = self._future\n        if tensor is None:\n            tensor = future.result() if future is not None else self._load_and_prepare()\n            with self._lock:\n                self._cpu_tensor = tensor\n                self._future = None\n        if self.prefetcher is not None:\n            self.prefetcher.prefetch_after(self.index)\n        return tensor",
+      "blobSha256": "19845412e959e3cb9b7360593867c25b3aa07bfbfc213f4fefbc889f2c2b5155"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime/utils/routed_experts.py",
+      "line": 265,
+      "endLine": 271,
+      "symbol": "RoutedExpertsMicrobatch.release",
+      "text": "    def release(self) -> None:\n        with self._lock:\n            future = self._future\n            self._future = None\n            self._cpu_tensor = None\n        if future is not None and not future.done():\n            future.cancel()",
+      "blobSha256": "19845412e959e3cb9b7360593867c25b3aa07bfbfc213f4fefbc889f2c2b5155"
+    },
+    "source-5": {
+      "available": true,
+      "path": "tests/test_distributed_rollout.py",
+      "line": 646,
+      "endLine": 659,
+      "symbol": "scheduler_factory: remote / ray_wait",
+      "text": "    def remote(method):\n        return SimpleNamespace(remote=lambda *args: asyncio.run_coroutine_threadsafe(method(*args), loop))\n\n    def ray_wait(refs, num_returns, timeout):\n        done, pending = wait(refs, timeout=timeout, return_when=FIRST_COMPLETED)\n        return list(done)[:num_returns], list(pending)\n\n    def kill(worker, no_restart=True):\n        if worker.actor.producer is not None:\n            loop.call_soon_threadsafe(worker.actor.producer.cancel)\n\n    monkeypatch.setattr(ray, \"wait\", ray_wait)\n    monkeypatch.setattr(ray, \"get\", lambda ref: ref.result())\n    monkeypatch.setattr(ray, \"cancel\", lambda ref: ref.cancel())",
+      "blobSha256": "4f73dedd74a7311414f4f8f6ba176c283772b888238aad1884781a8490dd586e"
+    },
+    "source-6": {
+      "available": true,
+      "path": "tools/convert_torch_dist_to_hf_parallel.py",
+      "line": 147,
+      "endLine": 161,
+      "symbol": "WrappedStorageReader._parallel_preload_files",
+      "text": "        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:\n            futures = {\n                executor.submit(read_file, rel_path, full_path, ops): rel_path\n                for rel_path, (full_path, ops) in [\n                    (r, (self.fs.concat_path(self.path, r), ops)) for r, ops in file_ops.items()\n                ]\n            }\n            for future in tqdm(as_completed(futures), total=len(futures), desc=\"Pre-loading files\"):\n                result = future.result()\n                if result:\n                    rel_path, data, is_full_file = result\n                    with self._cache_lock:\n                        # Cache by file path - for chunked files, store the full file\n                        self._read_cache[rel_path] = data\n",
+      "blobSha256": "3e77303edf537812ecba1896a57c5ed51d2b6b61e1423e497f3b146156412db5"
+    },
+    "source-7": {
+      "available": true,
+      "path": "slime/utils/routed_experts.py",
+      "line": 184,
+      "endLine": 191,
+      "symbol": "RoutedExpertsMicrobatchPrefetcher.close",
+      "text": "    def close(self) -> None:\n        if self._closed:\n            return\n        self._closed = True\n        if self._executor is not None:\n            self._executor.shutdown(wait=True, cancel_futures=True)\n        for source in self.sources:\n            source.release()",
+      "blobSha256": "19845412e959e3cb9b7360593867c25b3aa07bfbfc213f4fefbc889f2c2b5155"
+    },
+    "source-8": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 1280,
+      "endLine": 1289,
+      "symbol": "QueueReader.close",
+      "text": "    def close(self):\n        if self._closed:\n            return\n        self._closed = True\n        self._reader.shutdown(wait=True)\n        with self._lock:\n            leases = list(self._leases.values())\n        ray.get(self.controller.release.remote(leases))\n        self._stop.set()\n        self._heartbeats.join(timeout=5)",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    },
+    "source-9": {
+      "available": true,
+      "path": "tests/test_distributed_rollout.py",
+      "line": 808,
+      "endLine": 843,
+      "symbol": "test_slow_worker_control_does_not_block_collection_or_close",
+      "text": "def test_slow_worker_control_does_not_block_collection_or_close(scheduler_factory, control):\n    scheduler, _, _ = scheduler_factory(3, [1, 1])\n    stalled = Future()\n    entered = threading.Event()\n    original = getattr(scheduler.workers[0], control).remote\n\n    def stall(*args):\n        entered.set()\n        return stalled\n\n    if control == \"pause\":\n        scheduler.generate(0, prefetch=2)\n    getattr(scheduler.workers[0], control).remote = stall\n    with ThreadPoolExecutor(2) as callers:\n        request = (\n            callers.submit(scheduler.generate, 0, prefetch=2)\n            if control == \"start\"\n            else callers.submit(scheduler.pause)\n        )\n        closing = None\n        try:\n            assert entered.wait(5)\n            if control == \"start\":\n                result = request.result(timeout=2)\n                assert all(group[0].metadata[\"worker\"] == 1 for group in result.samples)\n            closing = callers.submit(scheduler.close)\n            closing.result(timeout=2)\n            if control == \"pause\":\n                with pytest.raises(RuntimeError, match=\"scheduler is closed\"):\n                    request.result(timeout=2)\n        finally:\n            # Also let the old, blocking implementation exit after test failure.\n            if not stalled.done():\n                stalled.set_result(None)\n            getattr(scheduler.workers[0], control).remote = original\n            scheduler.close()",
+      "blobSha256": "4f73dedd74a7311414f4f8f6ba176c283772b888238aad1884781a8490dd586e"
+    }
+  }
+}

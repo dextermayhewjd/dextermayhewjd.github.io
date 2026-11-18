@@ -1,0 +1,317 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1890" width="1400" height="1890" role="img" aria-labelledby="overview-title overview-desc" class="workflow-runtime-overview">
+  <title id="overview-title">Workflow 总图：固定步骤、并行调用、结构校验与失败恢复</title>
+  <desc id="overview-desc">上方保留 Agent 的消息、模型、工具及工具结果循环。模型选择 Workflow 后，运行时查找脚本，新建运行或显式恢复，再创建 task 和 ctx。脚本让不同审查维度独立推进，并行复核后汇总排序。每次 ctx.agent 按 key 查询 journal；命中则校验并复用，未命中则请求模型、校验 schema，格式不符时最多修正重试一次，成功后保存结果并交回脚本。脚本成功或执行异常都收尾并返回外层。失败不会自动恢复，需外层再次发起带原 runId 的调用。</desc>
+  <style>
+.workflow-runtime-overview text { font-family: system-ui, -apple-system, "Noto Sans CJK SC", sans-serif; fill: var(--diagram-text, #24334b); }.workflow-runtime-overview .heading { font-weight: 650; font-size: 25px; }.workflow-runtime-overview .small { font-size: 18px; fill: var(--diagram-muted, #58677b); }.workflow-runtime-overview .edge-label { font-size: 18px; paint-order: stroke; stroke: var(--theme, #fff); stroke-width: 7px; stroke-linejoin: round; }.workflow-runtime-overview .node rect { stroke-width: 1.7; }.workflow-runtime-overview .base rect, .workflow-runtime-overview .swatch.base { fill: var(--diagram-base-fill, #edf3fc); stroke: var(--diagram-base-stroke, #537cc0); }.workflow-runtime-overview .core rect, .workflow-runtime-overview .swatch.core { fill: var(--diagram-memory-fill, #f3edfc); stroke: var(--diagram-memory-stroke, #8855b5); }.workflow-runtime-overview .store rect, .workflow-runtime-overview .swatch.store { fill: var(--diagram-storage-fill, #f3f5f8); stroke: var(--diagram-storage-stroke, #8a96a6); }.workflow-runtime-overview .recovery rect, .workflow-runtime-overview .swatch.recovery { fill: var(--diagram-modified-fill, #fff3dc); stroke: var(--diagram-modified-stroke, #b77920); }.workflow-runtime-overview .group rect { fill: none; stroke: var(--diagram-storage-stroke, #8a96a6); stroke-width: 1.6; }.workflow-runtime-overview .group.inner rect { stroke: var(--diagram-memory-stroke, #8855b5); stroke-dasharray: 7 5; }.workflow-runtime-overview .edge { fill: none; stroke: var(--diagram-base-stroke, #537cc0); stroke-width: 2.1; stroke-linejoin: round; }.workflow-runtime-overview .edge.core { stroke: var(--diagram-memory-stroke, #8855b5); }.workflow-runtime-overview .edge.recovery { stroke: var(--diagram-modified-stroke, #b77920); }.workflow-runtime-overview .edge.exception { stroke-dasharray: 7 5; }
+
+.workflow-runtime-overview .group.inner rect.module-hit { fill: transparent; stroke: var(--diagram-memory-stroke, #8855b5); stroke-width: 0; }
+.workflow-runtime-overview .group.inner a.is-connection-selected rect.module-hit, .workflow-runtime-overview .group.inner a:focus-visible rect.module-hit { stroke-width: 3px; }
+</style>
+  <defs>
+    <marker id="overview-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 9 4.5 L 0 9 Z" fill="var(--diagram-base-stroke, #537cc0)" />
+    </marker>
+    <marker id="overview-arrow-core" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 9 4.5 L 0 9 Z" fill="var(--diagram-memory-stroke, #8855b5)" />
+    </marker>
+    <marker id="overview-arrow-recovery" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 9 4.5 L 0 9 Z" fill="var(--diagram-modified-stroke, #b77920)" />
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1400" height="1890" fill="var(--theme, #ffffff)" />
+  <text x="70" y="49" text-anchor="start" font-size="32">
+    <tspan x="70" dy="0">Workflow：固定流程怎样接回 Agent 循环</tspan>
+  </text>
+  <text x="70" y="85" text-anchor="start" font-size="21">
+    <tspan x="70" dy="0">步骤写在脚本里；每步判断交给模型；runtime 提供并行、校验、记录和恢复。</tspan>
+  </text>
+  <rect x="70" y="108" width="18" height="14" rx="2" class="swatch base" data-evolution-legend="true" />
+  <text x="98" y="122" text-anchor="start" font-size="18" data-evolution-legend="true">原有 Agent 循环</text>
+  <rect x="390" y="108" width="18" height="14" rx="2" class="swatch core" data-evolution-legend="true" />
+  <text x="418" y="122" text-anchor="start" font-size="18" data-evolution-legend="true">工作流与执行服务</text>
+  <rect x="755" y="108" width="18" height="14" rx="2" class="swatch store" data-evolution-legend="true" />
+  <text x="783" y="122" text-anchor="start" font-size="18" data-evolution-legend="true">记录与收尾</text>
+  <rect x="1055" y="108" width="18" height="14" rx="2" class="swatch recovery" data-evolution-legend="true" />
+  <text x="1083" y="122" text-anchor="start" font-size="18" data-evolution-legend="true">修正、失败与恢复</text>
+  <g class="group" id="overview-host">
+    <rect x="65" y="150" width="1270" height="315" rx="15" />
+    <text x="90" y="190" text-anchor="start" font-size="21" class="heading">
+      <tspan x="90" dy="0">① 原有 Agent 循环：决定何时调用工具</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-messages">
+    <rect x="100" y="215" width="250" height="70" rx="10" data-stage="messages" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="225.0" y="242.64" text-anchor="middle" font-size="21">
+      <tspan x="225.0" dy="0">messages[]</tspan>
+      <tspan x="225.0" dy="29">用户任务与工具结果</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-model">
+    <rect x="395" y="215" width="260" height="70" rx="10" data-stage="model" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="525.0" y="257.14" text-anchor="middle" font-size="21">
+      <tspan x="525.0" dy="0">主模型决定下一步</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-dispatch">
+    <rect x="700" y="215" width="240" height="70" rx="10" data-stage="dispatch" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="820.0" y="257.14" text-anchor="middle" font-size="21">
+      <tspan x="820.0" dy="0">回答或选择工具</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-answer">
+    <rect x="1060" y="215" width="250" height="70" rx="10" data-stage="answer" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="1185.0" y="257.14" text-anchor="middle" font-size="21">
+      <tspan x="1185.0" dy="0">回答用户，结束本轮</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-ordinary">
+    <rect x="700" y="365" width="240" height="65" rx="10" data-stage="ordinary" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="820.0" y="404.64" text-anchor="middle" font-size="21">
+      <tspan x="820.0" dy="0">执行普通工具</tspan>
+    </text>
+  </g>
+  <g class="node base" id="overview-feedback">
+    <rect x="100" y="365" width="480" height="65" rx="10" data-stage="feedback" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" />
+    <text x="340.0" y="404.64" text-anchor="middle" font-size="21">
+      <tspan x="340.0" dy="0">tool_result 写入 messages[]</tspan>
+    </text>
+  </g>
+  <g class="node core" id="overview-workflow-tool">
+    <rect x="1030" y="355" width="280" height="85" rx="10" data-stage="workflow-tool" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="1170.0" y="389.46" text-anchor="middle" font-size="19">
+      <tspan x="1170.0" dy="0">调用 Workflow 工具</tspan>
+      <tspan x="1170.0" dy="29">name / args / 可选恢复 ID</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-messages-model" class="edge base" data-from="messages" data-to="model" d="M 350 250 H 395" data-label="将当前对话交给主模型" data-kind="flow" data-route="messages-model" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <path id="overview-edge-model-dispatch" class="edge base" data-from="model" data-to="dispatch" d="M 655 250 H 700" data-label="根据本轮输出决定回答或执行工具" data-kind="flow" data-route="model-dispatch" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <path id="overview-edge-answer" class="edge base" data-from="dispatch" data-to="answer" d="M 940 250 H 1060" data-label="未选择工具时回答用户" data-kind="flow" data-route="answer" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <text x="1000" y="239" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="1000" dy="0">无工具</tspan>
+  </text>
+  <path id="overview-edge-ordinary" class="edge base" data-from="dispatch" data-to="ordinary" d="M 820 285 V 365" data-label="选择普通工具" data-kind="flow" data-route="ordinary" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <text x="865" y="328" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="865" dy="0">普通工具</tspan>
+  </text>
+  <path id="overview-edge-ordinary-result" class="edge base" data-from="ordinary" data-to="feedback" d="M 700 397.5 H 580" data-label="普通工具完成后返回结果" data-kind="flow" data-route="ordinary-result" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <path id="overview-edge-feedback-messages" class="edge base" data-from="feedback" data-to="messages" d="M 225 365 V 285" data-label="把工具结果加入消息，进入下一轮" data-kind="flow" data-route="feedback-messages" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <path id="overview-edge-choose-workflow" class="edge core" data-from="dispatch" data-to="workflow-tool" d="M 940 260 H 985 V 397.5 H 1030" data-label="选择 Workflow 并提供名称与输入" data-kind="flow" data-route="choose-workflow" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <g class="group" id="overview-runtime">
+    <rect x="65" y="500" width="1270" height="1290" rx="15" />
+    <text x="90" y="540" text-anchor="start" font-size="21" class="heading">
+      <tspan x="90" dy="0">② WorkflowTool：按 WORKFLOWS[name] 找到脚本，准备执行</tspan>
+    </text>
+  </g>
+  <g class="node store" id="overview-fresh">
+    <rect x="110" y="575" width="500" height="90" rx="10" data-stage="fresh" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" />
+    <text x="360.0" y="612.64" text-anchor="middle" font-size="21">
+      <tspan x="360.0" dy="0">首次调用</tspan>
+      <tspan x="360.0" dy="29">新建 runId 与 journal</tspan>
+    </text>
+  </g>
+  <g class="node recovery" id="overview-restore">
+    <rect x="720" y="575" width="560" height="90" rx="10" data-stage="restore" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" />
+    <text x="1000.0" y="612.64" text-anchor="middle" font-size="21">
+      <tspan x="1000.0" dy="0">显式恢复：传原 resume_from_run_id</tspan>
+      <tspan x="1000.0" dy="29">沿用原输入，加载原 journal</tspan>
+    </text>
+  </g>
+  <g class="node core" id="overview-ctx">
+    <a href="#s16-overview-explorer-entry" data-module="entry" class="diagram-module-link" role="button" tabindex="0" aria-label="准备运行：查看入口与 ctx 的实现">
+      <rect x="390" y="710" width="620" height="65" rx="10" data-stage="ctx" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+      <text x="700.0" y="749.64" text-anchor="middle" font-size="21">
+        <tspan x="700.0" dy="0">创建 task 和 ctx，开始执行脚本</tspan>
+      </text>
+    </a>
+  </g>
+  <path id="overview-edge-tool-start" class="edge core" data-from="workflow-tool" data-to="fresh" d="M 1170 440 V 550 H 360 V 575" data-label="首次调用时创建运行" data-kind="flow" data-route="tool-start" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-tool-resume" class="edge recovery" data-from="workflow-tool" data-to="restore" d="M 1170 550 H 1000 V 575" data-label="显式提供原运行 ID 才进入恢复" data-kind="flow" data-route="tool-resume" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <path id="overview-edge-fresh-ctx" class="edge core" data-from="fresh" data-to="ctx" d="M 360 665 V 687 H 600 V 710" data-label="新建后准备执行环境" data-kind="flow" data-route="fresh-ctx" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-restore-ctx" class="edge core" data-from="restore" data-to="ctx" d="M 1000 665 V 687 H 800 V 710" data-label="恢复原输入与日志后重新准备环境" data-kind="flow" data-route="restore-ctx" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-ctx-script" class="edge core" data-from="ctx" data-to="script" d="M 700 775 V 805 H 360 V 825" data-label="调用已注册业务脚本" data-kind="flow" data-route="ctx-script" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <text x="360" y="898" text-anchor="middle" font-size="21">
+    <tspan x="360" dy="0">pipeline：每个维度独立推进</tspan>
+  </text>
+  <g class="node core" id="overview-security">
+    <rect x="118" y="950" width="144" height="170" rx="10" data-stage="security" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="190.0" y="985.46" text-anchor="middle" font-size="19">
+      <tspan x="190.0" dy="0">安全</tspan>
+      <tspan x="190.0" dy="28">检查</tspan>
+      <tspan x="190.0" dy="28">↓</tspan>
+      <tspan x="190.0" dy="28">并行复核</tspan>
+      <tspan x="190.0" dy="28">筛选确认项</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-script-security" class="edge core" data-from="script" data-to="security" d="M 360 920 V 925 H 190 V 950" data-label="安全维度独立推进" data-kind="flow" data-route="script-security" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <g class="node core" id="overview-correctness">
+    <rect x="288" y="950" width="144" height="170" rx="10" data-stage="correctness" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="360.0" y="985.46" text-anchor="middle" font-size="19">
+      <tspan x="360.0" dy="0">正确性</tspan>
+      <tspan x="360.0" dy="28">检查</tspan>
+      <tspan x="360.0" dy="28">↓</tspan>
+      <tspan x="360.0" dy="28">并行复核</tspan>
+      <tspan x="360.0" dy="28">筛选确认项</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-script-correctness" class="edge core" data-from="script" data-to="correctness" d="M 360 920 V 925 H 360 V 950" data-label="正确性维度独立推进" data-kind="flow" data-route="script-correctness" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <g class="node core" id="overview-other">
+    <rect x="458" y="950" width="144" height="170" rx="10" data-stage="other" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="530.0" y="985.46" text-anchor="middle" font-size="19">
+      <tspan x="530.0" dy="0">其他维度</tspan>
+      <tspan x="530.0" dy="28">检查</tspan>
+      <tspan x="530.0" dy="28">↓</tspan>
+      <tspan x="530.0" dy="28">并行复核</tspan>
+      <tspan x="530.0" dy="28">筛选确认项</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-script-other" class="edge core" data-from="script" data-to="other" d="M 360 920 V 925 H 530 V 950" data-label="其他维度独立推进" data-kind="flow" data-route="script-other" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <g class="node core" id="overview-aggregate">
+    <rect x="140" y="1210" width="440" height="85" rx="10" data-stage="aggregate" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="360.0" y="1245.14" text-anchor="middle" font-size="21">
+      <tspan x="360.0" dy="0">等各维度完成后</tspan>
+      <tspan x="360.0" dy="29">汇总确认项，按严重程度排序</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-security-aggregate" class="edge core" data-from="security" data-to="aggregate" d="M 190 1120 V 1175 H 360 V 1210" data-label="取得安全维度的最终结果" data-kind="flow" data-route="security-aggregate" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-correctness-aggregate" class="edge core" data-from="correctness" data-to="aggregate" d="M 360 1120 V 1175 H 360 V 1210" data-label="取得正确性维度的最终结果" data-kind="flow" data-route="correctness-aggregate" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-other-aggregate" class="edge core" data-from="other" data-to="aggregate" d="M 530 1120 V 1175 H 360 V 1210" data-label="取得其他维度的最终结果" data-kind="flow" data-route="other-aggregate" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <text x="360" y="1325" text-anchor="middle" font-size="19">
+    <tspan x="360" dy="0">parallel：同一维度的候选项一起复核，</tspan>
+    <tspan x="360" dy="28">拿齐本组结论后再筛选。</tspan>
+  </text>
+  <text x="360" y="1402" text-anchor="middle" font-size="19">
+    <tspan x="360" dy="0">一个维度进入复核时，</tspan>
+    <tspan x="360" dy="28">另一个仍可继续检查。</tspan>
+  </text>
+  <g class="node core" id="overview-lookup">
+    <a href="#s16-overview-explorer-journal" data-module="journal" class="diagram-module-link" role="button" tabindex="0" aria-label="结果复用：查看调用 key 与 journal 的实现">
+      <rect x="700" y="900" width="550" height="75" rx="10" data-stage="lookup" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+      <text x="975.0" y="929.8" text-anchor="middle" font-size="20">
+        <tspan x="975.0" dy="0">用 kind / label / prompt / schema 算 key</tspan>
+        <tspan x="975.0" dy="29">查询 journal；命中结果也要校验</tspan>
+      </text>
+    </a>
+  </g>
+  <g class="node core" id="overview-request">
+    <rect x="700" y="1030" width="255" height="80" rx="10" data-stage="request" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="827.5" y="1062.64" text-anchor="middle" font-size="21">
+      <tspan x="827.5" dy="0">未命中</tspan>
+      <tspan x="827.5" dy="29">runner 请求模型</tspan>
+    </text>
+  </g>
+  <g class="node store" id="overview-cached">
+    <rect x="1010" y="1030" width="235" height="80" rx="10" data-stage="cached" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" />
+    <text x="1127.5" y="1062.3" text-anchor="middle" font-size="20">
+      <tspan x="1127.5" dy="0">命中且校验通过</tspan>
+      <tspan x="1127.5" dy="29">直接复用结果</tspan>
+    </text>
+  </g>
+  <g class="node core" id="overview-validate">
+    <rect x="700" y="1160" width="255" height="70" rx="10" data-stage="validate" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="827.5" y="1202.14" text-anchor="middle" font-size="21">
+      <tspan x="827.5" dy="0">按 schema 校验</tspan>
+    </text>
+  </g>
+  <g class="node recovery" id="overview-retry">
+    <rect x="1000" y="1150" width="245" height="110" rx="10" data-stage="retry" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" />
+    <text x="1122.5" y="1182.8" text-anchor="middle" font-size="20">
+      <tspan x="1122.5" dy="0">格式不符</tspan>
+      <tspan x="1122.5" dy="29">补充修正要求</tspan>
+      <tspan x="1122.5" dy="29">再请求、校验一次</tspan>
+    </text>
+  </g>
+  <g class="node store" id="overview-save">
+    <rect x="700" y="1300" width="255" height="75" rx="10" data-stage="save" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" />
+    <text x="827.5" y="1329.8" text-anchor="middle" font-size="20">
+      <tspan x="827.5" dy="0">通过校验并记账</tspan>
+      <tspan x="827.5" dy="29">保存 key + result</tspan>
+    </text>
+  </g>
+  <g class="node core" id="overview-return-step">
+    <rect x="700" y="1410" width="550" height="60" rx="10" data-stage="return-step" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="975.0" y="1446.8" text-anchor="middle" font-size="20">
+      <tspan x="975.0" dy="0">本步结果返回脚本，供后续步骤使用</tspan>
+    </text>
+  </g>
+  <path id="overview-edge-lookup-request" class="edge core" data-from="lookup" data-to="request" d="M 825 975 V 1030" data-label="未命中时请求模型" data-kind="flow" data-route="lookup-request" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-lookup-cached" class="edge core" data-from="lookup" data-to="cached" d="M 1127.5 975 V 1030" data-label="命中且通过校验则复用" data-kind="flow" data-route="lookup-cached" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-request-validate" class="edge core" data-from="request" data-to="validate" d="M 827.5 1110 V 1160" data-label="校验 runner 返回值" data-kind="flow" data-route="request-validate" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-invalid" class="edge recovery" data-from="validate" data-to="retry" d="M 955 1195 H 1000" data-label="格式不符时修正重试一次" data-kind="flow" data-route="invalid" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <path id="overview-edge-valid" class="edge core" data-from="validate" data-to="save" d="M 827.5 1230 V 1300" data-label="格式通过后记账并保存" data-kind="flow" data-route="valid" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <text x="854" y="1270" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="854" dy="0">通过</tspan>
+  </text>
+  <path id="overview-edge-corrected" class="edge recovery" data-from="retry" data-to="save" d="M 1122.5 1260 V 1337.5 H 955" data-label="修正通过后记账并保存" data-kind="flow" data-route="corrected" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <text x="1055" y="1327" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="1055" dy="0">修正通过</tspan>
+  </text>
+  <path id="overview-edge-save-return" class="edge core" data-from="save" data-to="return-step" d="M 827.5 1375 V 1410" data-label="返回成功保存的结果" data-kind="flow" data-route="save-return" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-cache-return" class="edge core" data-from="cached" data-to="return-step" d="M 1245 1070 H 1265 V 1440 H 1250" data-label="返回缓存结果" data-kind="flow" data-route="cache-return" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-script-agent" class="edge core" data-from="script" data-to="lookup" d="M 620 937.5 H 700" data-label="脚本发起任一步模型调用" data-kind="flow" data-route="script-agent" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <text x="656" y="921" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="656" dy="0">调用</tspan>
+  </text>
+  <path id="overview-edge-agent-script" class="edge core" data-from="return-step" data-to="script" d="M 700 1440 H 620" data-label="单步结果返回脚本" data-kind="flow" data-route="agent-script" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <text x="657" y="1425" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="657" dy="0">返回</tspan>
+  </text>
+  <g class="node core" id="overview-completed">
+    <rect x="110" y="1555" width="510" height="75" rx="10" data-stage="completed" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <text x="365.0" y="1585.14" text-anchor="middle" font-size="21">
+      <tspan x="365.0" dy="0">completed</tspan>
+      <tspan x="365.0" dy="29">脚本返回汇总结果</tspan>
+    </text>
+  </g>
+  <g class="node recovery" id="overview-failed">
+    <rect x="745" y="1555" width="510" height="75" rx="10" data-stage="failed" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" />
+    <text x="1000.0" y="1585.14" text-anchor="middle" font-size="21">
+      <tspan x="1000.0" dy="0">failed：返回异常说明</tspan>
+      <tspan x="1000.0" dy="29">本次执行结束，不自动重跑</tspan>
+    </text>
+  </g>
+  <g class="node store" id="overview-finalize">
+    <a href="#s16-overview-explorer-finish" data-module="finish" class="diagram-module-link" role="button" tabindex="0" aria-label="运行收尾：查看状态保存与返回的实现">
+      <rect x="370" y="1690" width="680" height="75" rx="10" data-stage="finalize" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" />
+      <text x="710.0" y="1720.14" text-anchor="middle" font-size="21">
+        <tspan x="710.0" dy="0">关闭 journal，保存最终状态与输出</tspan>
+        <tspan x="710.0" dy="29">返回 launched / result / task（含 runId）</tspan>
+      </text>
+    </a>
+  </g>
+  <path id="overview-edge-script-completed" class="edge core" data-from="aggregate" data-to="completed" d="M 140 1252.5 H 85 V 1592.5 H 110" data-label="所有步骤完成，得到最终汇总" data-kind="flow" data-route="script-completed" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-script-failed" class="edge recovery exception" data-from="script" data-to="failed" d="M 620 1480 H 647 V 1520 H 745 V 1555" data-label="脚本异常向外传播" data-kind="flow" data-route="script-failed" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <text x="717" y="1510" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="717" dy="0">脚本异常</tspan>
+  </text>
+  <path id="overview-edge-call-failed" class="edge recovery exception" data-from="single-call" data-to="failed" d="M 1280 1380 H 1315 V 1592.5 H 1255" data-label="请求或校验异常向外传播" data-kind="flow" data-route="call-failed" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <text x="1060" y="1525" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="1060" dy="0">请求异常、再次校验失败等</tspan>
+  </text>
+  <path id="overview-edge-complete-finalize" class="edge core" data-from="completed" data-to="finalize" d="M 365 1630 V 1660 H 570 V 1690" data-label="正常完成后收尾" data-kind="flow" data-route="complete-finalize" stroke="var(--diagram-memory-stroke, #8855b5)" marker-end="url(#overview-arrow-core)" />
+  <path id="overview-edge-failed-finalize" class="edge recovery" data-from="failed" data-to="finalize" d="M 1000 1630 V 1660 H 850 V 1690" data-label="失败后也关闭日志并保存状态" data-kind="flow" data-route="failed-finalize" stroke="var(--diagram-modified-stroke, #b77920)" marker-end="url(#overview-arrow-recovery)" />
+  <path id="overview-edge-finalize-feedback" class="edge base" data-from="finalize" data-to="feedback" d="M 710 1765 V 1820 H 35 V 397.5 H 100" data-label="整次收尾完成后返回一个工具结果" data-kind="flow" data-route="finalize-feedback" stroke="var(--diagram-base-stroke, #537cc0)" marker-end="url(#overview-arrow)" />
+  <text x="755" y="1810" text-anchor="middle" font-size="18" class="edge-label">
+    <tspan x="755" dy="0">整次运行收尾后，经原工具结果回路返回外层</tspan>
+  </text>
+  <text x="700" y="1860" text-anchor="middle" font-size="20">
+    <tspan x="700" dy="0">恢复路径：外层读取 failed 与 runId → 再次调用 Workflow → 加载记录；重新跑脚本，命中的调用直接复用。</tspan>
+  </text>
+  <g class="group inner" id="overview-script">
+    <rect x="100" y="825" width="520" height="670" rx="15" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <a href="#s16-overview-explorer-script" data-module="script" class="diagram-module-link" role="button" tabindex="0" aria-label="业务脚本：查看 sample_workflow 与并行原语">
+      <rect x="112.0" y="833.0" width="496.0" height="45" rx="5" class="module-hit" data-stage="script" />
+      <text x="125" y="865" text-anchor="start" font-size="21" class="heading">
+        <tspan x="125" dy="0">③ 脚本：代码决定步骤与数据流</tspan>
+      </text>
+    </a>
+  </g>
+  <g class="group inner" id="overview-single-call">
+    <rect x="670" y="825" width="610" height="670" rx="15" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" />
+    <a href="#s16-overview-explorer-agent" data-module="agent" class="diagram-module-link" role="button" tabindex="0" aria-label="单步执行：查看 ctx.agent 与校验的实现">
+      <rect x="682.0" y="833.0" width="586.0" height="45" rx="5" class="module-hit" data-stage="single-call" />
+      <text x="695" y="865" text-anchor="start" font-size="21" class="heading">
+        <tspan x="695" dy="0">④ ctx.agent：每步共用的执行服务</tspan>
+      </text>
+    </a>
+  </g>
+</svg>

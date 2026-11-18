@@ -1,0 +1,16 @@
+{
+  "__init__": "BackgroundManager 内部状态初始化",
+  "start": "BackgroundManager 内部任务启动",
+  "_run": "BackgroundManager 内部 worker",
+  "collect": "BackgroundManager 内部结果收集",
+  "should_run_background": "内部后台条件判断",
+  "start_background_task": "内部启动包装",
+  "collect_background_results": "内部收集包装",
+  "inject_background_results": "内部通知注入",
+  "_run_bash_process": "内部 Shell 进程执行",
+  "_format_bash_result": "内部结果格式化",
+  "_stop_process_group": "内部进程清理",
+  "call_tool": "Harness 同步分发",
+  "execute_tool": "Harness 统一执行入口",
+  "agent_loop": "Harness 循环编排"
+}

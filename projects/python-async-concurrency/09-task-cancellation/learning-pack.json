@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 305,
+      "endLine": 317,
+      "symbol": "_GenerationActor._next",
+      "text": "    async def _next(self):\n        take = asyncio.create_task(self.outputs.get())\n        try:\n            await asyncio.wait((take, self.producer), return_when=asyncio.FIRST_COMPLETED)\n            if take.done():\n                return take.result()\n            self.producer.result()  # Propagate custom generation errors.\n            if not self.outputs.empty():\n                return await take\n            return None\n        finally:\n            take.cancel()\n            await asyncio.gather(take, return_exceptions=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    }
+  }
+}

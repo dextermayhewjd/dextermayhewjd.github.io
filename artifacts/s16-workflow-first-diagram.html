@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>一点点理解 Workflow</title>
+  <style>
+    :root { color-scheme: light; --bg: #f6f8fc; --paper: #fff; --text: #17243a; --muted: #64748b; --line: #c6d0df; --blue: #2563eb; --soft: #eef4ff; --green: #167750; --amber: #b46b0b; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #93b4ff; outline-offset: 4px; }
+    .artifact { max-width: 1120px; margin: 0 auto; padding: 24px; }
+    .eyebrow { color: var(--muted); font-size: 13px; letter-spacing: .04em; margin: 0 0 4px; }
+    h1 { font-size: clamp(23px, 3vw, 32px); line-height: 1.3; margin: 0 0 10px; }
+    .intro { margin: 0; color: var(--muted); }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 18px 0; }
+    .step { padding: 10px 12px; border: 1px solid #dae1ec; border-radius: 10px; background: var(--paper); color: var(--muted); text-align: left; }
+    .step strong { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 5px; border-radius: 50%; background: #edf1f7; font-size: 13px; }
+    .step[aria-current="step"] { border-color: var(--blue); background: var(--soft); color: #1d4ed8; font-weight: 650; }
+    .step[aria-current="step"] strong { color: white; background: var(--blue); }
+    .panel { background: var(--paper); border: 1px solid #e0e6ee; border-radius: 16px; padding: 24px; box-shadow: 0 8px 30px #233e6510; }
+    .panel h2 { margin: 0 0 8px; font-size: 23px; line-height: 1.4; }
+    .explanation { margin: 0; max-width: 840px; color: #45546b; }
+    .graph { position: relative; display: grid; grid-template-columns: 160px minmax(320px, 1fr) 160px; align-items: center; gap: 34px; padding: 30px 14px; margin-top: 12px; min-height: 190px; }
+    .graph svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .node { position: relative; z-index: 1; padding: 15px 10px; min-height: 82px; text-align: center; background: var(--paper); border: 1.5px solid #cbd5e1; border-radius: 12px; }
+    .node b { display: block; font-size: 17px; line-height: 1.45; }
+    .node small { display: block; color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .node.model { border-color: #aac6fd; background: #f3f7ff; }
+    .node.result { background: #f5f8fb; }
+    .branches { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 24px; }
+    .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; }
+    .loop-graph { grid-template-columns: repeat(3, 1fr); padding-bottom: 60px; }
+    .loop-caption { position: absolute; left: 16px; right: 16px; bottom: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+    .node.saved { border-color: var(--green); background: #edf9f2; }
+    .node.saved small { color: var(--green); }
+    .node.structured { border-color: var(--amber); background: #fff8ed; }
+    .graph.concurrent .branch { outline: 1px dashed #86a9f1; outline-offset: 8px; border-radius: 7px; }
+    .question { margin: 8px 0 0; padding: 13px 16px; border-left: 3px solid #7fa5ed; background: #f6f9ff; color: #334762; border-radius: 0 8px 8px 0; }
+    .requirements { margin-top: 18px; }
+    .requirements-title { font-size: 14px; color: var(--muted); margin: 0 0 9px; }
+    .need-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .need { padding: 11px; background: #f8fafc; border: 1px solid #d5dfe9; border-radius: 9px; text-align: left; color: #45546b; }
+    .need span { display: block; font-size: 12px; color: var(--muted); }
+    .need[aria-pressed="true"] { border-color: var(--blue); background: var(--soft); color: #1d4ed8; }
+    .need-detail { min-height: 55px; margin: 10px 0 0; font-size: 14px; color: #45546b; }
+    .footer { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-top: 20px; }
+    .footer .hint { color: var(--muted); font-size: 13px; margin: 0; }
+    .controls { display: flex; gap: 9px; flex-shrink: 0; }
+    .control { padding: 9px 17px; border: 1px solid #ced8e5; border-radius: 8px; background: var(--paper); color: var(--text); }
+    .control.primary { border-color: var(--blue); background: var(--blue); color: white; }
+    .control:disabled { opacity: .4; cursor: default; }
+    .source { color: var(--muted); font-size: 12px; margin: 15px 0 0; }
+    .source a { color: #42669c; }
+    [hidden] { display: none !important; }
+    @media (max-width: 880px) {
+      .artifact { padding: 16px; }
+      .panel { padding: 18px; }
+      .steps { gap: 6px; }
+      .step { padding: 8px 6px; font-size: 12px; text-align: center; }
+      .step strong { display: grid; margin: 0 auto 4px; }
+      .graph { grid-template-columns: 1fr; gap: 30px; padding: 22px; }
+      .graph > .node { width: 180px; justify-self: center; }
+      .branch { gap: 24px; }
+      .node { padding: 12px 7px; }
+      .node b { font-size: 15px; }
+      .branches { gap: 24px; }
+      .loop-graph { gap: 26px; padding-bottom: 48px; }
+      .loop-graph .node { width: 100%; }
+      .loop-caption { font-size: 12px; }
+      .footer { flex-direction: column; align-items: stretch; }
+      .controls { justify-content: space-between; }
+      .need-buttons { grid-template-columns: 1fr; }
+      .need-detail { min-height: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <main class="artifact">
+    <p class="eyebrow">S16 · 独立需求图草稿</p>
+    <h1>一点点理解 Workflow</h1>
+    <p class="intro">沿同一条代码评审流程，每次只增加一层。</p>
+    <nav class="steps" aria-label="阅读步骤">
+      <button class="step" data-stage="0"><strong>1</strong>已学的循环</button>
+      <button class="step" data-stage="1"><strong>2</strong>固定流程</button>
+      <button class="step" data-stage="2"><strong>3</strong>多维并行</button>
+      <button class="step" data-stage="3"><strong>4</strong>执行需求</button>
+    </nav>
+    <section class="panel" aria-labelledby="stage-title">
+      <h2 id="stage-title"></h2>
+      <p class="explanation" id="stage-explanation"></p>
+      <div class="graph" id="graph" role="img" aria-label=""></div>
+      <p class="question" id="stage-question"></p>
+      <section class="requirements" id="requirements" hidden aria-label="三项执行需求">
+        <p class="requirements-title">点一项需求，观察它对应图上的哪里。</p>
+        <div class="need-buttons">
+          <button class="need" data-need="parallel" aria-pressed="true">并行<span>独立分支可以同时推进</span></button>
+          <button class="need" data-need="structure" aria-pressed="false">稳定的结果结构<span>下一步能按约定读取字段</span></button>
+          <button class="need" data-need="resume" aria-pressed="false">可恢复<span>复用已保存的相同调用结果</span></button>
+        </div>
+        <p class="need-detail" id="need-detail" aria-live="polite"></p>
+      </section>
+    </section>
+    <div class="footer">
+      <p class="hint" id="stage-hint" aria-live="polite"></p>
+      <div class="controls">
+        <button class="control" id="previous">上一步</button>
+        <button class="control primary" id="next">下一步</button>
+        <button class="control" id="reset">从头看</button>
+      </div>
+    </div>
+    <p class="source">代码审查需求示意，省略运行管理。三个维度与状态标注用于教学，不是真实任务记录。依据 <a href="https://github.com/shareAI-lab/learn-claude-code/blob/main/s16_workflow_runtime/README.zh.md" target="_blank" rel="noopener noreferrer">官方 S16 README</a>。</p>
+    <noscript>此草稿需要 JavaScript 才能逐步展开。固定流程是：各维度审查 → 各自逐项复核 → 汇总与排序 → 报告。独立分支可并行，结果需约定结构，完成的调用结果需保存以供恢复时复用。</noscript>
+  </main>
+  <script>
+    (() => {
+      const stages = [
+        {
+          title: '1 · 模型根据上一轮结果决定下一步',
+          explanation: 'S1–S15 的主循环：模型选择工具，工具结果进入 messages，模型根据更新后的上下文继续决定。',
+          question: '如果一类任务每次都按相同规则执行，还需要让模型每一轮重新安排这些步骤吗？',
+          hint: '先只回顾这条已学过的关系。'
+        },
+        {
+          title: '2 · 这次我们已经知道评审步骤',
+          explanation: '先只看一个维度：审查改动，逐项复核候选问题，再整理报告。流程关系可以预先写好，模型负责每一步的判断。',
+          question: '先初审、再复核、最后汇总的顺序已确定。不同运行中，模型发现的问题仍可以变化。',
+          hint: '这一层只增加固定流程，不展开实现原语。'
+        },
+        {
+          title: '3 · 把同一条流程扩展到多个维度',
+          explanation: 'A、B、C 是三个审查维度的示意。每个维度各自经历审查与复核，不同分支可以同时推进。',
+          question: 'A 审完就能复核 A 的发现。只有最终整理报告时，才需要收集各分支的结果。',
+          hint: '新增分支，单条分支的前后依赖仍然保留。'
+        },
+        {
+          title: '4 · 执行这套固定流程，需要哪些能力',
+          explanation: '图上的业务步骤不增加。现在分别观察并行、稳定结构与恢复需求，它们支撑这套流程的执行。',
+          question: '这一张图先把任务需求讲清楚。后续再把具体原语和运行时实现放到对应位置。',
+          hint: '先选一项需求讨论，不必同时理解三个实现。'
+        }
+      ];
+      const needText = {
+        parallel: '蓝色虚线框表示可独立推进的分支。模型调用可以同时进行；每支仍须先审查，再复核自己的发现。',
+        structure: '橙色节点之间需要约定返回字段。发现的内容和数量可以变化，但下一步要能读取问题列表、确认标记等数据。',
+        resume: '绿色节点仅示意已有成功调用结果被保存。请求恢复时，相同调用可复用这些值；脚本会重新执行，并非恢复任意 Python 中断现场。'
+      };
+      const graph = document.getElementById('graph');
+      let stage = 0;
+      let need = 'parallel';
+      const validStage = value => Number.isInteger(value) && value >= 0 && value < stages.length;
+      const validNeed = value => Object.hasOwn(needText, value);
+      const initial = window.openai?.widgetState;
+      if (validStage(initial?.stage)) stage = initial.stage;
+      if (validNeed(initial?.need)) need = initial.need;
+
+      const node = (id, title, caption, classes = '') => `<div id="${id}" class="node ${classes}"><b>${title}</b><small>${caption}</small></div>`;
+      const svg = '<svg aria-hidden="true"><defs><marker id="flow-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#9aaabd"/></marker></defs><g id="connections"></g></svg>';
+
+      function render() {
+        document.getElementById('stage-title').textContent = stages[stage].title;
+        document.getElementById('stage-explanation').textContent = stages[stage].explanation;
+        document.getElementById('stage-question').textContent = stages[stage].question;
+        document.getElementById('stage-hint').textContent = stages[stage].hint;
+        document.querySelectorAll('[data-stage]').forEach(button => {
+          if (Number(button.dataset.stage) === stage) button.setAttribute('aria-current', 'step');
+          else button.removeAttribute('aria-current');
+        });
+        document.getElementById('previous').disabled = stage === 0;
+        document.getElementById('next').disabled = stage === stages.length - 1;
+        document.getElementById('requirements').hidden = stage !== 3;
+        graph.className = 'graph' + (stage === 0 ? ' loop-graph' : '') + (stage === 3 && need === 'parallel' ? ' concurrent' : '');
+        if (stage === 0) {
+          graph.innerHTML = svg + node('decide', '模型选择工具', '根据当前上下文', 'model') + node('tool', '工具执行', '产生本轮结果') + node('messages', '结果进入 messages', '下一轮继续判断', 'result') + '<div class="loop-caption">更新后的上下文回到模型，继续下一轮</div>';
+          graph.setAttribute('aria-label', '模型选择工具，工具执行，结果进入消息历史，再回到模型继续决定。');
+        } else {
+          const branches = (stage === 1 ? ['A'] : ['A', 'B', 'C']).map(label => {
+            const saved = stage === 3 && need === 'resume' && label === 'A';
+            const classes = 'model' + (saved ? ' saved' : '') + (stage === 3 && need === 'structure' ? ' structured' : '');
+            return `<div class="branch" data-branch="${label}">${node('audit-' + label, '维度 ' + label + ' 审查', saved ? '调用结果已保存' : '提出候选问题', classes)}${node('verify-' + label, '逐项复核', saved ? '成功调用结果可复用' : '判断该维度的发现', classes)}</div>`;
+          }).join('');
+          graph.innerHTML = svg + node('input', '代码改动', '本次任务输入') + `<div class="branches">${branches}</div>` + node('report', '整理报告', '汇总与严重程度排序', 'result');
+          graph.setAttribute('aria-label', stage === 1 ? '代码改动进入维度 A 审查，再逐项复核并整理报告。' : '代码改动进入 A、B、C 三个独立分支，每支先审查再逐项复核，最后汇总报告。');
+        }
+        document.querySelectorAll('[data-need]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.need === need)));
+        document.getElementById('need-detail').textContent = needText[need];
+        requestAnimationFrame(drawEdges);
+      }
+
+      function drawEdges() {
+        const root = graph.getBoundingClientRect();
+        const mobile = window.matchMedia('(max-width: 880px)').matches;
+        const group = document.getElementById('connections');
+        if (!group || !root.width) return;
+        const box = id => {
+          const b = document.getElementById(id).getBoundingClientRect();
+          return { left: b.left - root.left, right: b.right - root.left, top: b.top - root.top, bottom: b.bottom - root.top, x: (b.left + b.right) / 2 - root.left, y: (b.top + b.bottom) / 2 - root.top };
+        };
+        const paths = [];
+        const addPath = d => paths.push(`<path d="${d}" fill="none" stroke="#9aaabd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flow-arrow)"/>`);
+        if (stage === 0) {
+          const nodes = ['decide', 'tool', 'messages'].map(box);
+          for (let i = 0; i < 2; i++) {
+            const a = nodes[i], b = nodes[i + 1];
+            addPath(mobile ? `M${a.x} ${a.bottom}L${b.x} ${b.top - 5}` : `M${a.right} ${a.y}L${b.left - 5} ${b.y}`);
+          }
+          const first = nodes[0], last = nodes[2];
+          if (mobile) addPath(`M${last.left} ${last.y}H8V${first.y}H${first.left - 5}`);
+          else addPath(`M${last.x} ${last.bottom}V${root.height - 35}H${first.x}V${first.bottom + 5}`);
+        } else {
+          const input = box('input'), report = box('report');
+          for (const label of stage === 1 ? ['A'] : ['A', 'B', 'C']) {
+            const a = box('audit-' + label), b = box('verify-' + label);
+            if (mobile) {
+              addPath(`M${input.x} ${input.bottom}V${input.bottom + 12}H8V${a.y}H${a.left - 5}`);
+              addPath(`M${a.right} ${a.y}H${b.left - 5}`);
+              addPath(`M${b.right} ${b.y}H${root.width - 8}V${report.top - 12}H${report.x}V${report.top - 5}`);
+            } else {
+              const left = (input.right + a.left) / 2;
+              const right = (b.right + report.left) / 2;
+              addPath(`M${input.right} ${input.y}H${left}V${a.y}H${a.left - 5}`);
+              addPath(`M${a.right} ${a.y}H${b.left - 5}`);
+              addPath(`M${b.right} ${b.y}H${right}V${report.y}H${report.left - 5}`);
+            }
+          }
+        }
+        group.innerHTML = paths.join('');
+      }
+
+      function persist() {
+        if (window.openai?.setWidgetState) window.openai.setWidgetState({ ...(window.openai.widgetState || {}), stage, need });
+      }
+      function select(index) {
+        if (!validStage(index)) return;
+        stage = index;
+        render();
+        persist();
+      }
+      document.querySelectorAll('[data-stage]').forEach(button => button.addEventListener('click', () => select(Number(button.dataset.stage))));
+      document.querySelectorAll('[data-need]').forEach(button => button.addEventListener('click', () => { need = button.dataset.need; render(); persist(); }));
+      document.getElementById('previous').addEventListener('click', () => select(stage - 1));
+      document.getElementById('next').addEventListener('click', () => select(stage + 1));
+      document.getElementById('reset').addEventListener('click', () => { need = 'parallel'; select(0); });
+      window.addEventListener('keydown', event => {
+        if (event.altKey || event.ctrlKey || event.metaKey || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+        if (event.key === 'ArrowRight' && stage < stages.length - 1) { event.preventDefault(); select(stage + 1); }
+        if (event.key === 'ArrowLeft' && stage > 0) { event.preventDefault(); select(stage - 1); }
+      });
+      window.addEventListener('openai:set_globals', event => {
+        const state = event.detail?.globals?.widgetState ?? window.openai?.widgetState;
+        if (!state) return;
+        if (validStage(state.stage)) stage = state.stage;
+        if (validNeed(state.need)) need = state.need;
+        render();
+      });
+      if (window.ResizeObserver) new ResizeObserver(drawEdges).observe(graph);
+      else window.addEventListener('resize', drawEdges);
+      render();
+    })();
+  </script>
+</body>
+</html>

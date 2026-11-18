@@ -1,0 +1,446 @@
+[
+  {
+    "key": "tasks",
+    "label": "六个任务工具",
+    "focus": "tasks",
+    "trigger": "模型提出任务 tool_use，执行前检查放行后。",
+    "input": "工具参数和已返回的任务 ID。",
+    "output": "任务 ID、记录、列表或拒绝说明，按调用 ID 回传。",
+    "flow": "记录工作；工作工具仍负责实际执行。",
+    "sourceLink": "#task-tools",
+    "codeSections": [
+      "task-tools"
+    ],
+    "codeFunctions": [
+      "create_task",
+      "create",
+      "update_dependencies",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "claim_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "complete_task",
+      "can_start",
+      "save",
+      "load"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  },
+  {
+    "key": "dependencies",
+    "label": "建立依赖图",
+    "focus": "store",
+    "trigger": "update_task 被模型调用时。",
+    "input": "目标 task_id 与 addBlockedBy 列表。",
+    "output": "校验后的 blockedBy；未知、自依赖、环或已认领任务被拒绝。",
+    "flow": "先创建取得 ID，再添加边；整次校验后统一保存。",
+    "sourceLink": "#task-dependencies",
+    "codeSections": [
+      "task-dependencies"
+    ],
+    "codeFunctions": [
+      "update_dependencies",
+      "create",
+      "create_task",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "claim_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "complete_task",
+      "can_start",
+      "save",
+      "load"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  },
+  {
+    "key": "claim",
+    "label": "认领条件",
+    "focus": "store",
+    "trigger": "claim_task 被模型调用时。",
+    "input": "任务 ID，教学包装固定 owner=\"agent\"。",
+    "output": "依赖全部完成才 pending → in_progress；否则状态不变。",
+    "flow": "认领并不实现产物；后续仍需文件工具、Bash 和验证。",
+    "sourceLink": "#task-claim",
+    "codeSections": [
+      "task-claim"
+    ],
+    "codeFunctions": [
+      "claim_task",
+      "create",
+      "create_task",
+      "update_dependencies",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "complete_task",
+      "can_start",
+      "save",
+      "load"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  },
+  {
+    "key": "complete",
+    "label": "完成与新解锁",
+    "focus": "store",
+    "trigger": "complete_task 被模型调用时。",
+    "input": "任务 ID 和当前负责人。",
+    "output": "检查 in_progress 与 owner 后保存 completed，只报告本次新解锁。",
+    "flow": "没有自动执行后续任务，也不自动验证产物。",
+    "sourceLink": "#task-complete",
+    "codeSections": [
+      "task-complete"
+    ],
+    "codeFunctions": [
+      "complete_task",
+      "create",
+      "create_task",
+      "update_dependencies",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "claim_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "can_start",
+      "save",
+      "load"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  },
+  {
+    "key": "store",
+    "label": "TaskStore 检查",
+    "focus": "store",
+    "trigger": "任务 handler 读取或修改任务时。",
+    "input": "ID、依赖列表、文件内容及状态。",
+    "output": "校验或更新后的记录；异常交给原执行入口转换为错误结果。",
+    "flow": "普通保存不是跨进程带锁的事务。",
+    "sourceLink": "#task-store",
+    "codeSections": [
+      "task-store"
+    ],
+    "codeFunctions": [
+      "load",
+      "create",
+      "create_task",
+      "update_dependencies",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "claim_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "complete_task",
+      "can_start",
+      "save"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  },
+  {
+    "key": "files",
+    "label": "任务持久化",
+    "focus": "files",
+    "trigger": "创建、读取、添加依赖、认领或完成时。",
+    "input": "Task 数据或 task_id。",
+    "output": ".tasks/{id}.json；换会话后仍可重新读取。",
+    "flow": "这些记录不会自动全部加入 SYSTEM，模型要调用 list/get。",
+    "sourceLink": "#task-store",
+    "codeSections": [
+      "task-store"
+    ],
+    "codeFunctions": [
+      "save",
+      "create",
+      "create_task",
+      "update_dependencies",
+      "_depends_on",
+      "update_task",
+      "list",
+      "list_tasks",
+      "get_task",
+      "load_task",
+      "claim_task",
+      "incomplete_dependencies",
+      "execute_tool",
+      "agent_loop",
+      "complete_task",
+      "can_start",
+      "load"
+    ],
+    "stageFunctions": {
+      "create": [
+        "create_task",
+        "create"
+      ],
+      "dependencies": [
+        "update_task",
+        "update_dependencies",
+        "_depends_on"
+      ],
+      "inspect": [
+        "list_tasks",
+        "get_task",
+        "load_task",
+        "list"
+      ],
+      "claim": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "work": [
+        "execute_tool",
+        "agent_loop"
+      ],
+      "complete": [
+        "complete_task",
+        "can_start"
+      ],
+      "store": [
+        "load",
+        "save",
+        "list"
+      ],
+      "blocked": [
+        "claim_task",
+        "incomplete_dependencies"
+      ],
+      "owner": [
+        "complete_task"
+      ]
+    },
+    "figure": "s10-task-core"
+  }
+]

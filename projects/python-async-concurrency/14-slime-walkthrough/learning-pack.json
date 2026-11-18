@@ -1,0 +1,33 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 279,
+      "endLine": 317,
+      "symbol": "_GenerationActor.start / _start / _next",
+      "text": "    async def start(self, rollout_id):\n        future = asyncio.run_coroutine_threadsafe(self._start(rollout_id), get_async_loop().loop)\n        await asyncio.wrap_future(future)\n\n    async def _start(self, rollout_id):\n        self.rollout_id = rollout_id\n        self.running = True\n        if self.producer is None or self.producer.done():\n            if self.producer is not None:\n                self.producer.result()\n            # Keep completed results bounded even when training stops consuming.\n            # At most one queued result plus one result per pool slot stays local.\n            self.outputs = asyncio.Queue(maxsize=1)\n            self.producer = asyncio.create_task(self._produce())\n\n    async def pause(self):\n        future = asyncio.run_coroutine_threadsafe(self._pause(), get_async_loop().loop)\n        await asyncio.wrap_future(future)\n\n    async def _pause(self):\n        self.running = False\n\n    async def next(self):\n        future = asyncio.run_coroutine_threadsafe(self._next(), get_async_loop().loop)\n        return await asyncio.wrap_future(future)\n\n    async def _next(self):\n        take = asyncio.create_task(self.outputs.get())\n        try:\n            await asyncio.wait((take, self.producer), return_when=asyncio.FIRST_COMPLETED)\n            if take.done():\n                return take.result()\n            self.producer.result()  # Propagate custom generation errors.\n            if not self.outputs.empty():\n                return await take\n            return None\n        finally:\n            take.cancel()\n            await asyncio.gather(take, return_exceptions=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 319,
+      "endLine": 342,
+      "symbol": "_GenerationActor._produce",
+      "text": "    async def _produce(self):\n        async def generate_slot(group):\n            while self.running or group is not None:\n                output = await self._generate_group(self.rollout_id, group)\n                group = None\n                if output is not None:  # Aborted groups have been returned to the durable queue.\n                    await self.outputs.put(output)\n                del output\n\n        tasks = []\n        try:\n            for offset in range(0, self.capacity, 64):\n                if not self.running:\n                    break\n                groups = await self.data_source.get_samples_async(min(64, self.capacity - offset))\n                tasks.extend(asyncio.create_task(generate_slot(group)) for group in groups)\n                # Spread startup callbacks across loop turns to reduce asyncio\n                # pressure. Each slot then pulls its own next group immediately.\n                await asyncio.sleep(0.001)\n            await asyncio.gather(*tasks)\n        finally:\n            for task in tasks:\n                task.cancel()\n            await asyncio.gather(*tasks, return_exceptions=True)",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/rollout/fully_async_distributed.py",
+      "line": 434,
+      "endLine": 447,
+      "symbol": "_GenerationActor.close / _close",
+      "text": "    async def close(self):\n        future = asyncio.run_coroutine_threadsafe(self._close(), get_async_loop().loop)\n        await asyncio.wrap_future(future)\n\n    async def _close(self):\n        self.running = False\n        if self.producer is not None:\n            self.producer.cancel()\n            await asyncio.gather(self.producer, return_exceptions=True)\n        if getattr(self, \"_rebuffer_task\", None) is not None:\n            await self._rebuffer_task\n        # to_thread writes can outlive cancelled awaiters. Drain them before\n        # closing their files or killing this process.\n        await asyncio.get_running_loop().shutdown_default_executor()",
+      "blobSha256": "e0f323fdc30c27e3c33d4a723eeeec3e311bd9691f6e05cee7e643b5cd5819fd"
+    }
+  }
+}

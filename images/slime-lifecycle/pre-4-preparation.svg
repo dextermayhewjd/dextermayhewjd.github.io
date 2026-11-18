@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1134" viewBox="0 0 1100 1134" role="img" aria-labelledby="title desc">
+<title id="title">Pre-4 总览：五项准备交给 Harness.run</title>
+<desc id="desc">generate 依次准备模型请求入口、任务资料、会话、执行环境与 CLI、已有工作区和题目。模型入口包含并列的输入配置、协议适配器、HTTP 服务三部分，三组不表示执行先后。md 是任务资料字典，其中 instance_id 标识哪一道任务；session_id 标识本次会话，Session 保存默认采样和上下文预算。sb 是环境操作对象，CLI 已安装但任务尚未启动。准备完成后才进入 Harness.run。此图用于总览，详细成员归属另图展开。</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+<style>
+text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334}
+.title{font-size:32px;font-weight:700}.heading{font-size:26px;font-weight:700}.subheading{font-size:22px;font-weight:700}
+.body{font-size:19px}.group-body{font-size:18px;fill:#526173}.code{font-family:"DejaVu Sans Mono",monospace;font-size:20px;fill:#453a80}
+.group-code{font-family:"DejaVu Sans Mono",monospace;font-size:19px;fill:#453a80}.note{font-size:16px;fill:#526173}
+.owner{fill:#f7faff;stroke:#93b8e8;stroke-width:2}.card{fill:#fff;stroke:#b9c7d9;stroke-width:1.5}.part{fill:#f2f0fa;stroke:#c3badf;stroke-width:1.2}
+.exit{fill:#eeebfa;stroke:#7663b3;stroke-width:2}.flow{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}
+</style></defs>
+<rect width="1100" height="1134" fill="#fff"/>
+<text x="24" y="44" class="title">Pre-4：五项准备，交给 Agent 启动入口</text>
+<text x="24" y="79" class="note">先看职责、关键调用与主要产物；成员归属和实现细节随后展开。</text>
+<g data-owner="generate">
+<rect x="24" y="98" width="1052" height="885" rx="12" class="owner"/>
+<text x="48" y="133" class="heading">generate()：依次组织五项准备</text>
+<g data-step="1" data-component="adapter-service">
+<rect x="48" y="149" width="1004" height="232" rx="12" class="card"/>
+<text x="68" y="184" class="heading">① 组装模型请求入口</text>
+<text x="68" y="215" class="code">state = _AdapterService(args)</text>
+<g data-component="model-input-config" data-peer="service-part">
+<rect x="68" y="233" width="308" height="104" rx="12" class="part"/>
+<text x="82" y="262" class="subheading">模型输入配置</text>
+<text x="82" y="291" class="group-body">state.tokenizer 等</text>
+<text x="82" y="319" class="group-body">编码、上下文预算、解析格式</text>
+</g>
+<g data-component="protocol-adapter" data-peer="service-part">
+<rect x="396" y="233" width="308" height="104" rx="12" class="part"/>
+<text x="410" y="262" class="subheading">协议适配器</text>
+<text x="410" y="291" class="group-code">state.adapter</text>
+<text x="410" y="319" class="group-body">协议路由、会话与轨迹</text>
+</g>
+<g data-component="http-service" data-peer="service-part">
+<rect x="724" y="233" width="308" height="104" rx="12" class="part"/>
+<text x="738" y="262" class="subheading">HTTP 服务</text>
+<text x="738" y="291" class="group-code">state.app_handle</text>
+<text x="738" y="319" class="group-body">后台 HTTP 服务的运行句柄</text>
+</g>
+<text x="68" y="366" class="body">成果：state.adapter_url 提供模型入口地址，供后续 CLI 回连。</text>
+</g>
+<path d="M550 382 V396" class="flow"/>
+<g data-step="2" data-component="task-metadata">
+<rect x="48" y="399" width="1004" height="122" rx="12" class="card"/>
+<text x="68" y="433" class="heading">② 获取任务资料</text>
+<text x="68" y="462" class="code">md = swe.get_metadata(base_sample, protocol)</text>
+<text x="68" y="490" class="body">md 是字典；md[&quot;instance_id&quot;] 标识哪一道任务。</text>
+<text x="68" y="512" class="note">同时提供镜像、工作目录、题目与评分资料。</text>
+</g>
+<path d="M550 522 V536" class="flow"/>
+<g data-step="3" data-component="session">
+<rect x="48" y="539" width="1004" height="142" rx="12" class="card"/>
+<text x="68" y="573" class="heading">③ 登记本次会话</text>
+<text x="68" y="602" class="code">session_id = _session_id(...)</text>
+<text x="68" y="631" class="code">state.adapter.open_session(session_id, ...)</text>
+<text x="68" y="664" class="body">session_id 关联本次会话；Session 保存默认采样与上下文预算。</text>
+</g>
+<path d="M550 682 V696" class="flow"/>
+<g data-step="4" data-component="sandbox-cli">
+<rect x="48" y="699" width="1004" height="122" rx="12" class="card"/>
+<text x="68" y="733" class="heading">④ 准备执行环境与 CLI</text>
+<text x="68" y="762" class="code">boot_agent_sandbox(md[&quot;image&quot;], instance_id) → sb</text>
+<text x="68" y="797" class="body">sb 是环境操作对象；CLI 已安装，Agent 任务尚未启动。</text>
+</g>
+<path d="M550 822 V836" class="flow"/>
+<g data-step="5" data-component="workspace">
+<rect x="48" y="839" width="1004" height="122" rx="12" class="card"/>
+<text x="68" y="873" class="heading">⑤ 准备已有工作区与题目</text>
+<text x="68" y="902" class="code">swe.prepare_workspace(sb, md[&quot;workdir&quot;], md)</text>
+<text x="68" y="937" class="body">准备用户与目录权限，写入远端 PROBLEM_STATEMENT.md。</text>
+</g>
+</g>
+<path d="M550 962 V1004" class="flow"/>
+<g data-component="harness-run">
+<rect x="48" y="1007" width="1004" height="73" rx="12" class="exit"/>
+<text x="68" y="1052" class="heading">下一步：HARNESS_CLS().run(...) → 配置并启动 Agent CLI</text>
+</g>
+<text x="24" y="1114" class="note">源码：examples/coding_agent_rl/generate.py:96–212 · 竖向箭头表示主线顺序；横向并列表示同级组成。</text>
+</svg>

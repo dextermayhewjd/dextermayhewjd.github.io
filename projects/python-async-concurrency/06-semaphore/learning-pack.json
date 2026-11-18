@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 88,
+      "endLine": 101,
+      "symbol": "GenerateState.__init__",
+      "text": "\n    def __init__(self, args: Namespace, *, concurrency: int | None = None) -> None:\n        # persistent state for the generation process\n        self.args = args\n        self.tokenizer = load_tokenizer(args.hf_checkpoint, trust_remote_code=True)\n        self.processor = load_processor(args.hf_checkpoint, trust_remote_code=True)\n\n        self.semaphore = asyncio.Semaphore(\n            concurrency if concurrency is not None else args.sglang_server_concurrency * get_rollout_num_engines(args)\n        )\n        self.generation_pacer = AsyncPacer()\n        self.sampling_params: dict[str, Any] = dict(\n            temperature=args.rollout_temperature,\n            top_p=args.rollout_top_p,",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 325,
+      "endLine": 349,
+      "symbol": "generate_and_rm",
+      "text": "            }\n        ]\n\n    # generate\n    async with state.semaphore:\n        await state.generation_pacer.wait()\n        if state.aborted:\n            sample.status = Sample.Status.ABORTED\n            return sample\n\n        with state.dp_rank_context() as _:\n            custom_func_path = sample.generate_function_path or args.custom_generate_function_path\n            generate_func = load_function(custom_func_path) if custom_func_path is not None else generate\n\n            if custom_func_path is not None and \"evaluation\" in inspect.signature(generate_func).parameters:\n                generate_call = generate_func(args, sample, sampling_params, evaluation=evaluation)\n            else:\n                generate_call = generate_func(args, sample, sampling_params)\n\n            if getattr(generate_func, \"abort_mode\", None) == \"request\":\n                sample = await _run_request_abortable_generate(state, sample, generate_call)\n            else:\n                sample = await _run_server_abort_generate(state, generate_call)\n\n    sample = inherit_queue_context(queue_input, sample)",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    }
+  }
+}

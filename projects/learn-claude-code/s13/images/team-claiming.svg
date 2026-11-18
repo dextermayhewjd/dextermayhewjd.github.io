@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" role="img" aria-labelledby="team-claiming-title team-claiming-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="team-claiming-title">任务认领：候选与归属</title>
+<desc id="team-claiming-desc">扫描只找候选，最终认领在锁内重新验证并保存。</desc>
+<defs><marker id="team-claiming-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">任务认领：候选与归属</text>
+<text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">扫描只找候选，最终认领在锁内重新验证并保存。</text>
+<path data-route="claim-found" data-from="scan" data-to="try" data-kind="flow" data-label="候选可能已经过时" d="M244 180H268" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<path data-route="claim-check" data-from="try" data-to="claim" data-kind="flow" data-label="重新验证，不信任扫描快照" d="M488 180H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<path data-route="claim-work" data-from="claim" data-to="work" data-kind="flow" data-label="保存成功后才交付任务" d="M732 180H756" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<path data-route="claim-done" data-from="work" data-to="complete" data-kind="flow" data-label="工具 complete_task 写状态，不靠汇报文本" d="M866 260V306H378V360" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<path data-route="claim-release" data-from="complete" data-to="release" data-kind="flow" data-label="同一回合保留 cwd，边界才释放" d="M488 440H512" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<path data-route="claim-next" data-from="release" data-to="scan" data-kind="flow" data-label="再找下一项；已完成依赖可解锁下游" d="M744 520V552H12V180H24" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#team-claiming-arrow)"/>
+<rect data-stage="scan" data-change="added" x="24" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="134.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">扫描 ready task</text>
+<text x="134.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">pending / 无 owner / 依赖完成</text>
+<a class="diagram-function-link" data-function="scan_unclaimed_tasks" data-function-card="" href="#claim-scan" aria-label="查看 scan_unclaimed_tasks 的实现"><text x="134.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="scan_unclaimed_tasks">scan_unclaimed_tasks()</text></a>
+<rect data-stage="try" data-change="added" x="268" y="100" width="220" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="378.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">逐个尝试认领</text>
+<text x="378.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">一人最多一个 assignment</text>
+<a class="diagram-function-link" data-function="claim_next_task" data-function-card="" href="#claim-next" aria-label="查看 claim_next_task 的实现"><text x="378.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="claim_next_task">claim_next_task()</text></a>
+<rect data-stage="claim" data-change="modified" x="512" y="100" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="622.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">锁内校验并保存</text>
+<text x="622.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">owner / in_progress / cwd</text>
+<a class="diagram-function-link" data-function="claim_task" data-function-card="" href="#claim-atomic" aria-label="查看 claim_task 的实现"><text x="622.0" y="180" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="claim_task">claim_task()</text></a>
+<a class="diagram-function-link" data-function="task_store_lock" data-function-card="" href="#claim-lock" aria-label="查看 task_store_lock 的实现"><text x="622.0" y="205" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="task_store_lock">task_store_lock()</text></a>
+<rect data-stage="work" data-change="base" x="756" y="100" width="220" height="160" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="866.0" y="125" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回到队友 WORK</text>
+<text x="866.0" y="146" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">任务与 cwd 加入私有历史</text>
+<rect data-stage="complete" data-change="modified" x="268" y="360" width="220" height="160" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="378.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">调用者完成自己的任务</text>
+<text x="378.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">completed，暂留目录租约</text>
+<a class="diagram-function-link" data-function="complete_task" data-function-card="" href="#claim-complete" aria-label="查看 complete_task 的实现"><text x="378.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="complete_task">complete_task()</text></a>
+<rect data-stage="release" data-change="added" x="512" y="360" width="464" height="160" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="744.0" y="385" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回合结束后释放归属</text>
+<text x="744.0" y="406" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">下一次 IDLE 才能认领另一项</text>
+<a class="diagram-function-link" data-function="release_completed_assignment" data-function-card="" href="#claim-release" aria-label="查看 release_completed_assignment 的实现"><text x="744.0" y="440" text-anchor="middle" font-family="monospace" font-size="10.5" fill="var(--diagram-text, #24334b)" data-function="release_completed_assignment">release_completed_assignment()</text></a>
+</svg>

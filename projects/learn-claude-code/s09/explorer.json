@@ -1,0 +1,266 @@
+[
+  {
+    "key": "recall",
+    "label": "记忆召回",
+    "focus": "recall",
+    "trigger": "每次用户回合进入 agent_loop 后、while True 之前。",
+    "input": "最近用户文本，以及磁盘中的记忆目录。",
+    "output": "最多五个相关主题，正文总字符预算 20,000；本轮 system 固定使用这些背景。",
+    "flow": "必要时用辅助模型选择，失败退回关键词；工具回传不会重新触发召回。",
+    "sourceLink": "#memory-recall",
+    "codeSections": [
+      "memory-recall"
+    ],
+    "codeFunctions": [
+      "read_memory_index",
+      "read_memory_file",
+      "select_relevant_memories",
+      "load_memories",
+      "agent_loop",
+      "extract_memories",
+      "validate_memory_record",
+      "should_store_memory",
+      "write_memory_file",
+      "rebuild_memory_index",
+      "consolidate_memories",
+      "keyword_memory_selection",
+      "list_memory_files"
+    ],
+    "stageFunctions": {
+      "store": [
+        "read_memory_index",
+        "read_memory_file"
+      ],
+      "recall": [
+        "select_relevant_memories",
+        "load_memories"
+      ],
+      "loop": [
+        "agent_loop"
+      ],
+      "extract": [
+        "extract_memories",
+        "validate_memory_record",
+        "should_store_memory"
+      ],
+      "save": [
+        "write_memory_file",
+        "rebuild_memory_index"
+      ],
+      "consolidate": [
+        "consolidate_memories"
+      ]
+    },
+    "figure": "s09-memory-core"
+  },
+  {
+    "key": "context",
+    "label": "SYSTEM 背景",
+    "focus": "context",
+    "trigger": "本轮召回完成后。",
+    "input": "基础指令、记忆索引、相关正文。",
+    "output": "build_system 构造给本轮请求使用的 system。",
+    "flow": "记忆是背景，不是新用户命令；当前要求优先，仍沿原工具循环行动。",
+    "sourceLink": "#memory-context",
+    "codeSections": [
+      "memory-context"
+    ],
+    "codeFunctions": [
+      "read_memory_index",
+      "read_memory_file",
+      "select_relevant_memories",
+      "load_memories",
+      "agent_loop",
+      "extract_memories",
+      "validate_memory_record",
+      "should_store_memory",
+      "write_memory_file",
+      "rebuild_memory_index",
+      "consolidate_memories",
+      "build_system"
+    ],
+    "stageFunctions": {
+      "store": [
+        "read_memory_index",
+        "read_memory_file"
+      ],
+      "recall": [
+        "select_relevant_memories",
+        "load_memories"
+      ],
+      "loop": [
+        "agent_loop"
+      ],
+      "extract": [
+        "extract_memories",
+        "validate_memory_record",
+        "should_store_memory"
+      ],
+      "save": [
+        "write_memory_file",
+        "rebuild_memory_index"
+      ],
+      "consolidate": [
+        "consolidate_memories"
+      ]
+    },
+    "figure": "s09-memory-core"
+  },
+  {
+    "key": "extract",
+    "label": "提取与校验",
+    "focus": "extract",
+    "trigger": "模型响应没有工具调用，并且 Stop 没有强制继续。",
+    "input": "限定的最近对话与已有目录，候选包含 type、scope、description、body。",
+    "output": "仅 persistent、字段合格、非临时且不重复的记录被保存；返回新增数。",
+    "flow": "同步辅助请求与过滤；没有合格候选时跳过保存和整理，再完成退出。",
+    "sourceLink": "#memory-extract",
+    "codeSections": [
+      "memory-extract"
+    ],
+    "codeFunctions": [
+      "read_memory_index",
+      "read_memory_file",
+      "select_relevant_memories",
+      "load_memories",
+      "agent_loop",
+      "extract_memories",
+      "validate_memory_record",
+      "should_store_memory",
+      "write_memory_file",
+      "rebuild_memory_index",
+      "consolidate_memories"
+    ],
+    "stageFunctions": {
+      "store": [
+        "read_memory_index",
+        "read_memory_file"
+      ],
+      "recall": [
+        "select_relevant_memories",
+        "load_memories"
+      ],
+      "loop": [
+        "agent_loop"
+      ],
+      "extract": [
+        "extract_memories",
+        "validate_memory_record",
+        "should_store_memory"
+      ],
+      "save": [
+        "write_memory_file",
+        "rebuild_memory_index"
+      ],
+      "consolidate": [
+        "consolidate_memories"
+      ]
+    },
+    "figure": "s09-memory-core"
+  },
+  {
+    "key": "save",
+    "label": "写入与索引",
+    "focus": "save",
+    "trigger": "extract_memories 产生通过校验与持久性检查的记录。",
+    "input": "name、type、description、body。",
+    "output": ".memory 下的 Markdown 主题文件，以及重新生成的 MEMORY.md 索引。",
+    "flow": "写主题文件后重建索引；新回合重新发现和读取这些信息。",
+    "sourceLink": "#memory-save",
+    "codeSections": [
+      "memory-save"
+    ],
+    "codeFunctions": [
+      "read_memory_index",
+      "read_memory_file",
+      "select_relevant_memories",
+      "load_memories",
+      "agent_loop",
+      "extract_memories",
+      "validate_memory_record",
+      "should_store_memory",
+      "write_memory_file",
+      "rebuild_memory_index",
+      "consolidate_memories",
+      "memory_document"
+    ],
+    "stageFunctions": {
+      "store": [
+        "read_memory_index",
+        "read_memory_file"
+      ],
+      "recall": [
+        "select_relevant_memories",
+        "load_memories"
+      ],
+      "loop": [
+        "agent_loop"
+      ],
+      "extract": [
+        "extract_memories",
+        "validate_memory_record",
+        "should_store_memory"
+      ],
+      "save": [
+        "write_memory_file",
+        "rebuild_memory_index"
+      ],
+      "consolidate": [
+        "consolidate_memories"
+      ]
+    },
+    "figure": "s09-memory-core"
+  },
+  {
+    "key": "consolidate",
+    "label": "按需整理",
+    "focus": "consolidate",
+    "trigger": "有新增保存记录，再由整理函数检查是否达到 10 个主题文件。",
+    "input": "已有记录与模型提出的整理列表。",
+    "output": "经过校验的合并记录；替换失败时尝试恢复快照并重建索引。",
+    "flow": "有门槛的同步维护，不是每次工具回传都运行，也不是多进程原子事务。",
+    "sourceLink": "#memory-consolidate",
+    "codeSections": [
+      "memory-consolidate"
+    ],
+    "codeFunctions": [
+      "read_memory_index",
+      "read_memory_file",
+      "select_relevant_memories",
+      "load_memories",
+      "agent_loop",
+      "extract_memories",
+      "validate_memory_record",
+      "should_store_memory",
+      "write_memory_file",
+      "rebuild_memory_index",
+      "consolidate_memories"
+    ],
+    "stageFunctions": {
+      "store": [
+        "read_memory_index",
+        "read_memory_file"
+      ],
+      "recall": [
+        "select_relevant_memories",
+        "load_memories"
+      ],
+      "loop": [
+        "agent_loop"
+      ],
+      "extract": [
+        "extract_memories",
+        "validate_memory_record",
+        "should_store_memory"
+      ],
+      "save": [
+        "write_memory_file",
+        "rebuild_memory_index"
+      ],
+      "consolidate": [
+        "consolidate_memories"
+      ]
+    },
+    "figure": "s09-memory-core"
+  }
+]

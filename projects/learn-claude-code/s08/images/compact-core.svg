@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" role="img" aria-labelledby="s08-pipeline-title s08-pipeline-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s08-pipeline-title">图 3 · 四步处理与条件出口</title><desc id="s08-pipeline-desc">先转存与归档；只有仍超限，才进一步缩短结果或请求摘要。</desc>
+<defs><marker id="s08-pipeline-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s08-pipeline-added-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">图 3 · 四步处理与条件出口</text>
+<text x="24" y="55" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">先转存与归档；只有仍超限，才进一步缩短结果或请求摘要。</text>
+<path  d="M130 140H145" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s08-pipeline-base-arrow)"/>
+<path  d="M251 140H266" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-pipeline-added-arrow)"/>
+<path  d="M372 140H387" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-pipeline-added-arrow)"/>
+<path data-route="over-limit" d="M493 140H508" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-pipeline-added-arrow)"/>
+<path  d="M614 140H629" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-pipeline-added-arrow)"/>
+<path data-route="enough-after-snip" d="M440 176V320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s08-pipeline-base-arrow)"/>
+<path data-route="enough-after-micro" d="M682 176V204H440" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s08-pipeline-base-arrow)"/>
+<path data-route="still-over-limit" d="M682 176V244" fill="none" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.6" marker-end="url(#s08-pipeline-added-arrow)"/>
+<path data-route="summary-to-model" d="M682 316V430H440V392" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s08-pipeline-base-arrow)"/>
+<rect data-stage="history" data-change="modified" x="24" y="104" width="106" height="72" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="77" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">messages</text>
+<text x="77" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">待整理历史</text>
+<rect data-stage="budget" data-change="added" x="145" y="104" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="198" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">大结果转存</text>
+<text x="198" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">每轮 · 0 API</text>
+<rect data-stage="snip" data-change="added" x="266" y="104" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="319" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">归档中间消息</text>
+<text x="319" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">每轮 · 0 API</text>
+<rect data-stage="size-first" data-change="added" x="387" y="104" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="440" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">超过 50k？</text>
+<text x="440" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">单位：字符</text>
+<rect data-stage="micro-fit" data-change="added" x="508" y="104" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="561" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">缩短工具结果</text>
+<text x="561" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">micro / fit</text>
+<rect data-stage="size-second" data-change="added" x="629" y="104" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="682" y="130" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">仍然超限？</text>
+<text x="682" y="152" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">50,000 字符</text>
+<rect data-stage="summary" data-change="added" x="629" y="244" width="106" height="72" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="682" y="270" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">模型摘要</text>
+<text x="682" y="292" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">1 次辅助请求</text>
+<rect data-stage="task-model" data-change="base" x="387" y="320" width="106" height="72" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="440" y="346" text-anchor="middle" font-size="13" font-weight="650" fill="var(--diagram-text, #24334b)">正常模型请求</text>
+<text x="440" y="368" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">继续原任务</text>
+<text x="500" y="126" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">是</text>
+<text x="455" y="235" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">否</text>
+<text x="604" y="197" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">否</text>
+<text x="695" y="223" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">是</text>
+<text x="508" y="230" text-anchor="start" font-size="10" fill="var(--diagram-muted, #58677b)">micro 后仍超限才用 fit</text>
+<text x="540" y="419" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">摘要替换 messages → 回到模型请求</text>
+<text x="24" y="458" text-anchor="start" font-size="11" fill="var(--diagram-muted, #58677b)">这里只展开 prepare；主动 compact 与 API 错误补救有独立入口，见对应代码。</text>
+</svg>

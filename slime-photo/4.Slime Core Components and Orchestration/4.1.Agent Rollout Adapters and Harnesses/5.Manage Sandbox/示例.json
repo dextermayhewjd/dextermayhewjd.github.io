@@ -1,0 +1,46 @@
+{
+  "revision": "22a89f96835969a47055a659c588f46151f8b07a",
+  "verification": {
+    "mode": "constructed-teaching-example-bound-to-static-source",
+    "executed_remote_commands": false,
+    "executed_sdk": false,
+    "executed_cli": false,
+    "note": "The uid/gid/output are illustrative values, not a captured SDK response."
+  },
+  "input": {
+    "sandbox": "already-created E2BSandbox",
+    "workdir": "/workspace/demo"
+  },
+  "exec_call": {
+    "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+    "user": "root",
+    "env": null,
+    "timeout": 60,
+    "check": true,
+    "idempotent": true
+  },
+  "sdk_call": {
+    "method": "commands.run",
+    "cmd": "id agent >/dev/null 2>&1 || useradd -m -s /bin/bash agent && chown -R agent:agent /home/agent /workspace/demo && git config --system --add safe.directory '*' && id agent",
+    "user": "root",
+    "envs": null,
+    "timeout": 60
+  },
+  "illustrative_sdk_result": {
+    "exit_code": 0,
+    "stdout": "uid=1000(agent) gid=1000(agent) groups=1000(agent)\n",
+    "stderr": ""
+  },
+  "exec_result": [
+    0,
+    "uid=1000(agent) gid=1000(agent) groups=1000(agent)\n",
+    ""
+  ],
+  "helper_result": null,
+  "retained_effects": [
+    "agent user available",
+    "directory ownership adjusted",
+    "Git safe.directory entry appended"
+  ],
+  "next_step": "HarnessContext(workdir=workdir, session_id=session_id, adapter_url=adapter_url)"
+}

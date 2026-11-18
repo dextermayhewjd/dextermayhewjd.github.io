@@ -1,0 +1,15 @@
+{
+  "connect_mcp": "Harness 内部模拟连接／发现",
+  "_mock_server_docs": "模拟 docs 服务工厂",
+  "_mock_server_deploy": "模拟 deploy 服务工厂",
+  "__init__": "MCPClient 内部状态初始化",
+  "register": "MCPClient 内部发现登记",
+  "assemble_tool_pool": "Harness 每轮工具池与分发表组装",
+  "normalize_mcp_name": "Harness 名称适配辅助",
+  "agent_loop": "Harness 模型／工具循环",
+  "assemble_system_prompt": "Harness 请求背景组装",
+  "permission_hook": "Harness PreToolUse 权限回调",
+  "trigger_hooks": "Harness 事件回调分发",
+  "execute_tool": "Harness 工具共用执行入口",
+  "call_tool": "MCPClient 内部原名调用"
+}

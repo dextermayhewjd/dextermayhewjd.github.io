@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/async_utils.py",
+      "line": 33,
+      "endLine": 37,
+      "symbol": "AsyncPacer._release",
+      "text": "    def _release(self):\n        for _ in range(min(64, len(self.pending))):\n            future = self.pending.popleft()\n            if not future.done():\n                future.set_result(None)",
+      "blobSha256": "09a9e7c89b78f66758a9dc23a9ce9523f06a73b1956ab6341522cafe1725f159"
+    }
+  }
+}

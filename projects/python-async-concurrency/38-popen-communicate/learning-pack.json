@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "examples/strands_sglang/subprocess_interpreter.py",
+      "line": 228,
+      "endLine": 238,
+      "symbol": "SubprocessInterpreter.run_file",
+      "text": "            proc = subprocess.Popen(\n                cmd,\n                stdout=subprocess.PIPE,\n                stderr=subprocess.PIPE,\n                text=True,\n                env=env,\n                shell=False,  # Never use shell=True for security\n            )\n            # Add timeout to prevent hanging processes\n            stdout, stderr = proc.communicate(timeout=self.execution_timeout)\n            return_code = proc.returncode",
+      "blobSha256": "d252740a7953b30096c8152367c510a0f55817c0916b3a458a998ac5e358f050"
+    }
+  }
+}

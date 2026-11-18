@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 520,
+      "endLine": 533,
+      "symbol": "generate_rollout_async",
+      "text": "            state.submit_generate_tasks(samples)\n\n        # wait for the generation to finish\n        done, state.pendings = await asyncio.wait(state.pendings, return_when=asyncio.FIRST_COMPLETED)\n        for task in done:\n            group: list[Sample] = task.result()\n\n            if do_print:\n                sample = group[0][0] if isinstance(group[0], list) else group[0]\n                logger.info(\n                    f\"First rollout sample: {[str(sample.prompt) + sample.response]}, label: {str(sample.label)[:100]}, reward: {sample.reward}\",\n                )\n                do_print = False\n",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/fully_async_rollout.py",
+      "line": 173,
+      "endLine": 192,
+      "symbol": "AsyncRolloutWorker._loop completion harvesting",
+      "text": "    async def _loop(self) -> None:\n        active_tasks: set[asyncio.Task] = set()\n        max_concurrent = self.concurrency\n        gid_counter = 0\n\n        while self.running:\n            try:\n                # Reap done tasks\n                if active_tasks:\n                    done = {t for t in active_tasks if t.done()}\n                    for t in done:\n                        try:\n                            t.result()  # results already handled in callback\n                        except Exception as e:  # noqa: BLE001\n                            logger.warning(\"fully-async task crashed: %r\", e)\n                    active_tasks -= done\n                    if done:\n                        # Done callbacks requeue ABORTED groups. Let them run\n                        # before asking the data source for replacement work.\n                        await asyncio.sleep(0)",
+      "blobSha256": "a29a07013d0438b1313ec5390c29d08bc4f39ae7916962caf055c614a1b4be17"
+    }
+  }
+}

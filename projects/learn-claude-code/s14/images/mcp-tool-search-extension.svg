@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" role="img" aria-labelledby="s14-search-title s14-search-desc" font-family="system-ui, -apple-system, sans-serif">
+  <title id="s14-search-title">扩展示意：完整工具目录与模型可见定义分开</title>
+  <desc id="s14-search-desc">自建 Harness 教学方案：已登记目录提供轻量信息，模型提出搜索需求，Harness 查找并加载 schema，下一轮通过已有入口调用。不是本地源码或官方内部实现。</desc>
+  <defs><marker id="s14-search-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+  <text x="24" y="30" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">扩展示意 · 工具目录与按需加载</text>
+  <text x="24" y="55" font-size="13" fill="var(--diagram-muted, #58677b)">完整目录留在 Harness；搜索之后，匹配定义进入模型下一轮请求。</text>
+  <path data-route="search-brief" data-from="catalog" data-to="visible" data-kind="reference" data-label="目录提供名称与用途摘要" d="M192 165H220" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#s14-search-arrow)"/>
+  <path data-route="search-need" data-from="visible" data-to="search" data-kind="flow" data-label="模型根据任务请求 search_tools" d="M388 165H416" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s14-search-arrow)"/>
+  <path data-route="search-match" data-from="search" data-to="load" data-kind="flow" data-label="Harness 查目录，记录匹配的名称" d="M584 165H612" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s14-search-arrow)"/>
+  <path data-route="search-execute" data-from="load" data-to="call" data-kind="flow" data-label="下一轮模型取得 schema 后选择业务工具" d="M780 165H808" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s14-search-arrow)"/>
+  <path data-route="search-catalog" data-from="catalog" data-to="search" data-kind="reference" data-label="搜索范围是已连接工具目录" d="M108 230V290H500V230" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#s14-search-arrow)"/>
+  <path data-route="search-next" data-from="load" data-to="visible" data-kind="flow" data-label="更新 loaded_names，下一轮扩展可见工具" d="M696 230V350H304V230" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s14-search-arrow)"/>
+  <rect data-stage="catalog" data-change="base" x="24" y="100" width="168" height="130" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+  <text x="108" y="129" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">已登记工具目录</text>
+  <text x="108" y="158" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">完整定义与调用映射</text>
+  <text x="108" y="191" text-anchor="middle" font-size="11" fill="var(--diagram-text, #24334b)">沿用 S14 注册</text>
+  <rect data-stage="visible" data-change="modified" x="220" y="100" width="168" height="130" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+  <text x="304" y="129" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">模型可见信息</text>
+  <text x="304" y="158" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">名称／用途／搜索入口</text>
+  <text x="304" y="191" text-anchor="middle" font-size="11" fill="var(--diagram-text, #24334b)">已加载 schema 才展开</text>
+  <rect data-stage="search" data-change="added" x="416" y="100" width="168" height="130" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+  <text x="500" y="129" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">查找相关工具</text>
+  <text x="500" y="158" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">模型提需求，宿主查目录</text>
+  <text x="500" y="191" text-anchor="middle" font-size="11" fill="var(--diagram-text, #24334b)">search_tools(query)</text>
+  <rect data-stage="load" data-change="added" x="612" y="100" width="168" height="130" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+  <text x="696" y="129" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">按需加载定义</text>
+  <text x="696" y="158" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">记录本次匹配名称</text>
+  <text x="696" y="191" text-anchor="middle" font-size="11" fill="var(--diagram-text, #24334b)">更新 loaded_names</text>
+  <rect data-stage="call" data-change="base" x="808" y="100" width="168" height="130" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+  <text x="892" y="129" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">调用业务工具</text>
+  <text x="892" y="158" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">宿主权限 → 原名调用</text>
+  <text x="892" y="191" text-anchor="middle" font-size="11" fill="var(--diagram-text, #24334b)">沿用 execute_tool</text>
+  <text x="145" y="281" font-size="11" fill="var(--diagram-muted, #58677b)">查询目录；尚未执行业务</text>
+  <text x="366" y="341" font-size="11" fill="var(--diagram-muted, #58677b)">搜索结果回传 → 下一轮提供匹配 schema</text>
+  <text x="24" y="386" font-size="11" fill="var(--diagram-muted, #58677b)">教学扩展，非本地实现；官方 Tool Search API 的延迟定义由 API 处理。</text>
+</svg>

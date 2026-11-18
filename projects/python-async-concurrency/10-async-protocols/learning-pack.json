@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 123,
+      "endLine": 134,
+      "symbol": "boot_agent_sandbox",
+      "text": "                CONFIG.boot_retries,\n                type(e).__name__,\n                str(e)[:200],\n            )\n            await asyncio.sleep(1 + attempt + random.random())\n    if sb is None:\n        assert last_err is not None\n        raise last_err\n    try:\n        yield sb\n    finally:\n        await sb.__aexit__(None, None, None)",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/rollout/sglang_streaming_rollout.py",
+      "line": 123,
+      "endLine": 138,
+      "symbol": "流式响应读取",
+      "text": "            sample, \"sglang_generate_stream\", attrs={\"max_new_tokens\": sampling_params[\"max_new_tokens\"]}\n        ) as span:\n            async with client.stream(\"POST\", url, json=payload, headers=headers) as response:\n                response.raise_for_status()\n                async for raw_line in response.aiter_lines():\n                    if not raw_line or not raw_line.startswith(\"data:\"):\n                        continue\n                    data_str = raw_line[len(\"data:\") :].strip()\n                    if not data_str or data_str == \"[DONE]\":\n                        continue\n                    try:\n                        chunk = json.loads(data_str)\n                    except json.JSONDecodeError:\n                        logger.warning(\"sglang_streaming: skipping non-JSON chunk: %r\", data_str[:120])\n                        continue\n",
+      "blobSha256": "6217499e4eb3077fa780f17e986856d284cea3b3338f33ffbbb67a81d5ec55f5"
+    }
+  }
+}

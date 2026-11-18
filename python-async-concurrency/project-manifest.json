@@ -1,0 +1,999 @@
+{
+  "source_revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "route": "/projects/python-async-concurrency/",
+  "lessons": [
+    {
+      "number": 1,
+      "slug": "01-async-def",
+      "title": "01 · async def：定义之后，什么时候执行？",
+      "example": true,
+      "expected_stdout": "created\nrun 10\nresult 10\n",
+      "source_count": 1
+    },
+    {
+      "number": 2,
+      "slug": "02-await",
+      "title": "02 · await：等待结果，不等于自动并发",
+      "example": true,
+      "expected_stdout": "start 10\nend 10\nstart 11\nend 11\nresults [10, 11]\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "comparison.py",
+          "scenarios": [
+            "with assignment",
+            "without assignment"
+          ]
+        },
+        {
+          "file": "await_example.py",
+          "scenarios": [
+            "await a coroutine inside an already running coroutine"
+          ],
+          "expected_stdout": "created\nrun 10\nresult 10\n"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "slug": "03-tasks",
+      "title": "03 · create_task：先安排工作，再等待结果",
+      "example": true,
+      "expected_stdout": "main: tasks scheduled\ngenerate 10: sleep 2s\ngenerate 11: sleep 1s\ngenerate 11: resumed\ngenerate 10: resumed\nmain: received 10\nmain: received 11\nresults [10, 11]\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "comparison.py",
+          "scenarios": [
+            "no other task",
+            "another task is ready",
+            "blocking sleep"
+          ]
+        },
+        {
+          "file": "sequential.py",
+          "scenarios": [
+            "direct sequential awaits"
+          ],
+          "expected_stdout": "generate 10: sleep 2s\ngenerate 10: resumed\nmain: received 10\ngenerate 11: sleep 1s\ngenerate 11: resumed\nmain: received 11\nresults [10, 11]\n",
+          "normalize_elapsed_seconds": true
+        }
+      ],
+      "normalize_elapsed_seconds": true
+    },
+    {
+      "number": 4,
+      "slug": "04-taskgroup",
+      "title": "04 · TaskGroup：离开代码块前，等任务结束",
+      "example": true,
+      "expected_stdout": "main: inside group\ngenerate 10: sleep 2s\ngenerate 11: sleep 1s\ngenerate 11: resumed\ngenerate 10: resumed\nmain: group finished\n",
+      "source_count": 1,
+      "normalize_elapsed_seconds": true,
+      "source_repository": "areal",
+      "source_revision": "298412a40f5b84ae6b2042987e81777e6dd0f284",
+      "source_snapshot_root": "python-async-reference/repositories/areal/source_snapshot",
+      "additional_examples": [
+        {
+          "file": "start_before_exit.py",
+          "scenarios": [
+            "yield inside the TaskGroup before reaching its exit"
+          ],
+          "normalize_elapsed_seconds": true,
+          "expected_stdout": "generate 10: sleep 2s\ngenerate 11: sleep 1s\nmain: inside group\ngenerate 11: resumed\ngenerate 10: resumed\nmain: group finished\n"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "slug": "05-gather",
+      "title": "05 · gather：等待一组任务，收集一组结果",
+      "example": true,
+      "expected_stdout": "main: tasks scheduled\ngenerate 10: sleep 2s\ngenerate 11: sleep 1s\ngenerate 11: resumed\ngenerate 10: resumed\nresults [10, 11]\n",
+      "normalize_elapsed_seconds": true,
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "gather_example.py",
+          "scenarios": [
+            "compact group result collection"
+          ],
+          "expected_stdout": "scheduled 2\nresults [10, 11]\n"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "slug": "04-results",
+      "title": "06 · wait：先取得任务的完成情况",
+      "example": true,
+      "expected_stdout": "done 1\npending 1\ncompleted 11\nremaining 10\n",
+      "source_count": 2,
+      "valid_stdout": [
+        "done 1\npending 1\ncompleted 11\nremaining 10\n",
+        "done 1\npending 1\ncompleted 10\nremaining 11\n",
+        "done 2\npending 0\ncompleted 10\ncompleted 11\n",
+        "done 2\npending 0\ncompleted 11\ncompleted 10\n"
+      ],
+      "additional_examples": [
+        {
+          "file": "as_completed.py",
+          "scenarios": [
+            "completion order"
+          ],
+          "expected_stdout": "result 11\nresult 10\n"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "slug": "05-cancellation",
+      "title": "07 · 取消与超时：请求停止以后，还要等待收尾",
+      "example": true,
+      "expected_stdout": "cleanup 10\ncancelled\ntimeout\n",
+      "source_count": 3
+    },
+    {
+      "number": 8,
+      "slug": "06-semaphore",
+      "title": "08 · Semaphore：限制同时进入的工作数量",
+      "example": true,
+      "expected_stdout": "tasks scheduled 5\nwaiting 10\nentered 10\nwaiting 11\nentered 11\nwaiting 12\nwaiting 13\nwaiting 14\nfinished 10\ncleanup 10\nfinished 11\ncleanup 11\nentered 12\nentered 13\nfinished 12\ncleanup 12\nfinished 13\ncleanup 13\nentered 14\nfinished 14\ncleanup 14\nresults [10, 11, 12, 13, 14]\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "release the acquired permit after a task fails"
+          ],
+          "expected_stdout": "waiting 10\nentered 10\ncleanup 10\nerror generation 10 failed\nwaiting 11\nentered 11\nfinished 11\ncleanup 11\nresult 11\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "release the acquired permit after cancellation cleanup"
+          ],
+          "expected_stdout": "waiting 10\nentered 10\ncleanup 10\ncancelled 10\nwaiting 11\nentered 11\nfinished 11\ncleanup 11\nresult 11\n"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "slug": "07-queues",
+      "title": "09 · Queue：把生产速度和消费速度接起来",
+      "example": true,
+      "expected_stdout": "get request\nput request 10\nput done 10\nput request 11\nget 10\nput done 11\nprocessed 10\nget request\nget 11\nproducer finished\nprocessed 11\nget request\nconsumer finished\nreceived [10, 11]\n",
+      "source_count": 4,
+      "additional_examples": [
+        {
+          "file": "with_taskgroup.py",
+          "scenarios": [
+            "reuse the queue producer and consumer inside a TaskGroup"
+          ],
+          "expected_stdout": "get request\nput request 10\nput done 10\nput request 11\nget 10\nput done 11\nprocessed 10\nget request\nget 11\nproducer finished\nprocessed 11\nget request\nconsumer finished\nreceived [10, 11]\n"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "slug": "08-executors",
+      "title": "10 · 线程池：把阻塞工作移出事件循环",
+      "example": true,
+      "expected_stdout": "to_thread [0, 1, 2]\nreader [0, 1, 2]\n",
+      "source_count": 3
+    },
+    {
+      "number": 11,
+      "slug": "09-thread-synchronization",
+      "title": "11 · Lock、Event 与线程退出",
+      "example": true,
+      "expected_stdout": "count 2000\n",
+      "source_count": 2
+    },
+    {
+      "number": 12,
+      "slug": "10-async-protocols",
+      "title": "12 · async with、async for 与异步生成器",
+      "example": true,
+      "expected_stdout": "enter\nsandbox\nA\nB\nexit\n",
+      "source_count": 2
+    },
+    {
+      "number": 13,
+      "slug": "11-contextvars",
+      "title": "13 · ContextVar：让并发任务保留各自的上下文",
+      "example": true,
+      "expected_stdout": "task values [10, 11]\nouter value None\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "basic.py",
+          "scenarios": [
+            "read separate ContextVar bindings in two tasks while the parent keeps its default"
+          ],
+          "expected_stdout": "[10, 11]\nNone\n"
+        },
+        {
+          "file": "token-reset.py",
+          "scenarios": [
+            "restore a preexisting ContextVar binding after a temporary change"
+          ],
+          "expected_stdout": "before 10\ntemporary 20\nrestored 10\n"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "slug": "12-processes",
+      "title": "14 · 进程池、子进程与系统边界",
+      "example": true,
+      "expected_stdout": "pool [4, 9]\nsubprocess child\n",
+      "source_count": 2
+    },
+    {
+      "number": 15,
+      "slug": "13-event-loop",
+      "title": "15 · Future、回调与跨线程事件循环",
+      "example": true,
+      "expected_stdout": "value 7\n",
+      "source_count": 13,
+      "additional_examples": [
+        {
+          "file": "lifecycle.py",
+          "scenarios": [
+            "Future completion and failure",
+            "Task inspection and cancellation",
+            "cross-thread event loop lifecycle"
+          ],
+          "expected_stdout": "loop running True\ncurrent registered True\nfuture result 7\nfuture callback [7]\nfuture error bad value\nfuture cancelled True True\ntask state True 9 None\ntask loop True\ntask cancelled True True\nthread stopped True\n"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "slug": "14-slime-walkthrough",
+      "title": "16 · 回到 Slime：串起创建、等待与清理",
+      "example": false,
+      "expected_stdout": null,
+      "source_count": 3
+    },
+    {
+      "number": 17,
+      "slug": "15-async-notification",
+      "title": "17 · Event 通知与异步互斥",
+      "example": true,
+      "expected_stdout": "initial False\nwaiting True\nset True\nreceived [['sample']]\nwait again True\ncleared False\nwaiting again True\nlock held True\nupdate waiting True\nupdated checkpoint-2\nlock released False\n",
+      "source_count": 3
+    },
+    {
+      "number": 18,
+      "slug": "16-thread-coordination",
+      "title": "18 · Condition、RLock 与 Timer",
+      "example": true,
+      "expected_stdout": "notify while holding lock True\npredicate still false True\nreceived ['sample']\nsame thread entered twice\nouter lock still held\ntimer called True\ncancelled timer called False\n",
+      "source_count": 10
+    },
+    {
+      "number": 19,
+      "slug": "17-executor-results",
+      "title": "19 · 线程池 Future 的结果与退出",
+      "example": true,
+      "expected_stdout": "running True done False\ncancel running False\ncancel queued True done True\nqueued result CancelledError\nresult timeout; work still running True\nresult first\ncallback ['first']\nsuccess exception None\nraised cannot read broken\nstored exception ValueError\nmap [3, 1, 2]\nfirst completed ['fast']\npending 1\nas_completed fast\nas_completed slow\nshutdown finished\n",
+      "source_count": 9
+    },
+    {
+      "number": 20,
+      "slug": "18-process-lifecycle",
+      "title": "20 · 进程生命周期：从队列工作到超时回收",
+      "example": true,
+      "expected_stdout": "owned worker True\nresults [(10, 1), (11, 1)]\njoined True\njoin timed out True\nprocess reaped True\npool [4, 9]\n",
+      "source_count": 13,
+      "additional_examples": [
+        {
+          "file": "subprocess_example.py",
+          "scenarios": [
+            "merged output",
+            "communicate timeout and reap",
+            "terminate and wait",
+            "checked command failures"
+          ],
+          "expected_stdout": "merged ['out', 'err']\ntimeout still running True\nkilled and reaped True\nterminated and waited True\ncommand failed 7\ncheck_call 0\ncheck_output probe\n"
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "slug": "19-signals-locks",
+      "title": "21 · 信号、进程组与文件锁：退出以后谁释放资源？",
+      "example": true,
+      "expected_stdout": "ready True\nlock blocked True\nchild killed True\nlock reacquired True\n",
+      "source_count": 8,
+      "platforms": [
+        "linux",
+        "darwin"
+      ],
+      "additional_examples": [
+        {
+          "file": "signals_example.py",
+          "scenarios": [
+            "alarm timeout",
+            "signal handler restoration",
+            "owned process group cleanup",
+            "shell status"
+          ],
+          "expected_stdout": "alarm timeout\nalarm handler restored True\ngroup reaped True\nhandlers restored True\nshell status 0\n",
+          "platforms": [
+            "linux",
+            "darwin"
+          ]
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "slug": "20-async-streams",
+      "title": "22 · asyncio Streams：接收、分帧与连接收尾",
+      "example": true,
+      "expected_stdout": "server listening True\nreply line echo\nreply body b'abc'\nhandler ('complete', b'abc', b'!')\nhandler ('incomplete', b'xy', 5)\nserver listening False\n",
+      "source_count": 3
+    },
+    {
+      "number": 23,
+      "slug": "21-async-inspection",
+      "title": "23 · 异步能力检查与协议边界",
+      "example": true,
+      "expected_stdout": "sample 8\ntrace ['sync:enter', 'sync:exit', 'async:enter', 'async:exit', 'async:enter', 'async:exit']\ndeferred False True\nawaited 6\nresource enter\nvalues [1, 2]\nresource exit None\nfirst 10\ngenerator closed\n",
+      "source_count": 5
+    }
+  ],
+  "coverage": "teaching-coverage.json",
+  "curriculum_lessons": [
+    {
+      "number": 4,
+      "slug": "04-with-async-with",
+      "title": "04 · with / async with：进入、执行与退出",
+      "example": true,
+      "source_count": 0,
+      "working_directory": "bundle",
+      "expected_stdout": "content hello\ninside closed False\noutside closed True\n"
+    },
+    {
+      "number": 8,
+      "slug": "07-task-results",
+      "title": "08 · done、result、exception：读取 Task 的状态与结果",
+      "example": true,
+      "expected_stdout": "pending done False\npending result InvalidStateError\npending exception InvalidStateError\nsuccess done True\nsuccess result 10\nsuccess exception None\nfailed done True\nfailed exception generation 11 failed\nfailed result ValueError: generation 11 failed\n",
+      "source_count": 2
+    },
+    {
+      "number": 9,
+      "slug": "09-task-cancellation",
+      "title": "09 · Task.cancel：请求取消并等待收尾",
+      "example": true,
+      "expected_stdout": "generate 10 started\ncancel requested True\ndone immediately False\ncleanup 10\ncancelled\ndone after await True\n",
+      "source_count": 1
+    },
+    {
+      "number": "10.1",
+      "slug": "15-gather-failures",
+      "title": "10.1 · asyncio.gather：收集报错，任务仍可继续",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ngather error generation 11 failed\nremaining done False\nfinished 10\ncleanup 10\nremaining result 10\n",
+      "additional_examples": [
+        {
+          "file": "collect_exceptions.py",
+          "scenarios": [
+            "collect every result or exception before inspecting failures"
+          ],
+          "expected_stdout": "start 10\nstart 11\ncleanup 11\nfinished 10\ncleanup 10\nresults [10, ValueError('generation 11 failed')]\nresult 10\nerror ValueError generation 11 failed\n"
+        },
+        {
+          "file": "cancel_remaining.py",
+          "scenarios": [
+            "cancel unnecessary remaining work and await its cleanup"
+          ],
+          "expected_stdout": "start 10\nstart 11\ncleanup 11\ngather error generation 11 failed\ncleanup 10\nremaining cancelled\n"
+        }
+      ],
+      "part": 1
+    },
+    {
+      "number": "10.2",
+      "part": 2,
+      "slug": "15-gather-exceptions",
+      "title": "10.2 · return_exceptions=True：收齐结果与异常",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\nfinished 10\ncleanup 10\nresults [10, ValueError('generation 11 failed')]\nresult 10\nerror ValueError generation 11 failed\n"
+    },
+    {
+      "number": "11.1",
+      "part": 1,
+      "slug": "11-taskgroup-failures",
+      "title": "11.1 · TaskGroup：一个任务失败，取消其余未完成任务并等待收尾",
+      "example": true,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ncleanup 10\ngroup failed\n",
+      "source_count": 1,
+      "source_repository": "cpython",
+      "source_revision": "v3.12.3",
+      "source_snapshot_root": "python-async-reference/repositories/cpython/source_snapshot"
+    },
+    {
+      "number": "11.2",
+      "part": 2,
+      "slug": "11-exception-groups",
+      "title": "11.2 · ExceptionGroup / except*：读取任务组的错误",
+      "example": true,
+      "expected_stdout": "start 10\nstart 11\ncleanup 11\ncleanup 10\ncaught ExceptionGroup\nerror generation 11 failed\n",
+      "source_count": 1,
+      "source_repository": "cpython",
+      "source_revision": "v3.12.3",
+      "source_snapshot_root": "python-async-reference/repositories/cpython/source_snapshot",
+      "additional_examples": [
+        {
+          "file": "multiple_errors.py",
+          "scenarios": [
+            "collect multiple task failures"
+          ],
+          "expected_stdout": "start 10\ncleanup 10\nstart 11\ncleanup 11\ncaught ExceptionGroup\nerror generation 10 failed\nerror generation 11 failed\n"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "slug": "08-as-completed",
+      "title": "12 · asyncio.as_completed：按完成顺序取结果",
+      "example": true,
+      "expected_stdout": "result 11\nresult 10\n",
+      "source_count": 1,
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "handle an expected failure and continue collecting"
+          ],
+          "expected_stdout": "error generation 11 failed\nresult 10\n"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "slug": "10-wait-for",
+      "title": "13 · asyncio.wait_for：限制一次等待的时长",
+      "example": true,
+      "expected_stdout": "cleanup 10\ntimeout\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "slow_cleanup.py",
+          "scenarios": [
+            "wait for cleanup after the timeout"
+          ],
+          "expected_stdout": "cleanup start 10\ncleanup finished 10\ntimeout\n"
+        },
+        {
+          "file": "timeout_message.py",
+          "scenarios": [
+            "propagate a timeout with a custom message"
+          ],
+          "expected_stdout": "cleanup 10\ntimeout: 任务 10 未在等待时限内完成\n"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "slug": "11-time-budget",
+      "title": "14 · time.monotonic / time.perf_counter：计量经过时间与预算",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "cleanup start 10\ncleanup finished 10\ntimeout\n",
+      "normalize_elapsed_seconds": true,
+      "additional_examples": [
+        {
+          "file": "budget.py",
+          "scenarios": [
+            "calculate remaining time from a fixed deadline"
+          ],
+          "expected_stdout": "budget expired\n"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "slug": "12-timeout-scope",
+      "title": "15 · asyncio.timeout：给一段异步代码共享时间预算",
+      "example": true,
+      "expected_stdout": "start 10\nfinished 10\ncleanup 10\nstart 20\ncleanup 20\nshared budget expired\noutside timeout block\n",
+      "source_count": 2,
+      "additional_examples": [
+        {
+          "file": "individual.py",
+          "scenarios": [
+            "compare separate wait_for timeouts with a shared timeout scope"
+          ],
+          "expected_stdout": "start 10\nfinished 10\ncleanup 10\nstart 20\nfinished 20\ncleanup 20\nboth finished\noutside timeout block\n"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "slug": "13-shield",
+      "title": "16 · asyncio.shield：区分取消等待者与内部工作",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "start 10\nwaiter timed out\nfinished 10\ncleanup 10\nresult 10\n",
+      "additional_examples": [
+        {
+          "file": "unshielded.py",
+          "scenarios": [
+            "compare direct await cancellation with shield"
+          ],
+          "expected_stdout": "start 10\ncleanup 10\nwaiter timed out\ninner task cancelled\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "retrieve an inner task failure after the outer timeout"
+          ],
+          "expected_stdout": "start 10\nwaiter timed out\ncleanup 10\nerror generation 10 failed\n"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "slug": "19-async-lock",
+      "title": "19 · asyncio.Lock：保护跨 await 的共享状态",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "A waiting\nA read 0\nB waiting\nA wrote 1\nA released\nB read 1\nB wrote 2\nB released\ntotal 2\n",
+      "additional_examples": [
+        {
+          "file": "without_lock.py",
+          "scenarios": [
+            "observe a lost update across an await"
+          ],
+          "expected_stdout": "A read 0\nB read 0\nA wrote 1\nB wrote 1\ntotal 1\n"
+        },
+        {
+          "file": "manual.py",
+          "scenarios": [
+            "protect the same operation with acquire and finally release"
+          ],
+          "expected_stdout": "A waiting\nA read 0\nB waiting\nA wrote 1\nA released\nB read 1\nB wrote 2\nB released\ntotal 2\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "reacquire the lock after cancelling its holder"
+          ],
+          "expected_stdout": "holder acquired\nholder cleanup\nholder cancelled\nlock acquired again\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "reacquire the lock after an ordinary exception"
+          ],
+          "expected_stdout": "update acquired\nerror update failed\nlock acquired again\n"
+        }
+      ]
+    },
+    {
+      "number": "20.1",
+      "slug": "20-async-event",
+      "title": "20.1 · asyncio.Event：让任务等待一个通知",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "fetch waiting\nmain set\nmain after set\nfetch resumed True\nreceived [['sample']]\n",
+      "additional_examples": [
+        {
+          "file": "flags.py",
+          "scenarios": [
+            "repeat wait without consuming the flag, then reset it with clear"
+          ],
+          "expected_stdout": "first wait True\nsecond wait True\nwaiting after clear True\nafter next set True\n"
+        },
+        {
+          "file": "broadcast.py",
+          "scenarios": [
+            "notify all current waiters without running them inline"
+          ],
+          "expected_stdout": "A waiting\nB waiting\nmain after set\nA continued\nB continued\nall finished\n"
+        },
+        {
+          "file": "set_then_clear.py",
+          "scenarios": [
+            "preserve existing wakeups while blocking later waiters"
+          ],
+          "expected_stdout": "already awakened True\nnew waiter blocked True\nnew waiter released True\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "cancel one waiter without setting the flag or cancelling its peer"
+          ],
+          "expected_stdout": "A waiting\nB waiting\nA cleanup\nA cancelled\nB still waiting True\nB continued\nB cleanup\n"
+        }
+      ]
+    },
+    {
+      "number": "20.2",
+      "slug": "20-running-loop",
+      "title": "20.2 · get_running_loop：取得正在运行的事件循环",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "same loop True\noutside run: no running loop\n"
+    },
+    {
+      "number": "20.3",
+      "slug": "20-future-result",
+      "title": "20.3 · create_future / set_result：保存一次完成的结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "future created\nresult stored\nreceived [0, 1, 2]\nsame value True\nagain [0, 1, 2]\n"
+    },
+    {
+      "number": "20.4",
+      "slug": "20-await-future",
+      "title": "20.4 · await Future：等待别处交付结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nprovider running\nprovider after set\nreceived [0, 1, 2]\n"
+    },
+    {
+      "number": "20.5",
+      "slug": "20-future-state",
+      "title": "20.5 · Future 的状态与异常：分清等待、读取和完成",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "pending done False\npending result InvalidStateError\nfailed done True\nstored error read failed\nawait raised read failed\nsecond completion InvalidStateError\n"
+    },
+    {
+      "slug": "21-resource-lifecycle",
+      "example": true,
+      "source_count": 0,
+      "number": "21.1",
+      "title": "21.1 · try/finally：分清准备、使用和关闭",
+      "expected_stdout": "boot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n"
+    },
+    {
+      "slug": "21-yield-pause",
+      "example": true,
+      "source_count": 0,
+      "number": "21.2",
+      "title": "21.2 · yield：交出一个值，并暂停在原处",
+      "expected_stdout": "generator created\nbefore yield\nvalue sandbox\nback in caller\n"
+    },
+    {
+      "slug": "21-decorators",
+      "example": true,
+      "source_count": 0,
+      "number": "21.3",
+      "title": "21.3 · @ 装饰器：把函数交给另一个函数处理",
+      "expected_stdout": "decorator received function\nfunction saved\ngreet called\n"
+    },
+    {
+      "number": "21.4",
+      "slug": "21-async-contextmanager",
+      "title": "21.4 · asynccontextmanager：把准备和关闭接到 async with",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "manager created\nboot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n",
+      "additional_examples": [
+        {
+          "file": "manual.py",
+          "scenarios": [
+            "manage the same resource directly with try and finally"
+          ],
+          "expected_stdout": "boot demo-image case-1\ninside True\nclosing case-1\nclosed case-1\noutside False\n"
+        },
+        {
+          "file": "yield_steps.py",
+          "scenarios": [
+            "separate creating a generator from advancing it to yield"
+          ],
+          "expected_stdout": "generator created\nbefore yield\nvalue sandbox\nback in caller\n"
+        },
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "finish resource cleanup before propagating a body exception"
+          ],
+          "expected_stdout": "boot demo-image case-error\ninside True\nclosing case-error\nclosed case-error\nerror work failed\noutside False\n"
+        },
+        {
+          "file": "cancellation.py",
+          "scenarios": [
+            "wait for async cleanup after cancellation inside the resource scope"
+          ],
+          "expected_stdout": "boot demo-image case-cancel\ninside True\nclosing case-cancel\nclosed case-cancel\ncancelled after cleanup\n"
+        }
+      ]
+    },
+    {
+      "slug": "21-context-errors",
+      "example": true,
+      "source_count": 0,
+      "number": "21.5",
+      "title": "21.5 · finally：使用区报错后怎样关闭",
+      "expected_stdout": "boot demo-image case-error\ninside True\nclosing case-error\nclosed case-error\nerror work failed\noutside False\n"
+    },
+    {
+      "slug": "21-context-cancellation",
+      "example": true,
+      "source_count": 0,
+      "number": "21.6",
+      "title": "21.6 · Task.cancel：使用区被取消后怎样关闭",
+      "expected_stdout": "boot demo-image case-cancel\ninside True\nclosing case-cancel\nclosed case-cancel\ncancelled after cleanup\n"
+    },
+    {
+      "number": 22,
+      "slug": "22-async-iteration",
+      "title": "22 · async for / 异步生成器：逐项等待异步产出",
+      "example": true,
+      "source_count": 2,
+      "source_repository": "verl",
+      "source_revision": "1d367a4f459a43768f76312c0d3430a99ec46b8c",
+      "source_snapshot_root": "python-async-reference/repositories/verl/source_snapshot",
+      "expected_stdout": "stream created\nsource preparing 10\nsource yield 10\nbody received 10\nbody finished 10\nsource resumed 10\nsource preparing 11\nsource yield 11\nbody received 11\nbody finished 11\nsource resumed 11\nsource exhausted\nloop finished\n",
+      "additional_examples": [
+        {
+          "file": "no_wait.py",
+          "scenarios": [
+            "async for with immediate values does not necessarily suspend the current task"
+          ],
+          "expected_stdout": "item 10\nitem 11\nloop finished\nother task\n"
+        },
+        {
+          "file": "wrong_consumption.py",
+          "scenarios": [
+            "an async generator is neither directly awaitable nor synchronously iterable"
+          ],
+          "expected_stdout": "stream created\nawait stream: TypeError\nfor item in stream: TypeError\n"
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "slug": "25-inspect-awaitable",
+      "title": "25 · inspect.isawaitable / inspect.iscoroutinefunction：辨认函数与可等待对象",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "sync function False\nsync awaitable False\nsync samples [0, 1, 2]\nasync function True\nasync awaitable True\nasync samples [0, 1, 2]\nlater function False\nlater awaitable True\nlater samples [0, 1, 2]\n"
+    },
+    {
+      "number": 26,
+      "slug": "26-to-thread",
+      "title": "26 · asyncio.to_thread：把阻塞函数交给线程",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nsamples [0, 1, 2]\nafter await\n"
+    },
+    {
+      "number": 27,
+      "slug": "27-thread-lifecycle",
+      "title": "27 · threading.Thread：创建、启动并等待线程",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before start False\nworker 10\nafter join False\n"
+    },
+    {
+      "number": "28.1",
+      "slug": "28-thread-lock",
+      "title": "28.1 · threading.Lock：保护线程共享状态",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "count 2000\n"
+    },
+    {
+      "number": "28.2",
+      "slug": "28-thread-rlock",
+      "title": "28.2 · threading.RLock：允许同一线程嵌套加锁",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "outer acquired\ninner acquired\ninner released; outer still holds lock\nouter released\n",
+      "additional_examples": [
+        {
+          "file": "compare.py",
+          "scenarios": [
+            "Same-thread second acquisition distinguishes Lock from RLock without blocking."
+          ],
+          "expected_stdout": "Lock: first=True, second=False\nRLock: first=True, second=True\n"
+        },
+        {
+          "file": "scenario.py",
+          "scenarios": [
+            "A standalone cart operation is reused inside an atomic bundle operation on the same thread."
+          ],
+          "expected_stdout": "['keyboard', 'mouse']\n"
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "slug": "29-thread-event",
+      "title": "29 · threading.Event：通知线程合作退出",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "main requests stop\nworker cleanup\njoined False\n",
+      "additional_examples": [
+        {
+          "file": "reset_flag.py",
+          "expected_stdout": "after set True\nafter clear False\n"
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "slug": "30-thread-queue",
+      "title": "30 · queue.Queue：在线程之间交接数据",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "queue full\nreceived 10\nconsumer stopped\nconsumer joined\nqueue empty\n"
+    },
+    {
+      "number": "31.1",
+      "slug": "31-threadpool-submit",
+      "title": "31.1 · ThreadPoolExecutor / submit：把工作提交到线程池",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "first [0, 1, 2]\nsecond [0, 1]\ndone True\nexception None\npool closed\n",
+      "additional_examples": [
+        {
+          "file": "edge_cases.py",
+          "scenarios": [
+            "controlled edge cases behavior"
+          ],
+          "expected_stdout": "done before release False\nwait timed out\nresult after release 10\nresult raised read failed\nstored exception ValueError\n"
+        }
+      ]
+    },
+    {
+      "number": "31.2",
+      "slug": "31-threadpool-map",
+      "title": "31.2 · ThreadPoolExecutor.map：批量提交并按输入顺序取结果",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "finished 11\nfinished 10\nreceived 10\nreceived 11\n",
+      "additional_examples": [
+        {
+          "file": "failure.py",
+          "scenarios": [
+            "controlled failure behavior"
+          ],
+          "expected_stdout": "received 10\niteration raised failed 11\n"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "slug": "32-threadpool-shutdown",
+      "title": "32 · Future.cancel / Executor.shutdown：结束线程池并处理未执行工作",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "cancel running False\ncancel queued True\nqueued result cancelled\nrunning result [0, 1, 2]\npool closed\n",
+      "additional_examples": [
+        {
+          "file": "cancel_pending.py",
+          "scenarios": [
+            "controlled cancel pending behavior"
+          ],
+          "expected_stdout": "running done False\nqueued result cancelled\nrunning result [0, 1, 2]\ncleanup finished\n"
+        }
+      ]
+    },
+    {
+      "number": "33.1",
+      "slug": "33-current-loop",
+      "title": "33.1 · get_running_loop：取出正在使用的事件循环",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before run\ninside coroutine\nsame loop True\nafter run\n"
+    },
+    {
+      "number": "33.2",
+      "slug": "33-run-in-executor",
+      "title": "33.2 · run_in_executor / await：提交到指定线程池并等待结果",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "work submitted\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "33.3",
+      "slug": "33-await-handoff",
+      "title": "33.3 · await / Event：等待线程时，让其他协程继续",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before await\nother coroutine ran\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "33.4",
+      "slug": "33-loop-time",
+      "title": "33.4 · loop.time：用事件循环时钟计算剩余预算",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "start\ndeadline\nnow\nremaining\n",
+      "additional_examples": [
+        {
+          "file": "expired.py",
+          "scenarios": [
+            "reading an expired budget does not cancel the coroutine"
+          ],
+          "expected_stdout": "budget expired True\ncoroutine still running\nskip new work\n"
+        }
+      ],
+      "normalize_clock_seconds": true
+    },
+    {
+      "number": 34,
+      "slug": "34-wrap-future",
+      "title": "34 · asyncio.wrap_future：等待已有的执行器 Future",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "get_samples called\nsamples [0, 1, 2]\npool closed\n"
+    },
+    {
+      "number": "35.1",
+      "slug": "35-future-results",
+      "title": "35.1 · Future.done() / result() / exception()：复习结果读取与取消",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before False\nnot ready\nafter True\nresult [7]\nexception None\n"
+    },
+    {
+      "number": "35.2",
+      "slug": "35-future-completion",
+      "title": "35.2 · loop.create_future / Future.set_result / set_exception：复习结果交付与源码用法",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "created False\ncompleted True\nresult 7\nawait 7\n"
+    },
+    {
+      "number": "35.3",
+      "slug": "35-task-callbacks",
+      "title": "35.3 · Task.add_done_callback：任务完成后安排回调",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "registered False\ncallback 7\n"
+    },
+    {
+      "number": "36.1",
+      "slug": "36-manual-event-loop",
+      "title": "36.1 · new_event_loop / set_event_loop / run_until_complete / close：手动运行并关闭事件循环",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "before run\ngenerate start\nresult 7\nclosed\n"
+    },
+    {
+      "number": "36.2",
+      "slug": "36-threadsafe-submit",
+      "title": "36.2 · asyncio.run_coroutine_threadsafe：从另一个线程提交协程",
+      "example": true,
+      "source_count": 2,
+      "expected_stdout": "main: wait worker\nloop: generate\nworker: received 7\nmain: received 7\n"
+    },
+    {
+      "number": 37,
+      "slug": "37-subprocess-run",
+      "title": "37 · subprocess.run：运行并等待外部命令",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before run\nafter run\nreturncode 0\nstdout [0, 1, 2]\nstdout type str\n"
+    },
+    {
+      "number": 38,
+      "slug": "38-popen-communicate",
+      "title": "38 · subprocess.Popen / communicate：启动命令并收集管道输出",
+      "example": true,
+      "source_count": 1,
+      "expected_stdout": "before Popen\nparent can continue\nbefore communicate\nafter communicate\nreturncode 0\nstdout [0, 1, 2]\nstderr ''\n"
+    },
+    {
+      "number": "24.2",
+      "slug": "24-contextvar-reset",
+      "title": "24.2 · ContextVar.reset：用 token 恢复修改前的值",
+      "example": true,
+      "source_count": 0,
+      "expected_stdout": "before 10\ntemporary 20\nrestored 10\n"
+    }
+  ]
+}

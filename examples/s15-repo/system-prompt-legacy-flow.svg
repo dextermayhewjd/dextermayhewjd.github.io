@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 330" role="img" aria-labelledby="s10-prompt-title s10-prompt-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s10-prompt-title">S15.1 System Prompt：运行时组装与工具循环</title>
+<desc id="s10-prompt-desc">Harness 从工具分发表、工作目录和记忆索引读取状态，比较本地缓存键。命中时复用字符串，未命中时选择文字片段并拼接。system、历史与工具定义交给模型。工具执行后结果追加到历史，下方循环回到状态读取。</desc>
+<defs><marker id="s10-prompt-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">S15.1 · 为每次请求准备 System Prompt</text>
+<text x="24" y="55" text-anchor="start" font-size="13" font-weight="400" fill="var(--diagram-muted, #58677b)">读取状态，复用或组装字符串；消息历史与工具定义分别传入。</text>
+<rect x="24" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="80" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">读取状态</text>
+<text x="80" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">工具 / 目录 / 索引</text>
+<rect x="172" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="228" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">比较 context</text>
+<text x="228" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">本地缓存键</text>
+<rect x="320" y="96" width="112" height="64" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="376" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">返回 system</text>
+<text x="376" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">复用 / 按需组装</text>
+<rect x="468" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">请求模型</text>
+<text x="524" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">system + 历史</text>
+<rect x="616" y="96" width="112" height="64" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="672" y="122" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">执行工具</text>
+<text x="672" y="143" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">结果加入历史</text>
+<path d="M136 128H172" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<path d="M284 128H320" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<path d="M432 128H468" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<path d="M580 128H616" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<rect x="270" y="190" width="160" height="56" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="350" y="216" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">文字片段</text>
+<text x="350" y="237" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">PROMPT_SECTIONS</text>
+<path d="M376 190V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<text x="390" y="179" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">未命中时拼接</text>
+<rect x="468" y="190" width="112" height="38" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="524" y="216" text-anchor="middle" font-size="15" font-weight="650" fill="var(--diagram-text, #24334b)">本轮结束</text>
+
+<path d="M524 160V190" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<text x="536" y="179" text-anchor="start" font-size="11" font-weight="400" fill="var(--diagram-muted, #58677b)">无工具请求</text>
+<path d="M672 160V286H80V160" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s10-prompt-arrow)"/>
+<text x="300" y="279" text-anchor="middle" font-size="12" font-weight="400" fill="var(--diagram-text, #24334b)">工具结果追加 → 刷新状态 → 再次请求</text>
+<text x="24" y="314" text-anchor="start" font-size="12" font-weight="400" fill="var(--diagram-muted, #58677b)">本地 cache hit 复用拼接结果；不表示 API Prompt Cache 命中。</text>
+</svg>

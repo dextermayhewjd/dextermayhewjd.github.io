@@ -1,0 +1,44 @@
+[
+  {
+    "stage": "spawn",
+    "label": "启动",
+    "module": "spawn",
+    "anchor": "team-spawn"
+  },
+  {
+    "stage": "work",
+    "label": "私有循环",
+    "module": "work",
+    "anchor": "team-work"
+  },
+  {
+    "stage": "publish",
+    "label": "消息投递",
+    "module": "mailbox",
+    "anchor": "team-mailbox"
+  },
+  {
+    "stage": "deliver",
+    "label": "Lead 唤醒",
+    "module": "wake",
+    "anchor": "team-wake"
+  },
+  {
+    "stage": "idle",
+    "label": "等待新工作",
+    "module": "idle",
+    "anchor": "team-idle"
+  },
+  {
+    "stage": "claim",
+    "label": "发现与认领",
+    "module": "idle",
+    "anchor": "team-idle"
+  },
+  {
+    "stage": "exit",
+    "label": "退出清理",
+    "module": "work",
+    "anchor": "team-exit"
+  }
+]

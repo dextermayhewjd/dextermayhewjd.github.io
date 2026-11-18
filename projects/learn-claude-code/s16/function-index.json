@@ -1,0 +1,50 @@
+[
+  {
+    "stage": "launch",
+    "label": "启动与校验",
+    "module": "entry",
+    "anchor": "workflow-launch"
+  },
+  {
+    "stage": "runstate",
+    "label": "运行锁与状态",
+    "module": "entry",
+    "anchor": "workflow-lifecycle"
+  },
+  {
+    "stage": "script",
+    "label": "可信脚本编排",
+    "module": "script",
+    "anchor": "workflow-primitives"
+  },
+  {
+    "stage": "agent",
+    "label": "单步调用",
+    "module": "script",
+    "anchor": "workflow-agent"
+  },
+  {
+    "stage": "journal",
+    "label": "稳定键与缓存",
+    "module": "journal",
+    "anchor": "workflow-journal"
+  },
+  {
+    "stage": "runner",
+    "label": "模型与结构校验",
+    "module": "script",
+    "anchor": "workflow-runner"
+  },
+  {
+    "stage": "limits",
+    "label": "共享资源边界",
+    "module": "entry",
+    "anchor": "workflow-limits"
+  },
+  {
+    "stage": "finish",
+    "label": "状态与最终回传",
+    "module": "finish",
+    "anchor": "workflow-lifecycle"
+  }
+]

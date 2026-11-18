@@ -1,0 +1,15 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 404,
+      "endLine": 416,
+      "symbol": "generate_and_rm_group",
+      "text": "    tasks = []\n    for idx, sample in enumerate(group):\n        current_sampling_params = sampling_params.copy()\n        if getattr(args, \"sglang_enable_deterministic_inference\", False):\n            seed = state.group_sampling_seeds[idx]\n            current_sampling_params[\"sampling_seed\"] = seed\n        tasks.append(\n            asyncio.create_task(generate_and_rm(args, sample, current_sampling_params, evaluation=evaluation))\n        )\n\n    group = await asyncio.gather(*tasks)\n\n    # for the rm that need the whole group, we will do the rm here",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/backends/megatron_utils/server/megatron_server.py",
+      "line": 422,
+      "endLine": 468,
+      "symbol": "_build_http_app / update_from_disk",
+      "text": "def _build_http_app(sample_manager, args, update_from_disk_fn=None):\n    app = web.Application(client_max_size=64 * 1024 * 1024)\n    update_state = {\n        \"in_progress\": False,\n        \"updating_model_path\": None,\n        \"update_future\": None,\n    }\n    update_lock = asyncio.Lock()\n\n    async def detect(_request: web.Request) -> web.Response:\n        return web.json_response({\"server_type\": \"megatron_server\"})\n\n    async def healthz(_request: web.Request) -> web.Response:\n        return web.json_response({\"ok\": True})\n\n    async def info(_request: web.Request) -> web.Response:\n        return web.json_response({\"args\": _args_to_dict(args)})\n\n    async def get_loads(_request: web.Request) -> web.Response:\n        return web.json_response(await _ray_get(sample_manager.get_loads.remote()))\n\n    async def update_from_disk(request: web.Request) -> web.Response:\n        if update_from_disk_fn is None:\n            return _json_error(\"update_from_disk is not available during warmup\", 503)\n\n        payload = await _read_json_payload(request)\n        model_path = _get_update_model_path(payload)\n        if model_path is None:\n            return _json_error(\"missing model_path\", 400)\n\n        async with update_lock:\n            if getattr(args, \"load\", None) == model_path:\n                return web.json_response({\"ok\": True, \"model_path\": model_path, \"skipped\": True})\n\n            if update_state[\"in_progress\"]:\n                if update_state[\"updating_model_path\"] == model_path and update_state[\"update_future\"] is not None:\n                    update_future = update_state[\"update_future\"]\n                    coalesced = True\n                else:\n                    updating_model_path = update_state[\"updating_model_path\"]\n                    return _json_error(f\"update_from_disk is already in progress for {updating_model_path}\", 409)\n            else:\n                update_future = asyncio.get_running_loop().create_future()\n                update_state[\"in_progress\"] = True\n                update_state[\"updating_model_path\"] = model_path\n                update_state[\"update_future\"] = update_future\n                coalesced = False",
+      "blobSha256": "43ad090936020c367a6cdaa6c7c9589a76f99149438a74ff9a7e404268ea95a4"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/backends/megatron_utils/server/megatron_server.py",
+      "line": 484,
+      "endLine": 515,
+      "symbol": "update_from_disk: finally",
+      "text": "            after_loads = await _ray_get(sample_manager.get_loads.remote())\n        except TimeoutError as e:\n            error = {\"ok\": False, \"status\": 503, \"error\": str(e)}\n        except Exception as e:\n            error = {\"ok\": False, \"status\": 500, \"error\": f\"update_from_disk failed: {e}\"}\n        finally:\n            if error is None:\n                result = {\n                    \"ok\": True,\n                    \"model_path\": model_path,\n                    \"before_loads\": before_loads,\n                    \"after_loads\": after_loads,\n                    \"update_result\": update_result,\n                }\n                # Reflect the freshly loaded checkpoint in /info. The actors restore\n                # their own args after loading, so only the server-side copy needs to be\n                # kept in sync here.\n                args.load = model_path\n                args.ref_load = model_path\n\n            async with update_lock:\n                if result is not None:\n                    update_future.set_result(result)\n                else:\n                    update_future.set_result(error)\n                update_state[\"in_progress\"] = False\n                update_state[\"updating_model_path\"] = None\n                update_state[\"update_future\"] = None\n\n        if result is not None:\n            return web.json_response(result)\n        return _json_error(error[\"error\"], error[\"status\"])",
+      "blobSha256": "43ad090936020c367a6cdaa6c7c9589a76f99149438a74ff9a7e404268ea95a4"
+    }
+  }
+}

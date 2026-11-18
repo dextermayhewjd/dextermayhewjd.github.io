@@ -1,0 +1,56 @@
+[
+  {
+    "stage": "create",
+    "label": "创建节点",
+    "anchor": "task-tools",
+    "module": "tasks"
+  },
+  {
+    "stage": "dependencies",
+    "label": "添加依赖",
+    "anchor": "task-dependencies",
+    "module": "dependencies"
+  },
+  {
+    "stage": "inspect",
+    "label": "查看任务",
+    "anchor": "task-inspect",
+    "module": "tasks"
+  },
+  {
+    "stage": "claim",
+    "label": "检查并认领",
+    "anchor": "task-claim",
+    "module": "claim"
+  },
+  {
+    "stage": "work",
+    "label": "实际执行",
+    "anchor": "task-execution",
+    "module": ""
+  },
+  {
+    "stage": "complete",
+    "label": "检查并完成",
+    "anchor": "task-complete",
+    "module": "complete"
+  },
+  {
+    "stage": "store",
+    "label": "共享存储",
+    "anchor": "task-store",
+    "module": "store"
+  },
+  {
+    "stage": "blocked",
+    "label": "拒绝认领分支",
+    "anchor": "task-claim",
+    "module": "claim"
+  },
+  {
+    "stage": "owner",
+    "label": "拒绝完成分支",
+    "anchor": "task-complete",
+    "module": "complete"
+  }
+]

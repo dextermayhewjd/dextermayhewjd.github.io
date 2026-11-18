@@ -1,0 +1,452 @@
+[
+  {
+    "key": "assembly",
+    "label": "请求组装",
+    "focus": "assembly",
+    "trigger": "每次 while 的模型请求前。",
+    "input": "历史、active_request、长期记录、技能目录和 MCP 注册。",
+    "output": "整理后的 messages、context、SYSTEM 与本轮 tools／handlers。",
+    "flow": "Memory 每轮选择；已收集状态不一定都会加入 SYSTEM。",
+    "sourceLink": "#harness-prepare",
+    "codeSections": [
+      "harness-prepare"
+    ],
+    "codeFunctions": [
+      "prepare_context",
+      "update_context",
+      "load_memory_runtime",
+      "consume_cron_queue",
+      "inject_background_notifications",
+      "start_runtime_services",
+      "assemble_tool_pool",
+      "assemble_system_prompt",
+      "list_skills",
+      "load_skill",
+      "call_llm",
+      "has_tool_use",
+      "permission_hook",
+      "trigger_hooks",
+      "call_tool_handler",
+      "should_run_background",
+      "spawn_subagent",
+      "_run_teammate_tool",
+      "build_user_content",
+      "compact_history",
+      "start_background_task",
+      "collect_background_results",
+      "remember_after_turn",
+      "release_completed_assignment",
+      "acknowledge_cron_jobs",
+      "agent_loop",
+      "async_event_loop",
+      "has_pending_background"
+    ],
+    "stageFunctions": {
+      "events": [
+        "consume_cron_queue",
+        "inject_background_notifications",
+        "start_runtime_services"
+      ],
+      "prepare": [
+        "prepare_context",
+        "update_context",
+        "load_memory_runtime"
+      ],
+      "assemble": [
+        "assemble_tool_pool",
+        "assemble_system_prompt",
+        "list_skills",
+        "load_skill"
+      ],
+      "model": [
+        "call_llm",
+        "has_tool_use"
+      ],
+      "dispatch": [
+        "permission_hook",
+        "trigger_hooks",
+        "call_tool_handler",
+        "should_run_background",
+        "spawn_subagent",
+        "_run_teammate_tool"
+      ],
+      "feedback": [
+        "build_user_content",
+        "compact_history",
+        "start_background_task",
+        "collect_background_results"
+      ],
+      "finish": [
+        "remember_after_turn",
+        "release_completed_assignment",
+        "acknowledge_cron_jobs"
+      ],
+      "runtime": [
+        "agent_loop",
+        "async_event_loop",
+        "has_pending_background"
+      ]
+    },
+    "figure": "s15-harness-core"
+  },
+  {
+    "key": "pool",
+    "label": "工具池与分发表",
+    "focus": "pool",
+    "trigger": "每轮调用模型前 assemble_tool_pool。",
+    "input": "26 个内置 schema、25 个普通 handlers 和连接的 MCP Client。",
+    "output": "模型 tools、本地 handlers 与宿主策略。",
+    "flow": "compact 由主循环特判；模型与 Harness 使用同一轮名称快照。",
+    "sourceLink": "#harness-pool",
+    "codeSections": [
+      "harness-pool"
+    ],
+    "codeFunctions": [
+      "assemble_tool_pool",
+      "assemble_system_prompt",
+      "call_llm",
+      "has_tool_use",
+      "consume_cron_queue",
+      "inject_background_notifications",
+      "start_runtime_services",
+      "prepare_context",
+      "update_context",
+      "load_memory_runtime",
+      "list_skills",
+      "load_skill",
+      "permission_hook",
+      "trigger_hooks",
+      "call_tool_handler",
+      "should_run_background",
+      "spawn_subagent",
+      "_run_teammate_tool",
+      "build_user_content",
+      "compact_history",
+      "start_background_task",
+      "collect_background_results",
+      "remember_after_turn",
+      "release_completed_assignment",
+      "acknowledge_cron_jobs",
+      "agent_loop",
+      "async_event_loop",
+      "has_pending_background"
+    ],
+    "stageFunctions": {
+      "events": [
+        "consume_cron_queue",
+        "inject_background_notifications",
+        "start_runtime_services"
+      ],
+      "prepare": [
+        "prepare_context",
+        "update_context",
+        "load_memory_runtime"
+      ],
+      "assemble": [
+        "assemble_tool_pool",
+        "assemble_system_prompt",
+        "list_skills",
+        "load_skill"
+      ],
+      "model": [
+        "call_llm",
+        "has_tool_use"
+      ],
+      "dispatch": [
+        "permission_hook",
+        "trigger_hooks",
+        "call_tool_handler",
+        "should_run_background",
+        "spawn_subagent",
+        "_run_teammate_tool"
+      ],
+      "feedback": [
+        "build_user_content",
+        "compact_history",
+        "start_background_task",
+        "collect_background_results"
+      ],
+      "finish": [
+        "remember_after_turn",
+        "release_completed_assignment",
+        "acknowledge_cron_jobs"
+      ],
+      "runtime": [
+        "agent_loop",
+        "async_event_loop",
+        "has_pending_background"
+      ]
+    },
+    "figure": "s15-harness-core"
+  },
+  {
+    "key": "events",
+    "label": "异步事件桥",
+    "focus": "events",
+    "trigger": "CLI 启动的事件线程每秒检查。",
+    "input": "Cron 队列、Lead 邮箱、后台终态、主 history 和 agent_lock。",
+    "output": "取得锁后启动同一个 agent_loop。",
+    "flow": "主回合串行，队友私有循环并行；Team 在外层注入，Cron／背景在内层消费。",
+    "sourceLink": "#harness-runtime",
+    "codeSections": [
+      "harness-runtime"
+    ],
+    "codeFunctions": [
+      "agent_loop",
+      "async_event_loop",
+      "has_pending_background",
+      "consume_cron_queue",
+      "inject_background_notifications",
+      "start_runtime_services",
+      "prepare_context",
+      "update_context",
+      "load_memory_runtime",
+      "assemble_tool_pool",
+      "assemble_system_prompt",
+      "list_skills",
+      "load_skill",
+      "call_llm",
+      "has_tool_use",
+      "permission_hook",
+      "trigger_hooks",
+      "call_tool_handler",
+      "should_run_background",
+      "spawn_subagent",
+      "_run_teammate_tool",
+      "build_user_content",
+      "compact_history",
+      "start_background_task",
+      "collect_background_results",
+      "remember_after_turn",
+      "release_completed_assignment",
+      "acknowledge_cron_jobs"
+    ],
+    "stageFunctions": {
+      "events": [
+        "consume_cron_queue",
+        "inject_background_notifications",
+        "start_runtime_services"
+      ],
+      "prepare": [
+        "prepare_context",
+        "update_context",
+        "load_memory_runtime"
+      ],
+      "assemble": [
+        "assemble_tool_pool",
+        "assemble_system_prompt",
+        "list_skills",
+        "load_skill"
+      ],
+      "model": [
+        "call_llm",
+        "has_tool_use"
+      ],
+      "dispatch": [
+        "permission_hook",
+        "trigger_hooks",
+        "call_tool_handler",
+        "should_run_background",
+        "spawn_subagent",
+        "_run_teammate_tool"
+      ],
+      "feedback": [
+        "build_user_content",
+        "compact_history",
+        "start_background_task",
+        "collect_background_results"
+      ],
+      "finish": [
+        "remember_after_turn",
+        "release_completed_assignment",
+        "acknowledge_cron_jobs"
+      ],
+      "runtime": [
+        "agent_loop",
+        "async_event_loop",
+        "has_pending_background"
+      ]
+    },
+    "figure": "s15-harness-core"
+  },
+  {
+    "key": "dispatch",
+    "label": "权限与同步分发",
+    "focus": "dispatch",
+    "trigger": "模型返回实际 tool_use。",
+    "input": "本轮 handlers、模型参数与宿主权限。",
+    "output": "普通结果、拒绝或具体委派结果按 ID 配对。",
+    "flow": "compact 是特殊控制分支，后台 Bash 另有生命周期。",
+    "sourceLink": "#harness-dispatch",
+    "codeSections": [
+      "harness-dispatch"
+    ],
+    "codeFunctions": [
+      "permission_hook",
+      "trigger_hooks",
+      "call_tool_handler",
+      "should_run_background",
+      "spawn_subagent",
+      "_run_teammate_tool",
+      "consume_cron_queue",
+      "inject_background_notifications",
+      "start_runtime_services",
+      "prepare_context",
+      "update_context",
+      "load_memory_runtime",
+      "assemble_tool_pool",
+      "assemble_system_prompt",
+      "list_skills",
+      "load_skill",
+      "call_llm",
+      "has_tool_use",
+      "build_user_content",
+      "compact_history",
+      "start_background_task",
+      "collect_background_results",
+      "remember_after_turn",
+      "release_completed_assignment",
+      "acknowledge_cron_jobs",
+      "agent_loop",
+      "async_event_loop",
+      "has_pending_background"
+    ],
+    "stageFunctions": {
+      "events": [
+        "consume_cron_queue",
+        "inject_background_notifications",
+        "start_runtime_services"
+      ],
+      "prepare": [
+        "prepare_context",
+        "update_context",
+        "load_memory_runtime"
+      ],
+      "assemble": [
+        "assemble_tool_pool",
+        "assemble_system_prompt",
+        "list_skills",
+        "load_skill"
+      ],
+      "model": [
+        "call_llm",
+        "has_tool_use"
+      ],
+      "dispatch": [
+        "permission_hook",
+        "trigger_hooks",
+        "call_tool_handler",
+        "should_run_background",
+        "spawn_subagent",
+        "_run_teammate_tool"
+      ],
+      "feedback": [
+        "build_user_content",
+        "compact_history",
+        "start_background_task",
+        "collect_background_results"
+      ],
+      "finish": [
+        "remember_after_turn",
+        "release_completed_assignment",
+        "acknowledge_cron_jobs"
+      ],
+      "runtime": [
+        "agent_loop",
+        "async_event_loop",
+        "has_pending_background"
+      ]
+    },
+    "figure": "s15-harness-core"
+  },
+  {
+    "key": "background",
+    "label": "后台执行与结果批次",
+    "focus": "background",
+    "trigger": "Bash 显式 run_in_background=True 且权限允许。",
+    "input": "命令、任务 cwd、配对调用 ID。",
+    "output": "先返回启动占位；worker 完成后发布通知，原子收集。",
+    "flow": "PostToolUse 在实际 worker 结束时运行；build_user_content 与请求前入口共用 collect。",
+    "sourceLink": "#harness-background",
+    "codeSections": [
+      "harness-background"
+    ],
+    "codeFunctions": [
+      "build_user_content",
+      "compact_history",
+      "start_background_task",
+      "collect_background_results",
+      "consume_cron_queue",
+      "inject_background_notifications",
+      "start_runtime_services",
+      "prepare_context",
+      "update_context",
+      "load_memory_runtime",
+      "assemble_tool_pool",
+      "assemble_system_prompt",
+      "list_skills",
+      "load_skill",
+      "call_llm",
+      "has_tool_use",
+      "permission_hook",
+      "trigger_hooks",
+      "call_tool_handler",
+      "should_run_background",
+      "spawn_subagent",
+      "_run_teammate_tool",
+      "remember_after_turn",
+      "release_completed_assignment",
+      "acknowledge_cron_jobs",
+      "agent_loop",
+      "async_event_loop",
+      "has_pending_background"
+    ],
+    "stageFunctions": {
+      "events": [
+        "consume_cron_queue",
+        "inject_background_notifications",
+        "start_runtime_services"
+      ],
+      "prepare": [
+        "prepare_context",
+        "update_context",
+        "load_memory_runtime"
+      ],
+      "assemble": [
+        "assemble_tool_pool",
+        "assemble_system_prompt",
+        "list_skills",
+        "load_skill"
+      ],
+      "model": [
+        "call_llm",
+        "has_tool_use"
+      ],
+      "dispatch": [
+        "permission_hook",
+        "trigger_hooks",
+        "call_tool_handler",
+        "should_run_background",
+        "spawn_subagent",
+        "_run_teammate_tool"
+      ],
+      "feedback": [
+        "build_user_content",
+        "compact_history",
+        "start_background_task",
+        "collect_background_results"
+      ],
+      "finish": [
+        "remember_after_turn",
+        "release_completed_assignment",
+        "acknowledge_cron_jobs"
+      ],
+      "runtime": [
+        "agent_loop",
+        "async_event_loop",
+        "has_pending_background"
+      ]
+    },
+    "figure": "s15-harness-core"
+  }
+]

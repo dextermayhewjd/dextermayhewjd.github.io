@@ -1,0 +1,22 @@
+{
+  "spawn_teammate_thread": "Harness 内部运行逻辑",
+  "__init__": "TeammateRuntime 内部初始化",
+  "work": "TeammateRuntime 内部模型与工具回合",
+  "_run_teammate_tool": "Harness 队友工具执行入口",
+  "handle_inbox": "TeammateRuntime 内部协议与消息消费",
+  "send": "MessageBus 内部邮箱操作",
+  "read_inbox": "MessageBus 内部邮箱操作",
+  "_read_unlocked": "MessageBus 内部邮箱操作",
+  "peek": "MessageBus 内部邮箱操作",
+  "wait_for_messages": "MessageBus 内部邮箱操作",
+  "wait_for_cli_event": "Harness CLI 事件入口",
+  "consume_lead_inbox": "Harness 内部运行逻辑",
+  "format_team_events": "Harness 内部运行逻辑",
+  "agent_loop": "Harness Lead 基础循环",
+  "wait_for_work": "TeammateRuntime 内部等待与发现任务",
+  "run": "TeammateRuntime 内部线程生命周期",
+  "scan_unclaimed_tasks": "Harness 内部运行逻辑",
+  "claim_next_task": "Harness 内部运行逻辑",
+  "claim_task": "任务板内部原子认领",
+  "release_teammate_assignment": "任务板内部归属清理"
+}

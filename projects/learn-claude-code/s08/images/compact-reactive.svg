@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 290" role="img" aria-labelledby="s08-reactive-title s08-reactive-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s08-reactive-title">异常补救：摘要旧段，保留最近片段</title>
+<desc id="s08-reactive-desc">普通请求被拒绝后，保存当前历史，摘要较早部分，保留最近五条消息并保护工具配对，然后回到 prepare 重试一次。</desc>
+<defs><marker id="s08-reactive-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker></defs>
+<text x="24" y="30" font-size="20" font-weight="700" fill="var(--diagram-text, #24334b)">异常补救：摘要旧段，保留最近片段</text>
+<text x="24" y="55" font-size="12" fill="var(--diagram-muted, #58677b)">只在 API 超长拒绝后触发；补救不能无限重试。</text>
+<path d="M184 142H208M368 142H392M552 142H576" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.6" marker-end="url(#s08-reactive-arrow)"/>
+<rect data-stage="rejected-history" x="24" y="104" width="160" height="76" rx="9" fill="var(--diagram-modified-fill, #fff3dc)" stroke="var(--diagram-modified-stroke, #b77920)" stroke-width="1.5"/>
+<text x="104" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">请求被拒绝</text><text x="104" y="153" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">当前 messages</text>
+<rect data-stage="summarize-old" x="208" y="104" width="160" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="288" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">留档并摘要旧段</text><text x="288" y="153" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">辅助模型请求</text>
+<rect data-stage="keep-tail" x="392" y="104" width="160" height="76" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="472" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">摘要 + 最近片段</text><text x="472" y="153" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">最近 5 条，保护工具配对</text>
+<rect data-stage="retry-request" x="576" y="104" width="160" height="76" rx="9" fill="var(--diagram-base-fill, #edf3fc)" stroke="var(--diagram-base-stroke, #537cc0)" stroke-width="1.5"/>
+<text x="656" y="130" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">回到 prepare</text><text x="656" y="153" text-anchor="middle" font-size="11" fill="var(--diagram-muted, #58677b)">重试正常模型请求</text>
+<text x="24" y="225" font-size="12" fill="var(--diagram-muted, #58677b)">最多补救一次；再次拒绝则抛出异常，正常请求成功后计数归零。</text>
+<text x="24" y="255" font-size="11" fill="var(--diagram-muted, #58677b)">切点若落在工具结果前，会多保留它对应的 assistant 调用。</text>
+</svg>

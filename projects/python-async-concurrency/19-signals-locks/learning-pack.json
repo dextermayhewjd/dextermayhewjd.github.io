@@ -1,0 +1,78 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 63,
+      "endLine": 75,
+      "symbol": "RolloutQueueController.__init__：checkpoint 文件锁",
+      "text": "        with ExitStack() as cleanup:\n            # The controller owns both the queue and its checkpoint branch.\n            # Hold the save-directory lock until close() (or actor exit), and\n            # publish the branch before any queue writes can become durable.\n            if self.restore_plan.root is not None:\n                plan = self.restore_plan\n                root = Path(plan.root)\n                (root / \"rollout\").mkdir(parents=True, exist_ok=True)\n                self._checkpoint_lock = cleanup.enter_context((root / \"rollout/session.lock\").open(\"a\"))\n                try:\n                    fcntl.flock(self._checkpoint_lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)\n                except BlockingIOError as error:\n                    raise RuntimeError(f\"Another training job owns save directory {root}\") from error",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    },
+    "source-2": {
+      "available": true,
+      "path": "tests/test_rollout_straw_transport.py",
+      "line": 1410,
+      "endLine": 1453,
+      "symbol": "test_checkpoint_lock_released_when_controller_process_is_killed",
+      "text": "def test_checkpoint_lock_released_when_controller_process_is_killed(tmp_path):\n    import select\n\n    from slime.data.checkpoint import resolve_checkpoint\n\n    root = tmp_path / \"run\"\n    args = _checkpoint_args(None, root)\n    args, plan_args = resolve_checkpoint(args)\n    process = subprocess.Popen(\n        [\n            sys.executable,\n            \"-c\",\n            \"\"\"\nimport pickle, sys\nfrom slime.data.queue_data_source import RolloutQueueController\n\nargs, plan_args = pickle.load(sys.stdin.buffer)\ncontroller = RolloutQueueController(args, restore_plan=plan_args)\nprint(\"ready\", flush=True)\nsys.stdin.buffer.read(1)\n\"\"\",\n        ],\n        stdin=subprocess.PIPE,\n        stdout=subprocess.PIPE,\n        stderr=subprocess.PIPE,\n    )\n    try:\n        pickle.dump((args, plan_args), process.stdin)\n        process.stdin.flush()\n        assert select.select([process.stdout], [], [], 60)[0], \"Controller did not start\"\n        assert process.stdout.readline() == b\"ready\\n\"\n        again = _checkpoint_args(None, root)\n        again, plan_again = resolve_checkpoint(again)\n        with pytest.raises(RuntimeError, match=\"Another training job\"):\n            RolloutQueueController(again, restore_plan=plan_again)\n    finally:\n        process.kill()\n        process.wait(timeout=30)\n        process.stdin.close()\n        process.stdout.close()\n        process.stderr.close()\n    # No close() ran in the killed process; the kernel must release its lock.\n    with closing(RolloutQueueController(again, restore_plan=plan_again)):\n        pass",
+      "blobSha256": "295c57b0f06f720ffa716bffae156c6195ece5074572b32a082ee9ea3b4b03ed"
+    },
+    "source-3": {
+      "available": true,
+      "path": "tests/ci/gpu_lock_exec.py",
+      "line": 38,
+      "endLine": 81,
+      "symbol": "_run_command：信号处理器与进程组",
+      "text": "def _run_command(args):\n    cmd = args.cmd\n    if cmd[0] == \"--\":\n        cmd = cmd[1:]\n\n    child = subprocess.Popen(cmd, start_new_session=True)\n\n    def terminate_child(signum, _frame):\n        if child.poll() is None:\n            child.terminate()\n            try:\n                child.wait(timeout=5)\n                sys.exit(128 + signum)\n            except subprocess.TimeoutExpired:\n                pass\n\n            try:\n                os.killpg(child.pid, signum)\n            except ProcessLookupError:\n                pass\n            try:\n                child.wait(timeout=5)\n            except subprocess.TimeoutExpired:\n                try:\n                    os.killpg(child.pid, signal.SIGKILL)\n                except ProcessLookupError:\n                    pass\n                child.wait()\n        sys.exit(128 + signum)\n\n    previous_handlers = {}\n    for signum in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):\n        previous_handlers[signum] = signal.getsignal(signum)\n        signal.signal(signum, terminate_child)\n\n    try:\n        while True:\n            returncode = child.poll()\n            if returncode is not None:\n                return _normalize_returncode(returncode)\n            time.sleep(1)\n    finally:\n        for signum, handler in previous_handlers.items():\n            signal.signal(signum, handler)",
+      "blobSha256": "3cdbab0cb542983dd86e0bb9bdf588d707f5d036cd70debc6453b48bf4c2d08e"
+    },
+    "source-4": {
+      "available": true,
+      "path": "slime/rollout/rm_hub/math_dapo_utils.py",
+      "line": 65,
+      "endLine": 79,
+      "symbol": "timeout",
+      "text": "class timeout:\n\n    def __init__(self, seconds=1, error_message=\"Timeout\"):\n        self.seconds = seconds\n        self.error_message = error_message\n\n    def handle_timeout(self, signum, frame):\n        raise TimeoutError(self.error_message)\n\n    def __enter__(self):\n        signal.signal(signal.SIGALRM, self.handle_timeout)\n        signal.alarm(self.seconds)\n\n    def __exit__(self, type, value, traceback):\n        signal.alarm(0)",
+      "blobSha256": "3d6b61357e2ee8f1704ba0eb1726ea2dd65dbf9c76e963f20d5ff6598b8f7b23"
+    },
+    "source-5": {
+      "available": true,
+      "path": "slime/backends/sglang_utils/sglang_engine.py",
+      "line": 66,
+      "endLine": 74,
+      "symbol": "_launch_server",
+      "text": "def _launch_server(server_args, parent_pid):\n    from sglang.srt.entrypoints.http_server import launch_server\n    from sglang.srt.utils import kill_itself_when_parent_died\n\n    # A wedged actor cannot run shutdown(). Its server must still release GPUs\n    # when the owner kills that actor before creating a replacement engine.\n    kill_itself_when_parent_died()\n    if os.getppid() == parent_pid:\n        launch_server(server_args)",
+      "blobSha256": "040069fb31d4b55430d7425d4e8ce16a2b69fa8ea4691d2bbcb603259977aff5"
+    },
+    "source-6": {
+      "available": true,
+      "path": "tests/test_rollout_manager_recovery.py",
+      "line": 83,
+      "endLine": 93,
+      "symbol": "_install_crash.crash：故障注入",
+      "text": "            Path(manager.args.rollout_data_dir).parent / \"crash.json\",\n            {\n                \"manager_pid\": os.getpid(),\n                \"samples\": [\n                    {\"index\": sample.index, \"tokens\": sample.tokens, \"reward\": sample.reward} for sample in samples\n                ],\n            },\n        )\n        if phase == \"conversion_reply_lost\":\n            raise TimeoutError(\"Conversion committed but its RPC reply was lost\")\n        os.kill(os.getpid(), signal.SIGKILL)",
+      "blobSha256": "6966e643d08d6afe1cd665a0b0e78e6cf48f9df1d607f91e996eb9f513fa41dc"
+    },
+    "source-7": {
+      "available": true,
+      "path": "tools/fp8_cast_bf16.py",
+      "line": 44,
+      "endLine": 50,
+      "symbol": "main：复制权重配套文件",
+      "text": "def main(fp8_path, bf16_path):\n    torch.set_default_dtype(torch.bfloat16)\n    os.makedirs(bf16_path, exist_ok=True)\n    os.system(\"cp -rf \" + fp8_path + \"/config.json \" + bf16_path)\n    os.system(\"cp -rf \" + fp8_path + \"/*.py \" + bf16_path)\n    os.system(\"cp -rf \" + fp8_path + \"/tokenizer* \" + bf16_path)\n    os.system(\"cp -rf \" + fp8_path + \"/chat_template* \" + bf16_path)",
+      "blobSha256": "1a6c2c73701f344361656b49e07cb3f63084470f6b06c7ab8605227247e9a703"
+    },
+    "source-8": {
+      "available": true,
+      "path": "tests/ci/gpu_lock_exec.py",
+      "line": 201,
+      "endLine": 218,
+      "symbol": "FdLock",
+      "text": "class FdLock:\n    def __init__(self, path_pattern, gpu_id: int):\n        self.gpu_id = gpu_id\n        self.path = _get_lock_path(path_pattern, self.gpu_id)\n        self.fd = None\n\n    def open(self):\n        assert self.fd is None\n        self.fd = open(self.path, \"a+\")\n\n    def lock(self):\n        assert self.fd is not None\n        fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)\n\n    def close(self):\n        assert self.fd is not None\n        try:\n            self.fd.close()",
+      "blobSha256": "3cdbab0cb542983dd86e0bb9bdf588d707f5d036cd70debc6453b48bf4c2d08e"
+    }
+  }
+}

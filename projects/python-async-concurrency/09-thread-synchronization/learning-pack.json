@@ -1,0 +1,24 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/utils/health_monitor.py",
+      "line": 63,
+      "endLine": 78,
+      "symbol": "RolloutHealthMonitor.stop",
+      "text": "        \"\"\"Stop the health monitor thread completely. Called during dispose.\"\"\"\n        if not self._thread:\n            return\n\n        logger.info(\"Stopping RolloutHealthMonitor...\")\n        self._stop_event.set()\n        if timeout is None:\n            timeout = self._check_timeout + 5\n        self._thread.join(timeout=timeout)\n        if self._thread.is_alive():\n            raise TimeoutError(f\"Rollout health monitor did not terminate within {timeout:.1f}s\")\n        else:\n            logger.info(\"RolloutHealthMonitor stopped.\")\n\n        self._thread = None\n",
+      "blobSha256": "4f1397cab1ff2138123df3e140c2f0bd44c38fdc76571c492e30953b64fcce3a"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/data/queue_data_source.py",
+      "line": 1047,
+      "endLine": 1054,
+      "symbol": "QueueReader._heartbeat_loop",
+      "text": "    def _heartbeat_loop(self):\n        interval = max(0.1, getattr(self.args, \"rollout_queue_lease_seconds\", 300) / 3)\n        while not self._stop.wait(interval):\n            with self._lock:\n                leases = list(self._leases.values())\n            try:\n                for offset in range(0, len(leases), 128):\n                    batch = leases[offset : offset + 128]",
+      "blobSha256": "db17cf7837ebcd41fb7cd77096fa2a2db0d854333b6faa4e43ad82ccb7ba2ad1"
+    }
+  }
+}

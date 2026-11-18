@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" role="img" aria-labelledby="s07-disclosure-title s07-disclosure-desc" font-family="system-ui, -apple-system, sans-serif">
+<title id="s07-disclosure-title">D / F · 渐进披露的是模型可见内容</title><desc id="s07-disclosure-desc">内容可以早已存在于磁盘或应用缓存；模型只看到实际交给它的部分。</desc>
+<defs><marker id="s07-disclosure-base-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-line, #65748a)"/></marker><marker id="s07-disclosure-focus-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="var(--diagram-memory-stroke, #8855b5)"/></marker></defs>
+<text x="24" y="30" text-anchor="start" font-size="20" font-weight="650" fill="var(--diagram-text, #24334b)">D / F · 渐进披露的是模型可见内容</text>
+<text x="24" y="55" text-anchor="start" font-size="13" fill="var(--diagram-muted, #58677b)">内容可以早已存在于磁盘或应用缓存；模型只看到实际交给它的部分。</text>
+<rect data-stage="stored" x="24" y="112" width="136" height="132" rx="9" fill="var(--diagram-storage-fill, #f3f5f8)" stroke="var(--diagram-storage-stroke, #8a96a6)" stroke-width="1.5"/>
+<text x="92" y="138" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">内容存放处</text>
+<text x="92" y="159" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">SKILL.md</text>
+<text x="92" y="178" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">references / scripts</text>
+<text x="92" y="197" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">应用可能已读取</text>
+<text x="92" y="216" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">不等于已发给模型</text>
+<rect data-stage="metadata" x="216" y="112" width="150" height="132" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="291" y="138" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">1 名称与描述</text>
+<text x="291" y="159" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">发现可用方法</text>
+<text x="291" y="178" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">知道何时适用</text>
+<text x="291" y="197" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)"></text>
+<text x="291" y="216" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">完整正文尚未进入</text>
+<rect data-stage="body" x="396" y="112" width="150" height="132" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="471" y="138" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">2 Skill 正文</text>
+<text x="471" y="159" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">调用后装载</text>
+<text x="471" y="178" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">工作步骤与资源入口</text>
+<text x="471" y="197" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)"></text>
+<text x="471" y="216" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">不是自动逐标题加载</text>
+<rect data-stage="resources" x="576" y="112" width="160" height="132" rx="9" fill="var(--diagram-memory-fill, #f3edfc)" stroke="var(--diagram-memory-stroke, #8855b5)" stroke-width="1.5"/>
+<text x="656" y="138" text-anchor="middle" font-size="14" font-weight="650" fill="var(--diagram-text, #24334b)">3 所需资源</text>
+<text x="656" y="159" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">执行中按需取用</text>
+<text x="656" y="178" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">参考正文或脚本输出</text>
+<text x="656" y="197" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)"></text>
+<text x="656" y="216" text-anchor="middle" font-size="10.5" fill="var(--diagram-muted, #58677b)">其余资料无需全量加入</text>
+<path d="M160 160H216" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-disclosure-base-arrow)"/>
+<path d="M366 160H396" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-disclosure-base-arrow)"/>
+<path d="M546 160H576" fill="none" stroke="var(--diagram-line, #65748a)" stroke-width="1.5" marker-end="url(#s07-disclosure-base-arrow)"/>
+<text x="375" y="98" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">调用后</text>
+<text x="561" y="98" text-anchor="middle" font-size="10" fill="var(--diagram-muted, #58677b)">需要时</text>
+<text x="24" y="281" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">review-diff：先见用途 → 读到审查步骤 → 涉及输入边界时才读对应参考文件。</text>
+<text x="24" y="310" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">这张图说明上下文可见性，不假定 Claude Code 内部的磁盘读取或缓存时序。</text>
+<text x="24" y="336" text-anchor="start" font-size="12" fill="var(--diagram-muted, #58677b)">已加载内容的保留、再次调用和压缩，是后续生命周期问题。</text>
+</svg>

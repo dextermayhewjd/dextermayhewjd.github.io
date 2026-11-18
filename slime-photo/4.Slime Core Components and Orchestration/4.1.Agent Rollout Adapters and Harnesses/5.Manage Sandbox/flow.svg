@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="2100" viewBox="0 0 1000 2100" role="img" aria-labelledby="title desc">
+  <title id="title">5. Manage Sandbox：从用户准备命令进入环境能力</title>
+  <desc id="desc">沿着 BaseHarness.run 调用 ensure_agent_user 的一次真实交接，下钻到已经存在的 E2BSandbox 包装对象、exec 接口、重试包装和 E2B SDK 命令执行，再将退出码与输出返回调用方。Sandbox 是接口约定，不是另一份运行对象；sandbox_id 标识远端执行环境。文件读写是同一对象上的并列能力，长命令启动与轮询在动作六展开。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker>
+    <style>
+      text{font-family:"Noto Sans CJK SC","Microsoft YaHei",sans-serif;fill:#172334}
+      .title{font-size:30px;font-weight:700}.heading{font-size:25px;font-weight:700}.subheading{font-size:21px;font-weight:700}
+      .body{font-size:20px}.note{font-size:17px;fill:#526173}
+      .code{font-family:"DejaVu Sans Mono",monospace;font-size:19px;fill:#453a80}
+      .field{font-family:"DejaVu Sans Mono",monospace;font-size:18px;fill:#453a80}
+      .owner{fill:#f7faff;stroke:#93b8e8;stroke-width:2}.card{fill:#fff;stroke:#b9c7d9;stroke-width:1.5}
+      .part{fill:#f2f0fa;stroke:#c3badf;stroke-width:1.2}.helper{fill:#f9f7fe;stroke:#afa0d0;stroke-width:1.5}
+      .exit{fill:#edf7f0;stroke:#82ac91;stroke-width:2}.flow{fill:none;stroke:#64748b;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1000" height="2100" fill="#fff"/>
+  <text x="24" y="44" class="title">5. Manage Sandbox：一次命令怎样落到执行环境</text>
+  <text x="24" y="80" class="note">跟随 Harness 的用户准备调用；sb 已由 Pre-4 创建并进入上下文。</text>
+
+  <g data-step="1" data-component="ensure-agent-user">
+    <rect x="44" y="106" width="912" height="184" rx="12" class="card"/>
+    <text x="64" y="143" class="heading">① 从 run 的第一步接手：准备用户与权限</text>
+    <text x="64" y="182" class="code">await ensure_agent_user(sb, workdir)</text>
+    <text x="64" y="219" class="body">本例 workdir = "/workspace/demo"，命令要修改远端工作区。</text>
+    <text x="64" y="253" class="body">创建或确认 agent 用户，设置目录归属与 Git 安全目录。</text>
+    <text x="64" y="278" class="note">ensure_agent_user 通过 sb.exec(...) 委派实际执行。</text>
+  </g>
+  <path d="M500 291 V321" class="flow"/>
+
+  <g data-step="2" data-component="sandbox-object">
+    <rect x="24" y="324" width="952" height="326" rx="14" class="owner"/>
+    <text x="48" y="362" class="heading">② 接住调用的对象：同一个 sb</text>
+    <text x="48" y="398" class="code">sb: E2BSandbox</text>
+    <text x="48" y="430" class="body">本地 Python 包装对象，让调用方通过统一方法操作执行环境。</text>
+    <g data-member="sdk-handle">
+      <rect x="48" y="452" width="904" height="72" rx="9" class="part"/>
+      <text x="66" y="483" class="subheading">sb._sb：E2B SDK 句柄</text>
+      <text x="66" y="511" class="note">实际转发 commands.run / files.write / files.read。</text>
+    </g>
+    <g data-member="sandbox-id">
+      <rect x="48" y="538" width="904" height="72" rx="9" class="part"/>
+      <text x="66" y="569" class="subheading">sb.sandbox_id：远端环境的标识</text>
+      <text x="66" y="597" class="note">识别哪一个执行环境；它与Adapter 会话的 session_id 含义不同。</text>
+    </g>
+    <text x="48" y="636" class="note">Sandbox Protocol 约定 exec / write_file / read_file；它不是另一份运行对象。</text>
+  </g>
+  <path d="M500 651 V680" class="flow"/>
+
+  <g data-step="3" data-component="exec-inputs">
+    <rect x="44" y="683" width="912" height="226" rx="12" class="card"/>
+    <text x="64" y="720" class="heading">③ 统一命令接口：带上执行条件</text>
+    <text x="64" y="759" class="code">await sb.exec(cmd, user="root", timeout=60, check=True)</text>
+    <text x="64" y="797" class="body">cmd 是用户与权限准备命令；root 提供执行权限。</text>
+    <text x="64" y="833" class="body">timeout=60 传给 SDK；check=True 让 SDK 报告的命令失败向外抛出。</text>
+    <text x="64" y="869" class="body">本次未传 env；idempotent 沿用默认值 True。</text>
+    <text x="64" y="895" class="note">此处只执行这条命令；长期运行的 CLI 由动作 6 的组合机制管理。</text>
+  </g>
+  <path d="M500 910 V940" class="flow"/>
+
+  <g data-step="4" data-component="sdk-execution">
+    <rect x="44" y="943" width="912" height="253" rx="12" class="helper"/>
+    <text x="64" y="980" class="heading">④ 后端转发：SDK 将命令送入执行环境</text>
+    <text x="64" y="1019" class="code">await self._rpc_retry(..., lambda:</text>
+    <text x="87" y="1049" class="code">self._sb.commands.run(</text>
+    <text x="110" y="1079" class="code">cmd, user=user, envs=env, timeout=timeout, ...))</text>
+    <text x="64" y="1118" class="body">远端环境执行命令，SDK 带回执行结果。</text>
+    <text x="64" y="1153" class="note">_rpc_retry 仅对判定为临时故障的异常重试，并遵守 idempotent。</text>
+    <text x="64" y="1179" class="note">重试耗尽或不可重试的异常仍向调用方传播。</text>
+  </g>
+  <path d="M500 1197 V1226" class="flow"/>
+
+  <g data-step="5" data-component="exec-result">
+    <rect x="44" y="1229" width="912" height="291" rx="12" class="card"/>
+    <text x="64" y="1266" class="heading">⑤ 收敛返回形态：退出码、标准输出、标准错误</text>
+    <text x="64" y="1305" class="code">(exit_code, stdout, stderr)</text>
+    <text x="64" y="1342" class="body">SDK 正常返回：提取退出码，并把空输出规范成空字符串。</text>
+    <g data-component="command-exit-error">
+      <rect x="64" y="1361" width="872" height="119" rx="9" class="part"/>
+      <text x="82" y="1391" class="subheading">若 SDK 抛出 CommandExitException</text>
+      <text x="82" y="1424" class="body">check=True：抛出 RuntimeError，带回退出码与错误摘要。</text>
+      <text x="82" y="1458" class="body">check=False：从异常提取三元组，交给调用方自行判断。</text>
+    </g>
+    <text x="64" y="1503" class="note">本例使用 check=True；失败会中断准备流程，不进入后面的 ctx 构造。</text>
+  </g>
+  <path d="M500 1521 V1550" class="flow"/>
+
+  <g data-step="6" data-component="return-to-harness">
+    <rect x="44" y="1553" width="912" height="181" rx="12" class="exit"/>
+    <text x="64" y="1590" class="heading">⑥ 回到调用方：留下环境变化，继续 run</text>
+    <text x="64" y="1629" class="body">ensure_agent_user 不保存三元组；成功完成后返回 None。</text>
+    <text x="64" y="1664" class="body">agent 用户、目录归属与 Git 配置保留在执行环境中。</text>
+    <text x="64" y="1698" class="code">BaseHarness.run → ctx = HarnessContext(...)</text>
+    <text x="64" y="1722" class="note">回到动作 4，继续写配置与启动 CLI。</text>
+  </g>
+
+  <g data-component="file-capabilities">
+    <text x="44" y="1781" class="heading">同一个 sb 的文件能力：按需调用，不是后续两个步骤</text>
+    <g data-component="write-file">
+      <rect x="44" y="1803" width="444" height="174" rx="12" class="helper"/>
+      <text x="64" y="1838" class="subheading">写入文本、字节或上传文件</text>
+      <text x="64" y="1871" class="code">await sb.write_file(...)</text>
+      <text x="64" y="1907" class="body">→ _sb.files.write(...) → None</text>
+      <text x="64" y="1940" class="note">文本直接写；bytes / Path 走上传分支。</text>
+      <text x="64" y="1964" class="note">成功的产物是远端文件。</text>
+    </g>
+    <g data-component="read-file">
+      <rect x="512" y="1803" width="444" height="174" rx="12" class="helper"/>
+      <text x="532" y="1838" class="subheading">读取远端文件的文本</text>
+      <text x="532" y="1871" class="code">await sb.read_file(...)</text>
+      <text x="532" y="1907" class="body">→ _sb.files.read(...) → str</text>
+      <text x="532" y="1940" class="note">最终捕获到普通异常时返回空字符串。</text>
+      <text x="532" y="1964" class="note">空字符串本身不能区分空文件与读取失败。</text>
+    </g>
+  </g>
+  <text x="24" y="2024" class="note">箭头表示沿这一次调用下钻与返回；对象说明帮助定位，不是另一次创建步骤。</text>
+  <text x="24" y="2053" class="note">环境由外层 async with 管理创建与回收；本图不展开完整任务生命周期。</text>
+  <text x="24" y="2082" class="note">动作 5 读环境接口与后端；动作 6 再读长命令的启动、结束标记与等待。</text>
+</svg>

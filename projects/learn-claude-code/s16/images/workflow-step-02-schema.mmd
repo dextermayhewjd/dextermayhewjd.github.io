@@ -1,0 +1,7 @@
+flowchart LR
+    changes["代码改动 changes"] --> prompt["prompt"]
+    instructions["检查要求"] --> prompt
+    prompt --> agent["ctx.agent(...)"]
+    schema["FINDINGS_SCHEMA"] -->|约定输出结构| agent
+    agent -->|校验通过| result["out：结构化对象"]
+    result -->|读取字段| findings["findings：候选列表"]

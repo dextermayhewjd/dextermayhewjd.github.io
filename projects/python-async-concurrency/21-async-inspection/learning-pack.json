@@ -1,0 +1,51 @@
+{
+  "revision": "2f2318653f6f794dddd321eff7c9d4b7b174643f",
+  "repository": "https://github.com/THUDM/slime",
+  "references": {
+    "source-1": {
+      "available": true,
+      "path": "slime/rollout/sample_hooks.py",
+      "line": 30,
+      "endLine": 49,
+      "symbol": "_accepted_kwargs / _apply_to_sample",
+      "text": "def _accepted_kwargs(function, kwargs: dict[str, Any]) -> dict[str, Any]:\n    signature = inspect.signature(function)\n    if any(parameter.kind == inspect.Parameter.VAR_KEYWORD for parameter in signature.parameters.values()):\n        return kwargs\n    return {key: value for key, value in kwargs.items() if key in signature.parameters}\n\n\nasync def _apply_to_sample(args, sample: Sample, paths: list[str], **kwargs) -> Sample:\n    for path in paths:\n        hook = load_function(path)\n        result = hook(args, sample, **_accepted_kwargs(hook, kwargs))\n        if inspect.isawaitable(result):\n            result = await result\n        if result is not None:\n            if not isinstance(result, Sample):\n                raise TypeError(\n                    f\"Rollout sample hook {path!r} returned {type(result).__name__}, expected Sample or None.\"\n                )\n            sample = result\n    return sample",
+      "blobSha256": "9c50150facc91013e45335e360cff8e27d4a9987fa80094b9c0eaddd2b9f6bfb"
+    },
+    "source-2": {
+      "available": true,
+      "path": "slime/observability/trace_utils.py",
+      "line": 451,
+      "endLine": 496,
+      "symbol": "trace_function",
+      "text": "def trace_function(\n    name: str,\n    *,\n    target: str | None = None,\n    target_getter: Callable[..., Sample | TraceHandle | list[Sample | TraceHandle] | None] | None = None,\n    attrs_getter: Callable[..., dict[str, Any] | None] | None = None,\n    record_error: bool = True,\n):\n    def decorator(fn):\n        if inspect.iscoroutinefunction(fn):\n\n            @functools.wraps(fn)\n            async def async_wrapper(*args, **kwargs):\n                resolved_target = _resolve_trace_function_target(\n                    fn,\n                    args,\n                    kwargs,\n                    target=target,\n                    target_getter=target_getter,\n                )\n                if resolved_target is None:\n                    return await fn(*args, **kwargs)\n                attrs = _resolve_trace_function_attrs(fn, args, kwargs, attrs_getter=attrs_getter)\n                with trace_span(resolved_target, name, attrs=attrs, record_error=record_error):\n                    return await fn(*args, **kwargs)\n\n            return async_wrapper\n\n        @functools.wraps(fn)\n        def sync_wrapper(*args, **kwargs):\n            resolved_target = _resolve_trace_function_target(\n                fn,\n                args,\n                kwargs,\n                target=target,\n                target_getter=target_getter,\n            )\n            if resolved_target is None:\n                return fn(*args, **kwargs)\n            attrs = _resolve_trace_function_attrs(fn, args, kwargs, attrs_getter=attrs_getter)\n            with trace_span(resolved_target, name, attrs=attrs, record_error=record_error):\n                return fn(*args, **kwargs)\n\n        return sync_wrapper\n\n    return decorator",
+      "blobSha256": "c626d3f57829db2f65befe6af8fb82ffd94aaa17090a0c6a2e443e3a3814a3ed"
+    },
+    "source-3": {
+      "available": true,
+      "path": "slime/rollout/sglang_rollout.py",
+      "line": 258,
+      "endLine": 274,
+      "symbol": "_run_request_abortable_generate",
+      "text": "async def _run_request_abortable_generate(\n    state: GenerateState,\n    sample: Sample,\n    generate_call: Awaitable[Sample | list[Sample]],\n) -> Sample | list[Sample]:\n    task = asyncio.current_task()\n    assert task is not None\n    state.cancellable_tasks.add(task)\n    try:\n        return await generate_call\n    except asyncio.CancelledError:\n        if task in state.cancellable_tasks:\n            raise\n        sample.status = Sample.Status.ABORTED\n        return sample\n    finally:\n        state.cancellable_tasks.discard(task)",
+      "blobSha256": "e3076c6e79178cd448945886ed770f50d3697d6f041be55634f4ad65df904261"
+    },
+    "source-4": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 95,
+      "endLine": 103,
+      "symbol": "boot_agent_sandbox signature",
+      "text": "@asynccontextmanager\nasync def boot_agent_sandbox(image: str, instance_id: str) -> AsyncIterator[E2BSandbox]:\n    \"\"\"Boot a fresh E2B sandbox and install the selected harness toolchain.\n\n    Create the sandbox from the dataset image, install Node 22 + the harness CLI\n    from host tarballs, retry transient boot/install failures, and close the\n    sandbox when the caller leaves the context.\n    \"\"\"\n    sb = None",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    },
+    "source-5": {
+      "available": true,
+      "path": "examples/coding_agent_rl/generate.py",
+      "line": 128,
+      "endLine": 134,
+      "symbol": "boot_agent_sandbox resource cleanup",
+      "text": "    if sb is None:\n        assert last_err is not None\n        raise last_err\n    try:\n        yield sb\n    finally:\n        await sb.__aexit__(None, None, None)",
+      "blobSha256": "493f995c961ae302d81725c134f122a6933a4396236a498d514550dd8d7707b1"
+    }
+  }
+}
