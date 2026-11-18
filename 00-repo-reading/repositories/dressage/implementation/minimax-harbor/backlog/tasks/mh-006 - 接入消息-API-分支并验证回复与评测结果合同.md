@@ -5,7 +5,7 @@ status: Done
 assignee:
   - '@codex'
 created_date: '2026-11-17 10:53'
-updated_date: '2026-11-17 11:44'
+updated_date: '2026-11-18 01:39'
 labels: []
 dependencies:
   - MH-005
@@ -62,6 +62,8 @@ Spec: doc-004。1. tests/test_dressage_result_contract.py 验证真实 validate_
 先加回归出现21项预期失败，再实施修订，完整109项通过。包含真实转换器 OpenAI/Anthropic × JSON/SSE、含auto的两轮工具消息交接、空stop、错误类型、约束失败以及不泄露参数值。修改后再发一次真实请求：合成Anthropic请求含空stop_sequences与auto→原转换器→中央Proxy→新Adapter→MiniMax，HTTP200/OK/end_turn，1.15s，finalize1step/read1record。内部HTTP为ASGI；未运行Harbor Trial、真实Agent CLI/Verifier/沙箱。USAGE与测试说明同步；未commit/push。
 
 2026-11-17 任务审计：当前实现已提交至 agent-api-integration 53423621e2bb146638e9a187c52d67803def071d，固定 Dressage fork 3820149ebfc0536b213ec120b43ec090f09b3fcd，两个工作区干净。重新运行 .venv/bin/python -m pytest -q：109 passed in 0.68s；PYTHONPATH=src:third_party/dressage .venv/bin/python -m pytest -q -c pyproject.toml third_party/dressage/tests/test_proxy_client.py third_party/dressage/tests/test_session_manager_cleanup.py：10 passed in 0.14s。四项验收保持通过。此前真实 MiniMax 文本与 RolloutLLMProxy 转换的证据保留于历史笔记，本轮未重跑真实 API。尚未运行实际 Harbor Trial、Gateway 外部网络、Agent CLI、Verifier 或沙箱；MH-007 承接。
+
+2026-11-18 用户确认命名修正：DressageBridge 改为 DressageMessageBackendAdapter，模块 dressage_bridge.py 改为 dressage_message_backend_adapter.py；同步 serve.py、两个测试的导入与使用、对应测试文件名、tests/README.md 和 USAGE.md。测试局部变量 bridge 改为 backend_adapter。原因：当前职责是把 Dressage complete(dict)->dict 适配到统一生成合同，不将工程连接层误称为经典 Bridge 模式。仅改命名，不修改请求/结果/错误处理/关闭逻辑；MiniMaxAdapter 与既有 bridge 安装 extra 保持兼容。未保留旧 Python 类名或模块别名，外部脚本若使用旧导入需更新。验证：.venv-harbor/bin/python -m pytest -q -> 109 passed in 0.75s；git diff --check 通过。未重跑真实 API，未改 Dressage 子模块，未提交或推送。历史记录保留当时名称，以此条作为新旧映射。
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
