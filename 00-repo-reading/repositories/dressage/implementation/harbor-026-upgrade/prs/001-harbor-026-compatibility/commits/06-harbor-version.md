@@ -55,6 +55,6 @@ extra 和两处 `SUPPORTED_HARBOR_VERSION` 已同步为 0.26.0。沿用现有精
 
 | 评审意见 | 已有证据 | 如何决定和验收 |
 |---|---|---|
-| P1 · 主 Agent 的连接覆盖 | 已在 `a1087bb` 用同一 Claude Code + Qwen Job 复现。常规配置得到 Gateway 和 Trial 凭证；只改 `base_url` 会改变地址而保留 Trial 凭证；只改 `model_api_key_name` 会保留 Gateway 而改变密钥。离线截获启动参数。[三组实测](../../../investigations/07-agent-routing/README.md#c06-main-agent) | 本地 `0b3d570` 已撤回。地址与凭证的改动保留在同一份未暂存 diff 中，已用同一组断言验证标准配置的最终地址和凭证。[07a · Gateway 地址与 Trial 凭证](07-main-agent-routing/07a-claude-base-url.md) |
+| P1 · 主 Agent 的连接覆盖 | 已在 `a1087bb` 用同一 Claude Code + Qwen Job 复现。常规配置得到 Gateway 和 Trial 凭证；只改 `base_url` 会改变地址而保留 Trial 凭证；只改 `model_api_key_name` 会保留 Gateway 而改变密钥。离线截获启动参数。[三组实测](../../../investigations/07-agent-routing/README.md#c06-main-agent) | 本地 `0b3d570` 已撤回。正式实现 `73347a1` 已推送至个人 Dressage 分支，标准配置的最终地址和凭证已通过同一组断言。[07a · Gateway 地址与 Trial 凭证](07-main-agent-routing/07a-claude-base-url.md) |
 | P1 · 模拟用户的角色归属 | Harbor 可从 `user_agent` 创建第二个 Agent；Dressage 启动插件时只为主 Agent 配置路由。这里的依据是源码，双角色 Trial 的实际请求和轨迹尚待验证。 | 若只训练主 Agent，模拟用户的回复应进入主 Agent 的输入上下文，其自身采样是否收集需另定。先确定是否支持这种 Job；若暂不支持，验证插件在分配路由前明确拒绝。 |
 | P2 · 凭证预检早于插件注入 | 既有对照确认部分模型配置在 `Job.create()` 阶段因缺少厂商凭证失败；评审另外报告了 Terminus-2 用例。[调查 06](../../../investigations/06-agent-credential-preflight/README.md#evidence) | 分别从 CLI runner 和训练临时 Job 验证。若确认阻断，由 Gateway 管理的 Job 可使用 Harbor 的 `skip_credential_checks`，并验证 Dressage 自身的后端凭证检查仍生效。 |

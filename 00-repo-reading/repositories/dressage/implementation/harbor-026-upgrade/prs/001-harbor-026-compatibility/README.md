@@ -20,13 +20,16 @@
 | <a id="verifier-start"></a>[C04 · 独立 verifier 启动](commits/04-verifier-start.md) | Harbor 准备从宿主上传测试，后端却先从 `environment/` 复制文件，缺目录就启动失败。让后端准备空的 `/tests`，交给 Verifier 上传。 | 缺少 `environment/` 仍能评出 reward 1。有环境材料时，启动时的 `/tests` 不混入这些材料。 | [调查 21](../../investigations/21-separate-verifier-input/README.md) |
 | <a id="c05-log-directories"></a><a id="sandbox-log-dirs"></a>[C05a · Agent 第一次写日志](commits/05-log-directories/05a-sandbox-log-directories.md) | 关闭自动挂载且没有宿主挂载覆盖日志时，在沙箱中准备声明的可写输出目录。 | Oracle 执行解法，Harbor 收回含 `solved` 的 `agent/oracle.txt`，verifier 返回 1 分。 | [修前对照](../../investigations/02-output-mounts/c05-mount-experiments.md#first-write-probe) |
 | <a id="versions"></a>[C06 · 声明支持 Harbor 0.26.0](commits/06-harbor-version.md) | 安装依赖仍锁定 0.18.0，两处运行时检查会拒绝 0.26.0。本笔一起切换依赖、版本检查、合同测试和安装说明。 | 干净环境安装得到 0.26.0，插件和 DAPO 的运行时检查接受该版本。 | [调查 04](../../investigations/04-version-checks/README.md) |
-| [C07 · 主 Agent 的 Gateway 连接](commits/07-main-agent-routing/README.md) | [07a · Gateway 地址与 Trial 凭证](commits/07-main-agent-routing/07a-claude-base-url.md) 原本地提交 `0b3d570` 已撤回到 C06，改动保留在未暂存工作区。[07b · Claude settings](commits/07-main-agent-routing/07b-claude-settings.md) 和 [07c · Codex profile](commits/07-main-agent-routing/07c-codex-profile.md) 的改动保存在备份工作树。 | 公共模型连接已在工作区完成配对验证，原生配置另见 07b、07c。 | [调查 07](../../investigations/07-agent-routing/README.md) |
+| [bwrap 回环初始化](validation.md#bwrap-loopback) | `b589289` 检查隔离命名空间的回环接口。已开启时直接启动 relay。 | 正式 CLI 跑一题，Gateway 转发请求，verifier 返回 1 分，manifest 指向该 trial。 | [修前与修后验收](validation.md#bwrap-loopback) |
+| [C07 · 主 Agent 的 Gateway 连接](commits/07-main-agent-routing/README.md) | [07a · Gateway 地址与 Trial 凭证](commits/07-main-agent-routing/07a-claude-base-url.md) 原本地提交 `0b3d570` 已撤回；正式实现 `73347a1` 已推送至个人分支。[07b · Claude settings](commits/07-main-agent-routing/07b-claude-settings.md) 和 [07c · Codex profile](commits/07-main-agent-routing/07c-codex-profile.md) 的改动保存在备份工作树。 | 公共模型连接已在工作区完成配对验证，原生配置另见 07b、07c。 | [调查 07](../../investigations/07-agent-routing/README.md) |
 
 ### 当前进度
 
 C01 至 C04 均已推送到个人 Dressage 的 `compat/harbor-0.26` 分支。C01 `8827b11` 的六例预检通过。C02 `8023acd` 的三种日志回归通过，独立评分和产物交付已复核。C03 `600b8cd` 复核了两种角色的挂载清单，整个环境测试文件 12 项全过。[C03 提交卡](commits/03-verifier-fixture.md) · [C02 提交卡](commits/02-output-mounts.md) · [C01 的远端复验](../../investigations/01-environment-preflight/README.md#amended-check)
 
 <a id="current-status"></a>
+
+个人 Dressage 仓库的 `compat/harbor-0.26` 分支已包含两笔独立修复：`b589289` 修复 bwrap 回环初始化，`73347a1` 绑定 Gateway 地址与 trial 凭证。后续训练验收需单独处理默认配置生成的 seed 超出有符号 64 位范围的问题。[本地入口验收](validation.md#entrypoint-experiments)
 
 **C04 在私有开发仓库的提交为 `e6c0ce4`。** 具备权限的环境测试 15 项全过。公开 PR 首版还包含 C05a 和 C06。[C04 复评与实测结果](commits/04-verifier-start.md#formal-check)
 
@@ -48,8 +51,8 @@ C01 至 C04 均已推送到个人 Dressage 的 `compat/harbor-0.26` 分支。C01
 | 承诺的入口 | 评审人最终要见到什么 | 现有证据 |
 | --- | --- | --- |
 | 安装与发现 | 干净环境安装修后 wheel，得到 0.26.0，CLI 按短名找到插件。 | Python 3.12.3 中已通过，BlackboxServer 1.1.0 来自同仓 wheel。CLI 发现插件，DAPO 退出 0。[C06 验收](commits/06-harbor-version.md) |
-| <a id="runtime"></a>CLI rollout | 正常 Trial 的请求抵达预期 Gateway，奖励和已提交的 manifest 可读；取消路径释放路由并排除该尝试。 | 已有局部及受控 Trial 记录，完整入口待验。[运行验收](validation.md#test-order) |
-| <a id="training"></a>Slime 训练接入 | 重试后，JobResult、manifest 和返回给 Slime 的样本均指向最终采用的尝试。 | 受控队列已核对身份，完整训练入口待验。[训练验收](validation.md#training) |
+| <a id="runtime"></a>CLI rollout | 正常 Trial 的请求抵达预期 Gateway，奖励和已提交的 manifest 可读；取消路径释放路由并排除该尝试。 | 真实 bwrap 与 Claude Code 的本地 CLI 正常路径已验，推理使用固定回答。取消路径仍待验。[运行验收](validation.md#test-order) |
+| <a id="training"></a>Slime 训练接入 | 重试后，JobResult、manifest 和返回给 Slime 的样本均指向最终采用的尝试。 | Slime 训练 rollout 入口在 `seed_policy: agent` 下实际重试一次，三者都指向第二次尝试。默认 seed 策略仍有越界问题，GPU 权重更新待验。[训练验收](validation.md#training) |
 
 <a id="handover"></a>
 

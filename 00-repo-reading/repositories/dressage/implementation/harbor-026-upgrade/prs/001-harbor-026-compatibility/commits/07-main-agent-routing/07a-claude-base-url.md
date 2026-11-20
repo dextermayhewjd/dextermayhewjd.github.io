@@ -1,6 +1,6 @@
 # 07a · Dressage 接管连接时，怎样让地址和凭证配套？
 
-**状态**　开发分支 `compat/harbor-0.26` 的 HEAD 是 C06（`a1087bb`）。原来只处理 Claude Code 地址的 `0b3d570` 已撤回。本轮实现和测试保留在本地 Changes。
+**状态**　实现、回归测试与文档已作为 `73347a1` 推送至个人 Dressage 仓库的 `compat/harbor-0.26` 分支。此前只处理 Claude Code 地址的 `0b3d570` 已撤回。
 
 ## 一个问题
 
@@ -68,6 +68,8 @@ python -m pytest -q tests/integrations/harbor/test_execution.py -k 'exec_log_mas
 这 5 项回归已通过。Harbor 集成套件共 119 项通过，8 项外部端到端测试按仓库默认配置排除。
 
 **边界**　检查发生在真实 `Job.create()` 之后；创建阶段缺少用户指定的凭证仍可能提前报错。客户端原生配置还有独立的选择顺序：离线复核中，默认 Codex 的最终地址与凭证配套，另选 provider 的活动 profile 仍保留另一组值。这类配置不在 07a 已验收的范围内。[创建阶段调查](../../../../investigations/06-agent-credential-preflight/README.md) · [07b · Claude 原生 settings](07b-claude-settings.md) · [07c · Codex 活动 profile](07c-codex-profile.md)
+
+**Codex 文件配置的复跑边界。** Job 内的重试读取同一份 TOML 快照。Job 关闭后，原文件和 Job 级配置中的原路径仍在，单个 trial 的配置和结果却指向已经清理的快照。仅凭 trial 记录恢复当时的 TOML 仍是待处理项。
 
 ## 本轮评审核对
 

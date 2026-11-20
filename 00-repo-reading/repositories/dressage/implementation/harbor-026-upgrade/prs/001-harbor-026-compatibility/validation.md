@@ -63,6 +63,38 @@ U38 另复现一个升级前已有的后端限制。Harbor 0.18、0.25、0.26 �
 
 逐条核对准备承诺的入口及其下游观察。DAPO 的题目读取与奖励文件解析已有三版输出，完整版 Trial 仍有独立验收。修复后把新提交与同输入的观察回写到对应用法。 [版本验收边界](../../usage/README.md#coverage) · [DAPO 奖励文件](../../usage/题目文件与可选后端/U58-Harbor%20Verifier%20读取运行产生的%20reward.json.md#u58)
 
+<a id="entrypoint-experiments"></a>
+
+## 2026-11-21 本地 CLI 与 Slime 重试实验
+
+运行对象为 Dressage `compat/harbor-0.26` 的 `a1087bb` 加当时尚未提交的 07a 工作区改动、Harbor `0.26.0` 和 Dressage 锁定的 Slime `aaf5c209`。两次成功运行都使用真实 bwrap、Claude Code、Dressage Gateway、Proxy 和 Harbor verifier。推理后端与 tokenizer 使用本地固定回答的测试实现。实验到 Slime 返回训练样本为止，未执行 GPU 权重更新。
+
+| 入口与条件 | 实际观察 |
+| --- | --- |
+| 当前工作区，正式 `harbor run --config … --plugin dressage --yes` | CLI 退出码为 0，Harbor 却记录了一个失败 trial。bwrap 已启用隔离网络命名空间的回环接口。relay 再设置接口标志时得到 `EPERM`，模型请求数为 0。 |
+| 临时副本，仅在回环接口已开启时跳过重复设置。重跑同一 CLI | Claude Code 通过 Gateway 发起请求，Proxy 收到一次 `POST /v1/chat/completions` 并返回 200。verifier 从宿主可回收的 agent 日志读到 `FOUR` 并给出奖励 1。Harbor 结果、最终 manifest 和含 4 个可训练 token 的 bundle 都指向 `a7355c00-f33c-4a92-b4bf-ac9c7f58138b`。 |
+| 同一副本，从 Slime `call_rollout_fn` 调用 `generate_rollout_harbor_sync`，保留随仓 `per_attempt_request` 策略 | 两次物理尝试均在生成前收到 HTTP 400。按这两次的 instance ID 和 trial ID 复算，seed 基值为 `12117081813188236253` 和 `16706558775936095371`，均超过 Proxy 接受的最大值 `9223372036854775807`。 |
+| 同一 Slime 入口，改用已有的 `seed_policy: agent`，Harbor 最多重试一次，Dressage 不做整组重试或补样 | 第一次回答 `FIRST-ATTEMPT`，verifier 拒绝给分，Harbor 实际重试一次。第一次的 `609e0ff3-e9a3-4a85-8a7c-1b34198b6652` 被标为 superseded。第二次回答 `FOUR` 并得 1 分。Harbor 最终结果、Dressage manifest 和 Slime 返回的唯一 `Sample` 都指向 `fe808491-4a69-4886-accd-1ec7840d4a7c`。样本参与训练的 token 为 `[70, 79, 85, 82]`，逐项等于第二次轨迹。 |
+
+这次临时副本实验确认了该场景下的重试归属，并留下 bwrap 回环初始化和默认训练 seed 取值范围两个问题。两项故障的版本起点尚未通过双版本对照确定。
+
+<a id="bwrap-loopback"></a>
+
+### 贡献分支复验 bwrap 回环初始化
+
+两次运行都直接加载 `compat/harbor-0.26` 工作区的 Dressage 代码。输入为同一题目、同一 `allowlist` 网络策略和本地固定回答的推理后端。入口为 `harbor run --config … --plugin dressage --yes`。
+
+| 工作区版本 | 回环回归用例 | 正式 CLI rollout |
+| --- | --- | --- |
+| 修复前 | sandbox 中的 relay 重复写入已启用的回环接口标志，得到 `EPERM`，命令退出码为 70。 | Harbor CLI 退出码为 0，但唯一的 trial 失败。Proxy 收到 0 个模型请求。 |
+| 修复后 | relay 读到 `IFF_UP` 后继续监听。sandbox 命令通过 `127.0.0.1` 发出 `ping`，收到宿主 Gateway 测试 socket 返回的 `gateway: ping`。 | Claude Code 通过 Gateway 发起请求，Proxy 收到一次 `POST /v1/chat/completions` 并返回 200。agent 日志记下 `FOUR`，verifier 返回奖励 1。Harbor 最终结果、Dressage manifest 与 4 个可训练 token 所属的轨迹有相同的 trial ID `f8805d47-4208-4f66-95ef-7263a4382fc3`。 |
+
+本轮 Harbor 集成套件共 175 项通过，8 项按仓库默认标记排除。正式 CLI 用例另行实际运行。默认训练 seed 保留为独立待验项。
+
+随后在 C06 上分别验证两组候选。仅加入 bwrap 修复时，Harbor 集成测试 80 项通过，正式 CLI 得到 1 分。仅加入 07a 的实现、测试和文档时，174 项通过。两次各有 8 项按默认标记排除。两组改动分别以 `b589289` 和 `73347a1` 推送至个人 Dressage 分支。
+
+额外运行全仓默认 pytest 时，测试收集停在两处：`tests/test_mopd_metrics.py` 缺少 `megatron`，`tests/test_reward_registry.py` 导入不到 `get_reward_context`。
+
 ## 本轮评审记录
 
 - 2026-11-18　已对照 20 个问题所引的固定版本原文和现存实验材料。01 和 02 的修前失败、03 的夹具对照已有输出，修后端到端结果待取得。这三页是本轮建议的人审入口。[01 的版本对照](../../investigations/01-environment-preflight/README.md#evidence) · [02 的复制错误](../../investigations/02-output-mounts/README.md#evidence) · [03 的补丁与测试](../../investigations/03-verifier-fixture/README.md#evidence)
