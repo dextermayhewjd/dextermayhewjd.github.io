@@ -1,0 +1,4 @@
+Harbor 0.26.0 E2B adapter imports its SDK: True
+e2b >=2.52.0 installed: 2.64.0
+dockerfile-parse >=2.0.1 installed: None
+WORKDIR lookup: ModuleNotFoundError No module named 'dockerfile_parse'

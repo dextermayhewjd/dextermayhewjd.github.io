@@ -1,0 +1,17 @@
+Dressage 3e3142f | Python 3.12 | test_stop_retention.py
+Filtered pytest -s output. Removed the progress dot before the second observation.
+
+Harbor 0.18.0 | configured delete=True | trial stopped=True | session exists after stop=False | workspace file exists=False
+Harbor 0.18.0 | configured delete=False | trial stopped=True | session exists after stop=False | workspace file exists=False
+E   assert (False, False) == (True, True)
+1 failed, 1 passed in 0.17s
+
+Harbor 0.25.0 | configured delete=True | trial stopped=True | session exists after stop=False | workspace file exists=False
+Harbor 0.25.0 | configured delete=False | trial stopped=True | session exists after stop=False | workspace file exists=False
+E   assert (False, False) == (True, True)
+1 failed, 1 passed in 0.29s
+
+Harbor 0.26.0 | configured delete=True | trial stopped=True | session exists after stop=False | workspace file exists=False
+Harbor 0.26.0 | configured delete=False | trial stopped=True | session exists after stop=False | workspace file exists=False
+E   assert (False, False) == (True, True)
+1 failed, 1 passed in 0.29s

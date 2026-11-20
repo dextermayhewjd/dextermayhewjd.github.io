@@ -1,0 +1,6 @@
+{"harbor": "0.18.0", "sdk": "2.64.0", "cpu1_ref": "demo__e6f60e442f62", "cpu2_ref": "demo__e6f60e442f62", "same_ref": true}
+{"harbor": "0.18.0", "created_ref": "demo__e6f60e442f62", "create_timeout": 86400, "renewals": [], "no_calls_after_stop": true, "kill_calls": 1, "sandbox_cleared": true}
+{"harbor": "0.25.0", "sdk": "2.64.0", "cpu1_ref": "demo__e6f60e442f62", "cpu2_ref": "demo__e6f60e442f62", "same_ref": true}
+{"harbor": "0.25.0", "created_ref": "demo__e6f60e442f62", "create_timeout": 86400, "renewals": [], "no_calls_after_stop": true, "kill_calls": 1, "sandbox_cleared": true}
+{"harbor": "0.26.0", "sdk": "2.64.0", "cpu1_ref": "harbor-379a417db7009b4f3e602eb832068a8b:c1-m1024-r5", "cpu2_ref": "harbor-379a417db7009b4f3e602eb832068a8b:c2-m1024-r5", "same_ref": false}
+{"harbor": "0.26.0", "created_ref": "fixture-template", "create_timeout": 9, "renewals": [9], "no_calls_after_stop": true, "kill_calls": 1, "sandbox_cleared": true}

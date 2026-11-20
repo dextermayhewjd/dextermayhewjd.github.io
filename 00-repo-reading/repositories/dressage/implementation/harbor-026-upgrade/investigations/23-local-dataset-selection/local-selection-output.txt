@@ -1,0 +1,9 @@
+Harbor 0.18.0 | directory iteration zeta,lambda,gamma,alpha,kappa,theta,beta,iota,eta
+n_tasks=None | emitted samples zeta,lambda,gamma,alpha,kappa,theta,beta,iota,eta
+n_tasks=2 | emitted samples zeta,lambda
+Harbor 0.25.0 | directory iteration zeta,lambda,gamma,alpha,kappa,theta,beta,iota,eta
+n_tasks=None | emitted samples alpha,beta,eta,gamma,iota,kappa,lambda,theta,zeta
+n_tasks=2 | emitted samples alpha,beta
+Harbor 0.26.0 | directory iteration zeta,lambda,gamma,alpha,kappa,theta,beta,iota,eta
+n_tasks=None | emitted samples alpha,beta,eta,gamma,iota,kappa,lambda,theta,zeta
+n_tasks=2 | emitted samples alpha,beta

@@ -1,0 +1,696 @@
+diff --git a/dressage/integrations/harbor/environment.py b/dressage/integrations/harbor/environment.py
+index 5ea1f8a80c2452558bb305fd9fd817e59a849c17..e8476d325a5353c53bf16f0b1a0adee921079683 100644
+--- a/dressage/integrations/harbor/environment.py
++++ b/dressage/integrations/harbor/environment.py
+@@ -9,7 +9,11 @@ parent container network.
+ from __future__ import annotations
+
+ import asyncio
++from collections.abc import Iterator
++from contextlib import contextmanager
++import errno
+ import hashlib
++import json
+ import os
+ from pathlib import Path, PurePosixPath
+ import shutil
+@@ -24,6 +28,7 @@ from harbor.environments.base import BaseEnvironment, ExecResult
+ from harbor.environments.capabilities import EnvironmentCapabilities
+ from harbor.models.task.config import NetworkMode, NetworkPolicy, TaskOS
+
++from dressage.integrations.harbor import bwrap_files
+ from dressage.integrations.harbor.config import (
+     BwrapEnvironmentConfig,
+     HarborIntegrationConfig,
+@@ -62,6 +67,9 @@ _SYSTEM_RUNTIME_ROOTS = tuple(
+
+ _RELAY_SOURCE = r"""#!/usr/bin/env python3
+ import asyncio
++from collections.abc import Iterator
++from contextlib import contextmanager
++import errno
+ import fcntl
+ from pathlib import Path
+ import socket
+@@ -395,21 +403,30 @@ class DressageEnvironment(BaseEnvironment):
+             self._runtime_mounts,
+             workdir=self.task_env_config.workdir or "/app",
+         )
+-        for host_path, read_only in self._harbor_mounts.values():
+-            if read_only:
+-                if not host_path.is_dir():
+-                    raise NotADirectoryError(host_path)
+-            else:
+-                host_path.mkdir(parents=True, exist_ok=True)
+-        for target in self._harbor_mounts:
++        # A writable bind may provide the source of a read-only alias.
++        for source, read_only in self._harbor_mounts.values():
++            if not read_only:
++                source.mkdir(parents=True, exist_ok=True)
++        for target, (source, read_only) in self._harbor_mounts.items():
++            if read_only and not source.is_dir():
++                raise NotADirectoryError(source)
+             _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
+-        # Prepare the sandbox-owned output paths while constructing its filesystem.
+-        for value in self._mount_targets(writable_only=True):
+-            target = _environment_path(value)
+-            if not _is_within(target, _LOGS):
++
++        mounted_outputs = []
++        for name in self._mount_targets(writable_only=True):
++            path = _environment_path(name)
++            if not _is_within(path, _LOGS):
+                 raise ValueError("Dressage bwrap only accepts Harbor /logs mounts")
+-            if not any(_is_within(target, mount) for mount in self._harbor_mounts):
+-                _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
++            mount = self._mount_root(path)
++            if mount is None:
++                _rootfs_path(self._rootfs, path).mkdir(parents=True, exist_ok=True)
++            elif path != mount:
++                mounted_outputs.append((str(path), str(mount)))
++        # Materialize nested bind destinations while their parents still have
++        # their configured permissions. Later downloads use a read-only view.
++        nested_binds = any(self._mount_root(target.parent) for target in self._harbor_mounts)
++        if mounted_outputs or nested_binds:
++            await self._run_file_helper(["prepare", json.dumps(mounted_outputs)], write_scope=_LOGS)
+         _rootfs_path(self._rootfs, _GATEWAY_SOCKET_DIR).mkdir(
+             parents=True, exist_ok=True
+         )
+@@ -433,48 +450,52 @@ class DressageEnvironment(BaseEnvironment):
+         self._started = False
+
+     async def upload_file(self, source_path: Path | str, target_path: str) -> None:
+-        source = Path(source_path)
+-        if not source.is_file():
+-            raise FileNotFoundError(source)
+-        target = self._host_path(target_path, writable=True)
+-        target.parent.mkdir(parents=True, exist_ok=True)
+-        await asyncio.to_thread(shutil.copy2, source, target)
++        await self._transfer(Path(source_path), target_path, upload=True, directory=False)
+
+     async def upload_dir(self, source_dir: Path | str, target_dir: str) -> None:
+-        source = Path(source_dir)
+-        if not source.is_dir():
+-            raise NotADirectoryError(source)
+-        target = self._host_path(target_dir, writable=True)
+-        target.mkdir(parents=True, exist_ok=True)
+-        await asyncio.to_thread(
+-            shutil.copytree,
+-            source,
+-            target,
+-            dirs_exist_ok=True,
+-            symlinks=True,
+-        )
++        await self._transfer(Path(source_dir), target_dir, upload=True, directory=True)
+
+     async def download_file(self, source_path: str, target_path: Path | str) -> None:
+-        source = self._host_path(source_path)
+-        if not source.is_file():
+-            raise FileNotFoundError(source_path)
+-        target = Path(target_path)
+-        target.parent.mkdir(parents=True, exist_ok=True)
+-        await asyncio.to_thread(shutil.copy2, source, target)
++        await self._transfer(Path(target_path), source_path, upload=False, directory=False)
+
+     async def download_dir(self, source_dir: str, target_dir: Path | str) -> None:
+-        source = self._host_path(source_dir)
+-        if not source.is_dir():
+-            raise NotADirectoryError(source_dir)
+-        target = Path(target_dir)
+-        target.mkdir(parents=True, exist_ok=True)
+-        await asyncio.to_thread(
+-            shutil.copytree,
+-            source,
+-            target,
+-            dirs_exist_ok=True,
+-            symlinks=True,
+-        )
++        await self._transfer(Path(target_dir), source_dir, upload=False, directory=True)
++
++    def _mount_root(self, path: PurePosixPath) -> PurePosixPath | None:
++        return next((item for item in (path, *path.parents) if item in self._harbor_mounts), None)
++
++    async def _transfer(self, local: Path, remote: str, *, upload: bool, directory: bool) -> None:
++        if upload:
++            bwrap_files.require_source(local, directory=directory)
++        path = _environment_path(remote)
++        if not self._harbor_mounts or not _is_within(path, _LOGS):
++            host = self._host_path(remote, writable=upload)
++            source, target = (local, host) if upload else (host, local)
++            await asyncio.to_thread(bwrap_files.copy_path, source, target, directory=directory)
++            return
++
++        # Even an unmounted name in /logs may link into a bind. Let the kernel
++        # look it up in the same mount layout in which the agent wrote its output.
++        scope = self._mount_root(path) or _LOGS
++        kind = "directory" if directory else "file"
++        if upload:
++            exchange = str(PurePosixPath("/run/input") / (local.name or "root"))
++            await self._run_file_helper(
++                ["upload", kind, remote, str(scope), exchange],
++                write_scope=scope,
++                extra_binds=["--ro-bind", str(local.resolve()), exchange],
++            )
++        else:
++            if not directory and local.is_dir():
++                local = local / path.name
++            # Bind only the requested destination. A new file or directory appears
++            # at its final name after copying succeeds, without a second data copy.
++            with _download_target(local, directory=directory) as destination:
++                await self._run_file_helper(
++                    ["download", kind, remote, str(scope), "/run/output"],
++                    write_scope=None,
++                    extra_binds=["--bind", str(destination), "/run/output"],
++                )
+
+     async def exec(
+         self,
+@@ -496,6 +517,18 @@ class DressageEnvironment(BaseEnvironment):
+         )
+         process_env = _sandbox_process_env()
+         process_env.update(self._merge_env(env) or {})
++        result = await self._run_bwrap(command_line, process_env, timeout_sec)
++        callback = self._output_callback()
++        if callback is not None:
++            if result.stdout:
++                await callback(result.stdout, "stdout")
++            if result.stderr:
++                await callback(result.stderr, "stderr")
++        return result
++
++    async def _run_bwrap(
++        self, command_line: list[str], process_env: dict[str, str], timeout_sec: int | None = None
++    ) -> ExecResult:
+         process = await asyncio.create_subprocess_exec(
+             *command_line,
+             stdout=asyncio.subprocess.PIPE,
+@@ -505,33 +538,46 @@ class DressageEnvironment(BaseEnvironment):
+         )
+         self._processes.add(process)
+         try:
+-            try:
+-                stdout, stderr = await asyncio.wait_for(
+-                    process.communicate(), timeout=timeout_sec
+-                )
+-            except asyncio.TimeoutError:
+-                await _terminate_process(process)
+-                raise
+-            except asyncio.CancelledError:
+-                await _terminate_process(process)
+-                raise
++            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_sec)
++        except (asyncio.TimeoutError, asyncio.CancelledError):
++            await _terminate_process(process)
++            raise
+         finally:
+             self._processes.discard(process)
+
+         stdout_text = stdout.decode("utf-8", errors="replace")
+         stderr_text = stderr.decode("utf-8", errors="replace")
+-        callback = self._output_callback()
+-        if callback is not None:
+-            if stdout_text:
+-                await callback(stdout_text, "stdout")
+-            if stderr_text:
+-                await callback(stderr_text, "stderr")
+         return ExecResult(
+             stdout=stdout_text,
+             stderr=stderr_text,
+             return_code=int(process.returncode or 0),
+         )
+
++    async def _run_file_helper(
++        self,
++        arguments: list[str],
++        *,
++        write_scope: PurePosixPath | None,
++        extra_binds: list[str] | None = None,
++    ) -> None:
++        # A private /run holds only the trusted helper and its optional exchange path.
++        # Environment startup precedes installation of the Gateway socket.
++        args = self._filesystem_args(write_scope=write_scope)
++        args.extend(["--tmpfs", "/run", "--ro-bind", bwrap_files.__file__, "/run/bwrap-files.py"])
++        if extra_binds:
++            args.extend(extra_binds)
++        args.extend(["--chdir", "/", "--", self._python, "-ISB", "/run/bwrap-files.py", *arguments])
++        result = await self._run_bwrap(args, _sandbox_process_env())
++        if result.return_code:
++            if result.return_code != bwrap_files.ERROR_EXIT or not result.stdout:
++                raise RuntimeError(f"bwrap file operation failed: {result.stderr.strip()}")
++            kind, code, message, path = json.loads(result.stdout)
++            if kind == "boundary":
++                raise ValueError(message)
++            if code == errno.EROFS:
++                raise PermissionError(code, message, path)
++            raise OSError(code, message, path)
++
+     def _build_harbor_mounts(self) -> dict[PurePosixPath, tuple[Path, bool]]:
+         mounts: dict[PurePosixPath, tuple[Path, bool]] = {}
+         for mount in self._host_mounts:
+@@ -551,23 +597,15 @@ class DressageEnvironment(BaseEnvironment):
+         if any(_is_within(path, root) for root in _PROTECTED_TRANSFER_ROOTS):
+             raise ValueError(f"protected environment path: {environment_path}")
+
+-        for target, (source, read_only) in sorted(
+-            self._harbor_mounts.items(),
+-            key=lambda item: len(item[0].parts),
+-            reverse=True,
+-        ):
+-            if path == target or path.is_relative_to(target):
+-                if writable and read_only:
+-                    raise PermissionError(environment_path)
+-                relative = path.relative_to(target)
+-                candidate = source.joinpath(*relative.parts)
+-                resolved_source = source.resolve()
+-                resolved_candidate = candidate.resolve(strict=False)
+-                if not resolved_candidate.is_relative_to(resolved_source):
+-                    raise ValueError(
+-                        f"environment path escapes its mount: {environment_path}"
+-                    )
+-                return candidate
++        target = self._mount_root(path)
++        if target is not None:
++            source, read_only = self._harbor_mounts[target]
++            if writable and read_only:
++                raise PermissionError(environment_path)
++            candidate = source.joinpath(*path.relative_to(target).parts)
++            if not candidate.resolve(strict=False).is_relative_to(source):
++                raise ValueError(f"environment path escapes its mount: {environment_path}")
++            return candidate
+
+         for runtime_root in sorted(
+             self._runtime_mounts, key=lambda item: len(item.parts), reverse=True
+@@ -594,33 +632,30 @@ class DressageEnvironment(BaseEnvironment):
+             raise ValueError(f"environment path escapes rootfs: {environment_path}")
+         return candidate
+
+-    def _bwrap_command(self, command: str, *, cwd: str) -> list[str]:
++    def _filesystem_args(self, *, write_scope: PurePosixPath | None) -> list[str]:
+         args = _base_bwrap_args(self._bwrap)
+         if self.network_policy.network_mode != NetworkMode.PUBLIC:
+             args.append("--unshare-net")
+         args.extend(
+             [
+-                "--bind",
++                "--bind" if write_scope == PurePosixPath("/") else "--ro-bind",
+                 str(self._rootfs),
+                 "/",
+             ]
+         )
+         _append_readonly_mounts(args, self._runtime_mounts)
+-        args.extend(
+-            [
+-                "--ro-bind",
+-                "/proc",
+-                "/proc",
+-                "--dev",
+-                "/dev",
+-            ]
+-        )
++        if write_scope and write_scope != PurePosixPath("/") and write_scope not in self._harbor_mounts:
++            args.extend(["--bind", str(_rootfs_path(self._rootfs, write_scope)), str(write_scope)])
+         for target, (source, read_only) in sorted(
+             self._harbor_mounts.items(), key=lambda item: len(item[0].parts)
+         ):
+-            args.extend(
+-                ["--ro-bind" if read_only else "--bind", str(source), str(target)]
+-            )
++            writable = write_scope is not None and _is_within(target, write_scope) and not read_only
++            args.extend(["--bind" if writable else "--ro-bind", str(source), str(target)])
++        return args
++
++    def _bwrap_command(self, command: str, *, cwd: str) -> list[str]:
++        args = self._filesystem_args(write_scope=PurePosixPath("/"))
++        args.extend(["--ro-bind", "/proc", "/proc", "--dev", "/dev"])
+         args.extend(
+             [
+                 "--ro-bind",
+@@ -672,6 +707,23 @@ def _load_bwrap_integration_config() -> HarborIntegrationConfig:
+     return config
+
+
++@contextmanager
++def _download_target(local: Path, *, directory: bool) -> Iterator[Path]:
++    local = local.resolve()
++    if local.exists():
++        yield local
++        return
++    local.parent.mkdir(parents=True, exist_ok=True)
++    with tempfile.TemporaryDirectory(dir=local.parent, prefix=".dressage-download-") as staging:
++        target = Path(staging) / "output"
++        if directory:
++            target.mkdir()
++        else:
++            target.touch()
++        yield target
++        target.replace(local)
++
++
+ def _required_binary(name: str) -> str:
+     path = shutil.which(name)
+     if path is None:
+diff --git a/tests/integrations/harbor/test_environment.py b/tests/integrations/harbor/test_environment.py
+index 71eb48dc09d599fc399370f296d14db1e48a3bf6..f8f8acc6d13ee076b34bd3a1c912a4b140645fa6 100644
+--- a/tests/integrations/harbor/test_environment.py
++++ b/tests/integrations/harbor/test_environment.py
+@@ -50,15 +50,16 @@ def _configure_bwrap(monkeypatch, tmp_path):
+     )
+
+
+-def _environment(monkeypatch, tmp_path, session_id, mode, *, workdir="/app"):
++def _environment(
++    monkeypatch, tmp_path, session_id, mode, *, workdir="/app", mounts=None, auto_mounts=None,
++):
+     _configure_bwrap(monkeypatch, tmp_path)
+     verifier = "__verifier__" in session_id and not session_id.endswith("__env")
+     environment_dir = tmp_path / "task" / "environment"
+     environment_dir.mkdir(parents=True, exist_ok=True)
+     paths = TrialPaths(tmp_path / f"trial-{session_id}")
+     paths.mkdir()
+-    auto_mounts = None
+-    if verifier:
++    if verifier and auto_mounts is None:
+         auto_mounts = [
+             {"type": "bind", "source": str(paths.verifier_dir), "target": "/logs/verifier"}
+         ]
+@@ -78,6 +79,7 @@ def _environment(monkeypatch, tmp_path, session_id, mode, *, workdir="/app"):
+             workdir=workdir,
+         ),
+         network_policy=policy,
++        mounts=mounts,
+         auto_mounts=auto_mounts,
+     )
+
+@@ -332,7 +334,8 @@ echo '{"reward": 1}' > /logs/verifier/reward.json
+
+ @pytest.mark.usefixtures("bwrap_network_namespace")
+ @pytest.mark.asyncio
+-async def test_oracle_trial_delivers_logs_with_default_mounts(monkeypatch, tmp_path):
++@pytest.mark.parametrize("bind_logs", [False, True], ids=["sandbox-owned", "mounted-parent"])
++async def test_oracle_trial_delivers_logs(monkeypatch, tmp_path, bind_logs):
+     _configure_bwrap(monkeypatch, tmp_path)
+     task = tmp_path / "task"
+     for name in ("environment", "solution", "tests"):
+@@ -351,12 +354,18 @@ test "$(cat /app/answer.txt)" = 4
+ echo '{"reward": 1}' > /logs/verifier/reward.json
+ """
+     )
++    host_logs = tmp_path / "host-logs"
++    mounts = []
++    if bind_logs:
++        host_logs.mkdir()
++        mounts.append({"type": "bind", "source": str(host_logs), "target": "/logs"})
+     config = TrialConfig.model_validate(
+         {
+             "task": {"path": task},
+             "agent": {"name": "oracle"},
+             "environment": {
+-                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment"
++                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment",
++                "mounts": mounts,
+             },
+             "trial_name": "oracle-logs",
+             "trials_dir": tmp_path / "trials",
+@@ -365,11 +374,200 @@ echo '{"reward": 1}' > /logs/verifier/reward.json
+     trial = await Trial.create(config)
+     result = await trial.run()
+
+-    assert "solved" in (trial.paths.agent_dir / "oracle.txt").read_text().splitlines()
++    collected = trial.paths.agent_dir / "oracle.txt"
++    assert "solved" in collected.read_text().splitlines()
++    if bind_logs:
++        assert (host_logs / "agent/oracle.txt").read_bytes() == collected.read_bytes()
+     assert result.verifier_result is not None
+     assert result.verifier_result.rewards == {"reward": 1}
+
+
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("link", ["view/agent", "/logs/view/agent"])
++async def test_log_symlink_resolves_through_nested_bind(monkeypatch, tmp_path, link):
++    logs = tmp_path / "logs"
++    view = tmp_path / "view"
++    (logs / "view").mkdir(parents=True)
++    (logs / "agent").symlink_to(link)
++    (view / "agent").mkdir(parents=True)
++    (view / "agent/probe").write_bytes(b"visible in the sandbox")
++    # The parent source's view/agent is hidden by the nested bind.
++    mounts = [
++        {"type": "bind", "target": "/logs", "source": str(logs)},
++        {"type": "bind", "target": "/logs/view", "source": str(view), "read_only": True},
++    ]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        await env.start(False)
++        await env.download_file("/logs/agent/probe", tmp_path / "received")
++        assert (tmp_path / "received").read_bytes() == b"visible in the sandbox"
++        with pytest.raises(PermissionError):
++            await env.upload_file(tmp_path / "received", "/logs/agent/probe")
++        (logs / "outside").symlink_to(tmp_path)
++        with pytest.raises(ValueError, match="escapes its mount"):
++            await env.download_file("/logs/outside/received", tmp_path / "copy")
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("has_writer", [False, True], ids=["read-only", "shared-writer"])
++async def test_read_only_output_needs_a_directory_provider(monkeypatch, tmp_path, has_writer):
++    logs = tmp_path / "logs"
++    (logs / "writer").mkdir(parents=True)
++    mounts = [{"type": "bind", "target": "/logs", "source": str(logs), "read_only": True}]
++    outputs = [{"type": "bind", "target": "/logs/artifacts", "source": str(tmp_path / "unused")}]
++    if has_writer:
++        mounts.append({"type": "bind", "target": "/logs/writer", "source": str(logs)})
++        outputs.append({**outputs[0], "target": "/logs/writer/artifacts"})
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts, auto_mounts=outputs
++    )
++    try:
++        if has_writer:
++            await env.start(False)
++            assert (logs / "artifacts").is_dir()
++        else:
++            with pytest.raises(PermissionError, match="/logs/artifacts"):
++                await env.start(False)
++            assert not (logs / "artifacts").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_rejects_output_hidden_by_a_nested_bind(monkeypatch, tmp_path):
++    logs, view = tmp_path / "logs", tmp_path / "view"
++    (logs / "view/agent").mkdir(parents=True)
++    (logs / "agent").symlink_to("view/agent")
++    view.mkdir()
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs"},
++        {"type": "bind", "source": str(view), "target": "/logs/view"},
++    ]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        with pytest.raises(FileExistsError, match="/logs/agent"):
++            await env.start(False)
++        assert not (view / "agent").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_prepares_writable_output_through_read_only_parent(monkeypatch, tmp_path):
++    logs, writer = tmp_path / "logs", tmp_path / "writer"
++    (logs / "writer").mkdir(parents=True)
++    (logs / "alias").symlink_to("writer")
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs", "read_only": True},
++        {"type": "bind", "source": str(writer), "target": "/logs/writer"},
++    ]
++    outputs = [{"type": "bind", "source": str(tmp_path / "unused"), "target": "/logs/alias/run"}]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.ALLOWLIST,
++                       mounts=mounts, auto_mounts=outputs)
++    try:
++        await env.start(False)  # The Gateway socket is not installed during environment setup.
++        assert (writer / "run").is_dir()
++        assert not (logs / "writer/run").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("component", ["view", "missing", "file"])
++async def test_download_follows_parent_component_as_seen_in_sandbox(monkeypatch, tmp_path, component):
++    logs, view = tmp_path / "logs", tmp_path / "view"
++    (logs / "view").mkdir(parents=True)
++    (logs / "data").mkdir()
++    (logs / "data/probe").write_bytes(b"parent")
++    (view / "data").mkdir(parents=True)
++    (view / "data/probe").write_bytes(b"nested")
++    (logs / "file").touch()
++    destination = "data" if component == "view" else "view/data"
++    (logs / "alias").symlink_to(f"{component}/../{destination}")
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs"},
++        {"type": "bind", "source": str(view), "target": "/logs/view"},
++    ]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        await env.start(False)
++        result = await env.exec("cat /logs/alias/probe")
++        received = tmp_path / "received"
++        if component == "view":
++            assert result.return_code == 0 and result.stdout == "parent"
++            await env.download_file("/logs/alias/probe", received)
++            assert received.read_bytes() == b"parent"
++        else:
++            assert result.return_code != 0
++            with pytest.raises((FileNotFoundError, NotADirectoryError)):
++                await env.download_file("/logs/alias/probe", received)
++            assert not received.exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("existing_mount_point", [False, True], ids=["new-mount-point", "shadowed-data"])
++async def test_directory_transfer_uses_contents_of_nested_mount(monkeypatch, tmp_path, existing_mount_point):
++    logs, view = tmp_path / "logs", tmp_path / "view"
++    (logs / "agent").mkdir(parents=True)
++    if existing_mount_point:
++        (logs / "agent/view").mkdir()
++        (logs / "agent/view/data").write_bytes(b"hidden")
++    view.mkdir()
++    (view / "data").write_bytes(b"visible")
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs"},
++        {"type": "bind", "source": str(view), "target": "/logs/agent/view"},
++    ]
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts, auto_mounts=mounts,
++    )
++    try:
++        await env.start(False)
++        collected = tmp_path / "collected"
++        await env.download_dir("/logs/agent", collected)
++        assert (collected / "view/data").read_bytes() == b"visible"
++        (collected / "view/data").write_bytes(b"updated")
++        await env.upload_dir(collected, "/logs/agent")
++        assert (view / "data").read_bytes() == b"updated"
++        if existing_mount_point:
++            assert (logs / "agent/view/data").read_bytes() == b"hidden"
++        else:
++            assert not (logs / "agent/view/data").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_download_from_log_link_to_a_mounted_directory(monkeypatch, tmp_path):
++    source = tmp_path / "agent-logs"
++    source.mkdir()
++    (source / "probe").write_bytes(b"bound log")
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        mounts=[{"type": "bind", "source": str(source), "target": "/logs/agent"}],
++    )
++    try:
++        await env.start(False)
++        result = await env.exec("ln -s agent /logs/current && cat /logs/current/probe")
++        assert result.return_code == 0 and result.stdout == "bound log"
++        received = tmp_path / "received"
++        await env.download_file("/logs/current/probe", received)
++        assert received.read_bytes() == b"bound log"
++    finally:
++        await env.stop(True)
++
++
+ def test_harbor_preflight_signature():
+     # Flag changes to the Harbor hook separately from the factory behavior tests.
+     parameters = inspect.signature(BaseEnvironment.preflight).parameters.values()
+diff --git a/dressage/integrations/harbor/bwrap_files.py b/dressage/integrations/harbor/bwrap_files.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..672b4ce23163581b2d2c59be9be379fbbaf95018
+--- /dev/null
++++ b/dressage/integrations/harbor/bwrap_files.py
+@@ -0,0 +1,75 @@
++"""File operations shared by the Harbor backend and its mount-namespace helper."""
++
++import errno
++import json
++import os
++from pathlib import Path
++import shutil
++import sys
++
++
++ERROR_EXIT = 65
++
++
++def require_source(source: Path, *, directory: bool) -> None:
++    if directory and not source.is_dir():
++        raise NotADirectoryError(errno.ENOTDIR, os.strerror(errno.ENOTDIR), str(source))
++    if not directory and not source.is_file():
++        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), str(source))
++
++
++def copy_path(source: Path, target: Path, *, directory: bool) -> None:
++    require_source(source, directory=directory)
++    if directory:
++        target.mkdir(parents=True, exist_ok=True)
++        shutil.copytree(source, target, dirs_exist_ok=True, symlinks=True)
++    else:
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(source, target)
++
++
++def check_mount(path: Path, root: Path) -> None:
++    # Resolve only for the boundary check. The syscall below must walk the original
++    # path, including components that precede ".." inside a symlink.
++    if not path.resolve().is_relative_to(root.resolve()):
++        raise ValueError(f"environment path escapes its mount: {path}")
++
++
++def prepare_outputs(outputs: list[tuple[str, str]]) -> None:
++    while outputs:
++        deferred = {}
++        for name, mount in outputs:
++            path = Path(name)
++            check_mount(path, Path(mount))
++            try:
++                path.mkdir(parents=True, exist_ok=True)
++            except OSError as exc:
++                if exc.errno not in (errno.EEXIST, errno.EROFS, errno.EACCES, errno.EPERM):
++                    raise
++                # A later writable output can supply this read-only view or link.
++                deferred[name, mount] = exc
++        if len(deferred) == len(outputs):
++            raise next(iter(deferred.values()))
++        outputs = list(deferred)
++
++
++def main(args: list[str]) -> None:
++    if args[0] == "prepare":
++        prepare_outputs(json.loads(args[1]))
++        return
++    direction, kind, name, mount, exchange = args
++    remote, local = Path(name), Path(exchange)
++    check_mount(remote, Path(mount))
++    source, target = (local, remote) if direction == "upload" else (remote, local)
++    copy_path(source, target, directory=kind == "directory")
++
++
++if __name__ == "__main__":
++    try:
++        main(sys.argv[1:])
++    except ValueError as error:
++        print(json.dumps(["boundary", None, str(error), None]))
++        sys.exit(ERROR_EXIT)
++    except OSError as error:
++        print(json.dumps(["io", error.errno, error.strerror or str(error), error.filename]))
++        sys.exit(ERROR_EXIT)

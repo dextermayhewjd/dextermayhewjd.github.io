@@ -1,0 +1,40 @@
+Dressage 3e3142f | Python 3.12 | trial_log_recovery.py --check-compatible
+separate adds --separate-source. Each run uses a new temporary Trial directory.
+Output includes observed call counts, file contents comparison and failing assertion messages.
+
+Harbor 0.18.0 | direct | exit=0
+Harbor 0.18.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=1 | download_dir calls=0
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=False | shutil.Error=False
+Harbor 0.18.0 | separate | exit=1
+Harbor 0.18.0 | Trial._download_agent_logs | /logs/agent != host agent_dir
+target file present before=False | after=False
+prepare_logs_for_host calls=1 | download_dir calls=0
+return=None | marked_downloaded=True | file_preserved=False
+trial log: copy_error=False | shutil.Error=False
+AssertionError: Logs written outside the Trial directory must be copied once and arrive intact.
+Harbor 0.25.0 | direct | exit=1
+Harbor 0.25.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=True | shutil.Error=True
+AssertionError: Direct-mounted logs should already be available without a directory copy or copy error.
+Harbor 0.25.0 | separate | exit=0
+Harbor 0.25.0 | Trial._download_agent_logs | /logs/agent != host agent_dir
+target file present before=False | after=True
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=False | shutil.Error=False
+Harbor 0.26.0 | direct | exit=1
+Harbor 0.26.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=True | shutil.Error=True
+AssertionError: Direct-mounted logs should already be available without a directory copy or copy error.
+Harbor 0.26.0 | separate | exit=0
+Harbor 0.26.0 | Trial._download_agent_logs | /logs/agent != host agent_dir
+target file present before=False | after=True
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=False | shutil.Error=False

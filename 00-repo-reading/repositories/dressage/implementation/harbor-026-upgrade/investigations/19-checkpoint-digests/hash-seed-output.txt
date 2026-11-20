@@ -1,0 +1,35 @@
+PYTHONHASHSEED=1
+Harbor 0.18.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | b6447bc4c6232c
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | 93d1e1185d7585
+
+PYTHONHASHSEED=2
+Harbor 0.18.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | 928c61d50d89fc
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | 40bd0eed78a066
+
+Harbor 0.18.0 | changed JobConfig dump fields for tau3-bench-e2b: retry.exclude_exceptions
+
+PYTHONHASHSEED=1
+Harbor 0.25.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | a941c626d067e9
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | 63a73644a1d693
+
+PYTHONHASHSEED=2
+Harbor 0.25.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | dfc35933af39e7
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | f9e4ba0320f2a2
+
+Harbor 0.25.0 | changed JobConfig dump fields for tau3-bench-e2b: retry.exclude_exceptions
+
+PYTHONHASHSEED=1
+Harbor 0.26.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | 9780cd6492be13
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | eaa28aafd82982
+
+PYTHONHASHSEED=2
+Harbor 0.26.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | 9780cd6492be13
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | eaa28aafd82982
+
+Harbor 0.26.0 | changed JobConfig dump fields for tau3-bench-e2b: (none)

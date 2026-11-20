@@ -1,0 +1,18 @@
+Harbor 0.18.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=1 | download_dir calls=0
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=False | shutil.Error=False
+
+Harbor 0.25.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=True | shutil.Error=True
+
+Harbor 0.26.0 | Trial._download_agent_logs | /logs/agent == host agent_dir
+prepare_logs_for_host calls=0 | download_dir calls=1
+return=None | marked_downloaded=True | file_preserved=True
+trial log: copy_error=True | shutil.Error=True
+
+Harbor 0.18.0 --check-compatible exit=0
+Harbor 0.25.0 --check-compatible exit=1
+Harbor 0.26.0 --check-compatible exit=1

@@ -1,0 +1,7 @@
+Harbor 0.26.0
+shipped-agent Job.create ok endpoint=gateway api_key=trial auth_token=empty
+endpoint-field Job.create ok endpoint=other api_key=trial auth_token=empty
+key-selector Job.create ok endpoint=gateway api_key=other auth_token=empty
+missing-key-selector Job.create rejected: MissingModelCredentialError Environment variable 'PROBE_MISSING_KEY' selected by --api-key-name is not set
+explicit-provider-env Job.create ok endpoint=other api_key=empty auth_token=other
+provider-no-credential Job.create rejected: MissingModelCredentialError claude-code: no model API key selected. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN, or use --api-key-name to select a credential. Use --skip-credential-checks to defer this check to runtime.

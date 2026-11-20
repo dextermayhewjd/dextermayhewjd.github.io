@@ -1,0 +1,76 @@
+--- a/dressage/integrations/harbor/environment.py
++++ b/dressage/integrations/harbor/environment.py
+@@ -23,6 +23,7 @@
+ from harbor.environments.base import BaseEnvironment, ExecResult
+ from harbor.environments.capabilities import EnvironmentCapabilities
+ from harbor.models.task.config import NetworkMode, NetworkPolicy, TaskOS
++from harbor.models.trial.paths import EnvironmentPaths
+ 
+ from dressage.integrations.harbor.config import (
+     BwrapEnvironmentConfig,
+@@ -395,6 +396,8 @@
+             self._runtime_mounts,
+             workdir=self.task_env_config.workdir or "/app",
+         )
++        targets = self._mount_targets(writable_only=True)
++        self._initialize_plain_log_mount(targets)
+         for host_path, read_only in self._harbor_mounts.values():
+             if read_only:
+                 if not host_path.is_dir():
+@@ -404,7 +407,7 @@
+         for target in self._harbor_mounts:
+             _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
+         # Prepare the sandbox-owned output paths while constructing its filesystem.
+-        for value in self._mount_targets(writable_only=True):
++        for value in targets:
+             target = _environment_path(value)
+             if not _is_within(target, _LOGS):
+                 raise ValueError("Dressage bwrap only accepts Harbor /logs mounts")
+@@ -418,6 +421,47 @@
+         relay_path.write_text(_RELAY_SOURCE, encoding="utf-8")
+         relay_path.chmod(0o500)
+         self._started = True
++
++    def _initialize_plain_log_mount(self, targets: list[str]) -> None:
++        if self._harbor_mounts.keys() != {_LOGS}:
++            return
++        source, read_only = self._harbor_mounts[_LOGS]
++        if read_only:
++            return
++
++        paths = self.trial_paths
++        destinations = (paths.agent_dir, paths.user_agent_dir, paths.verifier_dir, paths.artifacts_dir)
++        for destination in destinations:
++            destination = destination.resolve()
++            if source.is_relative_to(destination) or destination.is_relative_to(source):
++                return
++
++        normalized = (_environment_path(value) for value in targets)
++        outputs = [path for path in normalized if path != _LOGS]
++        if not outputs or any(path.parent != _LOGS for path in outputs):
++            return
++        if not source.is_dir() or not os.access(source, os.R_OK | os.W_OK | os.X_OK):
++            return
++        fd = os.open(source, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
++        try:
++            with os.scandir(fd) as entries:
++                if next(entries, None) is not None:
++                    return
++            artifacts = EnvironmentPaths.for_os(self.os).artifacts_dir
++            for output in outputs:
++                try:
++                    os.mkdir(output.name, dir_fd=fd)
++                except FileExistsError:
++                    continue
++                except OSError:
++                    if output == artifacts:
++                        continue  # Publishing artifacts is optional.
++                    raise
++                if not os.access(output.name, os.R_OK | os.W_OK | os.X_OK, dir_fd=fd):
++                    os.rmdir(output.name, dir_fd=fd)
++                    raise PermissionError(f"cannot write and collect new Harbor output: {output}")
++        finally:
++            os.close(fd)
+ 
+     async def stop(self, delete: bool) -> None:
+         del delete

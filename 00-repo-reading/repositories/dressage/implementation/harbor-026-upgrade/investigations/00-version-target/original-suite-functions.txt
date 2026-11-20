@@ -1,0 +1,123 @@
+Python 3.12.3 | Dressage 3e3142f | original tests/integrations/harbor | not harbor_e2e
+Each count is the number of distinct pytest items entering the indexed implementation in the main pytest process.
+Archived lines locate the integration in the fixed source; they are not measurements of executed lines.
+
+Harbor 0.18.0 | pytest exit 0
+66 passed, 8 deselected in 3.99s
+Indexed Dressage functions entered: 40/53
+source file | function | distinct test items | archived lines inside function
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore._commit_attempt_once | 11 | 453, 454, 455, 470, 471
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore.write_job_manifest | 3 | 553
+dressage/integrations/harbor/artifacts.py | _exception_info_failure | 1 | 1090, 1091
+dressage/integrations/harbor/artifacts.py | _extract_rewards | 11 | 1057, 1058, 1060, 1061, 1062
+dressage/integrations/harbor/artifacts.py | _harbor_result_failures | 11 | 1074, 1077, 1078, 1083
+dressage/integrations/harbor/compat.py | assign_trial_names | 1 | 199
+dressage/integrations/harbor/compat.py | build_trial_plan | 1 | 124, 130, 131, 132, 158, 162, 166
+dressage/integrations/harbor/compat.py | pending_trial_configs | 1 | 71, 75, 82, 83, 84
+dressage/integrations/harbor/compat.py | require_harbor_runtime | 1 | 52
+dressage/integrations/harbor/compat.py | resolve_task_configs | 1 | 105, 108, 113
+dressage/integrations/harbor/compat.py | resolved_task_configs | 1 | 93, 97
+dressage/integrations/harbor/compat.py | stable_concurrency_group | 0 | 206, 209, 212, 216
+dressage/integrations/harbor/data_source.py | HarborDataSource.__init__ | 3 | 182, 183, 186, 204, 205, 208, 237, 245, 250
+dressage/integrations/harbor/data_source.py | _build_registry | 2 | 683, 687, 712, 713
+dressage/integrations/harbor/data_source.py | _harbor_job_config_type | 0 | 538
+dressage/integrations/harbor/data_source.py | _load_job_config | 2 | 564, 603
+dressage/integrations/harbor/data_source.py | _source_digest | 2 | 832
+dressage/integrations/harbor/environment.py | DressageEnvironment.__init__ | 3 | 262, 282, 285
+dressage/integrations/harbor/environment.py | DressageEnvironment._build_harbor_mounts | 3 | 539
+dressage/integrations/harbor/environment.py | DressageEnvironment._bwrap_command | 2 | 601, 633
+dressage/integrations/harbor/environment.py | DressageEnvironment._validate_definition | 3 | 355, 356, 358, 361, 363
+dressage/integrations/harbor/environment.py | DressageEnvironment._with_relay | 1 | 651
+dressage/integrations/harbor/environment.py | DressageEnvironment.capabilities | 2 | 293, 294
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_dir | 0 | 467
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_file | 1 | 459
+dressage/integrations/harbor/environment.py | DressageEnvironment.exec | 1 | 481, 491, 497, 500, 525, 531
+dressage/integrations/harbor/environment.py | DressageEnvironment.preflight | 1 | 302
+dressage/integrations/harbor/environment.py | DressageEnvironment.start | 3 | 383, 395, 410, 411, 414
+dressage/integrations/harbor/environment.py | DressageEnvironment.stop | 3 | 424
+dressage/integrations/harbor/environment.py | DressageEnvironment.type | 0 | 289
+dressage/integrations/harbor/environment.py | DressageEnvironment.upload_dir | 0 | 445
+dressage/integrations/harbor/environment.py | DressageEnvironment.upload_file | 2 | 437
+dressage/integrations/harbor/environment.py | DressageEnvironment.validate_network_policy_support | 3 | 373, 376, 377, 378
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._finalize_attempt | 5 | 778
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._safe.<locals>.wrapper | 5 | 616, 617
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_end | 1 | 424, 425
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_start | 9 | 266, 269, 274, 289, 290, 293, 337, 344, 346, 348, 350, 351, 353, 359, 385, 407, 408, 409, 410, 413, 414
+dressage/integrations/harbor/plugin.py | _agent_protocol | 9 | 1154, 1155
+dressage/integrations/harbor/plugin.py | _audit_task_network_file | 0 | 1134, 1136, 1141
+dressage/integrations/harbor/plugin.py | _event_key | 5 | 1240
+dressage/integrations/harbor/plugin.py | _existing_task_directory | 7 | 1082, 1086
+dressage/integrations/harbor/plugin.py | _inject_agent_routing | 5 | 1037, 1064, 1066, 1074
+dressage/integrations/harbor/plugin.py | _reject_alternative_auth | 8 | 1197
+dressage/integrations/harbor/plugin.py | _task_network_class | 0 | 1100, 1101, 1108, 1109, 1110, 1112
+dressage/integrations/harbor/plugin.py | _trial_dir | 4 | 1244, 1245, 1248
+dressage/integrations/harbor/rollout.py | _default_create_job | 0 | 105, 107
+dressage/integrations/harbor/rollout.py | _eval_output | 0 | 1254
+dressage/integrations/harbor/rollout.py | _run_partition | 0 | 704, 760, 761, 762, 765, 802, 806, 813
+dressage/integrations/harbor/rollout.py | _temporary_job_config | 3 | 519, 548, 550, 551, 567, 570, 575
+dressage/integrations/harbor/rollout.py | _temporary_task_name | 0 | 448, 451, 454, 455, 458
+dressage/integrations/harbor/rollout.py | _validate_temporary_job_task_sources | 0 | 473, 475, 476
+dressage/integrations/harbor/rollout.py | _validated_model_update | 3 | 435, 441
+dressage/integrations/harbor/rollout.py | generate_rollout_harbor_sync | 0 | 1274, 1277
+dressage/integrations/harbor/environment.py | module scope | n/a | 23, 24, 25
+dressage/integrations/harbor/rollout.py | module scope | n/a | 54
+
+Harbor 0.26.0 | pytest exit 1
+3 failed, 63 passed, 8 deselected in 4.02s
+Indexed Dressage functions entered: 37/53
+source file | function | distinct test items | archived lines inside function
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore._commit_attempt_once | 11 | 453, 454, 455, 470, 471
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore.write_job_manifest | 3 | 553
+dressage/integrations/harbor/artifacts.py | _exception_info_failure | 1 | 1090, 1091
+dressage/integrations/harbor/artifacts.py | _extract_rewards | 11 | 1057, 1058, 1060, 1061, 1062
+dressage/integrations/harbor/artifacts.py | _harbor_result_failures | 11 | 1074, 1077, 1078, 1083
+dressage/integrations/harbor/compat.py | assign_trial_names | 1 | 199
+dressage/integrations/harbor/compat.py | build_trial_plan | 1 | 124, 130, 131, 132, 158, 162, 166
+dressage/integrations/harbor/compat.py | pending_trial_configs | 1 | 71, 75, 82, 83, 84
+dressage/integrations/harbor/compat.py | require_harbor_runtime | 1 | 52
+dressage/integrations/harbor/compat.py | resolve_task_configs | 1 | 105, 108, 113
+dressage/integrations/harbor/compat.py | resolved_task_configs | 1 | 93, 97
+dressage/integrations/harbor/compat.py | stable_concurrency_group | 0 | 206, 209, 212, 216
+dressage/integrations/harbor/data_source.py | HarborDataSource.__init__ | 3 | 182, 183, 186, 204, 205, 208, 237, 245, 250
+dressage/integrations/harbor/data_source.py | _build_registry | 2 | 683, 687, 712, 713
+dressage/integrations/harbor/data_source.py | _harbor_job_config_type | 0 | 538
+dressage/integrations/harbor/data_source.py | _load_job_config | 2 | 564, 603
+dressage/integrations/harbor/data_source.py | _source_digest | 2 | 832
+dressage/integrations/harbor/environment.py | DressageEnvironment.__init__ | 3 | 262, 282, 285
+dressage/integrations/harbor/environment.py | DressageEnvironment._build_harbor_mounts | 3 | 539
+dressage/integrations/harbor/environment.py | DressageEnvironment._bwrap_command | 0 | 601, 633
+dressage/integrations/harbor/environment.py | DressageEnvironment._validate_definition | 3 | 355, 356, 358, 361, 363
+dressage/integrations/harbor/environment.py | DressageEnvironment._with_relay | 0 | 651
+dressage/integrations/harbor/environment.py | DressageEnvironment.capabilities | 3 | 293, 294
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_dir | 0 | 467
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_file | 0 | 459
+dressage/integrations/harbor/environment.py | DressageEnvironment.exec | 0 | 481, 491, 497, 500, 525, 531
+dressage/integrations/harbor/environment.py | DressageEnvironment.preflight | 1 | 302
+dressage/integrations/harbor/environment.py | DressageEnvironment.start | 1 | 383, 395, 410, 411, 414
+dressage/integrations/harbor/environment.py | DressageEnvironment.stop | 1 | 424
+dressage/integrations/harbor/environment.py | DressageEnvironment.type | 3 | 289
+dressage/integrations/harbor/environment.py | DressageEnvironment.upload_dir | 0 | 445
+dressage/integrations/harbor/environment.py | DressageEnvironment.upload_file | 1 | 437
+dressage/integrations/harbor/environment.py | DressageEnvironment.validate_network_policy_support | 3 | 373, 376, 377, 378
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._finalize_attempt | 5 | 778
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._safe.<locals>.wrapper | 5 | 616, 617
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_end | 1 | 424, 425
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_start | 9 | 266, 269, 274, 289, 290, 293, 337, 344, 346, 348, 350, 351, 353, 359, 385, 407, 408, 409, 410, 413, 414
+dressage/integrations/harbor/plugin.py | _agent_protocol | 9 | 1154, 1155
+dressage/integrations/harbor/plugin.py | _audit_task_network_file | 0 | 1134, 1136, 1141
+dressage/integrations/harbor/plugin.py | _event_key | 5 | 1240
+dressage/integrations/harbor/plugin.py | _existing_task_directory | 7 | 1082, 1086
+dressage/integrations/harbor/plugin.py | _inject_agent_routing | 5 | 1037, 1064, 1066, 1074
+dressage/integrations/harbor/plugin.py | _reject_alternative_auth | 8 | 1197
+dressage/integrations/harbor/plugin.py | _task_network_class | 0 | 1100, 1101, 1108, 1109, 1110, 1112
+dressage/integrations/harbor/plugin.py | _trial_dir | 4 | 1244, 1245, 1248
+dressage/integrations/harbor/rollout.py | _default_create_job | 0 | 105, 107
+dressage/integrations/harbor/rollout.py | _eval_output | 0 | 1254
+dressage/integrations/harbor/rollout.py | _run_partition | 0 | 704, 760, 761, 762, 765, 802, 806, 813
+dressage/integrations/harbor/rollout.py | _temporary_job_config | 3 | 519, 548, 550, 551, 567, 570, 575
+dressage/integrations/harbor/rollout.py | _temporary_task_name | 0 | 448, 451, 454, 455, 458
+dressage/integrations/harbor/rollout.py | _validate_temporary_job_task_sources | 0 | 473, 475, 476
+dressage/integrations/harbor/rollout.py | _validated_model_update | 3 | 435, 441
+dressage/integrations/harbor/rollout.py | generate_rollout_harbor_sync | 0 | 1274, 1277
+dressage/integrations/harbor/environment.py | module scope | n/a | 23, 24, 25
+dressage/integrations/harbor/rollout.py | module scope | n/a | 54

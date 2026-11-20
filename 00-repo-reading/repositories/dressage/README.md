@@ -31,6 +31,8 @@
 
 ## 实施任务入口
 
+本次 Dressage 升级已确定只交付 `harbor==0.26.0`，0.25.0 的阅读和运行材料用作历史对照。升级判断和实验记录维护在本仓库的 `implementation/harbor-026-upgrade/`。从问题页看为什么改，从 PR 页看哪些改动一起评审。代码和回归测试在独立 Dressage 工作树 `compat/harbor-0.26` 实施。[调查索引](implementation/harbor-026-upgrade/README.md#investigations) · [PR-001 评审页](implementation/harbor-026-upgrade/prs/001-harbor-026-compatibility/README.md)
+
 [MiniMax × Harbor 改造实践](implementation/minimax-harbor/README.md)：从已确认的 Dressage fork 版本出发，先完成 Slime 发起的无 GPU API 评测，再接 Agent Sandbox。实施进度只在该单元 README 维护；下方 topics 保留源码阅读历史与函数卡。
 
 ## 主题入口

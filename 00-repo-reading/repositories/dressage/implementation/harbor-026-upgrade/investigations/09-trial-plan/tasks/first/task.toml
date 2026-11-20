@@ -1,0 +1,7 @@
+schema_version = "1.3"
+
+[task]
+name = "dressage-probe/first"
+
+[environment]
+gpus = 0

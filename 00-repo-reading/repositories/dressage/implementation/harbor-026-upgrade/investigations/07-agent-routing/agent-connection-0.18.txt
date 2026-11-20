@@ -1,0 +1,7 @@
+Harbor 0.18.0
+shipped-agent Job.create ok endpoint=gateway api_key=trial auth_token=trial
+endpoint-field Job.create ok endpoint=gateway api_key=trial auth_token=trial
+key-selector Job.create ok endpoint=gateway api_key=trial auth_token=trial
+missing-key-selector Job.create ok endpoint=gateway api_key=trial auth_token=trial
+explicit-provider-env Job.create ok endpoint=gateway api_key=trial auth_token=trial
+provider-no-credential Job.create ok endpoint=gateway api_key=trial auth_token=trial

@@ -1,0 +1,29 @@
+Dressage 3e3142f | Python 3.12 | test_factory_preflight.py
+Original pytest output with local directory prefixes removed.
+
+Harbor 0.18.0 | pytest exit=0
+.ss                                                                      [100%]
+=========================== short test summary info ============================
+SKIPPED [2] test_factory_preflight.py:24: This Harbor factory exposes only the default preflight call.
+1 passed, 2 skipped in 0.11s
+
+Harbor 0.25.0 | pytest exit=0
+.ss                                                                      [100%]
+=========================== short test summary info ============================
+SKIPPED [2] test_factory_preflight.py:24: This Harbor factory exposes only the default preflight call.
+1 passed, 2 skipped in 0.14s
+
+Harbor 0.26.0 | pytest exit=1
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+E   TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+harbor/environments/factory.py:323: TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+E   TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+harbor/environments/factory.py:323: TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+E   TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+harbor/environments/factory.py:323: TypeError: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'
+=========================== short test summary info ============================
+FAILED test_factory_preflight.py::test_preflight_through_harbor_factory[default]
+FAILED test_factory_preflight.py::test_preflight_through_harbor_factory[explicit-none]
+FAILED test_factory_preflight.py::test_preflight_through_harbor_factory[empty-options]
+3 failed in 0.15s

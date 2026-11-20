@@ -1,0 +1,56 @@
+Python 3.12.3 | Dressage 3e3142f | original tests/integrations/harbor | not harbor_e2e
+Each count is the number of distinct pytest items reaching a method in the pytest process (setup, call, teardown).
+
+..................................................................       [100%]
+66 passed, 8 deselected in 4.01s
+Harbor 0.18.0 | pytest exit 0 | distinct test items per method
+harbor/environments/factory.py | EnvironmentFactory.run_preflight | 0
+harbor/job.py | Job.create | 0
+harbor/job.py | Job._init_job_lock | 0
+harbor/job.py | Job.run | 0
+harbor/trial/trial.py | Trial.run | 0
+harbor/trial/trial.py | Trial._emit | 0
+harbor/trial/trial.py | Trial._download_agent_logs | 0
+harbor/trial/queue.py | TrialQueue._execute_trial_with_retries | 0
+dressage/integrations/harbor/environment.py | DressageEnvironment.preflight | 1
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_dir | 0
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._on_cancel | 1
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._on_end | 5
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_end | 1
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore.commit_attempt | 11
+dressage/integrations/harbor/rollout.py | _temporary_job_config | 3
+dressage/integrations/harbor/rollout.py | _bundle_samples | 1
+
+.............F........................F..F........................       [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert '0.26.0' == '0.18.0'
+      
+      - 0.18.0
+      + 0.26.0
+/home/hongshi/projects/Dressage-harbor-0.26/tests/integrations/harbor/test_contracts.py:169: AssertionError: assert '0.26.0' == '0.18.0'
+E   ValueError: separate verifier does not have Harbor's verifier mount shape
+/home/hongshi/projects/Dressage-harbor-0.26/dressage/integrations/harbor/environment.py:253: ValueError: separate verifier does not have Harbor's verifier mount shape
+E   ValueError: separate verifier does not have Harbor's verifier mount shape
+/home/hongshi/projects/Dressage-harbor-0.26/dressage/integrations/harbor/environment.py:253: ValueError: separate verifier does not have Harbor's verifier mount shape
+=========================== short test summary info ============================
+FAILED tests/integrations/harbor/test_contracts.py::test_official_jobs_validate_with_harbor_018
+FAILED tests/integrations/harbor/test_environment.py::test_agent_and_verifier_are_network_and_filesystem_isolated
+FAILED tests/integrations/harbor/test_environment.py::test_real_bwrap_persists_workspace
+3 failed, 63 passed, 8 deselected in 4.08s
+Harbor 0.26.0 | pytest exit 1 | distinct test items per method
+harbor/environments/factory.py | EnvironmentFactory.run_preflight | 0
+harbor/job.py | Job.create | 0
+harbor/job.py | Job._init_job_lock | 0
+harbor/job.py | Job.run | 0
+harbor/trial/trial.py | Trial.run | 0
+harbor/trial/trial.py | Trial._emit | 0
+harbor/trial/trial.py | Trial._download_agent_logs | 0
+harbor/trial/queue.py | TrialQueue._execute_trial_with_retries | 0
+dressage/integrations/harbor/environment.py | DressageEnvironment.preflight | 1
+dressage/integrations/harbor/environment.py | DressageEnvironment.download_dir | 0
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._on_cancel | 1
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin._on_end | 5
+dressage/integrations/harbor/plugin.py | DressageHarborPlugin.on_job_end | 1
+dressage/integrations/harbor/artifacts.py | HarborArtifactStore.commit_attempt | 11
+dressage/integrations/harbor/rollout.py | _temporary_job_config | 3
+dressage/integrations/harbor/rollout.py | _bundle_samples | 1

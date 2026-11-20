@@ -1,0 +1,5 @@
+Harbor 0.25.0 | skills
+uploaded skill read back from /runtime/skills/demo/SKILL.md
+
+Harbor 0.26.0 | skills
+uploaded skill read back from /runtime/skills/demo/SKILL.md

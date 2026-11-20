@@ -1,0 +1,11 @@
+Harbor 0.18.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | fb590701de2ece
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | 091786034dd6c4
+
+Harbor 0.25.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | 36923c2686016e
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | c9b65c4e9d199e
+
+Harbor 0.26.0 | n_samples=2 seed=7 shuffle=False
+tau3-bench-e2b | sierra-research/tau3-bench | Qwen/Qwen3.5-4B | e2b | 9780cd6492be13
+terminal-bench-2-e2b | terminal-bench/terminal-bench-2 | Qwen/Qwen3.5-4B | e2b | eaa28aafd82982

@@ -1,0 +1,15 @@
+Harbor 0.26.0 | TrialHookEvent -> TrialResult
+event name, physical id and Trial directory agree with Dressage
+normal: reward_valid=True selected=0.75 trainable=True failures=[]
+two segment rewards=[{'reward': 0.0}, {'reward': 0.75, 'aux': 0.25}] | eval rewards=[0.75]
+nonzero-exit: reward_valid=True selected=0.75 trainable=False failures=['HARBOR_TRIAL_EXCEPTION']
+other-key: reward_valid=True selected=None trainable=False failures=['REWARD_MISSING']
+step-only: reward_valid=False selected=0.75 trainable=True failures=[]
+.
+=============================== warnings summary ===============================
+dextermayhewjd.github.io/00-repo-reading/repositories/dressage/implementation/harbor-026-upgrade/issues/12-reward-validity/result_contract_probe.py::test_result_contract
+  /tmp/harbor026-review.t62iId/overlay/harbor/trial/trial.py:1206: DeprecationWarning: Task.checksum will be deprecated soon. Use TrialLock.task.digest from the trial lock when you need the task content hash.
+    task_checksum=self.task.checksum,
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 0.49s

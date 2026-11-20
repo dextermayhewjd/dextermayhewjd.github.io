@@ -1,0 +1,12 @@
+{"variant": "baseline", "case": "default-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "baseline", "case": "direct-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "baseline", "case": "missing-envdir", "input": "environment", "at_start": null, "tests_uploads": 0, "script_matches": [], "exception": "NotADirectoryError", "reward_file": null, "returned": null}
+{"variant": "baseline", "case": "nonempty-envdir", "input": "environment", "at_start": ["agent-input.txt"], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "guard", "case": "default-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "guard", "case": "direct-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "guard", "case": "missing-envdir", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "guard", "case": "nonempty-envdir", "input": "environment", "at_start": ["agent-input.txt"], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "candidate", "case": "default-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "candidate", "case": "direct-mounts", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "candidate", "case": "missing-envdir", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}
+{"variant": "candidate", "case": "nonempty-envdir", "input": "environment", "at_start": [], "tests_uploads": 1, "script_matches": [true], "exception": null, "reward_file": {"reward": 1}, "returned": {"reward": 1}}

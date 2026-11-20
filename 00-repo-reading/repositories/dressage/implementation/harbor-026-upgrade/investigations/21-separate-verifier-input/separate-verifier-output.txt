@@ -1,0 +1,22 @@
+Harbor 0.18.0 | python separate_verifier.py --check-compatible
+{"case": "default-mounts", "harbor": "0.18.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["expected.json", "test.sh", "verify.py"], "verifier_input_directory": "tests"}
+{"case": "direct-mounts", "harbor": "0.18.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["expected.json", "test.sh", "verify.py"], "verifier_input_directory": "tests"}
+{"case": "missing-envdir", "harbor": "0.18.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["expected.json", "test.sh", "verify.py"], "verifier_input_directory": "tests"}
+{"case": "nonempty-envdir", "harbor": "0.18.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["expected.json", "test.sh", "verify.py"], "verifier_input_directory": "tests"}
+exit=0
+
+Harbor 0.25.0 | python separate_verifier.py --check-compatible
+{"case": "default-mounts", "cause": "Error", "exception": "DownloadVerifierDirError", "harbor": "0.25.0", "message": "Failed to download verifier directory from environment", "reward_file": {"reward": 1}, "same_verifier_download_source_destination": true, "test_stdout": "", "tests_at_start": [], "verifier_input_directory": "environment"}
+{"case": "direct-mounts", "harbor": "0.25.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": [], "verifier_input_directory": "environment"}
+{"case": "missing-envdir", "cause": null, "exception": "NotADirectoryError", "harbor": "0.25.0", "message": "<task>/environment", "verifier_input_directory": "environment"}
+{"case": "nonempty-envdir", "harbor": "0.25.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["agent-input.txt"], "verifier_input_directory": "environment"}
+Failed compatibility cases: default-mounts, missing-envdir, nonempty-envdir
+exit=1
+
+Harbor 0.26.0 | python separate_verifier.py --check-compatible
+{"case": "default-mounts", "cause": "Error", "exception": "DownloadVerifierDirError", "harbor": "0.26.0", "message": "Failed to download verifier directory from environment", "reward_file": {"reward": 1}, "same_verifier_download_source_destination": true, "test_stdout": "", "tests_at_start": [], "verifier_input_directory": "environment"}
+{"case": "direct-mounts", "harbor": "0.26.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": [], "verifier_input_directory": "environment"}
+{"case": "missing-envdir", "cause": null, "exception": "NotADirectoryError", "harbor": "0.26.0", "message": "<task>/environment", "verifier_input_directory": "environment"}
+{"case": "nonempty-envdir", "harbor": "0.26.0", "result": {"reward": 1}, "reward_file": {"reward": 1}, "test_stdout": "", "tests_at_start": ["agent-input.txt"], "verifier_input_directory": "environment"}
+Failed compatibility cases: default-mounts, missing-envdir, nonempty-envdir
+exit=1

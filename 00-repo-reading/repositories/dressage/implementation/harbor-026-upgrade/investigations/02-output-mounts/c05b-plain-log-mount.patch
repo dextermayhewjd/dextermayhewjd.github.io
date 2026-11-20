@@ -1,0 +1,201 @@
+diff --git a/dressage/integrations/harbor/environment.py b/dressage/integrations/harbor/environment.py
+index 5ea1f8a..b1fa114 100644
+--- a/dressage/integrations/harbor/environment.py
++++ b/dressage/integrations/harbor/environment.py
+@@ -23,6 +23,7 @@ import uuid
+ from harbor.environments.base import BaseEnvironment, ExecResult
+ from harbor.environments.capabilities import EnvironmentCapabilities
+ from harbor.models.task.config import NetworkMode, NetworkPolicy, TaskOS
++from harbor.models.trial.paths import EnvironmentPaths
+ 
+ from dressage.integrations.harbor.config import (
+     BwrapEnvironmentConfig,
+@@ -403,8 +404,10 @@ class DressageEnvironment(BaseEnvironment):
+                 host_path.mkdir(parents=True, exist_ok=True)
+         for target in self._harbor_mounts:
+             _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
++        targets = self._mount_targets(writable_only=True)
++        self._initialize_plain_log_mount(targets)
+         # Prepare the sandbox-owned output paths while constructing its filesystem.
+-        for value in self._mount_targets(writable_only=True):
++        for value in targets:
+             target = _environment_path(value)
+             if not _is_within(target, _LOGS):
+                 raise ValueError("Dressage bwrap only accepts Harbor /logs mounts")
+@@ -419,6 +422,59 @@ class DressageEnvironment(BaseEnvironment):
+         relay_path.chmod(0o500)
+         self._started = True
+ 
++    def _initialize_plain_log_mount(self, targets: list[str]) -> None:
++        if self._harbor_mounts.keys() != {_LOGS}:
++            return
++        source, read_only = self._harbor_mounts[_LOGS]
++        if read_only:
++            return
++
++        # Under this single-bind condition /logs is the only explicit target.
++        # All remaining targets in Harbor's merged list are declared outputs.
++        outputs = [_environment_path(value) for value in targets if value != str(_LOGS)]
++        if not outputs or any(output.parent != _LOGS for output in outputs):
++            return
++        if not os.access(source, os.W_OK | os.X_OK):
++            return
++        fd = os.open(source, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW)
++        try:
++            # Only bootstrap fresh outputs. Creating a sibling of a populated tree
++            # could activate a dangling log link that copytree preserves as a link.
++            missing = []
++            for output in outputs:
++                try:
++                    child = os.open(
++                        output.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd
++                    )
++                except FileNotFoundError:
++                    missing.append(output)
++                    continue
++                except OSError:
++                    return  # Occupied or uninspectable output: keep the original layout.
++                try:
++                    with os.scandir(child) as entries:
++                        if next(entries, None) is not None:
++                            return
++                except OSError:
++                    return
++                finally:
++                    os.close(child)
++            artifacts = EnvironmentPaths.for_os(self.os).artifacts_dir
++            for output in missing:
++                try:
++                    os.mkdir(output.name, dir_fd=fd)
++                except FileExistsError:
++                    continue
++                except OSError:
++                    if output == artifacts:
++                        continue  # Publishing artifacts is optional.
++                    raise
++                if not os.access(output.name, os.R_OK | os.W_OK | os.X_OK, dir_fd=fd):
++                    os.rmdir(output.name, dir_fd=fd)
++                    raise PermissionError(f"cannot write and collect new Harbor output: {output}")
++        finally:
++            os.close(fd)
++
+     async def stop(self, delete: bool) -> None:
+         del delete
+         processes = tuple(self._processes)
+diff --git a/tests/integrations/harbor/test_environment.py b/tests/integrations/harbor/test_environment.py
+index 71eb48d..60dcfd5 100644
+--- a/tests/integrations/harbor/test_environment.py
++++ b/tests/integrations/harbor/test_environment.py
+@@ -332,7 +332,10 @@ echo '{"reward": 1}' > /logs/verifier/reward.json
+ 
+ @pytest.mark.usefixtures("bwrap_network_namespace")
+ @pytest.mark.asyncio
+-async def test_oracle_trial_delivers_logs_with_default_mounts(monkeypatch, tmp_path):
++@pytest.mark.parametrize("layout", [
++    "sandbox-owned", "empty-parent", "empty-verifier", "covered-child", "missing-input", "pending-link",
++])
++async def test_oracle_trial_delivers_logs(monkeypatch, tmp_path, layout):
+     _configure_bwrap(monkeypatch, tmp_path)
+     task = tmp_path / "task"
+     for name in ("environment", "solution", "tests"):
+@@ -341,8 +344,13 @@ async def test_oracle_trial_delivers_logs_with_default_mounts(monkeypatch, tmp_p
+     (task / "task.toml").write_text(
+         'schema_version = "1.3"\n[environment]\ngpus = 0\nnetwork_mode = "no-network"\n'
+     )
++    prepare_run = "" if layout == "pending-link" else "test -d /logs/agent/run || mkdir /logs/agent/run\n"
+     (task / "solution/solve.sh").write_text(
+-        "#!/bin/sh\nset -eu\ntest -d /logs/artifacts\necho 4 > /app/answer.txt\necho solved\n"
++        "#!/bin/sh\nset -eu\n"
++        f"{prepare_run}"
++        "printf 'fresh probe\\n' > /logs/agent/run/probe.log\n"
++        "if test -d /logs/artifacts; then printf 'published\\n' > /logs/artifacts/note.txt; fi\n"
++        "echo 4 > /app/answer.txt\necho solved\n"
+     )
+     (task / "tests/test.sh").write_text(
+         """#!/bin/sh
+@@ -351,12 +359,43 @@ test "$(cat /app/answer.txt)" = 4
+ echo '{"reward": 1}' > /logs/verifier/reward.json
+ """
+     )
++    mounts = []
++    logs = tmp_path / "host-logs"
++    if layout in ("empty-parent", "empty-verifier", "covered-child", "pending-link"):
++        logs.mkdir()
++        mounts.append({"type": "bind", "source": str(logs), "target": "/logs"})
++    if layout == "empty-verifier":
++        (logs / "verifier").mkdir()
++        (logs / "README").write_bytes(b"keep")
++    if layout == "pending-link":
++        (logs / "agent").mkdir()
++        (logs / "verifier").mkdir()
++        (logs / "agent/run").symlink_to("../artifacts")
++    if layout == "covered-child":
++        (logs / "agent").mkdir()
++        (logs / "verifier").mkdir()
++        (logs / "view").symlink_to("agent")
++        (logs / "second/level").mkdir(parents=True)
++        (logs / "second/level/view").symlink_to("../../agent")
++        # The last bind restores the original agent tree and covers the temporary child.
++        mounts.extend([
++            {"type": "bind", "source": str(tmp_path / "overlay"), "target": "/logs/view"},
++            {"type": "bind", "source": str(tmp_path / "child"), "target": "/logs/agent/run"},
++            {"type": "bind", "source": str(logs / "agent"), "target": "/logs/second/level/view"},
++        ])
++    if layout == "missing-input":
++        missing = tmp_path / "missing"
++        mounts.extend([
++            {"type": "bind", "source": str(missing), "target": "/logs/input", "read_only": True},
++            {"type": "bind", "source": str(missing / "new"), "target": "/logs/extra"},
++        ])
+     config = TrialConfig.model_validate(
+         {
+             "task": {"path": task},
+             "agent": {"name": "oracle"},
+             "environment": {
+-                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment"
++                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment",
++                "mounts": mounts,
+             },
+             "trial_name": "oracle-logs",
+             "trials_dir": tmp_path / "trials",
+@@ -365,9 +404,39 @@ echo '{"reward": 1}' > /logs/verifier/reward.json
+     trial = await Trial.create(config)
+     result = await trial.run()
+ 
+-    assert "solved" in (trial.paths.agent_dir / "oracle.txt").read_text().splitlines()
++    if layout == "missing-input":
++        assert result.exception_info is not None
++        assert result.exception_info.exception_type == "NotADirectoryError"
++        assert str(missing) in result.exception_info.exception_message
++        assert not missing.exists()
++        assert result.verifier_result is None
++        return
++    if layout == "pending-link":
++        # Creating artifacts here would make the write succeed through a link that
++        # Harbor preserves as a link when collecting the agent tree.
++        assert not (logs / "artifacts").exists()
++        assert (logs / "agent/run").is_symlink()
++        assert not (trial.paths.agent_dir / "run/probe.log").exists()
++        assert result.verifier_result is None
++        return
++
++    assert result.exception_info is None, result.exception_info
++    assert not (trial.paths.agent_dir / "run").is_symlink()
++    for name, expected in (("oracle.txt", b"solved\n"), ("run/probe.log", b"fresh probe\n")):
++        assert (trial.paths.agent_dir / name).read_bytes() == expected
++        if layout != "sandbox-owned":
++            assert (logs / "agent" / name).read_bytes() == expected
++    if layout != "covered-child":
++        artifact = trial.paths.host_artifact_path("main", "/logs/artifacts") / "note.txt"
++        assert artifact.read_bytes() == b"published\n"
++        if layout != "sandbox-owned":
++            assert (logs / "artifacts/note.txt").read_bytes() == artifact.read_bytes()
+     assert result.verifier_result is not None
+     assert result.verifier_result.rewards == {"reward": 1}
++    if layout != "sandbox-owned":
++        assert (logs / "verifier/reward.json").read_bytes() == trial.paths.reward_json_path.read_bytes()
++    if layout == "empty-verifier":
++        assert (logs / "README").read_bytes() == b"keep"
+ 
+ 
+ def test_harbor_preflight_signature():

@@ -1,0 +1,14 @@
+Harbor 0.18.0
+claude-code | MiniMax-M3 | Job.create succeeded | lock schema 2
+claude-code | Qwen/Qwen3.5-4B | Job.create succeeded | lock schema 2
+codex | openai/gpt-4o | Job.create succeeded | lock schema 2
+
+Harbor 0.25.0
+claude-code | MiniMax-M3 | Job.create succeeded | lock schema 3
+claude-code | Qwen/Qwen3.5-4B | Job.create succeeded | lock schema 3
+codex | openai/gpt-4o | Job.create succeeded | lock schema 3
+
+Harbor 0.26.0
+claude-code | MiniMax-M3 | Job.create succeeded | lock schema 3
+claude-code | Qwen/Qwen3.5-4B | Job.create succeeded | lock schema 3
+codex | openai/gpt-4o | Job.create succeeded | lock schema 3

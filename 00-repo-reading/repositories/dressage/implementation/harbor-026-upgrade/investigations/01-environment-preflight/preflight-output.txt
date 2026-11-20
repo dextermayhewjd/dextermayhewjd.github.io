@@ -1,0 +1,8 @@
+Harbor 0.18.0
+factory entered Dressage's bwrap checks
+
+Harbor 0.25.0
+factory entered Dressage's bwrap checks
+
+Harbor 0.26.0
+factory rejected the call: DressageEnvironment.preflight() got an unexpected keyword argument 'kwargs'

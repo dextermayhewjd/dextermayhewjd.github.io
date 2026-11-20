@@ -1,0 +1,10 @@
+checkpoint written by Harbor 0.18.0
+0.18.0 hashseed=1 save saved source=c4c80d05b802 registry=593ffd658d72 cursor=1 index=2
+0.18.0 hashseed=1 load restored source=c4c80d05b802 registry=593ffd658d72 cursor=1 index=2
+0.18.0 hashseed=2 load HarborDataSource checkpoint source_digest mismatch; source/config drift detected source=c2338fe32773 registry=593ffd658d72 cursor=0 index=0
+0.26.0 hashseed=1 load HarborDataSource checkpoint source_digest mismatch; source/config drift detected source=65fdd2486411 registry=03a7a0cf05c7 cursor=0 index=0
+
+checkpoint written by Harbor 0.26.0
+0.26.0 hashseed=1 save saved source=65fdd2486411 registry=03a7a0cf05c7 cursor=1 index=2
+0.26.0 hashseed=1 load restored source=65fdd2486411 registry=03a7a0cf05c7 cursor=1 index=2
+0.26.0 hashseed=2 load restored source=65fdd2486411 registry=03a7a0cf05c7 cursor=1 index=2

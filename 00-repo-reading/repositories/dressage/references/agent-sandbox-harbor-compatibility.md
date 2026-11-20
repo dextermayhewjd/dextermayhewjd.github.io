@@ -296,3 +296,37 @@ JobPlugin 在该发布版为 runtime_checkable Protocol，要求两个异步方�
 - Dressage 的 Harbor 集成采用自定义 Harbor 环境时应沿 native 路径保留 Job 环境配置；bwrap 模式会覆盖环境 import_path。Harbor 0.25 与 Dressage 原版本门禁的兼容性仍是独立实施检查，接口位置明确不等于已经可运行。
 
 当前只定位接缝与缺口，没有实现适配类、安装包、启动沙箱或进行集群验证。具体后端启动逻辑应在已找到或准备实现的适配类中阅读，不能把示例里引用的类当成已存在源码。
+
+<a id="api-integration-harbor-025-check"></a>
+
+## Step 018 · agent-api-integration 当前能否直接使用 Harbor 0.25.0
+
+2026-11-18 核对实际运行项目。agent-api-integration 的 Dressage 子模块固定在 `3820149e`。现有 `.venv-harbor` 中的 `compat.py`、`plugin.py`、`rollout.py` 与该子模块同名文件逐字节一致。
+
+- **安装条件**　Dressage 的 Harbor extra 固定 `harbor==0.18.0`。Step 018 阅读的 Agent Sandbox 适配器（PR #2125，`c00d77bd`）声明 `harbor>=0.25,<1`。这两套声明在同一 Python 环境中没有共同版本。[Dressage extra](/home/hongshi/projects/agent-api-integration/third_party/dressage/pyproject.toml:21) · [适配器依赖](https://github.com/kubernetes-sigs/agent-sandbox/blob/c00d77bd26269b3a4db54ad1305680867eb287d3/clients/integrations/harbor/pyproject.toml)
+- **运行检查**　用现有虚拟环境调用 `require_harbor_runtime()`，通过并返回 Harbor 0.18.0。向同一函数显式传入 `harbor_version="0.25.0"`，抛出 `HarborCompatibilityError`。这是版本判断的实际执行，尚未安装 0.25.0 做端到端验证。Dressage 在创建 Job 前检查版本；从 Harbor Job 直接进入插件时，读取 pending TrialConfigs 也会检查。[创建 Job](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/rollout.py:104) · [插件启动](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/plugin.py:271) · [版本及 pending 配置检查](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/compat.py:57)
+- **接入验证顺序**　针对现有项目，先在隔离环境里让 Harbor 0.25 创建单题 Job，验证 Dressage 插件能取得 pending TrialConfig 并注册 hooks，随后沿现有 Docker 路线检查事件与结果。再以同一任务替换成 Agent Sandbox 环境，对照 reward 和资源清理。独立 Harbor + Oracle 的沙箱冒烟可用于验证后端自身，不能替代 Dressage 插件验证。
+
+### 0.18 → 0.25 实测到哪一步
+
+2026-11-18 使用同一份 Dressage `3820149e` 对照两个版本。0.18 使用现有虚拟环境；0.25 从 Harbor 发布标签 `fdba28fc` 构建 wheel，在临时目录加载并复用现有 Python 依赖。原版本检查确实拒绝了 0.25。为观察后续行为，只在这次探测的 Python 进程中把期望版本设为 0.25.0。现有虚拟环境还缺少 0.25 声明的直接依赖 `semver`，正式安装需按新版依赖解析。
+
+| 用什么输入验证 | 两个版本实际观察到什么 |
+| --- | --- |
+| 项目的 Claude Code / MiniMax 单题 Job 配置，题目路径指向本地 Harbor 的 hello-world，输出指向临时目录 | `resolve_task_configs → Job.create → assign_trial_names` 成功。插件能修改待运行 Trial 的 Agent 配置，读回的 `ANTHROPIC_BASE_URL` 已设置。 |
+| 同一配置扩成 2 次尝试 × 2 道题 × 2 个 Agent 配置 | 两边均生成 8 个 Trial，顺序都是先按尝试、再按题目、最后按 Agent。Dressage 对任务和 Agent 对象身份的检查全部通过。 |
+| 在真实 Harbor Job 上执行 `DressageHarborPlugin.on_job_start` | 两种规模都成功注册 START、AGENT_START、AGENT_END、VERIFICATION_START、CANCEL、END 六个回调。使用 Dressage 测试中的内存 Gateway 代替监听器，验证停在注册，未执行 Trial。 |
+
+**同名接口还需要检查调用时机。** 0.18 取消 Trial 时先回收输出，再发 CANCEL；0.25 先发 CANCEL，再关闭 bridge、回收输出。Dressage 的 `_on_cancel` 标记取消并按状态暂停路由，`_on_end` 才提交尝试结果。因此下一个有效验证是在 Docker 上跑同一题的正常及中断路径，核对 Trial ID、bundle、reward 或取消状态、路由释放；随后再替换成 Agent Sandbox 后端。[Harbor 0.25 取消分支](/home/hongshi/projects/harbor/src/harbor/trial/trial.py:610) · [Dressage 取消与结束回调](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/plugin.py:731)
+
+### 两个发布标签的差异怎样影响 MiniMax 路线
+
+本地 `git diff --shortstat v0.18.0 v0.25.0` 统计到 1,364 个变化文件，包括文档、示例、测试和其他环境后端。[完整版本对比](https://github.com/harbor-framework/harbor/compare/v0.18.0...v0.25.0)
+
+- **Job 和插件。** 两个标签的 `models/job/plugin.py` 与 `models/job/result.py` 内容相同。0.25 把 Trial 计划的构造放进 `JobPlan`；上面的 8 个 Trial 实验验证了 Dressage 用来分组的排列和对象身份。[Harbor 的计划构造](/home/hongshi/projects/harbor/src/harbor/job_plan.py:140)
+- **Claude Code 到 Gateway。** Dressage 写入 Gateway 地址，并给 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN` 设置相同的 Trial 路由凭证。使用项目的模型名 `MiniMax-M3`、示例地址和假凭证执行 0.25 的 `resolve_model_connection_config`，输出保留了地址和 `ANTHROPIC_API_KEY`，将 `ANTHROPIC_AUTH_TOKEN` 置空。Dressage Gateway 支持 `x-api-key`；容器中的 Claude CLI 实际请求仍需验收。[Dressage 写入配置](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/plugin.py:1031) · [Harbor 解析配置](/home/hongshi/projects/harbor/src/harbor/agents/installed/claude_code.py:167)
+- **评测结果。** 0.25 增加 `TrialResult.reward_valid`，同时考虑 reward 和异常策略。Dressage 仍分别提取 `verifier_result.rewards` 与异常。正常题可直接对照分数；含异常且仍有 reward 的尝试需要核对最终采纳规则。[Harbor 的有效性判断](/home/hongshi/projects/harbor/src/harbor/models/trial/result.py:123) · [Dressage 提取结果](/home/hongshi/projects/agent-api-integration/third_party/dressage/dressage/integrations/harbor/artifacts.py:1056)
+
+### 0.26 合并前核对：Dressage 现有 Harbor 测试能证明什么
+
+独立 Dressage 基线的首次测试对照、失败复核及当时的迁移判断已归入升级目录。[第一轮 bwrap 测试](../implementation/harbor-026-upgrade/archive/decisions.md#fixture-check) · [后续三版复跑结果](../implementation/harbor-026-upgrade/investigations/00-version-target/pytest-replay.txt)

@@ -1,0 +1,953 @@
+diff --git a/dressage/integrations/harbor/environment.py b/dressage/integrations/harbor/environment.py
+index 5ea1f8a..8d69cb4 100644
+--- a/dressage/integrations/harbor/environment.py
++++ b/dressage/integrations/harbor/environment.py
+@@ -9,7 +9,9 @@ parent container network.
+ from __future__ import annotations
+ 
+ import asyncio
++import errno
+ import hashlib
++import json
+ import os
+ from pathlib import Path, PurePosixPath
+ import shutil
+@@ -23,6 +25,7 @@ import uuid
+ from harbor.environments.base import BaseEnvironment, ExecResult
+ from harbor.environments.capabilities import EnvironmentCapabilities
+ from harbor.models.task.config import NetworkMode, NetworkPolicy, TaskOS
++from harbor.models.trial.paths import EnvironmentPaths
+ 
+ from dressage.integrations.harbor.config import (
+     BwrapEnvironmentConfig,
+@@ -51,6 +54,7 @@ _STANDARD_ROOTFS_DIRS = (
+     PurePosixPath("/harbor/skills"),
+     PurePosixPath("/tmp"),
+     PurePosixPath("/run"),
++    _GATEWAY_SOCKET_DIR,
+     PurePosixPath("/proc"),
+     PurePosixPath("/dev"),
+     PurePosixPath("/root"),
+@@ -60,6 +64,149 @@ _SYSTEM_RUNTIME_ROOTS = tuple(
+     Path(path) for path in ("/usr", "/bin", "/sbin", "/lib", "/lib64", "/etc")
+ )
+ 
++# Run mkdir in the same mount layout the agent will use, before its relay exists.
++_PREPARE_MOUNTED_OUTPUTS = r"""
++import errno
++import json
++import os
++from pathlib import Path
++import stat
++import sys
++
++publish_dir = sys.argv[2]
++directory = os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW
++
++pending = json.loads(sys.argv[1])
++log_checks = json.loads(sys.argv[4])
++mountpoints = []
++if sys.argv[3] or log_checks:
++    # mountinfo field 5 is the kernel's mountpoint, including covered binds.
++    for line in Path("/proc/self/mountinfo").read_bytes().splitlines():
++        field = line.split(b" ", 5)[4]
++        for escaped, plain in ((br"\040", b" "), (br"\011", b"\t"), (br"\012", b"\n"), (br"\134", b"\\")):
++            field = field.replace(escaped, plain)
++        mountpoints.append(Path(os.fsdecode(field)))
++
++if sys.argv[3]:
++    gateway = Path(sys.argv[3])
++    runtime_parents = list(map(Path, sys.argv[5:]))
++    for point in mountpoints:
++        if point in runtime_parents:
++            runtime_parents.remove(point)
++            continue
++        if point == Path("/"):
++            continue
++        if point == gateway or gateway in point.parents or point in gateway.parents:
++            print(json.dumps(["gateway", str(point)]))
++            sys.exit(1)
++
++
++def verify_collection(fd, expected):
++    try:
++        matches = os.path.samestat(os.fstat(fd), expected.stat())
++    except FileNotFoundError:
++        matches = False
++    if not matches:
++        raise ValueError("output differs from collection path")
++
++
++def prepare(name, mount, collection):
++    path = Path(name)
++    if name == publish_dir:
++        # Harbor collects artifacts best-effort. Preserve any entry the user supplied.
++        try:
++            path.lstat()
++        except FileNotFoundError:
++            pass
++        except PermissionError:
++            return
++        else:
++            return
++    root = Path(mount).resolve(strict=True)
++    path.resolve().relative_to(root)
++    if collection is None:
++        raise ValueError(name)
++    expected = Path(collection)
++
++    # Walk back both views to the sandbox parent that actually exists.
++    missing = []
++    while True:
++        try:
++            if stat.S_ISDIR(path.stat().st_mode):
++                break
++        except FileNotFoundError:
++            pass
++        if os.path.lexists(path):
++            raise FileExistsError(errno.EEXIST, name)
++        if path.name != expected.name:
++            raise ValueError(name)
++        missing.append(path.name)
++        path, expected = path.parent, expected.parent
++
++    fd = os.open(root, directory)
++    try:
++        for part in path.resolve(strict=True).relative_to(root).parts:
++            child = os.open(part, directory, dir_fd=fd)
++            os.close(fd)
++            fd = child
++        for part in reversed(missing):
++            # Check the immediate parent through the unoverlaid collection view.
++            verify_collection(fd, expected)
++            try:
++                os.mkdir(part, dir_fd=fd)
++            except FileExistsError:
++                if name == publish_dir:
++                    return
++                # A concurrent writer may have supplied this required directory.
++            except OSError as error:
++                if name == publish_dir:
++                    return
++                raise
++            child = os.open(part, directory, dir_fd=fd)
++            os.close(fd)
++            fd = child
++            expected = expected / part
++        verify_collection(fd, expected)  # Includes outputs supplied by an earlier item.
++    finally:
++        os.close(fd)
++
++
++while pending:
++    retry = []
++    for item in pending:
++        try:
++            prepare(*item)
++        except ValueError:
++            print(json.dumps([None, item[0]]))
++            sys.exit(1)
++        except OSError as error:
++            retry.append(item)
++            if len(retry) == 1:
++                first_error = [error.errno, item[0]]
++    # A writable alias may have supplied a directory that failed earlier.
++    if len(retry) == len(pending):
++        print(json.dumps(first_error))
++        sys.exit(1)
++    pending = retry
++
++# Harbor downloads each log root as one directory from the host.
++for name, (collection, mounted) in log_checks.items():
++    if mounted and not os.access(name, os.W_OK | os.X_OK, effective_ids=True):
++        print(json.dumps([errno.EACCES, name]))
++        sys.exit(1)
++    root = Path(name).resolve(strict=True)
++    for point in mountpoints:
++        if root in point.parents:
++            entry = Path(collection) / point.relative_to(root)
++            try:
++                visible = entry.resolve() == entry and entry.samefile(point)
++            except (OSError, RuntimeError):
++                visible = False
++            if not visible:
++                print(json.dumps(["submount", str(point)]))
++                sys.exit(1)
++"""
++
+ _RELAY_SOURCE = r"""#!/usr/bin/env python3
+ import asyncio
+ import fcntl
+@@ -280,6 +427,14 @@ class DressageEnvironment(BaseEnvironment):
+         self._started = False
+         self._processes: set[asyncio.subprocess.Process] = set()
+         super().__init__(*args, **kwargs)
++        # Harbor merges user binds into _mounts. Only Trial outputs need recovery.
++        paths = EnvironmentPaths.for_os(self.os)
++        auto_mounts = kwargs.get("auto_mounts")
++        self._output_targets = (
++            (paths.agent_dir, paths.verifier_dir, paths.artifacts_dir)
++            if auto_mounts is None
++            else tuple(_environment_path(m["target"]) for m in auto_mounts)
++        )
+         self._harbor_mounts = self._build_harbor_mounts()
+         self._separate_verifier = _is_separate_verifier_session(
+             self.session_id, self._mounts
+@@ -395,24 +550,41 @@ class DressageEnvironment(BaseEnvironment):
+             self._runtime_mounts,
+             workdir=self.task_env_config.workdir or "/app",
+         )
+-        for host_path, read_only in self._harbor_mounts.values():
+-            if read_only:
+-                if not host_path.is_dir():
+-                    raise NotADirectoryError(host_path)
+-            else:
+-                host_path.mkdir(parents=True, exist_ok=True)
+-        for target in self._harbor_mounts:
++        # A writable bind can supply the source of a read-only alias.
++        for source, read_only in self._harbor_mounts.values():
++            if not read_only:
++                source.mkdir(parents=True, exist_ok=True)
++        for target, (source, read_only) in self._harbor_mounts.items():
++            if read_only and not source.is_dir():
++                raise NotADirectoryError(source)
+             _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
+-        # Prepare the sandbox-owned output paths while constructing its filesystem.
+-        for value in self._mount_targets(writable_only=True):
+-            target = _environment_path(value)
++        paths = EnvironmentPaths.for_os(self.os)
++        log_roots = {paths.agent_dir, paths.user_agent_dir, paths.verifier_dir}
++        writable = set(self._mount_targets(writable_only=True))
++        mounted_outputs = []
++        for target in self._output_targets:
+             if not _is_within(target, _LOGS):
+                 raise ValueError("Dressage bwrap only accepts Harbor /logs mounts")
+-            if not any(_is_within(target, mount) for mount in self._harbor_mounts):
+-                _rootfs_path(self._rootfs, target).mkdir(parents=True, exist_ok=True)
+-        _rootfs_path(self._rootfs, _GATEWAY_SOCKET_DIR).mkdir(
+-            parents=True, exist_ok=True
+-        )
++            if str(target) not in writable and target not in log_roots:
++                continue
++            mount = next(
++                (parent for parent in (target, *target.parents) if parent in self._harbor_mounts),
++                None,
++            )
++            if mount is not None:
++                mounted_outputs.append((target, mount))
++            else:
++                source = _rootfs_path(self._rootfs, target)
++                source.mkdir(parents=True, exist_ok=True)
++                if target in log_roots:
++                    if not os.access(source, os.W_OK | os.X_OK):
++                        raise PermissionError(str(target))
++                    # A bind outside the declared root can land inside it via a symlink.
++                    if self._harbor_mounts:
++                        mounted_outputs.append((target, None))
++        check_gateway = bool(self._harbor_mounts) and self.network_policy.network_mode == NetworkMode.ALLOWLIST
++        if mounted_outputs or check_gateway:
++            await self._prepare_mounted_outputs(mounted_outputs, log_roots, check_gateway)
+         _rootfs_path(self._rootfs, PurePosixPath("/run/dressage-relay.py")).touch()
+         relay_path = self._session_root / "relay.py"
+         relay_path.write_text(_RELAY_SOURCE, encoding="utf-8")
+@@ -496,6 +668,21 @@ class DressageEnvironment(BaseEnvironment):
+         )
+         process_env = _sandbox_process_env()
+         process_env.update(self._merge_env(env) or {})
++        result = await self._run_bwrap(command_line, process_env, timeout_sec)
++        callback = self._output_callback()
++        if callback is not None:
++            if result.stdout:
++                await callback(result.stdout, "stdout")
++            if result.stderr:
++                await callback(result.stderr, "stderr")
++        return result
++
++    async def _run_bwrap(
++        self,
++        command_line: list[str],
++        process_env: dict[str, str],
++        timeout_sec: int | None = None,
++    ) -> ExecResult:
+         process = await asyncio.create_subprocess_exec(
+             *command_line,
+             stdout=asyncio.subprocess.PIPE,
+@@ -505,33 +692,76 @@ class DressageEnvironment(BaseEnvironment):
+         )
+         self._processes.add(process)
+         try:
+-            try:
+-                stdout, stderr = await asyncio.wait_for(
+-                    process.communicate(), timeout=timeout_sec
+-                )
+-            except asyncio.TimeoutError:
+-                await _terminate_process(process)
+-                raise
+-            except asyncio.CancelledError:
+-                await _terminate_process(process)
+-                raise
++            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_sec)
++        except (asyncio.TimeoutError, asyncio.CancelledError):
++            await _terminate_process(process)
++            raise
+         finally:
+             self._processes.discard(process)
+ 
+-        stdout_text = stdout.decode("utf-8", errors="replace")
+-        stderr_text = stderr.decode("utf-8", errors="replace")
+-        callback = self._output_callback()
+-        if callback is not None:
+-            if stdout_text:
+-                await callback(stdout_text, "stdout")
+-            if stderr_text:
+-                await callback(stderr_text, "stderr")
+         return ExecResult(
+-            stdout=stdout_text,
+-            stderr=stderr_text,
++            stdout=stdout.decode("utf-8", errors="replace"),
++            stderr=stderr.decode("utf-8", errors="replace"),
+             return_code=int(process.returncode or 0),
+         )
+ 
++    async def _prepare_mounted_outputs(
++        self, outputs: list[tuple[PurePosixPath, PurePosixPath | None]],
++        log_roots: set[PurePosixPath], check_gateway: bool,
++    ) -> None:
++        args = self._bwrap_mount_args()
++        # The preparation process can compare with the same host source used by
++        # download_dir(), without the nested mounts that overlay the agent's view.
++        with tempfile.TemporaryDirectory(dir=self._rootfs, prefix=".dressage-outputs-") as directory:
++            scratch = PurePosixPath("/") / Path(directory).name
++            args.extend(["--tmpfs", str(scratch)])
++            collection_roots = {}
++            plans = []
++            log_checks = {}
++            publish_dir = EnvironmentPaths.for_os(self.os).artifacts_dir
++            for target, mount in outputs:
++                source = self._harbor_mounts[mount][0] if mount is not None else _rootfs_path(self._rootfs, target)
++                if source not in collection_roots:
++                    mirror = scratch / str(len(collection_roots))
++                    collection_roots[source] = mirror
++                    args.extend(["--ro-bind", str(source), str(mirror)])
++                try:
++                    if target == publish_dir:
++                        # Preserve an occupied optional leaf without resolving its target.
++                        relative = target.relative_to(mount or target)
++                    else:
++                        relative = self._host_path(str(target)).resolve().relative_to(source)
++                    collection = str(collection_roots[source] / relative)
++                except ValueError:
++                    collection = None
++                plans.append((str(target), str(mount or target), collection))
++                if target in log_roots:
++                    log_checks[str(target)] = (collection, mount is not None)
++            # Let bwrap create mountpoints first, then protect the root for the helper.
++            args.extend([
++                "--remount-ro", "/", "--chdir", "/", "--", self._python, "-ISB", "-c",
++                _PREPARE_MOUNTED_OUTPUTS, json.dumps(plans),
++                str(publish_dir), str(_GATEWAY_SOCKET_DIR) if check_gateway else "",
++                json.dumps(log_checks), *(str(p) for p in self._runtime_mounts if p in _GATEWAY_SOCKET_DIR.parents),
++            ])
++            result = await self._run_bwrap(args, _sandbox_process_env())
++        if result.return_code == 0:
++            return
++        if not result.stdout:
++            raise RuntimeError(
++                f"bwrap could not prepare Harbor output directories: {result.stderr.strip()}"
++            )
++        code, name = json.loads(result.stdout)
++        if code == "gateway":
++            raise ValueError(f"log mount {name} overlaps the reserved Gateway directory {_GATEWAY_SOCKET_DIR}")
++        if code == "submount":
++            raise ValueError(f"nested mount is missing from the collected log tree: {name}")
++        if code is None:
++            raise ValueError(f"output escapes its mount or differs from the collection path: {name}")
++        if code == errno.EROFS:
++            raise PermissionError(code, os.strerror(code), name)
++        raise OSError(code, os.strerror(code), name)
++
+     def _build_harbor_mounts(self) -> dict[PurePosixPath, tuple[Path, bool]]:
+         mounts: dict[PurePosixPath, tuple[Path, bool]] = {}
+         for mount in self._host_mounts:
+@@ -594,33 +824,23 @@ class DressageEnvironment(BaseEnvironment):
+             raise ValueError(f"environment path escapes rootfs: {environment_path}")
+         return candidate
+ 
+-    def _bwrap_command(self, command: str, *, cwd: str) -> list[str]:
++    def _bwrap_mount_args(self) -> list[str]:
+         args = _base_bwrap_args(self._bwrap)
+         if self.network_policy.network_mode != NetworkMode.PUBLIC:
+             args.append("--unshare-net")
+-        args.extend(
+-            [
+-                "--bind",
+-                str(self._rootfs),
+-                "/",
+-            ]
+-        )
++        args.extend(["--bind", str(self._rootfs), "/"])
+         _append_readonly_mounts(args, self._runtime_mounts)
+-        args.extend(
+-            [
+-                "--ro-bind",
+-                "/proc",
+-                "/proc",
+-                "--dev",
+-                "/dev",
+-            ]
+-        )
++        args.extend(["--ro-bind", "/proc", "/proc", "--dev", "/dev"])
+         for target, (source, read_only) in sorted(
+             self._harbor_mounts.items(), key=lambda item: len(item[0].parts)
+         ):
+             args.extend(
+                 ["--ro-bind" if read_only else "--bind", str(source), str(target)]
+             )
++        return args
++
++    def _bwrap_command(self, command: str, *, cwd: str) -> list[str]:
++        args = self._bwrap_mount_args()
+         args.extend(
+             [
+                 "--ro-bind",
+diff --git a/tests/integrations/harbor/test_environment.py b/tests/integrations/harbor/test_environment.py
+index 71eb48d..aab214e 100644
+--- a/tests/integrations/harbor/test_environment.py
++++ b/tests/integrations/harbor/test_environment.py
+@@ -1,11 +1,14 @@
+ from __future__ import annotations
+ 
++import errno
+ import inspect
+ import json
+ import os
++from pathlib import Path
+ import shutil
+ import subprocess
+ import sys
++from tempfile import TemporaryDirectory
+ from unittest.mock import AsyncMock, Mock
+ 
+ import pytest
+@@ -50,15 +53,16 @@ def _configure_bwrap(monkeypatch, tmp_path):
+     )
+ 
+ 
+-def _environment(monkeypatch, tmp_path, session_id, mode, *, workdir="/app"):
++def _environment(
++    monkeypatch, tmp_path, session_id, mode, *, workdir="/app", mounts=None, auto_mounts=None
++):
+     _configure_bwrap(monkeypatch, tmp_path)
+     verifier = "__verifier__" in session_id and not session_id.endswith("__env")
+     environment_dir = tmp_path / "task" / "environment"
+     environment_dir.mkdir(parents=True, exist_ok=True)
+     paths = TrialPaths(tmp_path / f"trial-{session_id}")
+     paths.mkdir()
+-    auto_mounts = None
+-    if verifier:
++    if verifier and auto_mounts is None:
+         auto_mounts = [
+             {"type": "bind", "source": str(paths.verifier_dir), "target": "/logs/verifier"}
+         ]
+@@ -78,6 +82,7 @@ def _environment(monkeypatch, tmp_path, session_id, mode, *, workdir="/app"):
+             workdir=workdir,
+         ),
+         network_policy=policy,
++        mounts=mounts,
+         auto_mounts=auto_mounts,
+     )
+ 
+@@ -332,7 +337,13 @@ echo '{"reward": 1}' > /logs/verifier/reward.json
+ 
+ @pytest.mark.usefixtures("bwrap_network_namespace")
+ @pytest.mark.asyncio
+-async def test_oracle_trial_delivers_logs_with_default_mounts(monkeypatch, tmp_path):
++@pytest.mark.parametrize("layout", [
++    "sandbox-owned", "mounted-parent", "read-only-parent", "restricted-parent",
++    "rootfs-mountpoint", "inaccessible-artifacts", "inaccessible-agent",
++    "artifact-file", "artifact-dangling-link",
++    "unused-user-agent", "unrelated-overlays", "indirect-agent-submount",
++])
++async def test_oracle_trial_delivers_logs(monkeypatch, tmp_path, layout):
+     _configure_bwrap(monkeypatch, tmp_path)
+     task = tmp_path / "task"
+     for name in ("environment", "solution", "tests"):
+@@ -342,7 +353,9 @@ async def test_oracle_trial_delivers_logs_with_default_mounts(monkeypatch, tmp_p
+         'schema_version = "1.3"\n[environment]\ngpus = 0\nnetwork_mode = "no-network"\n'
+     )
+     (task / "solution/solve.sh").write_text(
+-        "#!/bin/sh\nset -eu\ntest -d /logs/artifacts\necho 4 > /app/answer.txt\necho solved\n"
++        "#!/bin/sh\nset -eu\n"
++        "if test -d /logs/artifacts; then echo artifacts-ready; fi\n"
++        "echo 4 > /app/answer.txt\necho solved\n"
+     )
+     (task / "tests/test.sh").write_text(
+         """#!/bin/sh
+@@ -351,25 +364,462 @@ test "$(cat /app/answer.txt)" = 4
+ echo '{"reward": 1}' > /logs/verifier/reward.json
+ """
+     )
++    host_logs = tmp_path / "host-logs"
++    mounts = []
++    if layout not in ("sandbox-owned", "unused-user-agent", "indirect-agent-submount"):
++        host_logs.mkdir()
++        mounts.append({"type": "bind", "source": str(host_logs), "target": "/logs"})
++    if layout == "unused-user-agent":
++        unused = tmp_path / "unused"
++        unused.mkdir()
++        mounts.append({"type": "bind", "source": str(unused), "target": "/logs/user-agent", "read_only": True})
++    if layout == "unrelated-overlays":
++        for directory in ("agent", "verifier", "active"):
++            (host_logs / directory).mkdir()
++        (host_logs / "archived").symlink_to("active")
++        for target in ("archived", "active"):
++            mounts.append({"type": "bind", "source": str(tmp_path / target), "target": f"/logs/{target}"})
++    if layout == "indirect-agent-submount":
++        view = tmp_path / "view"
++        view.mkdir()
++        (view / "out").symlink_to("../agent")
++        mounts.extend([
++            {"type": "bind", "source": str(view), "target": "/logs/view"},
++            {"type": "bind", "source": str(tmp_path / "separate"), "target": "/logs/view/out/run"},
++        ])
++        with (task / "solution/solve.sh").open("a") as script:
++            script.write("printf fresh > /logs/agent/run/probe.log\n")
++    if layout == "read-only-parent":
++        mounts[0]["read_only"] = True
++        for role in ("agent", "verifier"):
++            (host_logs / role).mkdir()
++            mounts.append({"type": "bind", "source": str(tmp_path / role), "target": f"/logs/{role}"})
++    if layout == "restricted-parent":
++        for role in ("agent", "verifier"):
++            (host_logs / role).mkdir()
++        host_logs.chmod(0o555)
++        if os.access(host_logs, os.W_OK):
++            host_logs.chmod(0o755)
++            pytest.skip("requires a user subject to directory write permissions")
++    if layout == "rootfs-mountpoint":
++        (host_logs / "link").symlink_to("../app")
++        mounts.append({"type": "bind", "source": str(tmp_path / "data"), "target": "/logs/link/data"})
++    if layout == "artifact-file":
++        (host_logs / "artifacts").write_bytes(b"user data")
++    if layout == "artifact-dangling-link":
++        (host_logs / "artifacts").symlink_to("missing")
++    if layout.startswith("inaccessible-"):
++        role = layout.removeprefix("inaccessible-")
++        blocked = host_logs / "private"
++        (blocked / role).mkdir(parents=True)
++        (host_logs / role).symlink_to(f"private/{role}")
++        for other in {"agent", "verifier"} - {role}:
++            (host_logs / other).mkdir()
++        blocked.chmod(0)
++        if os.access(blocked, os.X_OK):
++            blocked.chmod(0o700)
++            pytest.skip("requires a user subject to directory search permissions")
+     config = TrialConfig.model_validate(
+         {
+             "task": {"path": task},
+             "agent": {"name": "oracle"},
+             "environment": {
+-                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment"
++                "import_path": "dressage.integrations.harbor.environment:DressageEnvironment",
++                "mounts": mounts,
+             },
+             "trial_name": "oracle-logs",
+             "trials_dir": tmp_path / "trials",
+         }
+     )
+-    trial = await Trial.create(config)
+-    result = await trial.run()
+-
+-    assert "solved" in (trial.paths.agent_dir / "oracle.txt").read_text().splitlines()
++    try:
++        trial = await Trial.create(config)
++        result = await trial.run()
++    finally:
++        if layout.startswith("inaccessible-"):
++            blocked.chmod(0o700)
++        if layout == "restricted-parent":
++            host_logs.chmod(0o755)
++    if layout == "inaccessible-agent":
++        assert result.exception_info is not None
++        assert result.exception_info.exception_type == "PermissionError"
++        assert "/logs/agent" in result.exception_info.exception_message
++        assert result.verifier_result is None
++        return
++    if layout == "indirect-agent-submount":
++        assert result.exception_info is not None
++        assert result.exception_info.exception_type == "ValueError"
++        assert "/logs/agent/run" in result.exception_info.exception_message
++        assert result.verifier_result is None
++        return
++    collected = trial.paths.agent_dir / "oracle.txt"
++    assert result.exception_info is None, result.exception_info
++    lines = collected.read_text().splitlines()
++    assert "solved" in lines
++    assert ("artifacts-ready" in lines) == (layout in (
++        "sandbox-owned", "mounted-parent", "rootfs-mountpoint", "unused-user-agent", "unrelated-overlays"
++    ))
++    if layout not in ("sandbox-owned", "read-only-parent", "unused-user-agent", "indirect-agent-submount"):
++        assert (host_logs / "agent/oracle.txt").read_bytes() == collected.read_bytes()
++    if layout == "read-only-parent":
++        assert (tmp_path / "agent/oracle.txt").read_bytes() == collected.read_bytes()
++        assert not (host_logs / "artifacts").exists()
++    if layout == "artifact-file":
++        assert (host_logs / "artifacts").read_bytes() == b"user data"
++    if layout == "artifact-dangling-link":
++        assert (host_logs / "artifacts").readlink() == Path("missing")
++        assert not (host_logs / "missing").exists()
+     assert result.verifier_result is not None
+     assert result.verifier_result.rewards == {"reward": 1}
+ 
+ 
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_declared_user_agent_logs_must_be_writable(monkeypatch, tmp_path):
++    logs = tmp_path / "user-logs"
++    logs.mkdir()
++    output = {"type": "bind", "source": str(logs), "target": "/logs/user-agent"}
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        auto_mounts=[output], mounts=[{**output, "read_only": True}],
++    )
++    try:
++        with pytest.raises(PermissionError, match="/logs/user-agent"):
++            await env.start(False)
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("provider", ["missing", "existing", "shared-writer", "mode-0555"])
++async def test_agent_log_directory_must_be_writable(monkeypatch, tmp_path, provider):
++    logs = tmp_path / "logs"
++    (logs / "writer").mkdir(parents=True)
++    mounts = [{"type": "bind", "target": "/logs", "source": str(logs), "read_only": True}]
++    outputs = [{"type": "bind", "target": "/logs/agent", "source": str(tmp_path / "unused")}]
++    if provider == "mode-0555":
++        mounts[0]["read_only"] = False
++        (logs / "agent").mkdir(mode=0o555)
++        if os.access(logs / "agent", os.W_OK):
++            pytest.skip("requires a user subject to directory permissions")
++    if provider == "existing":
++        (logs / "agent").mkdir()
++    if provider == "shared-writer":
++        mounts.append({"type": "bind", "target": "/logs/writer", "source": str(logs)})
++        outputs.append({**outputs[0], "target": "/logs/writer/agent"})
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        mounts=mounts, auto_mounts=outputs,
++    )
++    try:
++        for _ in range(2):
++            with pytest.raises(PermissionError, match="/logs/agent"):
++                await env.start(False)
++        assert (logs / "agent").exists() == (provider != "missing")
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_creates_source_shared_with_read_only_alias(monkeypatch, tmp_path):
++    source = tmp_path / "new-source"
++    mounts = [
++        {"type": "bind", "source": str(source), "target": "/logs/view", "read_only": True},
++        {"type": "bind", "source": str(source), "target": "/logs/agent"},
++    ]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        await env.start(False)
++        assert source.is_dir()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("layout", ["same-directory", "different-empty", "different-stale"])
++async def test_new_output_alias_matches_log_collection(monkeypatch, tmp_path, layout):
++    logs = tmp_path / "logs"
++    host_view = logs / "view"
++    host_view.mkdir(parents=True)
++    (logs / "alias").symlink_to("view")
++    visible = host_view if layout == "same-directory" else tmp_path / "other-view"
++    visible.mkdir(exist_ok=True)
++    if layout == "different-stale":
++        (host_view / "run").mkdir()
++        (host_view / "run/probe.log").write_bytes(b"stale")
++    mounts = [
++        {"type": "bind", "target": "/logs", "source": str(logs)},
++        {"type": "bind", "target": "/logs/view", "source": str(visible)},
++    ]
++    output = "/logs/alias/run"
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts,
++        auto_mounts=[{"type": "bind", "target": output, "source": str(tmp_path / "unused")}],
++    )
++    try:
++        if layout == "same-directory":
++            await env.start(False)
++            result = await env.exec("printf fresh > /logs/alias/run/probe.log")
++            assert result.return_code == 0, result.stderr
++            await env.download_dir(output, tmp_path / "collected")
++            assert (tmp_path / "collected/probe.log").read_bytes() == b"fresh"
++        else:
++            with pytest.raises(ValueError, match=output):
++                await env.start(False)
++            assert not (visible / "run").exists()
++            if layout == "different-stale":
++                assert (host_view / "run/probe.log").read_bytes() == b"stale"
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("layout", ["nested-parent", "earlier-output", "bound-alias-ready", "bound-alias-new"])
++async def test_start_checks_the_final_output_location(monkeypatch, tmp_path, layout):
++    logs, nested = tmp_path / "logs", tmp_path / "nested"
++    (logs / "view").mkdir(parents=True)
++    (logs / "alias").symlink_to("view")
++    nested.mkdir()
++    bind, output = "/logs/view", "/logs/alias/run"
++    targets = []
++    if layout == "nested-parent":
++        bind, output = "/logs/view/sub", "/logs/alias/sub/run"
++    elif layout == "earlier-output":
++        targets.append("/logs/view/run")
++    else:
++        bind = "/logs/alias"
++        if layout == "bound-alias-ready":
++            (nested / "run").mkdir()
++    targets.append(output)
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        mounts=[
++            {"type": "bind", "target": "/logs", "source": str(logs)},
++            {"type": "bind", "target": bind, "source": str(nested)},
++        ],
++        auto_mounts=[{"type": "bind", "target": path, "source": str(tmp_path / "unused")}
++                     for path in targets],
++    )
++    try:
++        if layout in ("nested-parent", "earlier-output"):
++            with pytest.raises(ValueError, match=output):
++                await env.start(False)
++            if layout == "nested-parent":
++                assert not (nested / "run").exists()
++            else:
++                assert (nested / "run").is_dir()
++                with pytest.raises(ValueError, match=output):
++                    await env.start(False)
++        else:
++            await env.start(False)
++            result = await env.exec("printf fresh > /logs/alias/run/probe.log")
++            assert result.return_code == 0, result.stderr
++            await env.download_dir(output, tmp_path / "collected")
++            assert (tmp_path / "collected/probe.log").read_bytes() == b"fresh"
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("output", ["/logs/service/dressage-harbor", "/logs/service/dressage-harbor/run"])
++async def test_allowlist_rejects_log_mount_at_gateway(monkeypatch, tmp_path, output):
++    logs, service = tmp_path / "logs", tmp_path / "service"
++    logs.mkdir()
++    (logs / "service").symlink_to("../run")
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.ALLOWLIST,
++        mounts=[
++            {"type": "bind", "target": "/logs", "source": str(logs)},
++            {"type": "bind", "target": "/logs/service/dressage-harbor", "source": str(service)},
++        ],
++        auto_mounts=[{"type": "bind", "target": output, "source": str(tmp_path / "unused")}],
++    )
++    try:
++        with pytest.raises(ValueError, match="Gateway"):
++            await env.start(False)
++        assert not (service / "run").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_rejects_output_hidden_by_a_nested_bind(monkeypatch, tmp_path):
++    logs, view = tmp_path / "logs", tmp_path / "view"
++    (logs / "view/agent").mkdir(parents=True)
++    (logs / "agent").symlink_to("view/agent")
++    view.mkdir()
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs"},
++        {"type": "bind", "source": str(view), "target": "/logs/view"},
++    ]
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        with pytest.raises(FileExistsError, match="/logs/agent"):
++            await env.start(False)
++        assert not (view / "agent").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_keeps_output_within_its_declared_mount(monkeypatch, tmp_path):
++    logs, writer = tmp_path / "logs", tmp_path / "writer"
++    (logs / "writer").mkdir(parents=True)
++    writer.mkdir()
++    (writer / "alias").symlink_to("/logs")
++    mounts = [
++        {"type": "bind", "source": str(logs), "target": "/logs"},
++        {"type": "bind", "source": str(writer), "target": "/logs/writer"},
++    ]
++    outputs = [
++        {"type": "bind", "source": str(tmp_path / "unused"), "target": "/logs/writer/alias/new"}
++    ]
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        mounts=mounts, auto_mounts=outputs,
++    )
++    try:
++        with pytest.raises(ValueError, match="/logs/writer/alias/new"):
++            await env.start(False)
++        assert not (logs / "new").exists()
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_dev_shm_log_bind_delivers_agent_output(monkeypatch, tmp_path):
++    logs, shared = tmp_path / "logs", tmp_path / "shared"
++    logs.mkdir()
++    (logs / "shared").symlink_to("../dev/shm")
++    output = "/logs/shared/run"
++    env = _environment(
++        monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++        mounts=[
++            {"type": "bind", "target": "/logs", "source": str(logs)},
++            {"type": "bind", "target": "/logs/shared", "source": str(shared)},
++        ],
++        auto_mounts=[{"type": "bind", "target": output, "source": str(tmp_path / "unused")}],
++    )
++    try:
++        await env.start(False)
++        result = await env.exec("printf fresh > /logs/shared/run/probe.log")
++        assert result.return_code == 0, result.stderr
++        await env.download_dir(output, tmp_path / "collected")
++        assert (tmp_path / "collected/probe.log").read_bytes() == b"fresh"
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_output_preparation_preserves_python_under_run(monkeypatch, tmp_path):
++    runtime = Path("/run/user") / str(os.getuid())
++    if not os.access(runtime, os.W_OK | os.X_OK):
++        pytest.skip("requires a writable user runtime directory under /run")
++    with TemporaryDirectory(dir=runtime) as venv:
++        scripts = Path(venv) / "bin"
++        scripts.mkdir()
++        (scripts / "python3").symlink_to(shutil.which("python3"))
++        monkeypatch.setenv("PATH", f"{scripts}:{os.environ['PATH']}")
++        logs = tmp_path / "logs"
++        env = _environment(
++            monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++            mounts=[{"type": "bind", "target": "/logs", "source": str(logs)}],
++        )
++        try:
++            await env.start(False)
++            assert (logs / "agent").is_dir()
++        finally:
++            await env.stop(True)
++
++
++@pytest.mark.parametrize("role", ["artifacts", "agent"])
++@pytest.mark.parametrize("code", [errno.EPERM, errno.ENOSPC, errno.EDQUOT])
++def test_optional_mkdir_failure_preserves_required_errors(monkeypatch, tmp_path, capsys, role, code):
++    target = str(tmp_path / role)
++    plans = [[target, str(tmp_path), target]]
++    monkeypatch.setattr(sys, "argv", ["prepare", json.dumps(plans), str(tmp_path / "artifacts"), "", "{}"])
++    mkdir = os.mkdir
++
++    def deny_creation(path, *args, **kwargs):
++        if path == role and kwargs.get("dir_fd") is not None:
++            raise OSError(code, os.strerror(code), path)
++        return mkdir(path, *args, **kwargs)
++
++    monkeypatch.setattr(os, "mkdir", deny_creation)
++    if role == "artifacts":
++        exec(environment_module._PREPARE_MOUNTED_OUTPUTS, {})
++    else:
++        with pytest.raises(SystemExit) as error:
++            exec(environment_module._PREPARE_MOUNTED_OUTPUTS, {})
++        assert error.value.code == 1
++        assert json.loads(capsys.readouterr().out) == [code, target]
++    assert not os.path.lexists(target)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++@pytest.mark.parametrize("same_source", [False, True])
++@pytest.mark.parametrize("parent_bind", [False, True])
++async def test_nested_mount_matches_collected_agent_tree(monkeypatch, tmp_path, same_source, parent_bind):
++    logs = tmp_path / "logs"
++    visible = logs / "agent/run data"
++    visible.mkdir(parents=True)
++    source = visible if same_source else tmp_path / "separate"
++    mounts = [{"type": "bind", "target": "/logs/agent/run data", "source": str(source)}]
++    if parent_bind:
++        mounts.insert(0, {"type": "bind", "target": "/logs", "source": str(logs)})
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK, mounts=mounts)
++    try:
++        if parent_bind and same_source:
++            await env.start(False)
++            result = await env.exec("printf fresh > '/logs/agent/run data/probe.log'")
++            assert result.return_code == 0, result.stderr
++            await env.download_dir("/logs/agent", tmp_path / "collected")
++            assert (tmp_path / "collected/run data/probe.log").read_bytes() == b"fresh"
++        else:
++            with pytest.raises(ValueError, match="/logs/agent"):
++                await env.start(False)
++    finally:
++        await env.stop(True)
++
++
++@pytest.mark.usefixtures("bwrap_network_namespace")
++@pytest.mark.asyncio
++async def test_start_preserves_self_referential_artifacts(monkeypatch, tmp_path):
++    logs = tmp_path / "logs"
++    logs.mkdir()
++    link = logs / "artifacts"
++    link.symlink_to("artifacts")
++    env = _environment(monkeypatch, tmp_path, "trial__env", NetworkMode.NO_NETWORK,
++                       mounts=[{"type": "bind", "target": "/logs", "source": str(logs)}])
++    try:
++        await env.start(False)
++        assert link.readlink() == Path("artifacts")
++        assert (logs / "agent").is_dir()
++    finally:
++        await env.stop(True)
++
++
++def test_gateway_check_uses_recorded_mountpoint(monkeypatch, tmp_path, capsys):
++    # The configured path no longer points at the mount recorded by the kernel.
++    gateway = "/run/dressage-harbor"
++    record = f"34 21 0:8 / {gateway} ro - tmpfs tmpfs ro\n"
++    monkeypatch.setattr(Path, "read_bytes", lambda self: record.encode())
++    monkeypatch.setattr(sys, "argv", ["prepare", "[]", "/logs/artifacts", gateway, "{}"])
++    with pytest.raises(SystemExit) as error:
++        exec(environment_module._PREPARE_MOUNTED_OUTPUTS, {})
++    assert error.value.code == 1
++    assert json.loads(capsys.readouterr().out) == ["gateway", gateway]
++
++
+ def test_harbor_preflight_signature():
+     # Flag changes to the Harbor hook separately from the factory behavior tests.
+     parameters = inspect.signature(BaseEnvironment.preflight).parameters.values()

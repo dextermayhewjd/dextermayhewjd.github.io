@@ -1,0 +1,11 @@
+Harbor 0.18.0
+Dressage wheel Harbor extra: harbor ==0.18.0 ; extra == 'harbor'
+Harbor plugin registry resolved wheel entry point: dressage.integrations.harbor.plugin:DressageHarborPlugin
+Harbor base requirements missing or out of range: []
+Harbor CLI finalizer returned; observed warning: Job plugin DressageHarborPlugin failed during on_job_end
+
+Harbor 0.26.0
+Dressage wheel Harbor extra: harbor ==0.18.0 ; extra == 'harbor'
+Harbor plugin registry resolved wheel entry point: dressage.integrations.harbor.plugin:DressageHarborPlugin
+Harbor base requirements missing or out of range: ['fastmcp<5,>=4.1.6 (installed: None)', 'semver>=3.0.4 (installed: None)']
+Harbor CLI finalizer returned; observed warning: Job plugin DressageHarborPlugin failed during on_job_end

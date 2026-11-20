@@ -1,0 +1,11 @@
+Harbor 0.25.0 | logs
+actual directory equals Trial directory: True
+Harbor reports the directory mounted: False
+Trial branch: download_dir
+nonempty directory copy raised shutil.Error
+
+Harbor 0.26.0 | logs
+actual directory equals Trial directory: True
+Harbor reports the directory mounted: False
+Trial branch: download_dir
+nonempty directory copy raised shutil.Error

@@ -1,0 +1,20 @@
+Harbor 0.18.0 | harbor run --help | selected options
+ --plugin                   <list[str]>  Import path for a job plugin class
+                                         (module:ClassName). Repeatable.
+ --pk,--plugin-kwarg        <list[str]>  Additional plugin kwarg in the
+                                         format 'key=value'. Can be set
+                                         multiple times. Requires exactly one
+                                         --plugin.
+
+Harbor 0.25.0 | harbor run --help | selected options
+ --plugin                   <list[str]>  Import path for a job plugin class
+                                         (module:ClassName). Repeatable.
+ --pk,--plugin-kwarg        <list[str]>  key=value for one plugin, or
+                                         PLUGIN.key=value to target a
+                                         --plugin import path. Repeatable.
+ --credential-mode                 <gateway|direct>  Model credentials via
+                                                     Hub proxy (gateway) or
+                                                     native provider endpoint
+                                                     (direct). Default:
+                                                     gateway. Requires
+                                                     --launch.

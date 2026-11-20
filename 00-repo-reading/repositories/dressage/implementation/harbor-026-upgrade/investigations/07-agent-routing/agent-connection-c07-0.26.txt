@@ -1,0 +1,9 @@
+Harbor 0.26.0
+shipped-agent Job.create ok endpoint=gateway api_key=trial auth_token=empty
+shipped-endpoint-field Dressage rejected: Agent base_url conflicts with Dressage routing; configure gateway.advertise_url
+shipped-key-selector Dressage rejected: Agent model_api_key_name conflicts with the Dressage trial credential
+endpoint-field Dressage rejected: Agent base_url conflicts with Dressage routing; configure gateway.advertise_url
+key-selector Dressage rejected: Agent model_api_key_name conflicts with the Dressage trial credential
+missing-key-selector Job.create rejected: MissingModelCredentialError Environment variable 'PROBE_MISSING_KEY' selected by --api-key-name is not set
+explicit-provider-env Job.create ok endpoint=gateway api_key=empty auth_token=trial
+provider-no-credential Job.create rejected: MissingModelCredentialError claude-code: no model API key selected. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN, or use --api-key-name to select a credential. Use --skip-credential-checks to defer this check to runtime.

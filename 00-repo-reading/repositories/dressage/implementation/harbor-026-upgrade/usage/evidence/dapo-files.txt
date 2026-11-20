@@ -1,0 +1,11 @@
+Harbor 0.18.0 | Task.name=dressage/dapo_math_00000 | instruction=What is 2 + 2?
+correct | reward.json={"reward": 1} | VerifierResult.rewards={'reward': 1}
+incorrect | reward.json={"reward": 0} | VerifierResult.rewards={'reward': 0}
+
+Harbor 0.25.0 | Task.name=dressage/dapo_math_00000 | instruction=What is 2 + 2?
+correct | reward.json={"reward": 1} | VerifierResult.rewards={'reward': 1}
+incorrect | reward.json={"reward": 0} | VerifierResult.rewards={'reward': 0}
+
+Harbor 0.26.0 | Task.name=dressage/dapo_math_00000 | instruction=What is 2 + 2?
+correct | reward.json={"reward": 1} | VerifierResult.rewards={'reward': 1}
+incorrect | reward.json={"reward": 0} | VerifierResult.rewards={'reward': 0}

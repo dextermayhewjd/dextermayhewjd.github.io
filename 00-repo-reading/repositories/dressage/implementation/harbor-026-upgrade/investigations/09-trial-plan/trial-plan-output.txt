@@ -1,0 +1,26 @@
+Harbor 0.18.0
+original version check: accepted
+plan (attempt, task, agent): [(0, 0, 0)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 1
+plan (attempt, task, agent): [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 8
+
+Harbor 0.25.0
+original version check: unsupported Harbor version '0.25.0'; expected exactly '0.18.0'
+plan (attempt, task, agent): [(0, 0, 0)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 1
+plan (attempt, task, agent): [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 8
+
+Harbor 0.26.0
+original version check: unsupported Harbor version '0.26.0'; expected exactly '0.18.0'
+plan (attempt, task, agent): [(0, 0, 0)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 1
+plan (attempt, task, agent): [(0, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 1), (1, 0, 0), (1, 0, 1), (1, 1, 0), (1, 1, 1)]
+registered: AGENT_END, AGENT_START, CANCEL, END, START, VERIFICATION_START
+Trial configs with a Gateway URL: 8

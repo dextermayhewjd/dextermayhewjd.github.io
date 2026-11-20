@@ -1,0 +1,14 @@
+Harbor 0.18.0
+66 passed, 8 deselected in 4.06s
+
+Harbor 0.25.0
+FAILED tests/integrations/harbor/test_contracts.py::test_official_jobs_validate_with_harbor_018
+FAILED tests/integrations/harbor/test_environment.py::test_agent_and_verifier_are_network_and_filesystem_isolated
+FAILED tests/integrations/harbor/test_environment.py::test_real_bwrap_persists_workspace
+3 failed, 63 passed, 8 deselected in 4.04s
+
+Harbor 0.26.0
+FAILED tests/integrations/harbor/test_contracts.py::test_official_jobs_validate_with_harbor_018
+FAILED tests/integrations/harbor/test_environment.py::test_agent_and_verifier_are_network_and_filesystem_isolated
+FAILED tests/integrations/harbor/test_environment.py::test_real_bwrap_persists_workspace
+3 failed, 63 passed, 8 deselected in 4.04s

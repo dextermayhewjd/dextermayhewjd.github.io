@@ -1,0 +1,16 @@
+<site-packages>/pytest_asyncio/plugin.py:306: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session". Set it to "fixture-scope" to keep the current behavior.
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+.............F........................F..F........................       [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert '0.26.0' == '0.18.0'
+
+      - 0.18.0
+      + 0.26.0
+tests/integrations/harbor/test_contracts.py:169: AssertionError: assert '0.26.0' == '0.18.0'
+E   ValueError: separate verifier does not have Harbor's verifier mount shape
+dressage/integrations/harbor/environment.py:253: ValueError: separate verifier does not have Harbor's verifier mount shape
+E   ValueError: separate verifier does not have Harbor's verifier mount shape
+dressage/integrations/harbor/environment.py:253: ValueError: separate verifier does not have Harbor's verifier mount shape
+3 failed, 63 passed, 8 deselected in 4.09s

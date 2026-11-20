@@ -1,0 +1,7 @@
+--- a/tests/integrations/harbor/test_environment.py
++++ b/tests/integrations/harbor/test_environment.py
+@@ -71,3 +71,3 @@
+         network_policy=policy,
+-        mounts=mounts,
++        auto_mounts=mounts,
+     )

@@ -1,0 +1,6 @@
+Harbor 0.18.0 | exit=0
+
+Harbor 0.25.0 | exit=2
+error: Harbor 0.18.0 is required; got 0.25.0
+Harbor 0.26.0 | exit=2
+error: Harbor 0.18.0 is required; got 0.26.0
